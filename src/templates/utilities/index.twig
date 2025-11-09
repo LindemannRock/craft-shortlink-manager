@@ -1,0 +1,324 @@
+{% import "_includes/forms" as forms %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set pluginName = plugin.settings.pluginName %}
+
+<div style="margin-bottom: 32px;">
+    <h2>{{ pluginName }} {{ "Overview"|t('shortlink-manager') }}</h2>
+    <p class="light">{{ "Monitor shortlink performance, track analytics, and manage cache for your QR codes and redirects."|t('shortlink-manager') }}</p>
+</div>
+
+<div style="margin-bottom: 40px;">
+    <h2>{{ "System Overview"|t('shortlink-manager') }}</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: stretch;">
+        <!-- Links Status Card -->
+        {% set coverage = totalLinks > 0 ? ((activeLinks / totalLinks) * 100)|round : 100 %}
+        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};"></div>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Links Status"|t('shortlink-manager') }}</h4>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 28px; font-weight: 700; color: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %}; line-height: 1;">
+                        {{ coverage }}%
+                    </div>
+                    <div style="padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: white; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};">
+                        {% if coverage == 100 %}{{ 'All Active'|t('shortlink-manager') }}{% elseif coverage >= 90 %}{{ 'Good'|t('shortlink-manager') }}{% else %}{{ 'Check Links'|t('shortlink-manager') }}{% endif %}
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                    {{ "Active shortlinks"|t('shortlink-manager') }}
+                </div>
+
+                <!-- Bottom Boxes -->
+                <div style="margin-top: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ totalLinks|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Total'|t('shortlink-manager') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ activeLinks|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Active'|t('shortlink-manager') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if settings.enableAnalytics %}
+        <!-- Performance Card -->
+        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #0ea5e9;"></div>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Performance"|t('shortlink-manager') }}</h4>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
+                        {{ totalClicks|number_format }}
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                    {{ "Total interactions tracked"|t('shortlink-manager') }}
+                </div>
+
+                <!-- Bottom Boxes -->
+                <div style="margin-top: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrScans|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Scans'|t('shortlink-manager') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ directClicks|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Clicks'|t('shortlink-manager') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Cache Status Card -->
+        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Cache Status"|t('shortlink-manager') }}</h4>
+            </div>
+
+            <!-- Main Content -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
+                        {{ (qrCacheFiles + deviceCacheFiles)|number_format }}
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                    {{ "Total cached entries"|t('shortlink-manager') }}
+                </div>
+
+                <!-- Bottom Boxes -->
+                <div style="margin-top: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrCacheFiles|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('shortlink-manager') }}</div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ deviceCacheFiles|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('shortlink-manager') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="margin-bottom: 40px;">
+    <h2>{{ 'Quick Actions'|t('shortlink-manager') }}</h2>
+
+    <div class="pane">
+        <div style="margin-bottom: 24px;">
+            <h3 style="margin-bottom: 8px;">{{ "Navigation"|t('shortlink-manager') }}</h3>
+            <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('shortlink-manager') }}</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ url('shortlink-manager/links') }}" class="btn">
+                    {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: pluginName|replace({' Manager': '', ' manager': ''})}) }}
+                </a>
+                {% if settings.enableAnalytics %}
+                    <a href="{{ url('shortlink-manager/analytics') }}" class="btn">
+                        {{ "View Detailed Analytics"|t('shortlink-manager') }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+        <div>
+            <h3 style="margin-bottom: 8px;">{{ "Cache Management"|t('shortlink-manager') }}</h3>
+            <p class="light" style="margin-bottom: 16px;">{{ "Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting."|t('shortlink-manager') }}</p>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                {% if settings.enableQrCodeCache %}
+                    <button type="button" class="btn" id="clear-qr-cache">
+                        {{ "Clear QR Cache"|t('shortlink-manager') }} ({{ qrCacheFiles }})
+                    </button>
+                {% endif %}
+
+                {% if settings.cacheDeviceDetection %}
+                    <button type="button" class="btn" id="clear-device-cache">
+                        {{ "Clear Device Cache"|t('shortlink-manager') }} ({{ deviceCacheFiles }})
+                    </button>
+                {% endif %}
+
+                <button type="button" class="btn secondary" id="clear-all-caches">
+                    {{ "Clear All Caches"|t('shortlink-manager') }} ({{ (qrCacheFiles + deviceCacheFiles) }})
+                </button>
+            </div>
+        </div>
+
+        {% if settings.enableAnalytics %}
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+            <div>
+                <h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('shortlink-manager') }}</h3>
+                <p class="light" style="margin-bottom: 16px;">{{ "Permanently delete all analytics tracking data. This action cannot be undone!"|t('shortlink-manager') }}</p>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" class="btn submit" id="clear-all-analytics" style="background: #dc2626; border-color: #dc2626; color: white;">
+                        {{ "Clear All Analytics"|t('shortlink-manager') }}
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% js %}
+// Cache clearing handlers
+{% if settings.enableQrCodeCache %}
+$('#clear-qr-cache').on('click', function() {
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('shortlink-manager/settings/clear-qr-cache')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear QR cache"|t('shortlink-manager')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear QR cache"|t('shortlink-manager')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+{% endif %}
+
+{% if settings.cacheDeviceDetection %}
+$('#clear-device-cache').on('click', function() {
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('shortlink-manager/settings/clear-device-cache')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear device cache"|t('shortlink-manager')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear device cache"|t('shortlink-manager')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+{% endif %}
+
+$('#clear-all-caches').on('click', function() {
+    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('shortlink-manager', { pluginName: pluginName })|e('js') }}')) {
+        return;
+    }
+
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('shortlink-manager/settings/clear-all-caches')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear caches"|t('shortlink-manager')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear caches"|t('shortlink-manager')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+
+{% if settings.enableAnalytics %}
+$('#clear-all-analytics').on('click', function() {
+    if (!confirm('{{ "Are you sure you want to permanently delete ALL analytics data? This action cannot be undone!"|t('shortlink-manager')|e('js') }}')) {
+        return;
+    }
+
+    // Second confirmation for extra safety
+    if (!confirm('{{ "This will delete all click tracking data and reset all click counts. Are you absolutely sure?"|t('shortlink-manager')|e('js') }}')) {
+        return;
+    }
+
+    const $btn = $(this);
+    $btn.addClass('loading').prop('disabled', true);
+
+    $.ajax({
+        url: '{{ actionUrl('shortlink-manager/settings/clear-all-analytics')|raw }}',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Craft.cp.displayNotice(response.message);
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                Craft.cp.displayError(response.error || '{{ "Failed to clear analytics"|t('shortlink-manager')|e('js') }}');
+            }
+        },
+        error: function() {
+            Craft.cp.displayError('{{ "Failed to clear analytics"|t('shortlink-manager')|e('js') }}');
+        },
+        complete: function() {
+            $btn.removeClass('loading').prop('disabled', false);
+        }
+    });
+});
+{% endif %}
+{% endjs %}
+
+{% include 'shortlink-manager/_components/plugin-credit.twig' %}

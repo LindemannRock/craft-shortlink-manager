@@ -1,0 +1,144 @@
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set pluginName = plugin.settings.pluginName %}
+{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
+
+<div class="top-links-widget">
+    {% if links|length > 0 %}
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ "Link"|t('shortlink-manager') }}</th>
+                    <th>{{ "Interactions"|t('shortlink-manager') }}</th>
+                    <th class="thin"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for link in links %}
+                    <tr>
+                        <td>
+                            <div class="link-cell">
+                                <span class="link-name">{{ link.code }}</span>
+                                <div class="link-slug">
+                                    <span title="{{ link.destinationUrl }}">{{ link.destinationUrl|length > 30 ? link.destinationUrl|slice(0, 30) ~ '...' : link.destinationUrl }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="clicks-cell">
+                            <span class="badge">{{ link.clicks|number }}</span>
+                        </td>
+                        <td class="thin actions-cell">
+                            <a href="{{ siteUrl(craft.app.plugins.getPlugin('shortlink-manager').settings.slugPrefix ~ '/' ~ link.slug) }}"
+                               target="_blank"
+                               class="btn small"
+                               title="{{ 'View'|t('app') }}">
+                                {{ svg('@app/icons/arrow-up-right-from-square.svg') }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="widget-footer">
+            <a href="{{ cpUrl('shortlink-manager/links') }}" class="go">{{ "View all {pluginName}"|t('shortlink-manager', {pluginName: pluginName|lower}) }}</a>
+        </div>
+    {% else %}
+        <div class="zilch">
+            <p>{{ "No {pluginName} yet"|t('shortlink-manager', {pluginName: pluginName|lower}) }}</p>
+            <p class="light">{{ "Create your first {singularName} to see it here."|t('shortlink-manager', {singularName: singularName|lower}) }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.top-links-widget {
+    padding: 0;
+}
+
+.top-links-widget table {
+    margin-bottom: 0;
+}
+
+.top-links-widget table td {
+    vertical-align: top;
+}
+
+.link-cell {
+    min-width: 0;
+    max-width: 200px;
+    overflow: hidden;
+}
+
+.link-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: #0d78f2;
+    background: #eff6ff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.link-slug {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.link-slug span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.clicks-cell {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.clicks-cell .badge {
+    background: #eff6ff;
+    color: #0d78f2;
+    padding: 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    line-height: 0;
+}
+
+.actions-cell {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.actions-cell .btn {
+    padding: 4px 8px;
+    min-height: auto;
+}
+
+.actions-cell .btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.widget-footer {
+    text-align: center;
+    padding: 12px;
+    border-top: 1px solid #e3e5e8;
+}
+
+.widget-footer .go {
+    font-size: 13px;
+}
+
+.zilch {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.zilch p {
+    margin-bottom: 8px;
+}
+</style>

@@ -1,0 +1,137 @@
+<div class="shortlink-manager-widget">
+    <div class="widget-stats">
+        <div class="stat-item">
+            <div class="stat-value">{{ data.totalClicks|number }}</div>
+            <div class="stat-label">{{ "Total Clicks"|t('shortlink-manager') }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ data.uniqueVisitors|number }}</div>
+            <div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ data.activeLinks|number }}</div>
+            <div class="stat-label">{{ "Active Links"|t('shortlink-manager') }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ data.linksUsedPercentage ?? 0 }}%</div>
+            <div class="stat-label">{{ "Engagement Rate"|t('shortlink-manager') }}</div>
+        </div>
+    </div>
+
+    {% if data.topLinks|length > 0 %}
+        {% set topLink = data.topLinks|first %}
+        <div class="top-link">
+            <div class="top-link-header">
+                <span class="label">{{ "Top Performer"|t('shortlink-manager') }}</span>
+            </div>
+            <div class="top-link-content">
+                <div class="link-info">
+                    <a href="{{ cpUrl('shortlink-manager/links/' ~ topLink.id) }}" class="link-title">
+                        <code>{{ topLink.code }}</code>
+                    </a>
+                    <div class="link-meta">
+                        <span title="{{ topLink.destinationUrl }}">
+                            {{ topLink.destinationUrl|length > 30 ? topLink.destinationUrl|slice(0, 30) ~ '...' : topLink.destinationUrl }}
+                        </span>
+                        <span class="separator">•</span>
+                        <span>{{ topLink.clicks|number }} {{ "clicks"|t('shortlink-manager') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="widget-footer">
+        <a href="{{ cpUrl('shortlink-manager/analytics') }}" class="go">{{ "View full analytics"|t('shortlink-manager') }}</a>
+    </div>
+</div>
+
+<style>
+.shortlink-manager-widget {
+    padding: 0;
+}
+
+.widget-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 4px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0d78f2;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #596673;
+}
+
+.top-link {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.top-link-header {
+    margin-bottom: 12px;
+}
+
+.top-link-header .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #596673;
+    letter-spacing: 0.5px;
+}
+
+.link-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #0d78f2;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.link-title:hover {
+    text-decoration: underline;
+}
+
+.link-title code {
+    background: transparent;
+    padding: 0;
+    font-size: 14px;
+}
+
+.link-meta {
+    font-size: 12px;
+    color: #8b95a1;
+}
+
+.link-meta .separator {
+    margin: 0 6px;
+}
+
+.widget-footer {
+    text-align: center;
+    padding-top: 12px;
+    border-top: 1px solid #e3e5e8;
+}
+
+.widget-footer .go {
+    font-size: 13px;
+}
+</style>

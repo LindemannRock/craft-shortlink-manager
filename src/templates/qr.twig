@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="{{ currentSite.language }}">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="robots" content="noindex,nofollow">
+	<title>{{ link.title|default('QR Code') }} - {{ siteName }}</title>
+
+	<script src="https://cdn.tailwindcss.com"></script>
+
+	{# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
+	{% set seomaticTracking = null %}
+	{% if link.renderSeomaticTracking is defined %}
+		{% set seomaticTracking = link.renderSeomaticTracking('qr_scan') %}
+		{{ seomaticTracking }}
+	{% endif %}
+</head>
+<body>
+	<div class="flex justify-center items-center min-h-screen max-w-lg mx-auto px-4 py-8">
+		{# Main container #}
+		<div class="bg-white shadow-lg max-w-lg w-full overflow-hidden">
+			<div class="p-8 md:p-12 text-center">
+				{# Title #}
+				<h1 class="text-3xl font-semibold mb-4 text-gray-900">{{ link.title|default('QR Code') }}</h1>
+
+				{# QR Code display #}
+				<div class="my-8 mx-auto">
+					<img src="{{ link.getQrCodeUrl({ size: 300 }) }}" alt="{{ link.title|default('QR Code') }}" class="mx-auto">
+				</div>
+
+				{# Instructions #}
+				<div class="mt-8 space-y-4">
+					<p class="text-sm text-gray-600">{{ 'Scan with your phone\'s camera'|t('shortlink-manager') }}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{# Debug mode - Add ?debug=1 to URL to see SEOmatic tracking details #}
+	<script>
+		(function() {
+			// Get debug mode from URL parameter
+			var urlParams = new URLSearchParams(window.location.search);
+			var debugMode = urlParams.get('debug') === '1';
+
+			if (debugMode) {
+				console.log('🐛 DEBUG MODE ENABLED');
+				console.log('🔗 Short Link Code:', '{{ link.code }}');
+				console.log('📊 Event Type:', 'qr_scan');
+				console.log('📱 QR Code Page');
+
+				// SEOmatic tracking debug
+				console.log('\n📡 SEOmatic Integration:');
+				{% if seomaticTracking %}
+					console.log('✅ SEOmatic tracking enabled');
+					console.log('📝 Tracking script rendered (see page source for details)');
+
+					// Check if dataLayer exists
+					if (typeof window.dataLayer !== 'undefined') {
+						console.log('✅ GTM dataLayer detected:', window.dataLayer);
+					} else {
+						console.log('⚠️ GTM dataLayer not found (SEOmatic may not be configured)');
+					}
+				{% else %}
+					console.log('❌ SEOmatic tracking not available');
+					console.log('   - Plugin may not be installed/enabled');
+					console.log('   - Or integration may be disabled in settings');
+				{% endif %}
+
+				// Add debug indicator to page
+				var debugBanner = document.createElement('div');
+				debugBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #ff6b6b; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 9999;';
+				debugBanner.textContent = '🐛 DEBUG MODE - QR Code Page - Check browser console for details';
+				document.body.insertBefore(debugBanner, document.body.firstChild);
+			}
+		})();
+	</script>
+
+</body>
+</html>

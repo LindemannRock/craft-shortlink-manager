@@ -1,0 +1,131 @@
+{% extends "shortlink-manager/_layouts/settings" %}
+{% set title = "Cache Settings"|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'cache' %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager'),
+    },
+    {
+        label: 'Settings'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings'),
+    },
+    {
+        label: 'Cache'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings/cache'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+	{% include 'shortlink-manager/_components/ip-salt-error' %}
+
+	<form method="post" accept-charset="UTF-8">
+		{{ actionInput('shortlink-manager/settings/save') }}
+		{{ csrfInput() }}
+		{{ redirectInput('shortlink-manager/settings/cache') }}
+		{{ hiddenInput('section', 'cache') }}
+
+		<h2 style="margin-top: 0px;">{{ "QR Code Caching"|t('shortlink-manager') }}</h2>
+
+		{{ forms.lightswitchField({
+            label: "Enable QR Code Cache"|t('shortlink-manager'),
+            instructions: "Cache generated QR codes for better performance"|t('shortlink-manager'),
+            id: 'enableQrCodeCache',
+            name: 'settings[enableQrCodeCache]',
+            on: settings.enableQrCodeCache ?? true,
+            toggle: 'qr-cache-settings',
+            disabled: settings.isOverriddenByConfig('enableQrCodeCache'),
+            warning: settings.isOverriddenByConfig('enableQrCodeCache') ?
+                "This is being overridden by the <code>enableQrCodeCache</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+		<div id="qr-cache-settings" class="{{ not (settings.enableQrCodeCache ?? true) ? 'hidden' }}">
+			{{ forms.textField({
+	            label: "QR Code Cache Duration"|t('shortlink-manager'),
+	            instructions: "How long to cache generated QR codes (in seconds). Default: 86400 (24 hours)"|t('shortlink-manager'),
+	            id: 'qrCodeCacheDuration',
+	            name: 'settings[qrCodeCacheDuration]',
+	            value: settings.qrCodeCacheDuration,
+	            type: 'number',
+	            min: 0,
+	            disabled: settings.isOverriddenByConfig('qrCodeCacheDuration'),
+	            warning: settings.isOverriddenByConfig('qrCodeCacheDuration') ?
+	                "This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+	        }) }}
+
+			<div class="field">
+				<p class="light">
+					<strong>Tips:</strong><br>
+					• Higher values reduce server load but may show outdated QR codes after settings changes<br>
+					• Set to 0 to disable caching (not recommended for production)
+				</p>
+			</div>
+		</div>
+
+		{% if settings.enableAnalytics ?? true %}
+			<hr>
+
+			<h2>{{ "Device Detection Caching"|t('shortlink-manager') }}</h2>
+
+			{{ forms.lightswitchField({
+                label: "Cache Device Detection"|t('shortlink-manager'),
+                instructions: "Cache device detection results for better performance"|t('shortlink-manager'),
+                id: 'cacheDeviceDetection',
+                name: 'settings[cacheDeviceDetection]',
+                on: settings.cacheDeviceDetection ?? true,
+                toggle: 'device-cache-settings',
+                disabled: settings.isOverriddenByConfig('cacheDeviceDetection'),
+                warning: settings.isOverriddenByConfig('cacheDeviceDetection') ?
+                    "This is being overridden by the <code>cacheDeviceDetection</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            }) }}
+
+			<div id="device-cache-settings" class="{{ not (settings.cacheDeviceDetection ?? true) ? 'hidden' }}">
+				{{ forms.textField({
+	                label: "Device Detection Cache Duration"|t('shortlink-manager'),
+	                instructions: "Cache duration in seconds. Default: 3600 (1 hour)"|t('shortlink-manager'),
+	                id: 'deviceDetectionCacheDuration',
+	                name: 'settings[deviceDetectionCacheDuration]',
+	                value: settings.deviceDetectionCacheDuration ?? 3600,
+	                type: 'number',
+	                min: 0,
+	                disabled: settings.isOverriddenByConfig('deviceDetectionCacheDuration'),
+	                warning: settings.isOverriddenByConfig('deviceDetectionCacheDuration') ?
+	                    "This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+	            }) }}
+
+				<div class="field">
+					<p class="light">
+						<strong>How it works:</strong><br>
+						• Device detection parses user-agent strings to identify devices, browsers, and operating systems<br>
+						• Results are cached to avoid re-parsing the same user-agent repeatedly<br>
+						• Recommended to keep enabled for production sites
+					</p>
+				</div>
+			</div>
+		{% else %}
+			<hr>
+
+			<h2>{{ "Device Detection Caching"|t('shortlink-manager') }}</h2>
+
+			<div class="field">
+				<p class="light" style="color: #999;">
+					{{ "Device detection caching is only available when Analytics is enabled. Go to"|t('shortlink-manager') }}
+					<a href="{{ url('shortlink-manager/settings/analytics') }}">{{ "Analytics Settings"|t('shortlink-manager') }}</a>
+					{{ "to enable analytics."|t('shortlink-manager') }}
+				</p>
+			</div>
+		{% endif %}
+
+		<div class="buttons">
+			<button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
+		</div>
+	</form>
+
+	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+{% endblock %}

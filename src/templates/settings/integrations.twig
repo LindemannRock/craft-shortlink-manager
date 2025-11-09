@@ -1,0 +1,499 @@
+{% extends "shortlink-manager/_layouts/settings" %}
+{% set title = "Integrations Settings"|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'integrations' %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager'),
+    },
+    {
+        label: 'Settings'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings'),
+    },
+    {
+        label: 'Integrations'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings/integrations'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    {% include 'shortlink-manager/_components/ip-salt-error' %}
+
+    <style>
+        /* Make status dot visible when not installed - darker gray */
+        .status:not(.on) {
+            background-color: #9ca3af;
+        }
+    </style>
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('shortlink-manager/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('shortlink-manager/settings/integrations') }}
+        {{ hiddenInput('section', 'integrations') }}
+
+        <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('shortlink-manager') }}</h2>
+
+        {% set pluginName = plugin.settings.pluginName %}
+        <div class="field">
+            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('shortlink-manager', { pluginName: pluginName }) }}</p>
+        </div>
+
+        {% set integrationStatuses = craft.app.plugins.getPlugin('shortlink-manager').integration.getAllIntegrationStatuses() %}
+
+        {# SEOmatic Integration #}
+        {% set seomaticStatus = integrationStatuses.seomatic ?? null %}
+        {% set seomaticPlugin = craft.app.plugins.getPlugin('seomatic') %}
+        {% set seomaticInstalled = craft.app.plugins.isPluginInstalled('seomatic') %}
+        {% set seomaticEnabled = craft.app.plugins.isPluginEnabled('seomatic') %}
+        {% set seomaticAvailable = seomaticInstalled and seomaticEnabled %}
+        {% set seomaticPluginName = seomaticPlugin ? (seomaticPlugin.name ?? 'SEOmatic') : 'SEOmatic' %}
+        {% set seomaticIntegrationEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
+
+        {# SEOmatic Integration Card #}
+        <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+            <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ seomaticAvailable ? '#f7f7f7' : '#f9f9f9' }};">
+                <div style="flex: 1; min-width: 0;">
+                    <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('shortlink-manager', { pluginName: seomaticPluginName }) }}</strong>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        {% if seomaticAvailable %}
+                            <span class="status on"></span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('shortlink-manager') }}</span>
+                        {% elseif seomaticInstalled %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('shortlink-manager') }}</span>
+                        {% else %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('shortlink-manager') }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push shortlink events to Google Tag Manager and analytics platforms for tracking redirects and QR code scans."|t('shortlink-manager') }}</p>
+                </div>
+                <div style="flex-shrink: 0;">
+                    {{ forms.lightswitchField({
+                        label: false,
+                        id: 'enableSeomaticIntegration',
+                        name: 'enableSeomaticIntegration',
+                        on: seomaticIntegrationEnabled,
+                        disabled: not seomaticAvailable or settings.isOverriddenByConfig('enabledIntegrations'),
+                    }) }}
+                </div>
+            </div>
+
+            {% if seomaticAvailable %}
+                <div id="seomatic-settings" class="{{ not seomaticIntegrationEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
+                    {% if settings.isOverriddenByConfig('enabledIntegrations') %}
+                        <p class="warning" style="margin-bottom: 20px;">
+                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                        </p>
+                    {% endif %}
+
+                    {# Active Tracking Scripts - Only show GTM and GA4 (scripts that receive dataLayer events) #}
+                    {% set dataLayerScripts = ['googleTagManager', 'gtag'] %}
+                    {% set hasDataLayerScripts = false %}
+                    {% for handle in dataLayerScripts %}
+                        {% if seomaticStatus.scripts[handle] is defined %}
+                            {% set hasDataLayerScripts = true %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if hasDataLayerScripts %}
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('shortlink-manager') }}</strong>
+                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('shortlink-manager', { pluginName: pluginName }) }}</span>
+                            </div>
+                            {% for handle in dataLayerScripts %}
+                                {% if seomaticStatus.scripts[handle] is defined %}
+                                    {% set script = seomaticStatus.scripts[handle] %}
+                                    <div style="background: #f7f7f7; border: 1px solid #e3e5e8; padding: 10px 12px; border-radius: 3px; margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                            <span class="status on" style="width: 8px; height: 8px;"></span>
+                                            <strong style="font-size: 13px;">{{ script.name }}</strong>
+                                        </div>
+                                        {% if script.sites is defined and script.sites is not empty %}
+                                            <div style="margin-left: 16px; display: flex; flex-wrap: wrap; gap: 8px;">
+                                                {% for site in script.sites %}
+                                                    <div style="background: #fff; border: 1px solid #e3e5e8; padding: 3px 8px; border-radius: 2px; font-size: 11px;">
+                                                        <strong>{{ site.name }}</strong>
+                                                        {% if site.id is defined and site.id %}
+                                                            <code style="margin-left: 4px; color: #666;">{{ site.id }}</code>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        {# Hidden for now - Other tracking scripts (Facebook, LinkedIn, HubSpot, Pinterest, Fathom, Matomo, Plausible)
+                           receive events via GTM, not directly from Shortlink Manager, so we don't display them here #}
+                    {% else %}
+                        <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
+                            <p style="margin: 0; font-size: 13px;">
+                                <strong>{{ "Note"|t('shortlink-manager') }}:</strong>
+                                {{ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('shortlink-manager', { pluginName: seomaticPluginName }) }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {# Configuration Section #}
+                    <div style="background: #fafafa; border: 1px solid #e3e5e8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('shortlink-manager') }}</h4>
+
+                        {# Event Type Selection - Lightswitch Toggles #}
+                        {% set trackingEvents = settings.seomaticTrackingEvents ?? ['redirect', 'qr_scan'] %}
+                        {% set isOverridden = settings.isOverriddenByConfig('seomaticTrackingEvents') %}
+
+                        <div class="field">
+                            <div class="heading">
+                                <label>{{ "Tracking Events"|t('shortlink-manager') }}</label>
+                                <div class="instructions">
+                                    <p>{{ "Select which events to send to {pluginName}"|t('shortlink-manager', { pluginName: seomaticPluginName }) }}</p>
+                                </div>
+                            </div>
+
+                            {% if isOverridden %}
+                                <p class="warning" style="margin-bottom: 15px;">
+                                    {{ "This is being overridden by the <code>seomaticTrackingEvents</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                                </p>
+                            {% endif %}
+
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                {# Redirects #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'seomaticTrackingEvents-redirect',
+                                            name: 'settings[seomaticTrackingEvents][]',
+                                            value: 'redirect',
+                                            on: 'redirect' in trackingEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Redirects"|t('shortlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Standard shortlink redirects"|t('shortlink-manager') }}</span>
+                                    </div>
+                                </div>
+
+                                {# QR Code Scans #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'seomaticTrackingEvents-qr_scan',
+                                            name: 'settings[seomaticTrackingEvents][]',
+                                            value: 'qr_scan',
+                                            on: 'qr_scan' in trackingEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "QR Code Scans"|t('shortlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "QR code accessed via ?src=qr parameter"|t('shortlink-manager') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Event Prefix #}
+                        {{ forms.textField({
+                            label: "Event Prefix"|t('shortlink-manager'),
+                            instructions: "Prefix for event names (e.g., 'shortlink_manager_redirect')"|t('shortlink-manager'),
+                            id: 'seomaticEventPrefix',
+                            name: 'settings[seomaticEventPrefix]',
+                            value: settings.seomaticEventPrefix ?? 'shortlink_manager',
+                            placeholder: 'shortlink_manager',
+                            disabled: settings.isOverriddenByConfig('seomaticEventPrefix'),
+                            warning: settings.isOverriddenByConfig('seomaticEventPrefix') ?
+                                "This is being overridden by the <code>seomaticEventPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+                            errors: (settings is defined and settings) ? settings.getErrors('seomaticEventPrefix') : []
+                        }) }}
+                    </div>
+
+                    {# Event Structure Documentation - Collapsible #}
+                    <details style="margin-bottom: 15px;">
+                        <summary style="cursor: pointer; font-weight: 600; font-size: 13px; padding: 10px 0; user-select: none;">
+                            {{ "Event Data Structure"|t('shortlink-manager') }}
+                            <span class="light" style="font-weight: normal; font-size: 12px; margin-left: 8px;">{{ "Click to view the data layer event format"|t('shortlink-manager') }}</span>
+                        </summary>
+                        <div style="background: #f7f7f7; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 11px; overflow-x: auto; margin-top: 10px;">
+<pre style="margin: 0; line-height: 1.5;">{
+  event: "shortlink_manager_redirect",
+  shortlink: {
+    code: "ABC123",
+    title: "My Shortlink",
+    destination_url: "https://example.com",
+    source: "qr",
+    device_type: "mobile",
+    os: "iOS 17",
+    browser: "Safari",
+    country: "United States",
+    city: "New York"
+  }
+}</pre>
+                        </div>
+                    </details>
+
+                    {# Help Text #}
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
+                        <p style="margin: 0 0 8px 0; font-size: 13px;">
+                            <strong>{{ "How Events Are Sent"|t('shortlink-manager') }}:</strong>
+                        </p>
+                        <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: pluginName}) }}</strong><br>
+                                <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('shortlink-manager') }}</span>
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Use GTM to forward to other platforms"|t('shortlink-manager') }}</strong><br>
+                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: pluginName}) }}</span>
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Other scripts are detected for reference only"|t('shortlink-manager') }}</strong><br>
+                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('shortlink-manager', {pluginName: pluginName}) }}</span>
+                            </li>
+                            <li>
+                                <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') }}</span>
+                            </li>
+                        </ul>
+                        <p style="margin: 0; font-size: 11px; color: #666;">
+                            <strong>{{ "Architecture"|t('shortlink-manager') }}:</strong>
+                            {{ pluginName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {# End SEOmatic Integration Card #}
+
+        {# Redirect Manager Integration #}
+        {% set rmPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
+        {% set rmInstalled = craft.app.plugins.isPluginInstalled('redirect-manager') %}
+        {% set rmEnabled = craft.app.plugins.isPluginEnabled('redirect-manager') %}
+        {% set rmAvailable = rmInstalled and rmEnabled %}
+        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? rmPlugin.name ?? 'Redirect Manager') : 'Redirect Manager' %}
+        {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
+        {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change', 'expire', 'delete'] %}
+
+        <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
+            <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ rmAvailable ? '#f7f7f7' : '#f9f9f9' }};">
+                <div style="flex: 1; min-width: 0;">
+                    <strong style="font-size: 15px; {{ not rmAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('shortlink-manager', { pluginName: rmPluginName }) }}</strong>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                        {% if rmAvailable %}
+                            <span class="status on"></span>
+                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('shortlink-manager') }}</span>
+                        {% elseif rmInstalled %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('shortlink-manager') }}</span>
+                        {% else %}
+                            <span class="status"></span>
+                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('shortlink-manager') }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when shortlinks are changed, expired, or deleted. Provides centralized redirect management and analytics tracking."|t('shortlink-manager') }}</p>
+                </div>
+                <div style="flex-shrink: 0;">
+                    {{ forms.lightswitchField({
+                        label: false,
+                        id: 'enableRedirectManagerIntegration',
+                        name: 'enableRedirectManagerIntegration',
+                        on: rmIntegrationEnabled,
+                        disabled: not rmAvailable or settings.isOverriddenByConfig('enabledIntegrations'),
+                    }) }}
+                </div>
+            </div>
+
+            {% if rmAvailable %}
+                <div id="redirect-manager-settings" class="{{ not rmIntegrationEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
+                    {% if settings.isOverriddenByConfig('enabledIntegrations') %}
+                        <p class="warning" style="margin-bottom: 20px;">
+                            {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                        </p>
+                    {% endif %}
+
+                    {# Configuration Section #}
+                    <div style="background: #fafafa; border: 1px solid #e3e5e8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">{{ "Configuration"|t('shortlink-manager') }}</h4>
+
+                        {% set isOverridden = settings.isOverriddenByConfig('redirectManagerEvents') %}
+
+                        <div class="field">
+                            <div class="heading">
+                                <label>{{ "Automatic Redirect Creation"|t('shortlink-manager') }}</label>
+                                <div class="instructions">
+                                    <p>{{ "Select which events should create permanent redirects in {pluginName}"|t('shortlink-manager', { pluginName: rmPluginName }) }}</p>
+                                </div>
+                            </div>
+
+                            {% if isOverridden %}
+                                <p class="warning" style="margin-bottom: 15px;">
+                                    {{ "This is being overridden by the <code>redirectManagerEvents</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                                </p>
+                            {% endif %}
+
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                {# Slug Changes #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'redirectManagerEvents-slug-change',
+                                            name: 'settings[redirectManagerEvents][]',
+                                            value: 'slug-change',
+                                            on: 'slug-change' in rmEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Slug Changes"|t('shortlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Change slug from <code>summer-sale</code> to <code>fall-sale</code> → Creates <code>/s/summer-sale</code> → <code>/s/fall-sale</code>"|t('shortlink-manager')|raw }}</span>
+                                    </div>
+                                </div>
+
+                                {# Expired Shortlinks #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'redirectManagerEvents-expire',
+                                            name: 'settings[redirectManagerEvents][]',
+                                            value: 'expire',
+                                            on: 'expire' in rmEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Expired Shortlinks"|t('shortlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Link expires → Redirect to its <strong>Expired Redirect URL</strong> (if set)"|t('shortlink-manager')|raw }}</span>
+                                    </div>
+                                </div>
+
+                                {# Deleted Shortlinks #}
+                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
+                                    <div style="flex-shrink: 0;">
+                                        {{ forms.lightswitchField({
+                                            label: false,
+                                            id: 'redirectManagerEvents-delete',
+                                            name: 'settings[redirectManagerEvents][]',
+                                            value: 'delete',
+                                            on: 'delete' in rmEvents,
+                                            disabled: isOverridden,
+                                        }) }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ "Deleted Shortlinks"|t('shortlink-manager') }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete link with traffic → Redirect to <strong>Expired Redirect URL</strong>, or <strong>Default 404 URL</strong>, or <code>/</code>"|t('shortlink-manager')|raw }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Help Text #}
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
+                        <p style="margin: 0 0 8px 0; font-size: 13px;">
+                            <strong>{{ "Benefits of This Integration"|t('shortlink-manager') }}:</strong>
+                        </p>
+                        <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Centralized Management"|t('shortlink-manager') }}</strong> –
+                                {{ "View and manage all redirects (shortlinks + regular pages) in one place"|t('shortlink-manager') }}
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Analytics Tracking"|t('shortlink-manager') }}</strong> –
+                                {{ "See how many people try to access deleted or expired shortlinks, their devices, browsers, and countries"|t('shortlink-manager') }}
+                            </li>
+                            <li style="margin-bottom: 6px;">
+                                <strong>{{ "Persistent Redirects"|t('shortlink-manager') }}</strong> –
+                                {{ "Redirects persist even if shortlink is deleted, preventing broken links permanently"|t('shortlink-manager') }}
+                            </li>
+                            <li>
+                                <strong>{{ "Source Tracking"|t('shortlink-manager') }}</strong> –
+                                {{ "{rmPluginName} shows which plugin created each redirect for better organization"|t('shortlink-manager', {rmPluginName: rmPluginName}) }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {# End Redirect Manager Integration Card #}
+
+        {# Hidden field to track enabled integrations #}
+        {% set enabledIntegrationsArray = [] %}
+        {% if seomaticAvailable and seomaticIntegrationEnabled %}
+            {% set enabledIntegrationsArray = enabledIntegrationsArray|merge(['seomatic']) %}
+        {% endif %}
+        {% if rmAvailable and rmIntegrationEnabled %}
+            {% set enabledIntegrationsArray = enabledIntegrationsArray|merge(['redirect-manager']) %}
+        {% endif %}
+
+        <input type="hidden"
+               name="settings[enabledIntegrations]"
+               value="{{ enabledIntegrationsArray|json_encode }}"
+               id="enabledIntegrationsField">
+
+        {% js %}
+            function updateEnabledIntegrations() {
+                var integrations = [];
+
+                // Check SEOmatic
+                if ($('#enableSeomaticIntegration').length && $('#enableSeomaticIntegration').find('input[type="hidden"]').val() === '1') {
+                    integrations.push('seomatic');
+                }
+
+                // Check Redirect Manager
+                if ($('#enableRedirectManagerIntegration').length && $('#enableRedirectManagerIntegration').find('input[type="hidden"]').val() === '1') {
+                    integrations.push('redirect-manager');
+                }
+
+                $('#enabledIntegrationsField').val(JSON.stringify(integrations));
+            }
+
+            // SEOmatic toggle
+            $('#enableSeomaticIntegration').on('change', function() {
+                var isEnabled = $(this).find('input[type="hidden"]').val() === '1';
+
+                updateEnabledIntegrations();
+
+                if (isEnabled) {
+                    $('#seomatic-settings').removeClass('hidden').slideDown(200);
+                } else {
+                    $('#seomatic-settings').slideUp(200, function() {
+                        $(this).addClass('hidden');
+                    });
+                }
+            });
+
+            // Redirect Manager toggle
+            $('#enableRedirectManagerIntegration').on('change', function() {
+                var isEnabled = $(this).find('input[type="hidden"]').val() === '1';
+
+                updateEnabledIntegrations();
+
+                if (isEnabled) {
+                    $('#redirect-manager-settings').removeClass('hidden').slideDown(200);
+                } else {
+                    $('#redirect-manager-settings').slideUp(200, function() {
+                        $(this).addClass('hidden');
+                    });
+                }
+            });
+        {% endjs %}
+
+        <div class="buttons">
+            <button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
+        </div>
+    </form>
+
+    {% include 'shortlink-manager/_components/plugin-credit.twig' %}
+{% endblock %}

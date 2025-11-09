@@ -1,0 +1,72 @@
+{% import "_includes/forms" as forms %}
+
+{% set code = shortLink ? shortLink.code : (value ?? '') %}
+{% set shortLinkUrl = shortLink ? shortLink.getUrl() : '' %}
+
+<div class="shortlink-field">
+    {{ forms.text({
+        id: name ~ '-code',
+        name: name,
+        value: code,
+        placeholder: 'my-link',
+    }) }}
+    <div class="instructions">
+        <p>{{ "Enter a code for this shortlink (e.g., 'pricing' or 'promo-2025'). Letters, numbers, hyphens, and underscores only."|t('shortlink-manager') }}</p>
+    </div>
+
+    {% if shortLink %}
+        <div class="field">
+            <div class="heading">
+                <label>{{ "ShortLink URL"|t('shortlink-manager') }}</label>
+            </div>
+            <div class="input ltr">
+                <div class="flex">
+                    <div class="textwrapper">
+                        <input type="text" class="text fullwidth" readonly value="{{ shortLinkUrl }}">
+                    </div>
+                    <button type="button" class="btn" onclick="navigator.clipboard.writeText('{{ shortLinkUrl }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager') }}');">
+                        {{ "Copy"|t('app') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="heading">
+                <label>{{ "Clicks"|t('shortlink-manager') }}</label>
+            </div>
+            <div class="input">
+                <span class="text-lg font-bold">{{ shortLink.hits }}</span>
+            </div>
+        </div>
+
+        {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+        {% if field.enableQrCode and plugin.settings.enableQrCodes %}
+            <div class="field">
+                <div class="heading">
+                    <label>{{ "QR Code"|t('shortlink-manager') }}</label>
+                </div>
+                <div class="input">
+                    <img src="{{ shortLink.getQrCodeDataUri({ size: 200 }) }}" alt="QR Code" style="max-width: 200px;">
+                    <div style="margin-top: 10px;">
+                        <a href="{{ cpUrl('shortlink-manager/qr-code/download', { linkId: shortLink.id, format: 'png' }) }}" class="btn small" download>
+                            {{ "Download PNG"|t('shortlink-manager') }}
+                        </a>
+                        <a href="{{ cpUrl('shortlink-manager/qr-code/download', { linkId: shortLink.id, format: 'svg' }) }}" class="btn small" download>
+                            {{ "Download SVG"|t('shortlink-manager') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if field.enableExpiration %}
+            {{ forms.dateTimeField({
+                label: "Expires At"|t('shortlink-manager'),
+                id: name ~ '-expiresAt',
+                name: name ~ '[expiresAt]',
+                value: shortLink.expiresAt,
+            }) }}
+        {% endif %}
+    {% endif %}
+</div>

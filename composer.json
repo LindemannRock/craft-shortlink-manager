@@ -1,0 +1,53 @@
+{
+    "name": "lindemannrock/craft-shortlink-manager",
+    "description": "Advanced shortlink management with QR codes, analytics for Craft CMS",
+    "type": "craft-plugin",
+    "version": "5.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "shortlink",
+        "url-shortener",
+        "qr-code",
+        "analytics"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bilal Hary Lindemann",
+            "email": "bh@lindemannrock.com",
+            "homepage": "https://lindemannrock.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "support@lindemannrock.com",
+        "issues": "https://github.com/LindemannRock/craft-shortlink-manager/issues",
+        "source": "https://github.com/LindemannRock/craft-shortlink-manager",
+        "docs": "https://github.com/LindemannRock/craft-shortlink-manager/blob/main/README.md",
+        "rss": "https://github.com/LindemannRock/craft-shortlink-manager/commits/main.atom"
+    },
+    "require": {
+        "php": ">=8.2",
+        "craftcms/cms": "^5.0.0",
+        "lindemannrock/craft-logging-library": "^5.0",
+        "bacon/bacon-qr-code": "^2.0",
+        "matomo/device-detector": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "lindemannrock\\shortlinkmanager\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "ShortLink Manager",
+        "handle": "shortlink-manager",
+        "developer": "LindemannRock",
+        "developerUrl": "https://lindemannrock.com",
+        "documentationUrl": "https://github.com/LindemannRock/craft-shortlink-manager/blob/main/README.md",
+        "changelogUrl": "https://github.com/LindemannRock/craft-shortlink-manager/blob/main/CHANGELOG.md",
+        "class": "lindemannrock\\shortlinkmanager\\ShortLinkManager"
+    }
+}

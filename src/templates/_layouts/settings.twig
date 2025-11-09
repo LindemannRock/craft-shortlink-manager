@@ -1,0 +1,47 @@
+{% extends "_layouts/cp" %}
+
+{% set title = title ?? 'Settings'|t('shortlink-manager') %}
+{% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
+{% set selectedSubnavItem = 'settings' %}
+
+{% block sidebar %}
+    <nav id="settings-nav">
+        <ul>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/general') }}" {% if selectedSettingsItem == 'general' %}class="sel"{% endif %}>
+                    {{ 'General'|t('shortlink-manager') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/behavior') }}" {% if selectedSettingsItem == 'behavior' %}class="sel"{% endif %}>
+                    {{ 'Behavior'|t('shortlink-manager') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/qr-code') }}" {% if selectedSettingsItem == 'qr-code' %}class="sel"{% endif %}>
+                    {{ 'QR Code'|t('shortlink-manager') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/analytics') }}" {% if selectedSettingsItem == 'analytics' %}class="sel"{% endif %}>
+                    {{ 'Analytics'|t('shortlink-manager') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/interface') }}" {% if selectedSettingsItem == 'interface' %}class="sel"{% endif %}>
+                    {{ 'Interface'|t('shortlink-manager') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/cache') }}" {% if selectedSettingsItem == 'cache' %}class="sel"{% endif %}>
+                    {{ 'Cache'|t('shortlink-manager') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/integrations') }}" {% if selectedSettingsItem == 'integrations' %}class="sel"{% endif %}>
+                    {{ 'Integrations'|t('shortlink-manager') }}
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}

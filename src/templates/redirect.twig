@@ -1,0 +1,172 @@
+{#
+  Shortlink Manager redirect template
+  This template handles tracking and redirects for shortlinks
+#}
+<!DOCTYPE html>
+<html lang="{{ currentSite.language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+
+    <title>{{ link.title|default('Redirecting...') }} - {{ siteName }}</title>
+
+    {# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
+    {% set seomaticTracking = null %}
+    {% if link.renderSeomaticTracking is defined %}
+        {% set seomaticTracking = link.renderSeomaticTracking(eventType) %}
+        {{ seomaticTracking }}
+    {% endif %}
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .message {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .fallback-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #007AFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .fallback-link:hover {
+            background-color: #0051D5;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+            }
+
+            .container {
+                background: #2a2a2a;
+                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+            }
+
+            h1 {
+                color: #f0f0f0;
+            }
+
+            .message {
+                color: #aaa;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loader"></div>
+        <h1>{{ link.title|default('Redirecting...') }}</h1>
+        <p class="message">
+            {{ 'Please wait, redirecting you now...'|t('shortlink-manager') }}
+        </p>
+        <a href="{{ destinationUrl }}" class="fallback-link" id="manual-link">
+            {{ 'Click here if not redirected'|t('shortlink-manager') }}
+        </a>
+    </div>
+
+    <script>
+        (function() {
+            // Get debug mode from URL parameter
+            var urlParams = new URLSearchParams(window.location.search);
+            var debugMode = urlParams.get('debug') === '1';
+
+            if (debugMode) {
+                console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
+                console.log('🔍 Destination URL:', '{{ destinationUrl }}');
+                console.log('📊 Event Type:', '{{ eventType }}');
+                console.log('🔗 Shortlink Code:', '{{ link.code }}');
+
+                // SEOmatic tracking debug
+                console.log('\n📡 SEOmatic Integration:');
+                {% if seomaticTracking %}
+                    console.log('✅ SEOmatic tracking enabled');
+                    console.log('📝 Tracking script rendered:');
+                    console.log('{{ seomaticTracking|escape('js')|raw }}');
+
+                    // Check if dataLayer exists
+                    if (typeof window.dataLayer !== 'undefined') {
+                        console.log('✅ GTM dataLayer detected:', window.dataLayer);
+                    } else {
+                        console.log('⚠️ GTM dataLayer not found (SEOmatic may not be configured)');
+                    }
+                {% else %}
+                    console.log('❌ SEOmatic tracking not available');
+                    console.log('   - Plugin may not be installed/enabled');
+                    console.log('   - Or integration may be disabled in settings');
+                {% endif %}
+
+                // Update the message
+                var message = document.querySelector('.message');
+                message.textContent = 'DEBUG MODE: Redirect disabled. Check console for details.';
+                message.style.color = '#ff6b6b';
+
+                // Hide loader in debug mode
+                document.querySelector('.loader').style.display = 'none';
+
+                return; // Don't redirect in debug mode
+            }
+
+            // Wait 100ms for GTM dataLayer to process, then redirect
+            setTimeout(function() {
+                window.location.replace('{{ destinationUrl }}');
+            }, 100);
+        })();
+    </script>
+</body>
+</html>

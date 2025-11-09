@@ -1,0 +1,255 @@
+{% extends "shortlink-manager/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set title = "General Settings"|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'general' %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set pluginName = plugin.settings.pluginName %}
+{% set singularName = pluginName|replace({'/s$/': ''}) %}
+
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager'),
+    },
+    {
+        label: 'Settings'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings'),
+    },
+] %}
+
+{% block actionButton %}
+	<div class="btngroup">
+		<input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+	</div>
+{% endblock %}
+
+{% block content %}
+	{% include 'shortlink-manager/_components/ip-salt-error' %}
+
+	{% set smartLinksPlugin = craft.app.plugins.getPlugin('smart-links') %}
+	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smart-links') %}
+
+	<form method="post" accept-charset="UTF-8">
+		<input type="hidden" name="action" value="shortlink-manager/settings/save">
+		{{ csrfInput() }}
+		{{ redirectInput('shortlink-manager/settings/general') }}
+		{{ hiddenInput('section', 'general') }}
+
+		<h2 style="margin-top: 0px;">{{ "Plugin Settings"|t('shortlink-manager') }}</h2>
+
+		{{ forms.textField({
+        label: "Plugin Name"|t('shortlink-manager'),
+        instructions: "The name of the plugin as it appears in the Control Panel menu"|t('shortlink-manager'),
+        id: 'pluginName',
+        name: 'settings[pluginName]',
+        value: settings.pluginName,
+        required: true,
+        disabled: settings.isOverriddenByConfig('pluginName'),
+        warning: settings.isOverriddenByConfig('pluginName') ?
+            "This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		<hr>
+
+		<h2>{{ "Site Settings"|t('shortlink-manager') }}</h2>
+
+		{# Site selection checkboxes #}
+		{% set siteOptions = [] %}
+		{% for site in craft.app.sites.getAllSites() %}
+			{% set siteOptions = siteOptions|merge([{
+				label: site.name,
+				value: site.id
+			}]) %}
+		{% endfor %}
+
+		{{ forms.checkboxGroupField({
+			label: "Enabled Sites"|t('shortlink-manager'),
+			instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('shortlink-manager', {pluginName: pluginName}),
+			id: 'enabledSites',
+			name: 'settings[enabledSites]',
+			options: siteOptions,
+			values: settings.enabledSites ?? [],
+			disabled: settings.isOverriddenByConfig('enabledSites'),
+			warning: settings.isOverriddenByConfig('enabledSites') ?
+				"This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+		}) }}
+
+		<hr>
+
+		<h2>{{ "URL Settings"|t('shortlink-manager') }}</h2>
+
+        {% set rmPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
+        {% set rmActive = rmPlugin and craft.app.plugins.isPluginEnabled('redirect-manager') %}
+        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
+
+        {% set slugTip = rmActive
+            ? "Changing will break existing URLs. To migrate, create a wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
+            : "Changing the URL segment will break all existing shortlinks. Only change this before creating your first shortlink."
+        %}
+
+		{{ forms.textField({
+            label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: singularName}),
+            instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: pluginName|lower}),
+            id: 'slugPrefix',
+            name: 'settings[slugPrefix]',
+            value: settings.slugPrefix,
+            errors: settings.getErrors('slugPrefix'),
+            placeholder: 's',
+            required: true,
+            tip: slugTip|t('shortlink-manager'),
+            disabled: settings.isOverriddenByConfig('slugPrefix'),
+            warning: settings.isOverriddenByConfig('slugPrefix') ?
+                "This is being overridden by the <code>slugPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+        {% set qrTip = rmActive
+            ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
+            : "Standalone (e.g., 'qr') or nested (e.g., 's/qr'). Checked for conflicts with Smart Links."
+        %}
+
+		{# Calculate smart default for qrPrefix if empty #}
+		{% set qrPrefixValue = settings.qrPrefix %}
+		{% if qrPrefixValue is empty %}
+			{% set smartQrDefault = 'qr' %}
+			{% if smartLinksInstalled and smartLinksPlugin %}
+				{% set smartLinksSettings = smartLinksPlugin.getSettings() %}
+				{% set conflictingPrefixes = [
+					smartLinksSettings.slugPrefix ?? 'go',
+					smartLinksSettings.qrPrefix ?? 'qr',
+					settings.slugPrefix
+				] %}
+				{% set found = false %}
+				{% for candidate in ['qr', 'sqr', 'q', 's-qr'] %}
+					{% if not found and candidate not in conflictingPrefixes %}
+						{% set smartQrDefault = candidate %}
+						{% set found = true %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+			{% set qrPrefixValue = smartQrDefault %}
+		{% endif %}
+
+		{{ forms.textField({
+            label: "QR Code URL Prefix"|t('shortlink-manager'),
+            instructions: "The URL prefix for QR code pages (e.g., 'qr' creates /qr/abc123/view or 's/qr' creates /s/qr/abc123/view)"|t('shortlink-manager'),
+            id: 'qrPrefix',
+            name: 'settings[qrPrefix]',
+            value: qrPrefixValue,
+            errors: settings.getErrors('qrPrefix'),
+            required: true,
+            placeholder: 'qr',
+            tip: qrTip|t('shortlink-manager'),
+            disabled: settings.isOverriddenByConfig('qrPrefix'),
+            warning: settings.isOverriddenByConfig('qrPrefix') ?
+                "This is being overridden by the <code>qrPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+		{{ forms.textField({
+        label: "Code Length"|t('shortlink-manager'),
+        instructions: "Length of generated shortlink codes (min: 4, max: 32)"|t('shortlink-manager'),
+        id: 'codeLength',
+        name: 'settings[codeLength]',
+        value: settings.codeLength,
+        type: 'number',
+        min: 4,
+        max: 32,
+        required: true,
+        disabled: settings.isOverriddenByConfig('codeLength'),
+        warning: settings.isOverriddenByConfig('codeLength') ?
+            "This is being overridden by the <code>codeLength</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        errors: settings.getErrors('codeLength')
+    }) }}
+
+		<hr>
+
+		<h2>{{ "Template Settings"|t('shortlink-manager') }}</h2>
+
+		{{ forms.textField({
+            label: "Custom Redirect Template"|t('shortlink-manager'),
+            instructions: "Path to custom template in your templates/ folder (e.g., shortlink-manager/redirect)"|t('shortlink-manager'),
+            id: 'redirectTemplate',
+            name: 'settings[redirectTemplate]',
+            value: settings.redirectTemplate ?? '',
+            placeholder: 'shortlink-manager/redirect',
+            tip: "Copy reference template from <code>plugins/shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code>"|t('shortlink-manager')|raw,
+            disabled: settings.isOverriddenByConfig('redirectTemplate'),
+            warning: settings.isOverriddenByConfig('redirectTemplate') ?
+                "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+		{{ forms.textField({
+            label: "Custom Expired Template"|t('shortlink-manager'),
+            instructions: "Path to custom template in your templates/ folder (e.g., shortlink-manager/expired)"|t('shortlink-manager'),
+            id: 'expiredTemplate',
+            name: 'settings[expiredTemplate]',
+            value: settings.expiredTemplate ?? '',
+            placeholder: 'shortlink-manager/expired',
+            tip: "Copy reference template from <code>plugins/shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code>"|t('shortlink-manager')|raw,
+            disabled: settings.isOverriddenByConfig('expiredTemplate'),
+            warning: settings.isOverriddenByConfig('expiredTemplate') ?
+                "This is being overridden by the <code>expiredTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+		{{ forms.textField({
+            label: "Custom QR Code Template"|t('shortlink-manager'),
+            instructions: "Path to custom template in your templates/ folder (e.g., shortlink-manager/qr)"|t('shortlink-manager'),
+            id: 'qrTemplate',
+            name: 'settings[qrTemplate]',
+            value: settings.qrTemplate ?? '',
+            placeholder: 'shortlink-manager/qr',
+            tip: "Copy reference template from <code>plugins/shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code>"|t('shortlink-manager')|raw,
+            disabled: settings.isOverriddenByConfig('qrTemplate'),
+            warning: settings.isOverriddenByConfig('qrTemplate') ?
+                "This is being overridden by the <code>qrTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+		{{ forms.textareaField({
+            label: "Default Expired Message"|t('shortlink-manager'),
+            id: 'expiredMessage',
+            name: 'settings[expiredMessage]',
+            value: settings.expiredMessage,
+            rows: 3,
+            instructions: "Message shown on the expired page when no custom redirect URL is set"|t('shortlink-manager'),
+            disabled: settings.isOverriddenByConfig('expiredMessage'),
+            warning: settings.isOverriddenByConfig('expiredMessage') ?
+                "This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+		<hr>
+
+		<h2>{{ "Logging Settings"|t('shortlink-manager') }}</h2>
+
+		{% set logOptions = [
+        {value: 'error', label: 'Error (Critical errors only)'|t('shortlink-manager')},
+        {value: 'warning', label: 'Warning (Errors and warnings)'|t('shortlink-manager')},
+        {value: 'info', label: 'Info (General information)'|t('shortlink-manager')},
+    ] %}
+
+		{% if craft.app.config.general.devMode %}
+			{% set logOptions = logOptions|merge([
+            {value: 'debug', label: 'Debug (Detailed debugging)'|t('shortlink-manager')}
+        ]) %}
+		{% endif %}
+
+		{{ forms.selectField({
+        label: 'Log Level'|t('shortlink-manager'),
+        instructions: 'Choose what types of messages to log. Debug level requires devMode to be enabled.'|t('shortlink-manager'),
+        id: 'logLevel',
+        name: 'settings[logLevel]',
+        value: settings.logLevel,
+        options: logOptions,
+        disabled: settings.isOverriddenByConfig('logLevel'),
+        warning: settings.isOverriddenByConfig('logLevel') ?
+            "This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		<div class="buttons">
+			<button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
+		</div>
+	</form>
+
+	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+{% endblock %}

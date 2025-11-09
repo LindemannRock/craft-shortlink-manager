@@ -1,0 +1,13 @@
+{% if shortLink %}
+    <div class="shortlink-preview" style="display: flex; align-items: center; gap: 10px;">
+        <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">{{ shortLink.code }}</code>
+        <span class="light">{{ shortLink.hits }} {{ 'clicks'|t('shortlink-manager') }}</span>
+        {% if field.enableQrCode %}
+            <button type="button" class="btn small" onclick="alert('{{ shortLink.getUrl() }}')">
+                {{ "View QR"|t('shortlink-manager') }}
+            </button>
+        {% endif %}
+    </div>
+{% else %}
+    <span class="light">{{ "No shortlink created yet"|t('shortlink-manager') }}</span>
+{% endif %}

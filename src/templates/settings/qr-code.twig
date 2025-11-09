@@ -1,0 +1,800 @@
+{% extends "shortlink-manager/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set title = "QR Code Settings"|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'qr-code' %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager'),
+    },
+    {
+        label: 'Settings'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings'),
+    },
+] %}
+
+{% block actionButton %}
+	<div class="btngroup">
+		<input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+	</div>
+{% endblock %}
+
+{% block content %}
+	{% include 'shortlink-manager/_components/ip-salt-error' %}
+
+	{% if settings is defined and settings.hasErrors() %}
+		{% set errors = settings.getErrors() %}
+		{% set errorCount = 0 %}
+		{% for fieldErrors in errors %}
+			{% set errorCount = errorCount + fieldErrors|length %}
+		{% endfor %}
+
+		<div class="error-summary" tabindex="-1">
+			<div>
+				<span class="notification-icon" data-icon="alert" aria-label="error" role="img"></span>
+				<h2>
+					{% if errorCount == 1 %}
+						{{ "Found 1 error"|t('app') }}
+					{% else %}
+						{{ "Found {count} errors"|t('app', {count: errorCount}) }}
+					{% endif %}
+				</h2>
+			</div>
+			<ul class="errors">
+				{% for field, fieldErrors in errors %}
+					{% for error in fieldErrors %}
+						<li>
+							<a href="#{{ field }}-field" data-field-error-key="{{ field }}">
+								{{ error }}
+							</a>
+						</li>
+					{% endfor %}
+				{% endfor %}
+			</ul>
+		</div>
+	{% endif %}
+
+	{% if settings.enableQrCodes ?? true %}
+	<div class="qr-preview-floating">
+		<div class="qr-preview-header">
+			<span>{{ "Live Preview"|t('shortlink-manager') }}</span>
+			<button type="button" class="qr-preview-toggle" aria-label="{{ 'Toggle preview'|t('shortlink-manager') }}">
+				<svg width="16" height="16" viewbox="0 0 16 16" fill="currentColor">
+					<path d="M3 5h10l-5 5z"/>
+				</svg>
+			</button>
+		</div>
+		<div class="qr-preview-content">
+			<div id="qr-preview-container">
+				<div id="qr-preview-image">
+					<img id="qr-preview" src="" alt="QR Code Preview" style="display: none;">
+					<div id="qr-preview-loading">
+						{{ "Loading..."|t('shortlink-manager') }}
+					</div>
+				</div>
+				<div id="qr-preview-error" style="display: none;">
+					{{ "Error"|t('shortlink-manager') }}
+				</div>
+			</div>
+			<div id="qr-preview-warning" style="display: none;">
+				<small class="warning-text">{{ "Logo requires PNG format"|t('shortlink-manager') }}</small>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
+	<form method="post" accept-charset="UTF-8">
+		<input type="hidden" name="action" value="shortlink-manager/settings/save">
+		{{ csrfInput() }}
+		{{ redirectInput('shortlink-manager/settings/qr-code') }}
+		{{ hiddenInput('section', 'qr-code') }}
+
+		{{ forms.lightswitchField({
+            first: true,
+			label: "Enable QR Codes"|t('shortlink-manager'),
+			instructions: "Enable QR code functionality for shortlinks"|t('shortlink-manager'),
+			id: 'enableQrCodes',
+			name: 'settings[enableQrCodes]',
+			on: settings.enableQrCodes ?? true,
+			toggle: 'qr-settings-container',
+			disabled: settings.isOverriddenByConfig('enableQrCodes'),
+			warning: settings.isOverriddenByConfig('enableQrCodes') ?
+				"This is being overridden by the <code>enableQrCodes</code> setting in <code>config/shortlink-manager.php</code>."|raw : null,
+		}) }}
+
+		<div id="qr-settings-container" class="{{ not (settings.enableQrCodes ?? true) ? 'hidden' }}">
+			<h2 style="margin-top: 0px;">{{ "Appearance & Style"|t('shortlink-manager') }}</h2>
+
+		{{ forms.textField({
+        label: "Size"|t('shortlink-manager'),
+        instructions: "Default size in pixels for generated QR codes"|t('shortlink-manager'),
+        id: 'defaultQrSize',
+        name: 'settings[defaultQrSize]',
+        value: settings.defaultQrSize,
+        type: 'number',
+        min: 100,
+        max: 1000,
+        disabled: settings.isOverriddenByConfig('defaultQrSize'),
+        warning: settings.isOverriddenByConfig('defaultQrSize') ?
+            "This is being overridden by the <code>defaultQrSize</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.selectField({
+        label: "Format"|t('shortlink-manager'),
+        instructions: "Default format for generated QR codes"|t('shortlink-manager'),
+        id: 'defaultQrFormat',
+        name: 'settings[defaultQrFormat]',
+        value: settings.defaultQrFormat,
+        options: [
+            {label: 'PNG', value: 'png'},
+            {label: 'SVG', value: 'svg'},
+        ],
+        disabled: settings.isOverriddenByConfig('defaultQrFormat'),
+        warning: settings.isOverriddenByConfig('defaultQrFormat') ?
+            "This is being overridden by the <code>defaultQrFormat</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.colorField({
+        label: "QR Code Color"|t('shortlink-manager'),
+        id: 'defaultQrColor',
+        name: 'settings[defaultQrColor]',
+        value: settings.defaultQrColor,
+        disabled: settings.isOverriddenByConfig('defaultQrColor'),
+        warning: settings.isOverriddenByConfig('defaultQrColor') ?
+            "This is being overridden by the <code>defaultQrColor</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.colorField({
+        label: "Background Color"|t('shortlink-manager'),
+        id: 'defaultQrBgColor',
+        name: 'settings[defaultQrBgColor]',
+        value: settings.defaultQrBgColor,
+        disabled: settings.isOverriddenByConfig('defaultQrBgColor'),
+        warning: settings.isOverriddenByConfig('defaultQrBgColor') ?
+            "This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.textField({
+        label: "Margin Size"|t('shortlink-manager'),
+        instructions: "White space around QR code (0-10 modules)"|t('shortlink-manager'),
+        id: 'defaultQrMargin',
+        name: 'settings[defaultQrMargin]',
+        value: settings.defaultQrMargin,
+        type: 'number',
+        min: 0,
+        max: 10,
+        disabled: settings.isOverriddenByConfig('defaultQrMargin'),
+        warning: settings.isOverriddenByConfig('defaultQrMargin') ?
+            "This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.selectField({
+        label: "Module Style"|t('shortlink-manager'),
+        instructions: "Shape of the QR code modules"|t('shortlink-manager'),
+        id: 'qrModuleStyle',
+        name: 'settings[qrModuleStyle]',
+        value: settings.qrModuleStyle,
+        options: [
+            {label: 'Square', value: 'square'},
+            {label: 'Rounded', value: 'rounded'},
+            {label: 'Dots', value: 'dots'},
+        ],
+        disabled: settings.isOverriddenByConfig('qrModuleStyle'),
+        warning: settings.isOverriddenByConfig('qrModuleStyle') ?
+            "This is being overridden by the <code>qrModuleStyle</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.selectField({
+        label: "Eye Style"|t('shortlink-manager'),
+        instructions: "Shape of the position markers (corners)"|t('shortlink-manager'),
+        id: 'qrEyeStyle',
+        name: 'settings[qrEyeStyle]',
+        value: settings.qrEyeStyle,
+        options: [
+            {label: 'Square', value: 'square'},
+            {label: 'Rounded', value: 'rounded'},
+            {label: 'Leaf', value: 'leaf'},
+        ],
+        disabled: settings.isOverriddenByConfig('qrEyeStyle'),
+        warning: settings.isOverriddenByConfig('qrEyeStyle') ?
+            "This is being overridden by the <code>qrEyeStyle</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		{{ forms.colorField({
+        label: "Eye Color"|t('shortlink-manager'),
+        instructions: "Color for position markers (leave empty to use main color)"|t('shortlink-manager'),
+        id: 'qrEyeColor',
+        name: 'settings[qrEyeColor]',
+        value: settings.qrEyeColor ?? '',
+        disabled: settings.isOverriddenByConfig('qrEyeColor'),
+        warning: settings.isOverriddenByConfig('qrEyeColor') ?
+            "This is being overridden by the <code>qrEyeColor</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		<hr>
+
+		<h2>{{ "Logo Settings"|t('shortlink-manager') }}</h2>
+
+		{{ forms.lightswitchField({
+        label: "Enable Logo Overlay"|t('shortlink-manager'),
+        instructions: "Add a logo in the center of QR codes"|t('shortlink-manager'),
+        id: 'enableQrLogo',
+        name: 'settings[enableQrLogo]',
+        on: settings.enableQrLogo,
+        toggle: 'logo-settings',
+        disabled: settings.isOverriddenByConfig('enableQrLogo'),
+        warning: settings.isOverriddenByConfig('enableQrLogo') ?
+            "This is being overridden by the <code>enableQrLogo</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw :
+            "Logo overlay only works with PNG format. SVG format does not support logos."|t('shortlink-manager'),
+    }) }}
+
+		<div id="logo-settings" class="{{ not settings.enableQrLogo ? 'hidden' }}">
+			{% set volumeOptions = [{label: 'All asset volumes'|t('shortlink-manager'), value: ''}] %}
+			{% for volume in craft.app.volumes.getAllVolumes() %}
+				{% set volumeOptions = volumeOptions|merge([{
+                label: volume.name,
+                value: volume.uid
+            }]) %}
+			{% endfor %}
+
+			{{ forms.selectField({
+            label: "Logo Asset Volume"|t('shortlink-manager'),
+            instructions: "Which asset volume contains QR code logos. Save settings after changing this to update the logo selection below."|t('shortlink-manager'),
+            id: 'qrLogoVolumeUid',
+            name: 'settings[qrLogoVolumeUid]',
+            options: volumeOptions,
+            value: settings.qrLogoVolumeUid ?? '',
+            disabled: settings.isOverriddenByConfig('qrLogoVolumeUid'),
+            warning: settings.isOverriddenByConfig('qrLogoVolumeUid') ?
+                "This is being overridden by the <code>qrLogoVolumeUid</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+			{% set logoSources = settings.qrLogoVolumeUid ? ['volume:' ~ settings.qrLogoVolumeUid] : '*' %}
+			{{ forms.elementSelectField({
+            label: "Default Logo"|t('shortlink-manager'),
+            instructions: "Default logo to use for QR codes"|t('shortlink-manager'),
+            id: 'defaultQrLogoId',
+            name: 'settings[defaultQrLogoId]',
+            elementType: 'craft\\elements\\Asset',
+            sources: logoSources,
+            criteria: {
+                kind: ['image']
+            },
+            limit: 1,
+            elements: settings.defaultQrLogoId ? [craft.assets.id(settings.defaultQrLogoId).one()] : [],
+            required: true,
+            errors: settings.getErrors('defaultQrLogoId'),
+        }) }}
+
+			{{ forms.textField({
+            label: "Logo Size"|t('shortlink-manager'),
+            instructions: "Logo size as percentage of QR code (10-30%)"|t('shortlink-manager'),
+            id: 'qrLogoSize',
+            name: 'settings[qrLogoSize]',
+            value: settings.qrLogoSize,
+            type: 'number',
+            min: 10,
+            max: 30,
+            disabled: settings.isOverriddenByConfig('qrLogoSize'),
+            warning: settings.isOverriddenByConfig('qrLogoSize') ?
+                "This is being overridden by the <code>qrLogoSize</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+		</div>
+
+		<hr>
+
+		<h2>{{ "Technical Options"|t('shortlink-manager') }}</h2>
+
+		{{ forms.selectField({
+        label: "Error Correction Level"|t('shortlink-manager'),
+        instructions: "Higher levels work better if QR code is damaged but create denser patterns"|t('shortlink-manager'),
+        id: 'defaultQrErrorCorrection',
+        name: 'settings[defaultQrErrorCorrection]',
+        value: settings.defaultQrErrorCorrection,
+        options: [
+            {label: 'Low (~7% correction)', value: 'L'},
+            {label: 'Medium (~15% correction)', value: 'M'},
+            {label: 'Quartile (~25% correction)', value: 'Q'},
+            {label: 'High (~30% correction)', value: 'H'},
+        ],
+        disabled: settings.isOverriddenByConfig('defaultQrErrorCorrection'),
+        warning: settings.isOverriddenByConfig('defaultQrErrorCorrection') ?
+            "This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		<hr>
+
+		<h2>{{ "Download Settings"|t('shortlink-manager') }}</h2>
+
+		{{ forms.lightswitchField({
+        label: "Enable QR Code Downloads"|t('shortlink-manager'),
+        instructions: "Allow users to download QR codes"|t('shortlink-manager'),
+        id: 'enableQrDownload',
+        name: 'settings[enableQrDownload]',
+        on: settings.enableQrDownload,
+        toggle: 'download-settings',
+        disabled: settings.isOverriddenByConfig('enableQrDownload'),
+        warning: settings.isOverriddenByConfig('enableQrDownload') ?
+            "This is being overridden by the <code>enableQrDownload</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		<div id="download-settings" class="{{ not settings.enableQrDownload ? 'hidden' }}">
+			{{ forms.textField({
+            label: "Download Filename Pattern"|t('shortlink-manager'),
+            instructions: "Available variables: {code}, {size}, {format}"|t('shortlink-manager'),
+            id: 'qrDownloadFilename',
+            name: 'settings[qrDownloadFilename]',
+            value: settings.qrDownloadFilename,
+            placeholder: '{code}-qr-{size}',
+            disabled: settings.isOverriddenByConfig('qrDownloadFilename'),
+            warning: settings.isOverriddenByConfig('qrDownloadFilename') ?
+                "This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+		</div>
+
+		<hr>
+
+		<h2>{{ "Performance & Caching"|t('shortlink-manager') }}</h2>
+
+		<div class="field">
+			<p class="light">
+				{{ "Configure QR code caching to improve performance and reduce server load."|t('shortlink-manager') }}
+				<a href="{{ url('shortlink-manager/settings/cache') }}">{{ "Go to Cache Settings"|t('shortlink-manager') }}</a>
+			</p>
+		</div>
+		</div>{# End qr-settings-container #}
+
+		<div class="buttons">
+			<button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
+		</div>
+	</form>
+
+	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+{% endblock %}
+
+{% css %}
+/* Floating compact preview */
+.qr-preview-floating {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 340px;
+    transition: all 0.3s ease;
+}
+
+.qr-preview-floating.collapsed .qr-preview-content {
+    display: none;
+}
+
+.qr-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    user-select: none;
+}
+
+.qr-preview-header span {
+    font-weight: 600;
+    font-size: 13px;
+    color: #333;
+}
+
+.qr-preview-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+.qr-preview-floating.collapsed .qr-preview-toggle svg {
+    transform: rotate(-90deg);
+}
+
+.qr-preview-content {
+{# padding: 16px; #}
+text-align: center;
+}
+
+#qr-preview-container {
+    position: relative;
+    background: #f7f7f8;
+    border-radius: 4px;
+    padding: 16px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#qr-preview {
+    max-width: 300px;
+    max-height: 300px;
+    width: auto;
+    height: auto;
+}
+
+#qr-preview-loading,
+#qr-preview-error {
+    color: #999;
+    font-size: 12px;
+}
+
+#qr-preview-warning {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #fff8e5;
+    border-radius: 3px;
+    color: #d5810b;
+    font-size: 13px;
+}
+
+@media (max-width: 728px) {
+    .qr-preview-floating {
+        display: none;
+    }
+}
+{% endcss %}
+
+{% js %}
+// Handle preview collapse/expand
+(function() {
+    const previewContainer = document.querySelector('.qr-preview-floating');
+    const header = document.querySelector('.qr-preview-header');
+
+    // Load saved state
+    const isCollapsed = localStorage.getItem('qr-preview-collapsed') === 'true';
+    if (isCollapsed) {
+        previewContainer.classList.add('collapsed');
+    }
+
+    // Toggle on click
+    header.addEventListener('click', function() {
+        previewContainer.classList.toggle('collapsed');
+        localStorage.setItem('qr-preview-collapsed', previewContainer.classList.contains('collapsed'));
+    });
+})();
+
+// QR Code Live Preview functionality
+(function() {
+    let previewTimeout = null;
+    let isGenerating = false;
+    const previewUrl = 'https://example.com/preview';
+
+    // Get all relevant form elements
+    const sizeField = document.getElementById('defaultQrSize');
+    const formatField = document.getElementById('defaultQrFormat');
+    const colorField = document.getElementById('defaultQrColor');
+    const bgColorField = document.getElementById('defaultQrBgColor');
+    const marginField = document.getElementById('defaultQrMargin');
+    const errorCorrectionField = document.getElementById('defaultQrErrorCorrection');
+    const moduleStyleField = document.getElementById('qrModuleStyle');
+    const eyeStyleField = document.getElementById('qrEyeStyle');
+    const eyeColorField = document.getElementById('qrEyeColor');
+    const enableLogoField = document.getElementById('enableQrLogo');
+    const logoSizeField = document.getElementById('qrLogoSize');
+
+    function updatePreview(immediate = false) {
+        // Clear existing timeout
+        if (previewTimeout) {
+            clearTimeout(previewTimeout);
+        }
+
+        // Skip if already generating
+        if (isGenerating && !immediate) {
+            return;
+        }
+
+        // Faster debounce for more responsive preview
+        const delay = immediate ? 0 : 250;
+
+        previewTimeout = setTimeout(function() {
+            generatePreview();
+        }, delay);
+    }
+
+    function generatePreview() {
+        // Prevent multiple simultaneous requests
+        if (isGenerating) {
+            return;
+        }
+
+        isGenerating = true;
+
+        const previewImg = document.getElementById('qr-preview');
+        const loadingDiv = document.getElementById('qr-preview-loading');
+        const errorDiv = document.getElementById('qr-preview-error');
+        const warningDiv = document.getElementById('qr-preview-warning');
+
+        // Show loading state with smooth transition
+        previewImg.style.opacity = '0.5';
+        errorDiv.style.display = 'none';
+        warningDiv.style.display = 'none';
+
+        // Gather current settings
+        const params = new URLSearchParams({
+            url: previewUrl,
+            size: sizeField.value || 256,
+            format: formatField.value || 'png',
+            color: (colorField.value || '#000000').replace('#', ''),
+            bg: (bgColorField.value || '#FFFFFF').replace('#', ''),
+            margin: marginField.value || 4,
+            errorCorrection: errorCorrectionField.value || 'M',
+            moduleStyle: moduleStyleField.value || 'square',
+            eyeStyle: eyeStyleField.value || 'square',
+            preview: '1'
+        });
+
+        // Add eye color if set
+        if (eyeColorField.value) {
+            params.append('eyeColor', eyeColorField.value.replace('#', ''));
+        }
+
+        // Add logo settings if enabled
+        const logoEnabled = enableLogoField.checked || enableLogoField.classList.contains('on');
+        if (logoEnabled) {
+            // Get selected logo ID
+            const logoElement = document.querySelector('#defaultQrLogoId-field .elements .element');
+            if (logoElement) {
+                const logoId = logoElement.getAttribute('data-id');
+                if (logoId) {
+                    params.append('logo', logoId);
+                    params.append('logoSize', logoSizeField.value || 20);
+                }
+            }
+        }
+
+        const qrUrl = Craft.getCpUrl('shortlink-manager/qr-code/generate?' + params.toString());
+
+        // Create new image to test loading
+        const testImg = new Image();
+        testImg.onload = function() {
+            // Update preview with smooth transition
+            previewImg.src = qrUrl;
+            previewImg.style.display = 'block';
+            previewImg.style.opacity = '1';
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            // Show warnings based on settings
+            const logoEnabled = enableLogoField.checked || enableLogoField.classList.contains('on');
+            const format = formatField.value || 'png';
+
+            if (logoEnabled && format === 'svg') {
+                warningDiv.style.display = 'block';
+                warningDiv.querySelector('.warning-text').textContent = Craft.t('shortlink-manager', 'Logo requires PNG format');
+            } else {
+                warningDiv.style.display = 'none';
+            }
+
+            // Reset generating flag
+            isGenerating = false;
+        };
+        testImg.onerror = function(e) {
+            previewImg.style.display = 'none';
+            previewImg.style.opacity = '1';
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = 'Failed to generate preview';
+
+            // Reset generating flag
+            isGenerating = false;
+        };
+        testImg.src = qrUrl;
+    }
+
+    // Add event listeners to all fields for live preview
+    const fields = [sizeField, formatField, colorField, bgColorField, marginField, errorCorrectionField,
+                   moduleStyleField, eyeStyleField, eyeColorField, logoSizeField];
+
+    fields.forEach(function(field) {
+        if (field) {
+            // Standard event listeners
+            field.addEventListener('change', () => updatePreview(true));
+            field.addEventListener('input', () => updatePreview());
+            field.addEventListener('keyup', () => updatePreview());
+            field.addEventListener('blur', () => updatePreview(true));
+        }
+    });
+
+    // Enforce max value on logo size field
+    if (logoSizeField) {
+        logoSizeField.addEventListener('input', function(e) {
+            const value = parseInt(this.value);
+            if (value > 30) {
+                this.value = 30;
+            }
+        });
+
+        // Also handle paste events
+        logoSizeField.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                const value = parseInt(this.value);
+                if (value > 30) {
+                    this.value = 30;
+                }
+            }, 0);
+        });
+    }
+
+    // Craft CMS uses custom color fields - need to watch for their specific events
+    // Use MutationObserver to detect color changes
+    const colorFields = [colorField, bgColorField, eyeColorField];
+    colorFields.forEach(function(field) {
+        if (field && field.id.includes('Color')) {
+            const fieldContainer = field.closest('.field');
+            if (fieldContainer) {
+                // Create observer for this color field
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                            updatePreview(true);
+                        }
+                    });
+                });
+
+                // Observe the input field for value changes
+                observer.observe(field, {
+                    attributes: true,
+                    attributeFilter: ['value']
+                });
+
+                // Also observe the container for any structural changes
+                const containerObserver = new MutationObserver(function(mutations) {
+                    updatePreview(true);
+                });
+
+                containerObserver.observe(fieldContainer, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        }
+    });
+
+    // Handle lightswitch changes (immediate update)
+    if (enableLogoField) {
+        // Method 1: Try Craft's lightswitch instance
+        const lightswitch = enableLogoField.closest('.lightswitch');
+        if (lightswitch && lightswitch.lsInstance) {
+            lightswitch.lsInstance.on('change', () => {
+                updatePreview(true);
+            });
+        }
+
+        // Method 2: Watch for class changes on the container
+        const lsContainer = enableLogoField.closest('.lightswitch');
+        if (lsContainer) {
+            const lsObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        updatePreview(true);
+                    }
+                });
+            });
+
+            lsObserver.observe(lsContainer, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+
+        // Method 3: Watch the hidden input value
+        const lsInput = enableLogoField;
+        if (lsInput) {
+            lsInput.addEventListener('change', () => {
+                updatePreview(true);
+            });
+
+            // Also observe value changes
+            const lsInputObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                        updatePreview(true);
+                    }
+                });
+            });
+
+            lsInputObserver.observe(lsInput, {
+                attributes: true,
+                attributeFilter: ['value']
+            });
+        }
+    }
+
+    // Handle logo selection changes (immediate update)
+    const logoFieldContainer = document.getElementById('defaultQrLogoId-field');
+    if (logoFieldContainer) {
+        // Use MutationObserver to detect when logo is added/removed
+        const observer = new MutationObserver(function(mutations) {
+            let logoChanged = false;
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    // Check if elements were added or removed
+                    if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
+                        logoChanged = true;
+                    }
+                }
+            });
+
+            if (logoChanged) {
+                updatePreview(true); // Immediate update for logo changes
+            }
+        });
+
+        const elementsContainer = logoFieldContainer.querySelector('.elements');
+        if (elementsContainer) {
+            observer.observe(elementsContainer, { childList: true, subtree: true });
+        }
+    }
+
+    // Generate initial preview on page load
+    setTimeout(() => {
+        generatePreview();
+    }, 100);
+
+    // Fallback: Poll for changes every 500ms
+    // This ensures we catch any changes that don't trigger events
+    let lastValues = {
+        color: colorField ? colorField.value : '',
+        bgColor: bgColorField ? bgColorField.value : '',
+        eyeColor: eyeColorField ? eyeColorField.value : '',
+        logoEnabled: enableLogoField ? (enableLogoField.checked || enableLogoField.closest('.lightswitch')?.classList.contains('on')) : false,
+        logoId: null
+    };
+
+    // Get initial logo ID
+    const getLogoId = () => {
+        const logoElement = document.querySelector('#defaultQrLogoId-field .elements .element');
+        return logoElement ? logoElement.getAttribute('data-id') : null;
+    };
+
+    lastValues.logoId = getLogoId();
+
+    setInterval(function() {
+        const currentValues = {
+            color: colorField ? colorField.value : '',
+            bgColor: bgColorField ? bgColorField.value : '',
+            eyeColor: eyeColorField ? eyeColorField.value : '',
+            logoEnabled: enableLogoField ? (enableLogoField.checked || enableLogoField.closest('.lightswitch')?.classList.contains('on')) : false,
+            logoId: getLogoId()
+        };
+
+        // Check if any values have changed
+        let hasChanges = false;
+
+        if (currentValues.color !== lastValues.color ||
+            currentValues.bgColor !== lastValues.bgColor ||
+            currentValues.eyeColor !== lastValues.eyeColor) {
+            hasChanges = true;
+        }
+
+        if (currentValues.logoEnabled !== lastValues.logoEnabled) {
+            hasChanges = true;
+        }
+
+        if (currentValues.logoId !== lastValues.logoId) {
+            hasChanges = true;
+        }
+
+        if (hasChanges) {
+            lastValues = {...currentValues};
+            updatePreview(true);
+        }
+    }, 500);
+})();
+{% endjs %}

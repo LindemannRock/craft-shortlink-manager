@@ -1,0 +1,847 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set pluginName = plugin.settings.pluginName %}
+{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
+{% set currentSite = craft.app.sites.getSiteById(link.siteId) %}
+
+{% set title = link.id ? link.slug : "New {singularName}"|t('shortlink-manager', {singularName: singularName}) %}
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'shortlinks' %}
+{% set saveShortcutRedirect = 'shortlink-manager/links/{id}' %}
+{% set retainScrollOnSaveShortcut = true %}
+
+{% set tabs = {
+    fields: {
+        label: 'Content'|t('app'),
+        url: '#fields',
+    },
+} %}
+
+{# Add analytics tab if globally enabled, link exists, AND tracking is enabled for this link #}
+{% if plugin.settings.enableAnalytics and link.id and (link.trackAnalytics ?? true) %}
+    {% set tabs = tabs|merge({
+        analytics: {
+            label: 'Analytics'|t('shortlink-manager'),
+            url: '#analytics',
+        },
+    }) %}
+{% endif %}
+
+{% set isNew = not link.id %}
+
+{# Set up breadcrumbs #}
+{% set crumbs = [] %}
+
+{# Site switcher (first item) #}
+{% if craft.app.getIsMultiSite() %}
+    {% set currentSite = craft.app.sites.getSiteById(link.siteId ?? craft.app.sites.currentSite.id) %}
+
+    {# Get site menu items #}
+    {% set siteMenuItems = [] %}
+    {% for site in enabledSites %}
+        {% set siteMenuItems = siteMenuItems|merge([{
+            label: site.name,
+            url: link.id ? url('shortlink-manager/links/' ~ link.id, {site: site.handle}) : url('shortlink-manager/links/new', {site: site.handle}),
+            selected: site.id == link.siteId
+        }]) %}
+    {% endfor %}
+
+    {% set crumbs = [{
+        id: 'site-crumb',
+        icon: 'world',
+        label: currentSite.name|t('site'),
+        menu: {
+            items: siteMenuItems,
+            label: 'Select site'|t('app')
+        }
+    }] %}
+{% endif %}
+
+{# Main navigation #}
+{% set crumbs = crumbs|merge([
+    {
+        label: pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager/links')
+    }
+]) %}
+
+{% if link.id %}
+    {% set crumbs = crumbs|merge([{
+        label: link.slug,
+        url: url('shortlink-manager/links/' ~ link.id)
+    }]) %}
+{% endif %}
+
+{% block actionButton %}
+    {% if link.id %}
+        <div class="preview-btn-container btngroup">
+            {% set viewLabel = plugin.settings.pluginName|replace({' Manager': '', ' manager': ''}) %}
+            {% if plugin.settings.enableQrCodes and (link.qrCodeEnabled ?? true) %}
+                <a href="{{ link.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+                <button type="button" class="btn menubtn"></button>
+                <div class="menu">
+                    <ul role="listbox">
+                        <li>
+                            <a role="option" tabindex="0" href="{{ link.getUrl() }}" target="_blank">
+                                {{ viewLabel }}
+                            </a>
+                        </li>
+                        <li>
+                            <a role="option" tabindex="0" href="{{ link.getQrCodeUrl() }}" target="_blank">
+                                {{ "QR Code Image"|t('shortlink-manager') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a role="option" tabindex="0" href="{{ link.getQrCodeDisplayUrl() }}" target="_blank">
+                                {{ "QR Code Page"|t('shortlink-manager') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{{ link.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="btngroup submit">
+        <button type="submit" class="btn submit">{{ "Save"|t('app') }}</button>
+        <button type="button" class="btn submit menubtn"></button>
+        <div class="menu">
+            <ul role="listbox">
+                <li>
+                    <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('shortlink-manager/links/{id}', {site: currentSite.handle})|hash }}">
+                        <span class="label">{{ 'Save and continue editing'|t('app') }}</span>
+                        <span class="shortcut" id="save-shortcut"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% if link.id %}
+        <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('app') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('app') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
+        <div id="action-menu" class="menu menu--disclosure">
+            <ul>
+                <li>
+                    <button class="menu-item error formsubmit" data-destructive data-action="shortlink-manager/links/delete" data-params='{"id":{{ link.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'shortlink-manager/links'|hash }}" data-headers='{"Accept":"application/json"}'>
+                        <span class="icon">{{ svg('@app/icons/trash.svg') }}</span>
+                        <span class="menu-item-label">{{ "Delete"|t('app') }}</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="shortlink-manager/links/save">
+    {# Default redirect goes back to index #}
+    {{ redirectInput('shortlink-manager/links') }}
+    {% if link.id %}
+        <input type="hidden" name="linkId" value="{{ link.id }}">
+    {% endif %}
+    {% if craft.app.sites.getTotalEditableSites() > 1 %}
+        <input type="hidden" name="siteId" value="{{ link.siteId }}">
+    {% endif %}
+
+    <div id="fields">
+        {% include "shortlink-manager/links/_partials/fields" %}
+    </div>
+
+    {# Custom field layout tabs #}
+    {% set fieldLayout = link.getFieldLayout() %}
+    {% if fieldLayout %}
+        {% for tab in fieldLayout.getTabs() %}
+            {% set tabId = 'tab-' ~ tab.id %}
+            <div id="{{ tabId }}" class="hidden">
+                {% for element in tab.getElements() %}
+                    {{ element.formHtml(link, link.getIsRevision())|raw }}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {# Analytics tab #}
+    {% if plugin.settings.enableAnalytics and link.id and (link.trackAnalytics ?? true) %}
+        <div id="analytics" class="hidden">
+            {% include "shortlink-manager/links/_partials/analytics" %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block details %}
+    <div class="meta">
+        {# Code Field (read-only display) #}
+        {% if link.id %}
+            <div class="field" data-attribute="code">
+                <div class="heading">
+                    <label>{{ "Code"|t('shortlink-manager') }}</label>
+                </div>
+                <div class="input ltr">
+                    <div class="value"><code style="font-size: 13px;">{{ link.code }}</code></div>
+                </div>
+            </div>
+        {% endif %}
+
+        {# Author field #}
+        {{ forms.elementSelectField({
+            label: "Author"|t('app'),
+            id: 'authorId',
+            name: 'authorId',
+            elementType: 'craft\\elements\\User',
+            elements: link.id and link.getAuthor() ? [link.getAuthor()] : [currentUser],
+            sources: '*',
+            criteria: {
+                status: null
+            },
+            limit: 1,
+            viewMode: 'small'
+        }) }}
+
+        {# Post Date #}
+        {{ forms.dateTimeField({
+            label: "Post Date"|t('app'),
+            id: 'postDate',
+            name: 'postDate',
+            value: link.postDate ?? link.dateCreated ?? now,
+            showTimeZone: false
+        }) }}
+
+        {# Expiry Date #}
+        {{ forms.dateTimeField({
+            label: "Expiry Date"|t('app'),
+            id: 'expiryDate',
+            name: 'expiryDate',
+            value: link.dateExpired ?? null,
+            showTimeZone: false
+        }) }}
+    </div>
+
+    {% if link.id %}
+        <fieldset>
+            <legend class="h6">{{ "ShortLink URL"|t('shortlink-manager') }}</legend>
+            <div class="meta" style="padding-inline: 0;">
+                <div class="flex" style="gap: 8px;">
+                    <div class="textwrapper" style="flex-grow: 1;">
+                        <input type="text" class="text fullwidth" readonly value="{{ link.getUrl() }}" id="shortlink-url" style="border: none; padding-inline: var(--m) var(--s);">
+                    </div>
+                    <button type="button" class="btn" id="copy-url-btn" style="border-start-start-radius: 0; border-end-start-radius: 0;">
+                        {{ "Copy"|t('app') }}
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    {% endif %}
+
+    <fieldset>
+        <legend class="h6">Status</legend>
+        <div class="meta">
+            {{ forms.lightswitchField({
+                label: "Enabled"|t('app'),
+                id: 'enabled',
+                name: 'enabled',
+                on: link.enabled ?? true,
+            }) }}
+        </div>
+    </fieldset>
+
+    {% if plugin.settings.enableAnalytics %}
+        <fieldset>
+            <legend class="h6">{{ "Analytics"|t('shortlink-manager') }}</legend>
+            <div class="meta">
+                {{ forms.lightswitchField({
+                    label: "Track Analytics"|t('shortlink-manager'),
+                    id: 'trackAnalytics',
+                    name: 'trackAnalytics',
+                    on: link.trackAnalytics ?? true
+                }) }}
+            </div>
+        </fieldset>
+    {% endif %}
+
+    {% if plugin.settings.enableQrCodes %}
+    <fieldset>
+        <legend class="h6">{{ "QR Code"|t('shortlink-manager') }}</legend>
+        <div class="meta">
+            {{ forms.lightswitchField({
+                label: "Enable QR Code"|t('shortlink-manager'),
+                id: 'qrCodeEnabled',
+                name: 'qrCodeEnabled',
+                on: link.qrCodeEnabled ?? true,
+                toggle: 'qr-settings'
+            }) }}
+        </div>
+
+        <div id="qr-settings" class="meta {{ not (link.qrCodeEnabled ?? true) ? 'hidden' }}">
+            {% if link.id %}
+                <div class="field nested">
+                    <div class="heading">
+                        <label>{{ "Preview"|t('shortlink-manager') }}</label>
+                    </div>
+                    <div class="input" style="text-align: center;">
+                        <a href="{{ link.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
+                            <img id="qr-preview"
+                                 src="{{ link.getQrCodeDataUri({ size: 150 }) }}"
+                                 alt="QR Code Preview"
+                                 style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ link.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            {{ forms.textField({
+                label: "Size"|t('shortlink-manager'),
+                id: 'qrCodeSize',
+                name: 'qrCodeSize',
+                value: link.qrCodeSize ?? 256,
+                type: 'number',
+                min: 100,
+                max: 1000,
+                size: 5,
+                fieldClass: 'nested'
+            }) }}
+
+            {{ forms.colorField({
+                label: "Color"|t('shortlink-manager'),
+                id: 'qrCodeColor',
+                name: 'qrCodeColor',
+                value: link.qrCodeColor ?: plugin.settings.defaultQrColor,
+                fieldClass: 'nested'
+            }) }}
+
+            {{ forms.colorField({
+                label: "Background"|t('shortlink-manager'),
+                id: 'qrCodeBgColor',
+                name: 'qrCodeBgColor',
+                value: link.qrCodeBgColor ?: plugin.settings.defaultQrBgColor,
+                fieldClass: 'nested'
+            }) }}
+
+            {{ forms.colorField({
+                label: "Eye Color"|t('shortlink-manager'),
+                instructions: "Color for position markers (leave empty to use main color)"|t('shortlink-manager'),
+                id: 'qrCodeEyeColor',
+                name: 'qrCodeEyeColor',
+                value: link.qrCodeEyeColor ?: (plugin.settings.qrEyeColor ?? ''),
+                fieldClass: 'nested'
+            }) }}
+
+            {{ forms.selectField({
+                label: "Format"|t('shortlink-manager'),
+                instructions: "Override the default QR code format"|t('shortlink-manager'),
+                id: 'qrCodeFormat',
+                name: 'qrCodeFormat',
+                value: link.qrCodeFormat ?? '',
+                options: [
+                    { label: 'Default (from settings)', value: '' },
+                    { label: 'PNG', value: 'png' },
+                    { label: 'SVG', value: 'svg' },
+                ],
+                fieldClass: 'nested'
+            }) }}
+
+            {# QR Logo (only show if logos are enabled in settings) #}
+            {% if plugin.settings.enableQrLogo %}
+                {% set selectedLogo = null %}
+                {% if link.qrLogoId %}
+                    {% set selectedLogo = craft.assets.id(link.qrLogoId).one() %}
+                {% elseif plugin.settings.defaultQrLogoId %}
+                    {% set selectedLogo = craft.assets.id(plugin.settings.defaultQrLogoId).one() %}
+                {% endif %}
+                {{ forms.elementSelectField({
+                    label: "Logo"|t('shortlink-manager'),
+                    instructions: link.qrLogoId ? "Override the default QR code logo"|t('shortlink-manager') : "Using default logo from settings (click to override)"|t('shortlink-manager'),
+                    id: 'qrLogoId',
+                    name: 'qrLogoId',
+                    elementType: 'craft\\elements\\Asset',
+                    criteria: {
+                        kind: ['image']
+                    },
+                    limit: 1,
+                    elements: selectedLogo ? [selectedLogo] : [],
+                    fieldClass: 'nested'
+                }) }}
+            {% endif %}
+
+            {# QR Code Actions #}
+            {% if plugin.settings.enableQrDownload and link.id %}
+                <div class="field nested" style="margin-top: 15px;">
+                    <div class="heading">
+                        <label>{{ "Actions"|t('shortlink-manager') }}</label>
+                    </div>
+                    <div class="input">
+                        <div class="btngroup">
+                            <button type="button" class="btn menubtn" data-icon="settings">{{ "QR Code Actions"|t('shortlink-manager') }}</button>
+                            <div class="menu">
+                                <ul>
+                                    <li>
+                                        <h6>{{ "Download QR Code"|t('shortlink-manager') }}</h6>
+                                        <ul>
+                                            <li><a class="download-qr" data-size="256" href="#">{{ "Small (256px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="512" href="#">{{ "Medium (512px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="1024" href="#">{{ "Large (1024px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="2048" href="#">{{ "Extra Large (2048px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a class="download-qr" data-size="custom" href="#">{{ "Custom Size..."|t('shortlink-manager') }}</a></li>
+                                        </ul>
+                                    </li>
+                                    <hr>
+                                    <li>
+                                        <h6>{{ "View QR Code"|t('shortlink-manager') }}</h6>
+                                        <ul>
+                                            <li>
+                                                <a href="{{ link.getQrCodeUrl() }}" target="_blank">
+                                                    {{ "QR Code Image"|t('shortlink-manager') }}
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ link.getQrCodeDisplayUrl() }}" target="_blank">
+                                                    {{ "QR Code Page"|t('shortlink-manager') }}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <hr>
+                                    <li><a id="reset-qr-defaults" href="#">{{ "Reset to Defaults"|t('shortlink-manager') }}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </fieldset>
+    {% endif %}
+
+    {% if link.id %}
+        <dl class="meta read-only">
+            <div class="data">
+                <dt class="heading">{{ "ID"|t('app') }}</dt>
+                <dd class="value">{{ link.id }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Status"|t('app') }}</dt>
+                <dd class="value">
+                    {% if link.enabled %}
+                        <span class="status live"></span>
+                        <span>{{ 'Live'|t('app') }}</span>
+                    {% else %}
+                        <span class="status disabled"></span>
+                        <span>{{ 'Disabled'|t('app') }}</span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Hits"|t('shortlink-manager') }}</dt>
+                <dd class="value">{{ link.hits|number_format }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Created at"|t('app') }}</dt>
+                <dd class="value">{{ link.dateCreated|datetime('short') }}</dd>
+            </div>
+            <div class="data">
+                <dt class="heading">{{ "Updated at"|t('app') }}</dt>
+                <dd class="value">{{ link.dateUpdated|datetime('short') }}</dd>
+            </div>
+        </dl>
+    {% endif %}
+{% endblock %}
+
+{% js %}
+    // Copy URL button
+    $('#copy-url-btn').on('click', function() {
+        const urlInput = document.getElementById('shortlink-url');
+        if (urlInput) {
+            urlInput.select();
+            document.execCommand('copy');
+            Craft.cp.displayNotice('{{ "URL copied to clipboard"|t('shortlink-manager')|e('js') }}');
+        }
+    });
+
+    // Set platform-specific keyboard shortcut
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const saveShortcut = document.getElementById('save-shortcut');
+    if (saveShortcut) {
+        saveShortcut.textContent = isMac ? '⌘S' : 'Ctrl+S';
+    }
+
+    // Update HTTP Status Code tip based on selection
+    const httpCodeSelect = document.getElementById('httpCode');
+    const httpCodeTipText = document.getElementById('httpCodeTipText');
+
+    function updateHttpCodeTip() {
+        if (!httpCodeSelect || !httpCodeTipText) return;
+
+        const code = parseInt(httpCodeSelect.value);
+        let tip = '';
+
+        switch(code) {
+            case 301:
+                tip = '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index. <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">Learn more</a>';
+                break;
+            case 302:
+                tip = '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index. <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">Learn more</a>';
+                break;
+            case 307:
+                tip = '<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won\'t change (POST stays POST). <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">Learn more</a>';
+                break;
+            case 308:
+                tip = '<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won\'t change (POST stays POST). <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">Learn more</a>';
+                break;
+        }
+
+        httpCodeTipText.innerHTML = tip;
+    }
+
+    if (httpCodeSelect) {
+        httpCodeSelect.addEventListener('change', updateHttpCodeTip);
+        updateHttpCodeTip(); // Initialize on load
+    }
+
+    // Toggle link type fields
+    $('#linkType').on('change', function() {
+        const type = $(this).val();
+        if (type === 'code') {
+            $('#code-field-auto').removeClass('hidden');
+            $('#code-field-vanity').addClass('hidden');
+            // Disable vanity input so it doesn't override auto
+            $('#codeVanity').prop('disabled', true);
+            $('#codeAuto').prop('disabled', false);
+        } else {
+            $('#code-field-auto').addClass('hidden');
+            $('#code-field-vanity').removeClass('hidden');
+            // Disable auto input so it doesn't override vanity
+            $('#codeAuto').prop('disabled', true);
+            $('#codeVanity').prop('disabled', false);
+        }
+    }).trigger('change'); // Initialize on page load
+
+    // Regenerate code button
+    $('#regenerate-code-btn').on('click', function() {
+        if (!confirm('{{ "Generate a new code? This will change the shortlink URL and may break existing links."|t('shortlink-manager')|e('js') }}')) {
+            return;
+        }
+
+        Craft.sendActionRequest('POST', 'shortlink-manager/links/generate-code')
+            .then(function(response) {
+                if (response.data && response.data.code) {
+                    $('#current-code-display').text(response.data.code);
+                    $('#codeAuto').val(response.data.code);
+                    Craft.cp.displayNotice('{{ "New code generated. Save to apply changes."|t('shortlink-manager')|e('js') }}');
+                }
+            })
+            .catch(function(error) {
+                Craft.cp.displayError('{{ "Failed to generate code"|t('shortlink-manager')|e('js') }}');
+            });
+    });
+
+    // Initialize disclosure menu
+    if (typeof Craft !== 'undefined' && Craft.ui && Craft.ui.createDisclosureMenu) {
+        const actionBtn = document.getElementById('action-btn');
+        if (actionBtn) {
+            new Craft.ui.createDisclosureMenu(actionBtn);
+        }
+    }
+
+    {% if link.id %}
+        // Live QR code preview
+        (function() {
+            const qrPreview = document.getElementById('qr-preview');
+            if (!qrPreview) {
+                return;
+            }
+
+            const qrLink = qrPreview.closest('a');
+            const colorInput = document.getElementById('qrCodeColor');
+            const bgColorInput = document.getElementById('qrCodeBgColor');
+            const eyeColorInput = document.getElementById('qrCodeEyeColor');
+            const sizeInput = document.getElementById('qrCodeSize');
+            const formatSelect = document.getElementById('qrCodeFormat');
+            const baseUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: link.id}) }}';
+            let updateTimeout;
+
+            function updateQrCode() {
+                clearTimeout(updateTimeout);
+
+                updateTimeout = setTimeout(function() {
+                    // Get color values - Craft's color input doesn't include #
+                    const color = (colorInput.value || '000000').replace(/^#/, '');
+                    const bgColor = (bgColorInput.value || 'FFFFFF').replace(/^#/, '');
+                    const eyeColor = eyeColorInput.value ? eyeColorInput.value.replace(/^#/, '') : '';
+                    const size = sizeInput.value || 256;
+
+                    // Add loading state
+                    qrPreview.style.opacity = '0.5';
+
+                    // Create new image to preload
+                    const newImg = new Image();
+                    newImg.onload = function() {
+                        qrPreview.src = this.src;
+                        qrPreview.style.opacity = '1';
+                    };
+
+                    newImg.onerror = function() {
+                        qrPreview.style.opacity = '1';
+                    };
+
+                    // Get the format - use selected value or default
+                    const formatValue = formatSelect ? formatSelect.value : '';
+                    const format = formatValue || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
+
+                    // Build parameters
+                    let params = `size=150&color=${color}&bg=${bgColor}&format=${format}&margin={{ plugin.settings.defaultQrMargin }}`;
+                    let fullSizeParams = `size=${size}&color=${color}&bg=${bgColor}&format=${format}&margin={{ plugin.settings.defaultQrMargin }}`;
+
+                    // Add eye color if set
+                    if (eyeColor) {
+                        params += `&eyeColor=${eyeColor}`;
+                        fullSizeParams += `&eyeColor=${eyeColor}`;
+                    }
+
+                    {% if plugin.settings.enableQrLogo %}
+                    // Add logo parameter if one is selected OR use default logo
+                    const logoField = document.querySelector('#qrLogoId-field .elements');
+                    let logoId = null;
+
+                    if (logoField) {
+                        const selectedLogo = logoField.querySelector('.element');
+                        if (selectedLogo) {
+                            logoId = selectedLogo.dataset.id;
+                        }
+                    }
+
+                    // If no specific logo selected, use default logo from settings
+                    if (!logoId && {{ plugin.settings.defaultQrLogoId ?? 'null' }}) {
+                        logoId = {{ plugin.settings.defaultQrLogoId ?? 'null' }};
+                    }
+
+                    if (logoId) {
+                        params += `&logo=${logoId}`;
+                        fullSizeParams += `&logo=${logoId}`;
+                    }
+                    {% endif %}
+
+                    // Update QR code image
+                    const newSrc = `${baseUrl}&${params}&t=${Date.now()}`;
+                    newImg.src = newSrc;
+
+                    // Update preview background immediately
+                    qrPreview.style.background = '#' + bgColor;
+
+                    // Update link to full size
+                    if (qrLink) {
+                        qrLink.href = `${baseUrl}&${fullSizeParams}`;
+                    }
+                }, 150); // Debounce delay
+            }
+
+            // Attach event listeners with multiple strategies for Craft's color fields
+            const inputs = [colorInput, bgColorInput, eyeColorInput];
+            inputs.forEach(input => {
+                if (!input) return;
+
+                // Standard input events
+                ['input', 'change', 'keyup', 'blur', 'paste'].forEach(event => {
+                    input.addEventListener(event, updateQrCode);
+                });
+
+                // Watch for value changes via MutationObserver
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                            updateQrCode();
+                        }
+                    });
+                });
+
+                observer.observe(input, {
+                    attributes: true,
+                    attributeFilter: ['value']
+                });
+
+                // Find the actual color picker button (Craft uses a button that opens a color picker)
+                const colorButton = input.closest('.color-field')?.querySelector('button.color-preview');
+                if (colorButton) {
+                    colorButton.addEventListener('click', () => {
+                        // Poll for changes after color picker is opened
+                        let lastValue = input.value;
+                        const checkInterval = setInterval(() => {
+                            if (input.value !== lastValue) {
+                                lastValue = input.value;
+                                updateQrCode();
+                            }
+                        }, 100);
+
+                        // Stop polling after 30 seconds
+                        setTimeout(() => clearInterval(checkInterval), 30000);
+                    });
+                }
+            });
+
+            // Size input
+            if (sizeInput) {
+                sizeInput.addEventListener('input', updateQrCode);
+                sizeInput.addEventListener('change', updateQrCode);
+            }
+
+            // Format select
+            if (formatSelect) {
+                formatSelect.addEventListener('change', updateQrCode);
+            }
+
+            // Global event delegation for any change events on our inputs
+            document.addEventListener('input', function(e) {
+                if (e.target === colorInput || e.target === bgColorInput || e.target === eyeColorInput) {
+                    updateQrCode();
+                }
+            }, true);
+
+            // Watch for Craft's custom events
+            if (typeof Craft !== 'undefined' && Craft.cp) {
+                // Hook into Craft's CP JavaScript if available
+                const checkForChanges = () => {
+                    if (colorInput && colorInput.value !== colorInput.dataset.lastValue) {
+                        colorInput.dataset.lastValue = colorInput.value;
+                        updateQrCode();
+                    }
+                    if (bgColorInput && bgColorInput.value !== bgColorInput.dataset.lastValue) {
+                        bgColorInput.dataset.lastValue = bgColorInput.value;
+                        updateQrCode();
+                    }
+                    if (eyeColorInput && eyeColorInput.value !== eyeColorInput.dataset.lastValue) {
+                        eyeColorInput.dataset.lastValue = eyeColorInput.value;
+                        updateQrCode();
+                    }
+                };
+
+                // Store initial values
+                if (colorInput) colorInput.dataset.lastValue = colorInput.value;
+                if (bgColorInput) bgColorInput.dataset.lastValue = bgColorInput.value;
+                if (eyeColorInput) eyeColorInput.dataset.lastValue = eyeColorInput.value;
+
+                // Check periodically
+                setInterval(checkForChanges, 500);
+
+                // Hook into Craft's editor events if available
+                if (typeof Craft.BaseElementEditor !== 'undefined') {
+                    Garnish.on(Craft.BaseElementEditor, 'onFieldChange', (e) => {
+                        updateQrCode();
+                    });
+                }
+
+                // Try to hook into Craft's color field specifically
+                $(document).on('change', '.color-field input[type="text"]', function() {
+                    updateQrCode();
+                });
+
+                // Also try Garnish events
+                if (typeof Garnish !== 'undefined') {
+                    $(colorInput).on('change textchange input', updateQrCode);
+                    $(bgColorInput).on('change textchange input', updateQrCode);
+                    $(eyeColorInput).on('change textchange input', updateQrCode);
+                }
+            }
+
+            // Final fallback - watch the color display elements themselves
+            const watchColorDisplay = () => {
+                const colorDisplays = document.querySelectorAll('.color-field .color-preview, .color-field .color-container');
+                colorDisplays.forEach(display => {
+                    const observer = new MutationObserver(() => {
+                        updateQrCode();
+                    });
+                    observer.observe(display, { attributes: true, attributeFilter: ['style'] });
+                });
+            };
+
+            // Wait a bit for Craft to initialize color fields
+            setTimeout(watchColorDisplay, 1000);
+
+            {% if plugin.settings.enableQrLogo %}
+            // Watch for logo field changes
+            const logoFieldContainer = document.getElementById('qrLogoId-field');
+            if (logoFieldContainer) {
+                // Watch for changes to the element field
+                const observer = new MutationObserver(() => {
+                    updateQrCode();
+                });
+
+                observer.observe(logoFieldContainer, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    characterData: true
+                });
+            }
+            {% endif %}
+        })();
+    {% endif %}
+
+    // Download QR code
+    $('.download-qr').on('click', function(e) {
+        e.preventDefault();
+
+        let size = $(this).data('size');
+
+        // Handle custom size
+        if (size === 'custom') {
+            const customSize = prompt('{{ "Enter custom size (100-4096 pixels):"|t('shortlink-manager')|e('js') }}', '1024');
+            if (!customSize) return;
+
+            size = parseInt(customSize);
+            if (isNaN(size) || size < 100 || size > 4096) {
+                alert('{{ "Please enter a valid size between 100 and 4096 pixels"|t('shortlink-manager')|e('js') }}');
+                return;
+            }
+        }
+
+        const color = ($('#qrCodeColor').val() || '000000').replace(/^#/, '');
+        const bgColor = ($('#qrCodeBgColor').val() || 'FFFFFF').replace(/^#/, '');
+        const eyeColor = $('#qrCodeEyeColor').val() ? $('#qrCodeEyeColor').val().replace(/^#/, '') : '';
+        const format = $('#qrCodeFormat').val() || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
+
+        // Build download URL using action URL
+        let downloadUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: link.id}) }}' +
+            '&size=' + size +
+            '&color=' + color +
+            '&bg=' + bgColor +
+            '&format=' + format +
+            '&download=1';
+
+        // Add eye color if set
+        if (eyeColor) {
+            downloadUrl += '&eyeColor=' + eyeColor;
+        }
+
+        // Get logo if selected
+        {% if plugin.settings.enableQrLogo %}
+            const logoField = document.querySelector('#qrLogoId-field .elements .element');
+            if (logoField) {
+                downloadUrl += '&logo=' + logoField.dataset.id;
+            }
+        {% endif %}
+
+        // Create temporary link and click it
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        const finalFilename = '{{ link.code }}-qr-' + size;
+        link.download = `${finalFilename}.${format}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    // Reset QR code settings to defaults
+    $('#reset-qr-defaults').on('click', function(e) {
+        e.preventDefault();
+        if (!confirm('{{ "Reset QR code settings to plugin defaults?"|t('shortlink-manager')|e('js') }}')) {
+            return;
+        }
+
+        $('#qrCodeSize').val({{ plugin.settings.defaultQrSize }});
+        $('#qrCodeColor').val('{{ plugin.settings.defaultQrColor }}');
+        $('#qrCodeBgColor').val('{{ plugin.settings.defaultQrBgColor }}');
+        $('#qrCodeEyeColor').val('{{ plugin.settings.qrEyeColor ?? '' }}');
+        $('#qrCodeFormat').val('{{ plugin.settings.defaultQrFormat ?? '' }}');
+
+        Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('shortlink-manager')|e('js') }}');
+    });
+{% endjs %}

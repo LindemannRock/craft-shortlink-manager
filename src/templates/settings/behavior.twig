@@ -1,0 +1,117 @@
+{% extends "shortlink-manager/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set title = "Behavior Settings"|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'behavior' %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager'),
+    },
+    {
+        label: 'Settings'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings'),
+    },
+    {
+        label: 'Behavior'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings/behavior'),
+    },
+] %}
+
+{% block actionButton %}
+	<div class="btngroup">
+		<input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+	</div>
+{% endblock %}
+
+{% block content %}
+	{% include 'shortlink-manager/_components/ip-salt-error' %}
+
+	<form method="post" accept-charset="UTF-8">
+		<input type="hidden" name="action" value="shortlink-manager/settings/save">
+		{{ csrfInput() }}
+		{{ redirectInput('shortlink-manager/settings/behavior') }}
+		{{ hiddenInput('section', 'behavior') }}
+
+		<h2 style="margin-top: 0px;">{{ "Redirect Settings"|t('shortlink-manager') }}</h2>
+
+		{{ forms.selectField({
+        label: "Default HTTP Code"|t('shortlink-manager'),
+        id: 'defaultHttpCode',
+        name: 'settings[defaultHttpCode]',
+        value: settings.defaultHttpCode,
+        options: {
+            301: '301 - Permanent'|t('shortlink-manager'),
+            302: '302 - Temporary'|t('shortlink-manager'),
+            307: '307 - Temporary'|t('shortlink-manager'),
+            308: '308 - Permanent'|t('shortlink-manager'),
+        },
+        disabled: settings.isOverriddenByConfig('defaultHttpCode'),
+        warning: settings.isOverriddenByConfig('defaultHttpCode') ?
+            "This is being overridden by the <code>defaultHttpCode</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+    <p id="httpCodeTip" class="notice has-icon" style="margin-top: 10px;">
+        <span class="icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Tip:</span>
+        <span id="httpCodeTipText">Most common: Use <strong>301</strong> for permanent shortlinks.
+            <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">Learn more</a>
+        </span>
+    </p>
+
+		{{ forms.textField({
+        label: "Default 404 Redirect URL"|t('shortlink-manager'),
+        id: 'notFoundRedirectUrl',
+        name: 'settings[notFoundRedirectUrl]',
+        value: settings.notFoundRedirectUrl,
+        instructions: "Where to redirect when a shortlink is not found"|t('shortlink-manager'),
+        disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),
+        warning: settings.isOverriddenByConfig('notFoundRedirectUrl') ?
+            "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+		<div class="buttons">
+			<button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
+		</div>
+	</form>
+
+	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+{% endblock %}
+
+{% js %}
+// Update HTTP Status Code tip based on selection
+const httpCodeSelect = document.getElementById('defaultHttpCode');
+const httpCodeTipText = document.getElementById('httpCodeTipText');
+
+function updateHttpCodeTip() {
+    if (!httpCodeSelect || !httpCodeTipText) return;
+
+    const code = parseInt(httpCodeSelect.value);
+    let tip = '';
+
+    switch(code) {
+        case 301:
+            tip = '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index. <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">Learn more</a>';
+            break;
+        case 302:
+            tip = '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL. <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">Learn more</a>';
+            break;
+        case 307:
+            tip = '<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won\'t change (POST stays POST). <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">Learn more</a>';
+            break;
+        case 308:
+            tip = '<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won\'t change (POST stays POST). <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">Learn more</a>';
+            break;
+    }
+
+    httpCodeTipText.innerHTML = tip;
+}
+
+if (httpCodeSelect) {
+    httpCodeSelect.addEventListener('change', updateHttpCodeTip);
+    updateHttpCodeTip(); // Initialize on load
+}
+{% endjs %}

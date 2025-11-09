@@ -1,0 +1,43 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.selectField({
+    label: "Link Type"|t('shortlink-manager'),
+    instructions: "Should the code be auto-generated or allow custom vanity URLs?"|t('shortlink-manager'),
+    id: 'linkType',
+    name: 'linkType',
+    value: field.linkType,
+    options: {
+        'code': 'Auto-generated Code'|t('shortlink-manager'),
+        'vanity': 'Custom Vanity URL'|t('shortlink-manager'),
+    },
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Enable QR Code"|t('shortlink-manager'),
+    instructions: "Show QR code in the field"|t('shortlink-manager'),
+    id: 'enableQrCode',
+    name: 'enableQrCode',
+    on: field.enableQrCode,
+}) }}
+
+{{ forms.selectField({
+    label: "Default HTTP Code"|t('shortlink-manager'),
+    instructions: "Default redirect type for shortlinks created with this field"|t('shortlink-manager'),
+    id: 'defaultHttpCode',
+    name: 'defaultHttpCode',
+    value: field.defaultHttpCode,
+    options: {
+        301: '301 - Permanent Redirect'|t('shortlink-manager'),
+        302: '302 - Temporary Redirect'|t('shortlink-manager'),
+        307: '307 - Temporary Redirect'|t('shortlink-manager'),
+        308: '308 - Permanent Redirect'|t('shortlink-manager'),
+    },
+}) }}
+
+{{ forms.lightswitchField({
+    label: "Enable Expiration"|t('shortlink-manager'),
+    instructions: "Allow setting expiration dates on shortlinks"|t('shortlink-manager'),
+    id: 'enableExpiration',
+    name: 'enableExpiration',
+    on: field.enableExpiration,
+}) }}

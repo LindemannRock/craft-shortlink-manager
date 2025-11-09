@@ -1,0 +1,59 @@
+{% extends "shortlink-manager/_layouts/settings" %}
+{% set title = "Interface Settings"|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'interface' %}
+
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set crumbs = [
+    {
+        label: plugin.settings.pluginName|t('shortlink-manager'),
+        url: url('shortlink-manager'),
+    },
+    {
+        label: 'Settings'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings'),
+    },
+    {
+        label: 'Interface'|t('shortlink-manager'),
+        url: url('shortlink-manager/settings/interface'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+	{% set pluginName = plugin.settings.pluginName %}
+
+	{% include 'shortlink-manager/_components/ip-salt-error' %}
+
+	<form method="post" accept-charset="UTF-8">
+		{{ actionInput('shortlink-manager/settings/save') }}
+		{{ csrfInput() }}
+		{{ redirectInput('shortlink-manager/settings/interface') }}
+		{{ hiddenInput('section', 'interface') }}
+
+		<h2 style="margin-top: 0px;">{{ "Interface Settings"|t('shortlink-manager') }}</h2>
+
+		{{ forms.textField({
+            label: "Items Per Page"|t('shortlink-manager'),
+            instructions: "Number of {pluginName} to show per page"|t('shortlink-manager', {pluginName: pluginName|lower}),
+            id: 'itemsPerPage',
+            name: 'settings[itemsPerPage]',
+            value: settings.itemsPerPage ?? 50,
+            type: 'number',
+            min: 10,
+            max: 500,
+            required: true,
+            disabled: settings.isOverriddenByConfig('itemsPerPage'),
+            warning: settings.isOverriddenByConfig('itemsPerPage') ?
+                "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            errors: settings.getErrors('itemsPerPage')
+        }) }}
+
+		<div class="buttons">
+			<button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
+		</div>
+	</form>
+
+	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+{% endblock %}

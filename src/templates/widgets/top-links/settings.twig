@@ -1,0 +1,28 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.selectField({
+    label: 'Date Range'|t('shortlink-manager'),
+    id: 'dateRange',
+    name: 'dateRange',
+    value: widget.dateRange,
+    options: {
+        'today': 'Today'|t('shortlink-manager'),
+        'yesterday': 'Yesterday'|t('shortlink-manager'),
+        'last7days': 'Last 7 days'|t('shortlink-manager'),
+        'last30days': 'Last 30 days'|t('shortlink-manager'),
+        'last90days': 'Last 90 days'|t('shortlink-manager'),
+        'all': 'All time'|t('shortlink-manager'),
+    }
+}) }}
+
+{{ forms.textField({
+    label: 'Number of Links'|t('shortlink-manager'),
+    instructions: 'How many top links to display (1-20)'|t('shortlink-manager'),
+    id: 'limit',
+    name: 'limit',
+    value: widget.limit,
+    type: 'number',
+    min: 1,
+    max: 20,
+    size: 3
+}) }}

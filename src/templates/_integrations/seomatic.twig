@@ -1,0 +1,35 @@
+{#
+  SEOmatic integration tracking template
+  Pushes shortlink events to Google Tag Manager dataLayer
+#}
+{% macro tracking(link, eventType = 'redirect') %}
+    {% set seomaticEnabled = craft.app.plugins.isPluginEnabled('seomatic') and 'seomatic' in (craft.app.plugins.getPlugin('shortlink-manager').settings.enabledIntegrations ?? []) %}
+
+    {% if seomaticEnabled %}
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        (function() {
+            var eventPrefix = '{{ craft.app.plugins.getPlugin('shortlink-manager').settings.seomaticEventPrefix ?? 'shortlink_manager' }}';
+            var eventType = '{{ eventType }}';
+
+            var eventData = {
+                event: eventPrefix + '_' + eventType,
+                shortlink: {
+                    code: '{{ link.code }}',
+                    title: '{{ link.title }}',
+                    source: '{{ craft.app.request.getParam('src', 'direct') }}',
+                    click_type: eventType
+                }
+            };
+
+            window.dataLayer.push(eventData);
+
+            {% if craft.app.config.general.devMode %}
+            console.log('✅ Shortlink Manager: Event pushed to dataLayer:', eventData);
+            console.log('📊 Current dataLayer length:', window.dataLayer.length);
+            {% endif %}
+        })();
+    </script>
+    {% endif %}
+{% endmacro %}
