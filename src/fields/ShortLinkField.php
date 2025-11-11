@@ -61,7 +61,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
      */
     public function getSettingsHtml(): ?string
     {
-        return Craft::$app->getView()->renderTemplate('shortlink-manager/_fields/ShortLink_settings', [
+        return Craft::$app->getView()->renderTemplate('shortlink-manager/_components/fields/ShortLinkField/settings', [
             'field' => $this,
         ]);
     }
@@ -77,7 +77,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
             $shortLink = ShortLinkManager::$plugin->shortLinks->getByElement($element);
         }
 
-        return Craft::$app->getView()->renderTemplate('shortlink-manager/_fields/ShortLink_input', [
+        return Craft::$app->getView()->renderTemplate('shortlink-manager/_components/fields/ShortLinkField/input', [
             'name' => $this->handle,
             'value' => $value,
             'field' => $this,
@@ -101,7 +101,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
             return '';
         }
 
-        return Craft::$app->getView()->renderTemplate('shortlink-manager/_fields/ShortLink_preview', [
+        return Craft::$app->getView()->renderTemplate('shortlink-manager/_components/fields/ShortLinkField/preview', [
             'shortLink' => $shortLink,
             'field' => $this,
         ]);

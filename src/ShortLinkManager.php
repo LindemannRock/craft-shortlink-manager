@@ -23,6 +23,7 @@ use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\UserPermissions;
 use craft\services\Utilities;
+use craft\fields\Link as LinkField;
 use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
@@ -37,6 +38,7 @@ use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\utilities\ShortLinkManagerUtility;
 use lindemannrock\shortlinkmanager\widgets\AnalyticsSummaryWidget;
 use lindemannrock\shortlinkmanager\widgets\TopLinksWidget;
+use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use yii\base\Event;
@@ -173,6 +175,15 @@ class ShortLinkManager extends Plugin
             Fields::EVENT_REGISTER_FIELD_TYPES,
             function(RegisterComponentTypesEvent $event) {
                 $event->types[] = \lindemannrock\shortlinkmanager\fields\ShortLinkField::class;
+            }
+        );
+
+        // Register Link field integration
+        Event::on(
+            LinkField::class,
+            LinkField::EVENT_REGISTER_LINK_TYPES,
+            function(RegisterComponentTypesEvent $event) {
+                $event->types[] = ShortLinkType::class;
             }
         );
 

@@ -686,4 +686,23 @@ class Settings extends Model
             'logLevel' => Craft::t('shortlink-manager', 'Log Level'),
         ];
     }
+
+    /**
+     * Get display name (singular, without "Manager")
+     *
+     * Strips "Manager" and singularizes the plugin name for use in UI labels.
+     * E.g., "ShortLink Manager" → "ShortLink", "Short Links" → "Short Link"
+     *
+     * @return string
+     */
+    public function getDisplayName(): string
+    {
+        // Strip "Manager" or "manager" from the name
+        $name = str_replace([' Manager', ' manager'], '', $this->pluginName);
+
+        // Singularize by removing trailing 's' if present
+        $singular = preg_replace('/s$/', '', $name) ?: $name;
+
+        return $singular;
+    }
 }
