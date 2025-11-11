@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.0.0...v5.1.0) (2025-11-11)
+
+
+### Features
+
+* add QR templates, multi-site support, and smart-links pattern consistency ([c8e2550](https://github.com/LindemannRock/craft-shortlink-manager/commit/c8e25501b25b49c17de9d180c3b30f826b931dbb))
+
 ## 5.0.0 (2025-11-09)
 
 
