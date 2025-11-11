@@ -12,7 +12,7 @@
 		<div class="menu" data-align="right">
 			<ul>
 				<li>
-					<a href="{{ actionUrl('shortlink-manager/analytics/export', {dateRange: dateRange, format: 'csv'}) }}" class="export-link" data-format="csv">{{ "Export as CSV"|t('shortlink-manager') }}</a>
+					<a href="#" class="export-link" data-format="csv" data-action="shortlink-manager/analytics/export">{{ "Export as CSV"|t('shortlink-manager') }}</a>
 				</li>
 			</ul>
 		</div>
@@ -86,21 +86,21 @@
 							</tr>
 						</thead>
 						<tbody>
-							{% for link in analyticsData.topLinks ?? [] %}
-								{% if link.enabled ?? true %}
+							{% for shortLink in analyticsData.topLinks ?? [] %}
+								{% if shortLink.enabled ?? true %}
 									<tr>
 										<td>
-											<a href="{{ cpUrl('shortlink-manager/links/' ~ link.id) }}">
-												<code>{{ link.code }}</code>
+											<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
+												<code>{{ shortLink.code }}</code>
 											</a>
 										</td>
 										<td>
-											<span title="{{ link.destinationUrl }}">
-												{{ link.destinationUrl|length > 50 ? link.destinationUrl|slice(0, 50) ~ '...' : link.destinationUrl }}
+											<span title="{{ shortLink.destinationUrl }}">
+												{{ shortLink.destinationUrl|length > 50 ? shortLink.destinationUrl|slice(0, 50) ~ '...' : shortLink.destinationUrl }}
 											</span>
 										</td>
-										<td>{{ link.clicks }}</td>
-										<td>{{ link.lastClick ? link.lastClick|datetime('short') : '-' }}</td>
+										<td>{{ shortLink.clicks }}</td>
+										<td>{{ shortLink.lastClick ? shortLink.lastClick|datetime('short') : '-' }}</td>
 									</tr>
 								{% endif %}
 							{% endfor %}
@@ -135,7 +135,7 @@
 								<tr>
 									<td>{{ click.dateCreated|datetime('short') }}</td>
 									<td>
-										<a href="{{ cpUrl('shortlink-manager/links/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
+										<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
 									</td>
 									<td>
 										{% if click.source == 'qr' %}
@@ -415,8 +415,8 @@ $(document).ready(function() {
 	$(document).on('click', '.main-date-range-option', function(e) {
 		e.preventDefault();
 
-		const $link = $(this);
-		const range = $link.data('range');
+		const $btn = $(this);
+		const range = $btn.data('range');
 
 		// Update the button text
 		const rangeLabels = {
@@ -432,12 +432,12 @@ $(document).ready(function() {
 		$('#dateRangeLabel').text(rangeLabels[range] || range);
 
 		// Update selected state
-		$link.closest('ul').find('.sel').removeClass('sel');
-		$link.addClass('sel');
+		$btn.closest('ul').find('.sel').removeClass('sel');
+		$btn.addClass('sel');
 
 		// Close the menu
-		$link.closest('.menu').removeClass('active');
-		$link.closest('.btngroup').find('.menubtn').removeClass('active');
+		$btn.closest('.menu').removeClass('active');
+		$btn.closest('.btngroup').find('.menubtn').removeClass('active');
 
 		// Update current range
 		currentDateRange = range;
@@ -452,6 +452,23 @@ $(document).ready(function() {
 
 		// Reload the page data via AJAX
 		loadAnalyticsData(range);
+	});
+
+	// Handle export link clicks
+	$(document).on('click', '.export-link', function(e) {
+		e.preventDefault();
+		const $link = $(this);
+		const action = $link.data('action');
+		const format = $link.data('format') || 'csv';
+
+		// Build URL with current date range
+		const exportUrl = Craft.getActionUrl(action, {
+			dateRange: currentDateRange,
+			format: format
+		});
+
+		// Trigger download
+		window.location.href = exportUrl;
 	});
 
 	// Load analytics data
@@ -500,16 +517,16 @@ $(document).ready(function() {
 		if (links.length === 0) {
 			html = '<tr><td colspan="4" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
 		} else {
-			links.forEach(function(link) {
-				if (link.enabled !== false) {
+			links.forEach(function(shortLink) {
+				if (shortLink.enabled !== false) {
 					html += '<tr>';
-					html += '<td><a href="' + Craft.getUrl('shortlink-manager/links/' + link.id) + '"><code>' + Craft.escapeHtml(link.code) + '</code></a></td>';
-					html += '<td><span title="' + Craft.escapeHtml(link.destinationUrl) + '">';
-					const url = link.destinationUrl;
+					html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + shortLink.id) + '"><code>' + Craft.escapeHtml(shortLink.code) + '</code></a></td>';
+					html += '<td><span title="' + Craft.escapeHtml(shortLink.destinationUrl) + '">';
+					const url = shortLink.destinationUrl;
 					html += Craft.escapeHtml(url.length > 50 ? url.substring(0, 50) + '...' : url);
 					html += '</span></td>';
-					html += '<td>' + link.clicks + '</td>';
-					html += '<td>' + (link.lastClick ? Craft.formatDate(new Date(link.lastClick.date || link.lastClick)) : '-') + '</td>';
+					html += '<td>' + shortLink.clicks + '</td>';
+					html += '<td>' + (shortLink.lastClick ? Craft.formatDate(new Date(shortLink.lastClick.date || shortLink.lastClick)) : '-') + '</td>';
 					html += '</tr>';
 				}
 			});
@@ -525,7 +542,7 @@ $(document).ready(function() {
 			clicks.forEach(function(click) {
 				html += '<tr>';
 				html += '<td>' + Craft.formatDate(new Date(click.dateCreated.date || click.dateCreated)) + '</td>';
-				html += '<td><a href="' + Craft.getUrl('shortlink-manager/links/' + click.linkId) + '"><code>' + Craft.escapeHtml(click.linkCode) + '</code></a></td>';
+				html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + click.linkId) + '"><code>' + Craft.escapeHtml(click.linkCode) + '</code></a></td>';
 				html += '<td>' + (click.source === 'qr' ? '{{ "QR"|t('shortlink-manager')|e('js') }}' : '{{ "Direct"|t('shortlink-manager')|e('js') }}') + '</td>';
 				html += '<td>';
 				if (click.destinationUrl) {

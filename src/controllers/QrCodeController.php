@@ -230,7 +230,7 @@ class QrCodeController extends Controller
 
         // Prepare template variables
         $templateVars = [
-            'link' => $shortLink,
+            'shortLink' => $shortLink,
             'shortLink' => $shortLink,
             'siteName' => Craft::$app->sites->getCurrentSite()->name,
             'currentSite' => Craft::$app->sites->getCurrentSite(),

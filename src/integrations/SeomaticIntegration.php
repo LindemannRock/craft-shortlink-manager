@@ -9,6 +9,8 @@
 namespace lindemannrock\shortlinkmanager\integrations;
 
 use Craft;
+use craft\helpers\App;
+use nystudio107\seomatic\Seomatic;
 use yii\base\Event;
 
 /**
@@ -121,14 +123,13 @@ class SeomaticIntegration extends BaseIntegration
      */
     private function injectDataLayerEvent(array $eventData): bool
     {
-        $seomaticClass = 'nystudio107\seomatic\Seomatic';
-        if (!class_exists($seomaticClass)) {
+        if (!class_exists(Seomatic::class)) {
             return false;
         }
 
         try {
             // Access SEOmatic's script service
-            $scriptService = $seomaticClass::$plugin->script ?? null;
+            $scriptService = Seomatic::$plugin->script ?? null;
             if (!$scriptService) {
                 $this->logDebug('SEOmatic script service not available');
                 return false;
@@ -259,8 +260,7 @@ class SeomaticIntegration extends BaseIntegration
             $scriptsFound = [];
 
             // Check each site for tracking scripts
-            $seomaticClass = 'nystudio107\seomatic\Seomatic';
-            if (class_exists($seomaticClass)) {
+            if (class_exists(Seomatic::class) && isset(Seomatic::$plugin)) {
                 $currentSiteId = Craft::$app->sites->getCurrentSite()->id;
 
                 foreach ($sites as $site) {
@@ -269,14 +269,14 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Load SEOmatic meta containers for this specific site
                     try {
-                        if (isset($seomaticClass::$plugin->metaContainers)) {
-                            $seomaticClass::$plugin->metaContainers->loadMetaContainers('', $site->id);
+                        if (isset(Seomatic::$plugin->metaContainers)) {
+                            Seomatic::$plugin->metaContainers->loadMetaContainers('', $site->id);
                         }
                     } catch (\Throwable $e) {
                         // Silently continue if we can't load meta containers for this site
                     }
 
-                    $scriptService = $seomaticClass::$plugin->script ?? null;
+                    $scriptService = Seomatic::$plugin->script ?? null;
                     if (!$scriptService) {
                         continue;
                     }
@@ -289,7 +289,9 @@ class SeomaticIntegration extends BaseIntegration
                                 null;
 
                         if (is_string($gtmId)) {
-                            $gtmId = \Craft::parseEnv($gtmId);
+                            if (strpos($gtmId, '$') !== false) {
+                                $gtmId = App::env($gtmId);
+                            }
                             $gtmId = trim($gtmId);
                         }
 
@@ -315,7 +317,9 @@ class SeomaticIntegration extends BaseIntegration
                         $measurementId = $gtagScript->vars['googleAnalyticsId']['value'] ?? null;
 
                         if (is_string($measurementId)) {
-                            $measurementId = \Craft::parseEnv($measurementId);
+                            if (strpos($measurementId, '$') !== false) {
+                                $measurementId = App::env($measurementId);
+                            }
                             $measurementId = trim($measurementId);
                         }
 
@@ -362,7 +366,9 @@ class SeomaticIntegration extends BaseIntegration
                         $partnerId = $linkedInScript->vars['dataPartnerId']['value'] ?? null;
 
                         if (is_string($partnerId)) {
-                            $partnerId = \Craft::parseEnv($partnerId);
+                            if (strpos($partnerId, '$') !== false) {
+                                $partnerId = App::env($partnerId);
+                            }
                             $partnerId = trim($partnerId);
                         }
 

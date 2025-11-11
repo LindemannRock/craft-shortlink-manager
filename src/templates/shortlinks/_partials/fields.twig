@@ -3,17 +3,17 @@
 {% set pluginName = craft.app.plugins.getPlugin('shortlink-manager').settings.pluginName %}
 {% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 
-{% set currentSite = craft.app.sites.getSiteById(link.siteId ?? craft.app.sites.currentSite.id) %}
+{% set currentSite = craft.app.sites.getSiteById(shortLink.siteId ?? craft.app.sites.currentSite.id) %}
 {% set locale = craft.app.i18n.getLocaleById(currentSite.language) %}
 {% set textDir = locale.getOrientation() %}
 
 {# DO NOT namespace - these are native element attributes, not custom fields #}
 
 {# Link Type Selection (only for standalone links, not element-linked) #}
-{% if not link.elementId %}
+{% if not shortLink.elementId %}
     {# Show actual code if editing, otherwise show random example #}
-    {% if link.id and link.code %}
-        {% set codeExample = link.code %}
+    {% if shortLink.id and shortLink.code %}
+        {% set codeExample = shortLink.code %}
     {% else %}
         {% set codeLength = craft.app.plugins.getPlugin('shortlink-manager').settings.codeLength ?? 8 %}
         {% set chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' %}
@@ -29,7 +29,7 @@
         instructions: "How the {singularName} code is created"|t('shortlink-manager', {singularName: singularName|lower}),
         id: 'linkType',
         name: 'linkType',
-        value: link.linkType ?? 'code',
+        value: shortLink.linkType ?? 'code',
         options: {
             'code': ('Auto-generated Code (e.g., ' ~ codeExample ~ ')')|t('shortlink-manager'),
             'vanity': 'Custom Vanity URL (memorable, e.g., pricing)'|t('shortlink-manager'),
@@ -39,7 +39,7 @@
     {# Element-linked shortlinks are always vanity type #}
     <input type="hidden" name="linkType" value="vanity">
     <div class="field">
-        {% set linkedElement = link.getLinkedElement() %}
+        {% set linkedElement = shortLink.getLinkedElement() %}
         {% if linkedElement %}
             <p class="light">
                 {{ "This {singularName} is linked to:"|t('shortlink-manager', {singularName: singularName|lower}) }}
@@ -52,32 +52,32 @@
 {% endif %}
 
 {# Slug/Code Field #}
-{% if link.elementId %}
+{% if shortLink.elementId %}
     {# Element-linked: Always editable #}
     {{ forms.textField({
         label: "Code"|t('shortlink-manager'),
         instructions: "The short code for this link"|t('shortlink-manager'),
         id: 'code',
         name: 'code',
-        value: link.code ?? '',
+        value: shortLink.code ?? '',
         placeholder: 'my-link',
         required: true,
-        errors: link.getErrors('code'),
+        errors: shortLink.getErrors('code'),
     }) }}
 {% else %}
     {# Auto-generated field #}
-    <div id="code-field-auto" class="{{ link.linkType == 'vanity' ? 'hidden' : '' }}">
-        {% if link.id and link.code %}
+    <div id="code-field-auto" class="{{ shortLink.linkType == 'vanity' ? 'hidden' : '' }}">
+        {% if shortLink.id and shortLink.code %}
             <div class="field">
                 <div class="heading">
                     <label>{{ "Code"|t('shortlink-manager') }}</label>
                 </div>
                 <div class="input">
                     <div class="flex" style="gap: 8px; align-items: center;">
-                        <code id="current-code-display" style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px;">{{ link.code }}</code>
+                        <code id="current-code-display" style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px;">{{ shortLink.code }}</code>
                         <button type="button" id="regenerate-code-btn" class="btn" data-icon="refresh" aria-label="{{ 'Generate New Code'|t('shortlink-manager') }}" title="{{ 'Generate New Code'|t('shortlink-manager') }}"></button>
                     </div>
-                    <input type="hidden" id="codeAuto" name="code" value="{{ link.code }}">
+                    <input type="hidden" id="codeAuto" name="code" value="{{ shortLink.code }}">
                 </div>
             </div>
         {% else %}
@@ -94,20 +94,20 @@
     </div>
 
     {# Vanity field #}
-    <div id="code-field-vanity" class="{{ link.linkType != 'vanity' ? 'hidden' : '' }}">
+    <div id="code-field-vanity" class="{{ shortLink.linkType != 'vanity' ? 'hidden' : '' }}">
         {{ forms.textField({
             label: "Code"|t('shortlink-manager'),
             instructions: "Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)"|t('shortlink-manager'),
             id: 'codeVanity',
             name: 'code',
-            value: link.linkType == 'vanity' ? link.code : '',
+            value: shortLink.linkType == 'vanity' ? shortLink.code : '',
             placeholder: 'My Promo 2025',
             autofocus: true,
             required: true,
-            errors: link.getErrors('code'),
+            errors: shortLink.getErrors('code'),
         }) }}
-        {% if link.slug and link.code != link.slug %}
-            <p class="light" style="margin-top: 4px;">{{ "Slug: {slug}"|t('shortlink-manager', {slug: link.slug}) }}</p>
+        {% if shortLink.slug and shortLink.code != shortLink.slug %}
+            <p class="light" style="margin-top: 4px;">{{ "Slug: {slug}"|t('shortlink-manager', {slug: shortLink.slug}) }}</p>
         {% endif %}
     </div>
 {% endif %}
@@ -118,11 +118,11 @@
     instructions: "Full URL (https://example.com) or path (/page)"|t('shortlink-manager'),
     id: 'destinationUrl',
     name: 'destinationUrl',
-    value: link.destinationUrl ?? '',
+    value: shortLink.destinationUrl ?? '',
     type: 'url',
     placeholder: 'https://example.com/your-page',
     required: true,
-    errors: link.getErrors('destinationUrl'),
+    errors: shortLink.getErrors('destinationUrl'),
     translatable: craft.app.sites.getTotalEditableSites() > 1,
 }) }}
 
@@ -139,10 +139,10 @@
     <div class="input">
         <div class="select">
             <select id="httpCode" name="httpCode" required>
-                <option value="301" {% if (link.httpCode ?? 301) == 301 %}selected{% endif %}>301 - Moved Permanently</option>
-                <option value="302" {% if (link.httpCode ?? 301) == 302 %}selected{% endif %}>302 - Found (Temporary)</option>
-                <option value="307" {% if (link.httpCode ?? 301) == 307 %}selected{% endif %}>307 - Temporary Redirect</option>
-                <option value="308" {% if (link.httpCode ?? 301) == 308 %}selected{% endif %}>308 - Permanent Redirect</option>
+                <option value="301" {% if (shortLink.httpCode ?? 301) == 301 %}selected{% endif %}>301 - Moved Permanently</option>
+                <option value="302" {% if (shortLink.httpCode ?? 301) == 302 %}selected{% endif %}>302 - Found (Temporary)</option>
+                <option value="307" {% if (shortLink.httpCode ?? 301) == 307 %}selected{% endif %}>307 - Temporary Redirect</option>
+                <option value="308" {% if (shortLink.httpCode ?? 301) == 308 %}selected{% endif %}>308 - Permanent Redirect</option>
             </select>
         </div>
     </div>
@@ -156,12 +156,12 @@
 {# Expired Redirect URL #}
 {{ forms.textField({
     label: "Expired Redirect URL"|t('shortlink-manager'),
-    instructions: "Where to redirect when this link expires (optional)"|t('shortlink-manager'),
+    instructions: "Where to redirect when this shortLink expires (optional)"|t('shortlink-manager'),
     id: 'expiredRedirectUrl',
     name: 'expiredRedirectUrl',
-    value: link.expiredRedirectUrl ?? '',
+    value: shortLink.expiredRedirectUrl ?? '',
     type: 'url',
     placeholder: 'https://example.com/expired',
-    errors: link.getErrors('expiredRedirectUrl'),
+    errors: shortLink.getErrors('expiredRedirectUrl'),
     translatable: craft.app.sites.getTotalEditableSites() > 1,
 }) }}

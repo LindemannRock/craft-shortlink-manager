@@ -53,63 +53,63 @@ class RedirectController extends Controller
         }
 
         // Get the shortlink
-        $link = ShortLinkManager::$plugin->shortLinks->getByCode($code);
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code);
 
-        if (!$link) {
+        if (!$shortLink) {
             $this->logWarning('Shortlink not found', ['code' => $code]);
             return $this->redirectToNotFound();
         }
 
         $this->logDebug('Shortlink found', [
-            'slug' => $link->slug,
-            'destinationUrl' => $link->destinationUrl,
-            'elementId' => $link->elementId,
+            'slug' => $shortLink->slug,
+            'destinationUrl' => $shortLink->destinationUrl,
+            'elementId' => $shortLink->elementId,
         ]);
 
         // Check if enabled (using element status)
-        if ($link->getStatus() === \lindemannrock\shortlinkmanager\elements\ShortLink::STATUS_DISABLED) {
+        if ($shortLink->getStatus() === \lindemannrock\shortlinkmanager\elements\ShortLink::STATUS_DISABLED) {
             $this->logInfo('Shortlink disabled', ['code' => $code]);
             return $this->redirectToNotFound();
         }
 
         // Check expiration
-        if ($link->isExpired()) {
+        if ($shortLink->isExpired()) {
             $this->logInfo('Shortlink expired', ['code' => $code]);
-            return $this->handleExpiredLink($link);
+            return $this->handleExpiredLink($shortLink);
         }
 
         // Get destination URL
-        $destinationUrl = $link->destinationUrl;
+        $destinationUrl = $shortLink->destinationUrl;
 
         // If destination is empty, try to get from linked element
-        if (empty($destinationUrl) && $link->elementId) {
+        if (empty($destinationUrl) && $shortLink->elementId) {
             $this->logDebug('Fetching URL from linked element', [
-                'elementId' => $link->elementId,
-                'elementType' => $link->elementType,
+                'elementId' => $shortLink->elementId,
+                'elementType' => $shortLink->elementType,
             ]);
 
-            $element = $link->getLinkedElement();
+            $element = $shortLink->getLinkedElement();
             if ($element) {
                 $destinationUrl = $element->getUrl();
                 $this->logDebug('Element URL retrieved', ['url' => $destinationUrl]);
             } else {
-                $this->logError('Linked element not found', ['elementId' => $link->elementId]);
+                $this->logError('Linked element not found', ['elementId' => $shortLink->elementId]);
             }
         }
 
         // If still empty, redirect to not found
         if (empty($destinationUrl)) {
             $this->logError('No destination URL available', [
-                'slug' => $link->slug,
-                'elementId' => $link->elementId,
+                'slug' => $shortLink->slug,
+                'elementId' => $shortLink->elementId,
             ]);
             return $this->redirectToNotFound();
         }
 
         $this->logInfo('Redirecting shortlink', [
-            'slug' => $link->slug,
+            'slug' => $shortLink->slug,
             'destination' => $destinationUrl,
-            'httpCode' => $link->httpCode,
+            'httpCode' => $shortLink->httpCode,
         ]);
 
         // Get source parameter for QR tracking (like Smart Links does)
@@ -119,9 +119,9 @@ class RedirectController extends Controller
         $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice();
 
         // Track analytics if enabled globally AND for this specific link
-        if ($link->trackAnalytics && ShortLinkManager::$plugin->getSettings()->enableAnalytics) {
+        if ($shortLink->trackAnalytics && ShortLinkManager::$plugin->getSettings()->enableAnalytics) {
             ShortLinkManager::$plugin->analytics->trackClick(
-                $link,
+                $shortLink,
                 Craft::$app->getRequest(),
                 $source
             );
@@ -133,16 +133,16 @@ class RedirectController extends Controller
             // Determine event type based on source
             $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
 
-            $this->logInfo("SEOmatic client-side tracking: {$eventType} event for '{$link->code}'", [
+            $this->logInfo("SEOmatic client-side tracking: {$eventType} event for '{$shortLink->code}'", [
                 'event_type' => $eventType,
-                'code' => $link->code,
+                'code' => $shortLink->code,
                 'source' => $source,
                 'destination' => $destinationUrl,
             ]);
         }
 
         // Increment hit counter
-        ShortLinkManager::$plugin->shortLinks->incrementHits($link);
+        ShortLinkManager::$plugin->shortLinks->incrementHits($shortLink);
 
         // Render redirect template instead of direct redirect
         // This allows for SEOmatic client-side tracking before redirect
@@ -153,7 +153,7 @@ class RedirectController extends Controller
         $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
 
         return $this->renderTemplate($template, [
-            'link' => $link,
+            'shortLink' => $shortLink,
             'destinationUrl' => $destinationUrl,
             'source' => $source,
             'deviceInfo' => $deviceInfo,
@@ -164,16 +164,16 @@ class RedirectController extends Controller
     /**
      * Handle expired link
      *
-     * @param \lindemannrock\shortlinkmanager\elements\ShortLink $link
+     * @param \lindemannrock\shortlinkmanager\elements\ShortLink $shortLink
      * @return Response
      */
-    private function handleExpiredLink($link): Response
+    private function handleExpiredLink($shortLink): Response
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
         // Redirect to custom expired URL if set
-        if ($link->expiredRedirectUrl) {
-            return $this->redirect($link->expiredRedirectUrl, 302);
+        if ($shortLink->expiredRedirectUrl) {
+            return $this->redirect($shortLink->expiredRedirectUrl, 302);
         }
 
         // Show expired message
@@ -185,7 +185,7 @@ class RedirectController extends Controller
         // Render the expired template (user must create it in their site templates)
         return $this->renderTemplate($template, [
             'message' => $message,
-            'link' => $link
+            'shortLink' => $shortLink
         ]);
     }
 

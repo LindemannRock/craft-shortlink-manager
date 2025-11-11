@@ -27,7 +27,7 @@ class ShortLinksService extends Component
     use LoggingTrait;
 
     const CACHE_KEY = 'shortlinkmanager_link_';
-    const CACHE_TAG = 'shortlinkmanager_links';
+    const CACHE_TAG = 'shortlinkmanager';
 
     /**
      * @inheritdoc
@@ -51,11 +51,11 @@ class ShortLinksService extends Component
 
         // Handle element-based shortlink
         if (isset($options['element'])) {
-            $linkedElement = $options['element'];
-            $element->elementId = $linkedElement->id;
-            $element->elementType = get_class($linkedElement);
-            $element->siteId = $linkedElement->siteId ?? Craft::$app->getSites()->currentSite->id;
-            $element->destinationUrl = $linkedElement->getUrl() ?? '';
+            $shortLinkedElement = $options['element'];
+            $element->elementId = $shortLinkedElement->id;
+            $element->elementType = get_class($shortLinkedElement);
+            $element->siteId = $shortLinkedElement->siteId ?? Craft::$app->getSites()->currentSite->id;
+            $element->destinationUrl = $shortLinkedElement->getUrl() ?? '';
         }
 
         // Set properties from options
@@ -256,17 +256,17 @@ class ShortLinksService extends Component
     public function deleteShortLink(int $id): bool
     {
         // Get the shortlink element before deleting
-        $link = $this->getById($id);
+        $shortLink = $this->getById($id);
 
-        if (!$link) {
+        if (!$shortLink) {
             return false;
         }
 
         // Auto-create redirect if shortlink has traffic and settings enabled
-        $this->handleDeletedShortLink($link);
+        $this->handleDeletedShortLink($shortLink);
 
         // Delete the element
-        $success = Craft::$app->elements->deleteElement($link);
+        $success = Craft::$app->elements->deleteElement($shortLink);
 
         if ($success) {
             $this->invalidateCaches();
@@ -327,7 +327,7 @@ class ShortLinksService extends Component
 
         // Check uniqueness
         $query = (new Query())
-            ->from('{{%shortlinkmanager_links}}')
+            ->from('{{%shortlinkmanager}}')
             ->where(['slug' => $slug]);
 
         if ($excludeId) {
@@ -375,25 +375,25 @@ class ShortLinksService extends Component
     /**
      * Increment hit counter
      *
-     * @param ShortLink $link
+     * @param ShortLink $shortLink
      * @return void
      */
-    public function incrementHits(ShortLink $link): void
+    public function incrementHits(ShortLink $shortLink): void
     {
         // Update directly in database to avoid triggering full element save
         Craft::$app->db->createCommand()
             ->update(
-                '{{%shortlinkmanager_links}}',
-                ['hits' => $link->hits + 1],
-                ['id' => $link->id]
+                '{{%shortlinkmanager}}',
+                ['hits' => $shortLink->hits + 1],
+                ['id' => $shortLink->id]
             )
             ->execute();
 
         // Update the model
-        $link->hits++;
+        $shortLink->hits++;
 
         // Invalidate cache
-        $this->invalidateShortLinkCache($link->id, $link->slug);
+        $this->invalidateShortLinkCache($shortLink->id, $shortLink->slug);
     }
 
     /**
@@ -404,15 +404,15 @@ class ShortLinksService extends Component
      */
     public function onSaveElement(ElementInterface $element): void
     {
-        $link = $this->getByElement($element);
+        $shortLink = $this->getByElement($element);
 
-        if ($link && $element->getUrl() && $element->getUrl() !== $link->destinationUrl) {
-            $link->destinationUrl = $element->getUrl();
-            $this->saveShortLink($link);
+        if ($shortLink && $element->getUrl() && $element->getUrl() !== $shortLink->destinationUrl) {
+            $shortLink->destinationUrl = $element->getUrl();
+            $this->saveShortLink($shortLink);
 
             $this->logInfo('Updated shortlink destination for element', [
                 'elementId' => $element->id,
-                'newUrl' => $link->destinationUrl
+                'newUrl' => $shortLink->destinationUrl
             ]);
         }
     }
@@ -425,14 +425,14 @@ class ShortLinksService extends Component
      */
     public function onDeleteElement(ElementInterface $element): void
     {
-        $link = $this->getByElement($element);
+        $shortLink = $this->getByElement($element);
 
-        if ($link) {
-            $this->deleteShortLink($link->id);
+        if ($shortLink) {
+            $this->deleteShortLink($shortLink->id);
 
             $this->logInfo('Deleted shortlink for element', [
                 'elementId' => $element->id,
-                'slug' => $link->slug
+                'slug' => $shortLink->slug
             ]);
         }
     }
@@ -493,10 +493,10 @@ class ShortLinksService extends Component
      * Handle shortlink slug change - create redirect from old to new
      *
      * @param string $oldSlug
-     * @param ShortLink $link
+     * @param ShortLink $shortLink
      * @return void
      */
-    private function handleSlugChange(string $oldSlug, ShortLink $link): void
+    private function handleSlugChange(string $oldSlug, ShortLink $shortLink): void
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
@@ -514,7 +514,7 @@ class ShortLinksService extends Component
 
         $slugPrefix = $settings->slugPrefix;
         $oldUrl = '/' . $slugPrefix . '/' . $oldSlug;
-        $newUrl = '/' . $slugPrefix . '/' . $link->slug;
+        $newUrl = '/' . $slugPrefix . '/' . $shortLink->slug;
 
         // Check if Redirect Manager integration is available and enabled
         $redirectIntegration = ShortLinkManager::$plugin->integration->getIntegration('redirect-manager');
@@ -535,7 +535,7 @@ class ShortLinksService extends Component
             $undoHandled = $redirectManager->redirects->handleUndoRedirect(
                 $oldUrl,
                 $newUrl,
-                $link->siteId,
+                $shortLink->siteId,
                 'shortlink-slug-change',
                 'shortlink-manager'
             );
@@ -556,7 +556,7 @@ class ShortLinksService extends Component
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 301,
-                'siteId' => $link->siteId,
+                'siteId' => $shortLink->siteId,
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'shortlink-slug-change',
@@ -566,7 +566,7 @@ class ShortLinksService extends Component
             if ($success) {
                 $this->logInfo('Created redirect for slug change', [
                     'oldSlug' => $oldSlug,
-                    'newSlug' => $link->slug,
+                    'newSlug' => $shortLink->slug,
                     'oldUrl' => $oldUrl,
                     'newUrl' => $newUrl,
                 ]);
@@ -579,10 +579,10 @@ class ShortLinksService extends Component
     /**
      * Create redirect in Redirect Manager when shortlink expires
      *
-     * @param ShortLink $link
+     * @param ShortLink $shortLink
      * @return void
      */
-    public function handleExpiredShortLink(ShortLink $link): void
+    public function handleExpiredShortLink(ShortLink $shortLink): void
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
@@ -599,12 +599,12 @@ class ShortLinksService extends Component
         }
 
         // Only create redirect if there's an expiredRedirectUrl configured
-        if (!$link->expiredRedirectUrl) {
+        if (!$shortLink->expiredRedirectUrl) {
             return;
         }
 
         $slugPrefix = $settings->slugPrefix;
-        $sourceUrl = '/' . $slugPrefix . '/' . $link->slug;
+        $sourceUrl = '/' . $slugPrefix . '/' . $shortLink->slug;
 
         // Check if Redirect Manager integration is available and enabled
         $redirectIntegration = ShortLinkManager::$plugin->integration->getIntegration('redirect-manager');
@@ -625,11 +625,11 @@ class ShortLinksService extends Component
             $success = $redirectManager->redirects->createRedirectRule([
                 'sourceUrl' => $sourceUrl,
                 'sourceUrlParsed' => $sourceUrl,
-                'destinationUrl' => $link->expiredRedirectUrl,
+                'destinationUrl' => $shortLink->expiredRedirectUrl,
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 302,
-                'siteId' => $link->siteId,
+                'siteId' => $shortLink->siteId,
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'shortlink-expired',
@@ -638,9 +638,9 @@ class ShortLinksService extends Component
 
             if ($success) {
                 $this->logInfo('Auto-created redirect for expired shortlink', [
-                    'slug' => $link->slug,
+                    'slug' => $shortLink->slug,
                     'sourceUrl' => $sourceUrl,
-                    'destination' => $link->expiredRedirectUrl,
+                    'destination' => $shortLink->expiredRedirectUrl,
                 ]);
             }
         } catch (\Exception $e) {
@@ -651,10 +651,10 @@ class ShortLinksService extends Component
     /**
      * Create redirect in Redirect Manager when shortlink is deleted
      *
-     * @param ShortLink $link
+     * @param ShortLink $shortLink
      * @return void
      */
-    public function handleDeletedShortLink(ShortLink $link): void
+    public function handleDeletedShortLink(ShortLink $shortLink): void
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
@@ -671,13 +671,13 @@ class ShortLinksService extends Component
         }
 
         // Only create redirect if shortlink has traffic
-        if ($link->hits === 0) {
+        if ($shortLink->hits === 0) {
             return;
         }
 
         $slugPrefix = $settings->slugPrefix;
-        $sourceUrl = '/' . $slugPrefix . '/' . $link->slug;
-        $destinationUrl = $link->expiredRedirectUrl ?? $settings->notFoundRedirectUrl ?? '/';
+        $sourceUrl = '/' . $slugPrefix . '/' . $shortLink->slug;
+        $destinationUrl = $shortLink->expiredRedirectUrl ?? $settings->notFoundRedirectUrl ?? '/';
 
         // Check if Redirect Manager integration is available and enabled
         $redirectIntegration = ShortLinkManager::$plugin->integration->getIntegration('redirect-manager');
@@ -702,7 +702,7 @@ class ShortLinksService extends Component
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 301,
-                'siteId' => $link->siteId,
+                'siteId' => $shortLink->siteId,
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'shortlink-deleted',
@@ -711,9 +711,9 @@ class ShortLinksService extends Component
 
             if ($success) {
                 $this->logInfo('Auto-created redirect for deleted shortlink', [
-                    'slug' => $link->slug,
+                    'slug' => $shortLink->slug,
                     'sourceUrl' => $sourceUrl,
-                    'hits' => $link->hits,
+                    'hits' => $shortLink->hits,
                     'destination' => $destinationUrl,
                 ]);
             }

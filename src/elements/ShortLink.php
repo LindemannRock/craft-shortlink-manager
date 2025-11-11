@@ -371,13 +371,13 @@ class ShortLink extends Element
             'slug' => Craft::t('shortlink-manager', 'Code/Slug'),
             [
                 'label' => Craft::t('shortlink-manager', 'Hits'),
-                'orderBy' => 'shortlinkmanager_links.hits',
+                'orderBy' => 'shortlinkmanager.hits',
                 'attribute' => 'hits',
                 'defaultDir' => 'desc',
             ],
             [
                 'label' => Craft::t('app', 'Expiry Date'),
-                'orderBy' => 'shortlinkmanager_links.dateExpired',
+                'orderBy' => 'shortlinkmanager.dateExpired',
                 'attribute' => 'dateExpired',
                 'defaultDir' => 'asc',
             ],
@@ -902,7 +902,7 @@ class ShortLink extends Element
      */
     protected function cpEditUrl(): ?string
     {
-        return sprintf('shortlink-manager/links/%s', $this->getCanonicalId());
+        return sprintf('shortlink-manager/shortlinks/%s', $this->getCanonicalId());
     }
 
     /**
@@ -910,7 +910,7 @@ class ShortLink extends Element
      */
     protected static function defineIndexUrl(string $source = null, ?string $siteHandle = null): ?string
     {
-        return 'shortlink-manager/links';
+        return 'shortlink-manager/shortlinks';
     }
 
     /**
@@ -937,7 +937,7 @@ class ShortLink extends Element
 
                 // Check if this slug already exists
                 $query = (new \craft\db\Query())
-                    ->from('{{%shortlinkmanager_links}}')
+                    ->from('{{%shortlinkmanager}}')
                     ->where(['slug' => $testSlug]);
 
                 if ($this->id) {
@@ -1053,7 +1053,7 @@ class ShortLink extends Element
             // Keep trying until we find a unique slug
             while (true) {
                 $exists = (new \craft\db\Query())
-                    ->from('{{%shortlinkmanager_links}}')
+                    ->from('{{%shortlinkmanager}}')
                     ->where(['slug' => $testSlug])
                     ->exists();
 
@@ -1087,7 +1087,7 @@ class ShortLink extends Element
         do {
             $slug = $this->generateRandomSlug($length);
             $exists = (new \craft\db\Query())
-                ->from('{{%shortlinkmanager_links}}')
+                ->from('{{%shortlinkmanager}}')
                 ->where(['slug' => $slug])
                 ->exists();
             $attempts++;

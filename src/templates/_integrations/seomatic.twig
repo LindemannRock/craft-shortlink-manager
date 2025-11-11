@@ -16,8 +16,8 @@
             var eventData = {
                 event: eventPrefix + '_' + eventType,
                 shortlink: {
-                    code: '{{ link.code }}',
-                    title: '{{ link.title }}',
+                    code: '{{ shortLink.code }}',
+                    title: '{{ shortLink.title }}',
                     source: '{{ craft.app.request.getParam('src', 'direct') }}',
                     click_type: eventType
                 }

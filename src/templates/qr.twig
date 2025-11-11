@@ -4,14 +4,14 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="noindex,nofollow">
-	<title>{{ link.title|default('QR Code') }} - {{ siteName }}</title>
+	<title>{{ shortLink.title|default('QR Code') }} - {{ siteName }}</title>
 
 	<script src="https://cdn.tailwindcss.com"></script>
 
 	{# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
 	{% set seomaticTracking = null %}
-	{% if link.renderSeomaticTracking is defined %}
-		{% set seomaticTracking = link.renderSeomaticTracking('qr_scan') %}
+	{% if shortLink.renderSeomaticTracking is defined %}
+		{% set seomaticTracking = shortLink.renderSeomaticTracking('qr_scan') %}
 		{{ seomaticTracking }}
 	{% endif %}
 </head>
@@ -21,11 +21,11 @@
 		<div class="bg-white shadow-lg max-w-lg w-full overflow-hidden">
 			<div class="p-8 md:p-12 text-center">
 				{# Title #}
-				<h1 class="text-3xl font-semibold mb-4 text-gray-900">{{ link.title|default('QR Code') }}</h1>
+				<h1 class="text-3xl font-semibold mb-4 text-gray-900">{{ shortLink.title|default('QR Code') }}</h1>
 
 				{# QR Code display #}
 				<div class="my-8 mx-auto">
-					<img src="{{ link.getQrCodeUrl({ size: 300 }) }}" alt="{{ link.title|default('QR Code') }}" class="mx-auto">
+					<img src="{{ shortLink.getQrCodeUrl({ size: 300 }) }}" alt="{{ shortLink.title|default('QR Code') }}" class="mx-auto">
 				</div>
 
 				{# Instructions #}
@@ -45,7 +45,7 @@
 
 			if (debugMode) {
 				console.log('🐛 DEBUG MODE ENABLED');
-				console.log('🔗 Short Link Code:', '{{ link.code }}');
+				console.log('🔗 Short Link Code:', '{{ shortLink.code }}');
 				console.log('📊 Event Type:', 'qr_scan');
 				console.log('📱 QR Code Page');
 

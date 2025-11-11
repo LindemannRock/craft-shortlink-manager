@@ -168,8 +168,8 @@
 		<h2>{{ "Template Settings"|t('shortlink-manager') }}</h2>
 
 		{{ forms.textField({
-            label: "Custom Redirect Template"|t('shortlink-manager'),
-            instructions: "Path to custom template in your templates/ folder (e.g., shortlink-manager/redirect)"|t('shortlink-manager'),
+            label: "Redirect Template"|t('shortlink-manager'),
+            instructions: "Path to your Redirect template in your templates/ folder (e.g., shortlink-manager/redirect)"|t('shortlink-manager'),
             id: 'redirectTemplate',
             name: 'settings[redirectTemplate]',
             value: settings.redirectTemplate ?? '',
@@ -181,8 +181,8 @@
         }) }}
 
 		{{ forms.textField({
-            label: "Custom Expired Template"|t('shortlink-manager'),
-            instructions: "Path to custom template in your templates/ folder (e.g., shortlink-manager/expired)"|t('shortlink-manager'),
+            label: "Expired Template"|t('shortlink-manager'),
+            instructions: "Path to your Expired template in your templates/ folder (e.g., shortlink-manager/expired)"|t('shortlink-manager'),
             id: 'expiredTemplate',
             name: 'settings[expiredTemplate]',
             value: settings.expiredTemplate ?? '',
@@ -194,8 +194,8 @@
         }) }}
 
 		{{ forms.textField({
-            label: "Custom QR Code Template"|t('shortlink-manager'),
-            instructions: "Path to custom template in your templates/ folder (e.g., shortlink-manager/qr)"|t('shortlink-manager'),
+            label: "QR Code Template"|t('shortlink-manager'),
+            instructions: "Path to your QR Code template in your templates/ folder (e.g., shortlink-manager/qr)"|t('shortlink-manager'),
             id: 'qrTemplate',
             name: 'settings[qrTemplate]',
             value: settings.qrTemplate ?? '',

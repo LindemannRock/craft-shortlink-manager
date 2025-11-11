@@ -17,9 +17,9 @@ use lindemannrock\shortlinkmanager\elements\ShortLink;
 use yii\web\Response;
 
 /**
- * Links Controller
+ * Shortlinks Controller
  */
-class LinksController extends Controller
+class ShortlinksController extends Controller
 {
     use LoggingTrait;
 
@@ -41,22 +41,22 @@ class LinksController extends Controller
     {
         $this->requirePermission('shortLinkManager:viewLinks');
 
-        return $this->renderTemplate('shortlink-manager/links/index');
+        return $this->renderTemplate('shortlink-manager/shortlinks/index');
     }
 
     /**
      * Edit a link
      *
-     * @param int|null $linkId
-     * @param ShortLink|null $link
+     * @param int|null $shortLinkId
+     * @param ShortLink|null $shortLink
      * @return Response
      */
-    public function actionEdit(?int $linkId = null, ?ShortLink $link = null): Response
+    public function actionEdit(?int $shortLinkId = null, ?ShortLink $shortLink = null): Response
     {
-        if ($linkId) {
+        if ($shortLinkId) {
             $this->requirePermission('shortLinkManager:editLinks');
 
-            if (!$link) {
+            if (!$shortLink) {
                 // Get site from request or use current site
                 $siteHandle = $this->request->getParam('site');
                 $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
@@ -67,22 +67,22 @@ class LinksController extends Controller
                     throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
                 }
 
-                $link = ShortLink::find()
-                    ->id($linkId)
+                $shortLink = ShortLink::find()
+                    ->id($shortLinkId)
                     ->siteId($site->id)
                     ->status(null)
                     ->one();
 
-                if (!$link) {
+                if (!$shortLink) {
                     throw new \yii\web\NotFoundHttpException('ShortLink not found');
                 }
             }
 
-            $title = $link->code ?? $link->slug;
+            $title = $shortLink->code ?? $shortLink->slug;
         } else {
             $this->requirePermission('shortLinkManager:createLinks');
 
-            if (!$link) {
+            if (!$shortLink) {
                 // Get site from request or use current site
                 $siteHandle = $this->request->getParam('site');
                 $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
@@ -93,20 +93,20 @@ class LinksController extends Controller
                     throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
                 }
 
-                $link = new ShortLink();
-                $link->siteId = $site->id;
-                $link->enabled = true;
-                $link->httpCode = ShortLinkManager::$plugin->getSettings()->defaultHttpCode ?? 301;
-                $link->linkType = 'code'; // Default to auto-generated
+                $shortLink = new ShortLink();
+                $shortLink->siteId = $site->id;
+                $shortLink->enabled = true;
+                $shortLink->httpCode = ShortLinkManager::$plugin->getSettings()->defaultHttpCode ?? 301;
+                $shortLink->linkType = 'code'; // Default to auto-generated
             }
 
             $title = Craft::t('shortlink-manager', 'Create a new shortlink');
         }
 
-        return $this->renderTemplate('shortlink-manager/links/edit', [
-            'link' => $link,
+        return $this->renderTemplate('shortlink-manager/shortlinks/edit', [
+            'shortLink' => $shortLink,
             'title' => $title,
-            'linkId' => $linkId,
+            'linkId' => $shortLinkId,
             'enabledSites' => ShortLinkManager::getInstance()->getEnabledSites(),
         ]);
     }
@@ -120,93 +120,93 @@ class LinksController extends Controller
     {
         $this->requirePostRequest();
 
-        $linkId = $this->request->getBodyParam('linkId');
+        $shortLinkId = $this->request->getBodyParam('linkId');
 
-        if ($linkId) {
+        if ($shortLinkId) {
             $this->requirePermission('shortLinkManager:editLinks');
-            $link = ShortLink::find()
-                ->id($linkId)
+            $shortLink = ShortLink::find()
+                ->id($shortLinkId)
                 ->siteId('*')
                 ->status(null)
                 ->one();
 
-            if (!$link) {
+            if (!$shortLink) {
                 throw new \yii\web\NotFoundHttpException('ShortLink not found');
             }
         } else {
             $this->requirePermission('shortLinkManager:createLinks');
-            $link = new ShortLink();
+            $shortLink = new ShortLink();
         }
 
         // Populate from request
-        $link->linkType = $this->request->getBodyParam('linkType', 'code');
-        $link->code = $this->request->getBodyParam('code');
+        $shortLink->linkType = $this->request->getBodyParam('linkType', 'code');
+        $shortLink->code = $this->request->getBodyParam('code');
 
         // Note: slug will be auto-generated from code in beforeValidate()
 
-        $link->destinationUrl = $this->request->getBodyParam('destinationUrl');
-        $link->siteId = $this->request->getBodyParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id;
-        $link->httpCode = $this->request->getBodyParam('httpCode') ?: 301;
-        $link->enabled = (bool) $this->request->getBodyParam('enabled', true);
+        $shortLink->destinationUrl = $this->request->getBodyParam('destinationUrl');
+        $shortLink->siteId = $this->request->getBodyParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id;
+        $shortLink->httpCode = $this->request->getBodyParam('httpCode') ?: 301;
+        $shortLink->enabled = (bool) $this->request->getBodyParam('enabled', true);
 
         // Handle element relationship
-        $link->elementId = $this->request->getBodyParam('elementId');
-        $link->elementType = $this->request->getBodyParam('elementType');
+        $shortLink->elementId = $this->request->getBodyParam('elementId');
+        $shortLink->elementType = $this->request->getBodyParam('elementType');
 
         // Handle author
         $authorId = $this->request->getBodyParam('authorId');
         if (is_array($authorId)) {
-            $link->authorId = !empty($authorId[0]) ? (int)$authorId[0] : null;
+            $shortLink->authorId = !empty($authorId[0]) ? (int)$authorId[0] : null;
         } else {
-            $link->authorId = $authorId ? (int)$authorId : null;
+            $shortLink->authorId = $authorId ? (int)$authorId : null;
         }
 
         // Handle post date
         $postDate = $this->request->getBodyParam('postDate');
         if ($postDate) {
             $dateTime = \craft\helpers\DateTimeHelper::toDateTime($postDate);
-            $link->postDate = $dateTime instanceof \DateTime ? $dateTime : null;
+            $shortLink->postDate = $dateTime instanceof \DateTime ? $dateTime : null;
         }
 
         // Handle expiry date field
         $expiryDate = $this->request->getBodyParam('expiryDate');
         if ($expiryDate) {
             $dateTime = \craft\helpers\DateTimeHelper::toDateTime($expiryDate);
-            $link->dateExpired = $dateTime instanceof \DateTime ? $dateTime : null;
+            $shortLink->dateExpired = $dateTime instanceof \DateTime ? $dateTime : null;
         } else {
-            $link->dateExpired = null;
+            $shortLink->dateExpired = null;
         }
 
-        $link->expiredRedirectUrl = $this->request->getBodyParam('expiredRedirectUrl');
-        $link->trackAnalytics = (bool) $this->request->getBodyParam('trackAnalytics', true);
+        $shortLink->expiredRedirectUrl = $this->request->getBodyParam('expiredRedirectUrl');
+        $shortLink->trackAnalytics = (bool) $this->request->getBodyParam('trackAnalytics', true);
 
         // QR Code settings
-        $link->qrCodeEnabled = (bool) $this->request->getBodyParam('qrCodeEnabled', true);
-        $link->qrCodeSize = (int) $this->request->getBodyParam('qrCodeSize', 256);
+        $shortLink->qrCodeEnabled = (bool) $this->request->getBodyParam('qrCodeEnabled', true);
+        $shortLink->qrCodeSize = (int) $this->request->getBodyParam('qrCodeSize', 256);
 
         // Handle color fields - add # if missing, or set to null if empty
         $qrCodeColor = $this->request->getBodyParam('qrCodeColor');
-        $link->qrCodeColor = $qrCodeColor ? (str_starts_with($qrCodeColor, '#') ? $qrCodeColor : '#' . $qrCodeColor) : null;
+        $shortLink->qrCodeColor = $qrCodeColor ? (str_starts_with($qrCodeColor, '#') ? $qrCodeColor : '#' . $qrCodeColor) : null;
 
         $qrCodeBgColor = $this->request->getBodyParam('qrCodeBgColor');
-        $link->qrCodeBgColor = $qrCodeBgColor ? (str_starts_with($qrCodeBgColor, '#') ? $qrCodeBgColor : '#' . $qrCodeBgColor) : null;
+        $shortLink->qrCodeBgColor = $qrCodeBgColor ? (str_starts_with($qrCodeBgColor, '#') ? $qrCodeBgColor : '#' . $qrCodeBgColor) : null;
 
         $qrCodeEyeColor = $this->request->getBodyParam('qrCodeEyeColor');
-        $link->qrCodeEyeColor = $qrCodeEyeColor ? (str_starts_with($qrCodeEyeColor, '#') ? $qrCodeEyeColor : '#' . $qrCodeEyeColor) : null;
+        $shortLink->qrCodeEyeColor = $qrCodeEyeColor ? (str_starts_with($qrCodeEyeColor, '#') ? $qrCodeEyeColor : '#' . $qrCodeEyeColor) : null;
 
-        $link->qrCodeFormat = $this->request->getBodyParam('qrCodeFormat') ?: null;
+        $shortLink->qrCodeFormat = $this->request->getBodyParam('qrCodeFormat') ?: null;
 
         // Handle qrLogoId (asset field returns array)
         $qrLogoId = $this->request->getBodyParam('qrLogoId');
         if (is_array($qrLogoId)) {
-            $link->qrLogoId = !empty($qrLogoId[0]) ? (int)$qrLogoId[0] : null;
+            $shortLink->qrLogoId = !empty($qrLogoId[0]) ? (int)$qrLogoId[0] : null;
         } else {
-            $link->qrLogoId = $qrLogoId ? (int)$qrLogoId : null;
+            $shortLink->qrLogoId = $qrLogoId ? (int)$qrLogoId : null;
         }
 
         // Save the link using service (handles slug change redirects)
-        if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($link)) {
-            $errors = $link->getErrors();
+        if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($shortLink)) {
+            $errors = $shortLink->getErrors();
             $errorMessage = Craft::t('shortlink-manager', 'Could not save shortlink.');
             if (!empty($errors)) {
                 $errorMessage .= ' Errors: ' . print_r($errors, true);
@@ -214,7 +214,7 @@ class LinksController extends Controller
             $this->setFailFlash($errorMessage);
 
             Craft::$app->getUrlManager()->setRouteParams([
-                'link' => $link,
+                'shortLink' => $shortLink,
             ]);
 
             return null;
@@ -223,7 +223,7 @@ class LinksController extends Controller
         $this->setSuccessFlash(Craft::t('shortlink-manager', 'ShortLink saved.'));
 
         // Redirect to edit page or posted URL
-        return $this->redirectToPostedUrl($link);
+        return $this->redirectToPostedUrl($shortLink);
     }
 
     /**
@@ -236,19 +236,19 @@ class LinksController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:deleteLinks');
 
-        $linkId = $this->request->getRequiredBodyParam('id');
+        $shortLinkId = $this->request->getRequiredBodyParam('id');
 
-        $link = ShortLink::find()
-            ->id($linkId)
+        $shortLink = ShortLink::find()
+            ->id($shortLinkId)
             ->siteId('*')
             ->status(null)
             ->one();
 
-        if (!$link) {
+        if (!$shortLink) {
             throw new \yii\web\NotFoundHttpException('ShortLink not found');
         }
 
-        if (Craft::$app->elements->deleteElement($link)) {
+        if (Craft::$app->elements->deleteElement($shortLink)) {
             $this->setSuccessFlash(Craft::t('shortlink-manager', 'ShortLink deleted.'));
         } else {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not delete shortlink.'));

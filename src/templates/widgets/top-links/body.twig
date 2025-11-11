@@ -3,7 +3,7 @@
 {% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 
 <div class="top-links-widget">
-    {% if links|length > 0 %}
+    {% if shortLinks|length > 0 %}
         <table class="data fullwidth">
             <thead>
                 <tr>
@@ -13,21 +13,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% for link in links %}
+                {% for shortLink in shortLinks %}
                     <tr>
                         <td>
                             <div class="link-cell">
-                                <span class="link-name">{{ link.code }}</span>
+                                <span class="link-name">{{ shortLink.code }}</span>
                                 <div class="link-slug">
-                                    <span title="{{ link.destinationUrl }}">{{ link.destinationUrl|length > 30 ? link.destinationUrl|slice(0, 30) ~ '...' : link.destinationUrl }}</span>
+                                    <span title="{{ shortLink.destinationUrl }}">{{ shortLink.destinationUrl|length > 30 ? shortLink.destinationUrl|slice(0, 30) ~ '...' : shortLink.destinationUrl }}</span>
                                 </div>
                             </div>
                         </td>
                         <td class="clicks-cell">
-                            <span class="badge">{{ link.clicks|number }}</span>
+                            <span class="badge">{{ shortLink.clicks|number }}</span>
                         </td>
                         <td class="thin actions-cell">
-                            <a href="{{ siteUrl(craft.app.plugins.getPlugin('shortlink-manager').settings.slugPrefix ~ '/' ~ link.slug) }}"
+                            <a href="{{ siteUrl(craft.app.plugins.getPlugin('shortlink-manager').settings.slugPrefix ~ '/' ~ shortLink.slug) }}"
                                target="_blank"
                                class="btn small"
                                title="{{ 'View'|t('app') }}">
@@ -40,7 +40,7 @@
         </table>
 
         <div class="widget-footer">
-            <a href="{{ cpUrl('shortlink-manager/links') }}" class="go">{{ "View all {pluginName}"|t('shortlink-manager', {pluginName: pluginName|lower}) }}</a>
+            <a href="{{ cpUrl('shortlink-manager/shortlinks') }}" class="go">{{ "View all {pluginName}"|t('shortlink-manager', {pluginName: pluginName|lower}) }}</a>
         </div>
     {% else %}
         <div class="zilch">

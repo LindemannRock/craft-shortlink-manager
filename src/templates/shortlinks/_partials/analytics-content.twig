@@ -2,7 +2,7 @@
 
 {# Get analytics data using the service directly #}
 {% set analyticsService = craft.app.plugins.getPlugin('shortlink-manager').analytics %}
-{% set analytics = analyticsService.getLinkAnalytics(link.id, dateRange) %}
+{% set analytics = analyticsService.getLinkAnalytics(shortLink.id, dateRange) %}
 
 {% if analytics.totalClicks == 0 %}
     <div class="zilch">
@@ -15,7 +15,7 @@
 <div class="analytics-stats">
     <div class="stat-box">
         <div class="stat-value">{{ analytics.totalClicks }}</div>
-        <div class="stat-label">{{ "Total Clicks"|t('shortlink-manager') }}</div>
+        <div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
     </div>
     <div class="stat-box">
         <div class="stat-value">{{ analytics.uniqueClicks }}</div>
@@ -62,26 +62,37 @@
     </div>
 </div>
 
-{# Recent Clicks #}
+{# Latest Interactions #}
 {% if analytics.recentClicks|length %}
-    <h3 style="margin-top: 30px;">{{ "Recent Clicks"|t('shortlink-manager') }}</h3>
-    <div class="recent-clicks">
+    <h3 style="margin-top: 30px;">{{ "Latest Interactions"|t('shortlink-manager') }}</h3>
+    <div class="recent-clicks" style="overflow-x: auto; max-width: 100%;">
         <table class="data fullwidth">
             <thead>
                 <tr>
                     <th>{{ "Date"|t('shortlink-manager') }}</th>
+                    <th>{{ "Site"|t('app') }}</th>
                     <th>{{ "Source"|t('shortlink-manager') }}</th>
                     <th>{{ "Destination"|t('shortlink-manager') }}</th>
                     <th>{{ "Device"|t('shortlink-manager') }}</th>
                     <th>{{ "Browser"|t('shortlink-manager') }}</th>
                     <th>{{ "OS"|t('shortlink-manager') }}</th>
-                    <th>{{ "Location"|t('shortlink-manager') }}</th>
+                    {% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
+                        <th>{{ "Location"|t('shortlink-manager') }}</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for click in analytics.recentClicks %}
                     <tr>
                         <td>{{ click.dateCreated|datetime('short') }}</td>
+                        <td>
+                            {% if click.siteId %}
+                                {% set site = craft.app.sites.getSiteById(click.siteId) %}
+                                {{ site ? site.name : '—' }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
                         <td>
                             {% set source = 'direct' %}
                             {% if click.metadata %}
@@ -106,15 +117,17 @@
                         <td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
                         <td>{{ click.browser ?? '—' }}</td>
                         <td>{{ click.osName ?? '—' }}</td>
-                        <td>
-                            {% if click.city and click.country %}
-                                {{ click.city }}, {{ click.country }}
-                            {% elseif click.country %}
-                                {{ click.country }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
+                        {% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
+                            <td>
+                                {% if click.city and click.country %}
+                                    {{ click.city }}, {{ click.country }}
+                                {% elseif click.country %}
+                                    {{ click.country }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

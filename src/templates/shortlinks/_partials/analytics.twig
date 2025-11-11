@@ -2,7 +2,7 @@
 
 {# Get analytics data using the service directly #}
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set analytics = plugin.analytics.getLinkAnalytics(link.id, dateRange) %}
+{% set analytics = plugin.analytics.getLinkAnalytics(shortLink.id, dateRange) %}
 
 <div class="analytics-container">
     {# Date Range Selector #}
@@ -35,8 +35,8 @@
         </div>
     </div>
 
-    <div id="link-analytics-content" data-link-id="{{ link.id }}">
-        {% include "shortlink-manager/links/_partials/analytics-content" %}
+    <div id="link-analytics-content" data-link-id="{{ shortLink.id }}">
+        {% include "shortlink-manager/shortlinks/_partials/analytics-content" %}
     </div>
 </div>
 
@@ -69,8 +69,8 @@ $(document).ready(function() {
     $(document).on('click', '.link-date-range-option', function(e) {
         e.preventDefault();
 
-        const $link = $(this);
-        const range = $link.data('range');
+        const $btn = $(this);
+        const range = $btn.data('range');
         const linkId = $('#link-analytics-content').data('link-id');
 
         // Update button text
@@ -83,15 +83,15 @@ $(document).ready(function() {
             'all': '{{ "All time"|t('shortlink-manager')|e('js') }}'
         };
 
-        $link.closest('.btngroup').find('.menubtn span').text(rangeLabels[range] || range);
+        $btn.closest('.btngroup').find('.menubtn span').text(rangeLabels[range] || range);
 
         // Update selected state
-        $link.closest('ul').find('.sel').removeClass('sel');
-        $link.addClass('sel');
+        $btn.closest('ul').find('.sel').removeClass('sel');
+        $btn.addClass('sel');
 
         // Close the menu
-        $link.closest('.menu').removeClass('active');
-        $link.closest('.btngroup').find('.menubtn').removeClass('active');
+        $btn.closest('.menu').removeClass('active');
+        $btn.closest('.btngroup').find('.menubtn').removeClass('active');
 
         // Show loading state
         $('#link-analytics-content').css('opacity', '0.5');

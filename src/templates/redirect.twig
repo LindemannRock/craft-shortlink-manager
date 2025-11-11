@@ -9,12 +9,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex,nofollow">
 
-    <title>{{ link.title|default('Redirecting...') }} - {{ siteName }}</title>
+    <title>{{ shortLink.title|default('Redirecting...') }} - {{ siteName }}</title>
 
     {# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
     {% set seomaticTracking = null %}
-    {% if link.renderSeomaticTracking is defined %}
-        {% set seomaticTracking = link.renderSeomaticTracking(eventType) %}
+    {% if shortLink.renderSeomaticTracking is defined %}
+        {% set seomaticTracking = shortLink.renderSeomaticTracking(eventType) %}
         {{ seomaticTracking }}
     {% endif %}
 
@@ -111,7 +111,7 @@
 <body>
     <div class="container">
         <div class="loader"></div>
-        <h1>{{ link.title|default('Redirecting...') }}</h1>
+        <h1>{{ shortLink.title|default('Redirecting...') }}</h1>
         <p class="message">
             {{ 'Please wait, redirecting you now...'|t('shortlink-manager') }}
         </p>
@@ -130,7 +130,7 @@
                 console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
                 console.log('🔍 Destination URL:', '{{ destinationUrl }}');
                 console.log('📊 Event Type:', '{{ eventType }}');
-                console.log('🔗 Shortlink Code:', '{{ link.code }}');
+                console.log('🔗 Shortlink Code:', '{{ shortLink.code }}');
 
                 // SEOmatic tracking debug
                 console.log('\n📡 SEOmatic Integration:');

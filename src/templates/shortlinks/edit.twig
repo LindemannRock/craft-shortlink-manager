@@ -3,12 +3,12 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set pluginName = plugin.settings.pluginName %}
 {% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
-{% set currentSite = craft.app.sites.getSiteById(link.siteId) %}
+{% set currentSite = craft.app.sites.getSiteById(shortLink.siteId) %}
 
-{% set title = link.id ? link.slug : "New {singularName}"|t('shortlink-manager', {singularName: singularName}) %}
+{% set title = shortLink.id ? shortLink.slug : "New {singularName}"|t('shortlink-manager', {singularName: singularName}) %}
 {% set fullPageForm = true %}
 {% set selectedSubnavItem = 'shortlinks' %}
-{% set saveShortcutRedirect = 'shortlink-manager/links/{id}' %}
+{% set saveShortcutRedirect = 'shortlink-manager/shortlinks/{id}' %}
 {% set retainScrollOnSaveShortcut = true %}
 
 {% set tabs = {
@@ -18,8 +18,8 @@
     },
 } %}
 
-{# Add analytics tab if globally enabled, link exists, AND tracking is enabled for this link #}
-{% if plugin.settings.enableAnalytics and link.id and (link.trackAnalytics ?? true) %}
+{# Add analytics tab if globally enabled, shortLink exists, AND tracking is enabled for this shortLink #}
+{% if plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
     {% set tabs = tabs|merge({
         analytics: {
             label: 'Analytics'|t('shortlink-manager'),
@@ -28,22 +28,22 @@
     }) %}
 {% endif %}
 
-{% set isNew = not link.id %}
+{% set isNew = not shortLink.id %}
 
 {# Set up breadcrumbs #}
 {% set crumbs = [] %}
 
 {# Site switcher (first item) #}
 {% if craft.app.getIsMultiSite() %}
-    {% set currentSite = craft.app.sites.getSiteById(link.siteId ?? craft.app.sites.currentSite.id) %}
+    {% set currentSite = craft.app.sites.getSiteById(shortLink.siteId ?? craft.app.sites.currentSite.id) %}
 
     {# Get site menu items #}
     {% set siteMenuItems = [] %}
     {% for site in enabledSites %}
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
-            url: link.id ? url('shortlink-manager/links/' ~ link.id, {site: site.handle}) : url('shortlink-manager/links/new', {site: site.handle}),
-            selected: site.id == link.siteId
+            url: shortLink.id ? url('shortlink-manager/shortlinks/' ~ shortLink.id, {site: site.handle}) : url('shortlink-manager/shortlinks/new', {site: site.handle}),
+            selected: site.id == shortLink.siteId
         }]) %}
     {% endfor %}
 
@@ -62,45 +62,45 @@
 {% set crumbs = crumbs|merge([
     {
         label: pluginName|t('shortlink-manager'),
-        url: url('shortlink-manager/links')
+        url: url('shortlink-manager/shortlinks')
     }
 ]) %}
 
-{% if link.id %}
+{% if shortLink.id %}
     {% set crumbs = crumbs|merge([{
-        label: link.slug,
-        url: url('shortlink-manager/links/' ~ link.id)
+        label: shortLink.slug,
+        url: url('shortlink-manager/shortlinks/' ~ shortLink.id)
     }]) %}
 {% endif %}
 
 {% block actionButton %}
-    {% if link.id %}
+    {% if shortLink.id %}
         <div class="preview-btn-container btngroup">
             {% set viewLabel = plugin.settings.pluginName|replace({' Manager': '', ' manager': ''}) %}
-            {% if plugin.settings.enableQrCodes and (link.qrCodeEnabled ?? true) %}
-                <a href="{{ link.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+            {% if plugin.settings.enableQrCodes and (shortLink.qrCodeEnabled ?? true) %}
+                <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
                 <button type="button" class="btn menubtn"></button>
                 <div class="menu">
                     <ul role="listbox">
                         <li>
-                            <a role="option" tabindex="0" href="{{ link.getUrl() }}" target="_blank">
+                            <a role="option" tabindex="0" href="{{ shortLink.getUrl() }}" target="_blank">
                                 {{ viewLabel }}
                             </a>
                         </li>
                         <li>
-                            <a role="option" tabindex="0" href="{{ link.getQrCodeUrl() }}" target="_blank">
+                            <a role="option" tabindex="0" href="{{ shortLink.getQrCodeUrl() }}" target="_blank">
                                 {{ "QR Code Image"|t('shortlink-manager') }}
                             </a>
                         </li>
                         <li>
-                            <a role="option" tabindex="0" href="{{ link.getQrCodeDisplayUrl() }}" target="_blank">
+                            <a role="option" tabindex="0" href="{{ shortLink.getQrCodeDisplayUrl() }}" target="_blank">
                                 {{ "QR Code Page"|t('shortlink-manager') }}
                             </a>
                         </li>
                     </ul>
                 </div>
             {% else %}
-                <a href="{{ link.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+                <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
             {% endif %}
         </div>
     {% endif %}
@@ -110,7 +110,7 @@
         <div class="menu">
             <ul role="listbox">
                 <li>
-                    <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('shortlink-manager/links/{id}', {site: currentSite.handle})|hash }}">
+                    <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('shortlink-manager/shortlinks/{id}', {site: currentSite.handle})|hash }}">
                         <span class="label">{{ 'Save and continue editing'|t('app') }}</span>
                         <span class="shortcut" id="save-shortcut"></span>
                     </a>
@@ -118,12 +118,12 @@
             </ul>
         </div>
     </div>
-    {% if link.id %}
+    {% if shortLink.id %}
         <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('app') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('app') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
         <div id="action-menu" class="menu menu--disclosure">
             <ul>
                 <li>
-                    <button class="menu-item error formsubmit" data-destructive data-action="shortlink-manager/links/delete" data-params='{"id":{{ link.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'shortlink-manager/links'|hash }}" data-headers='{"Accept":"application/json"}'>
+                    <button class="menu-item error formsubmit" data-destructive data-action="shortlink-manager/shortlinks/delete" data-params='{"id":{{ shortLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'shortlink-manager/shortlinks'|hash }}" data-headers='{"Accept":"application/json"}'>
                         <span class="icon">{{ svg('@app/icons/trash.svg') }}</span>
                         <span class="menu-item-label">{{ "Delete"|t('app') }}</span>
                     </button>
@@ -134,37 +134,37 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="shortlink-manager/links/save">
+    <input type="hidden" name="action" value="shortlink-manager/shortlinks/save">
     {# Default redirect goes back to index #}
-    {{ redirectInput('shortlink-manager/links') }}
-    {% if link.id %}
-        <input type="hidden" name="linkId" value="{{ link.id }}">
+    {{ redirectInput('shortlink-manager/shortlinks') }}
+    {% if shortLink.id %}
+        <input type="hidden" name="linkId" value="{{ shortLink.id }}">
     {% endif %}
     {% if craft.app.sites.getTotalEditableSites() > 1 %}
-        <input type="hidden" name="siteId" value="{{ link.siteId }}">
+        <input type="hidden" name="siteId" value="{{ shortLink.siteId }}">
     {% endif %}
 
     <div id="fields">
-        {% include "shortlink-manager/links/_partials/fields" %}
+        {% include "shortlink-manager/shortlinks/_partials/fields" %}
     </div>
 
     {# Custom field layout tabs #}
-    {% set fieldLayout = link.getFieldLayout() %}
+    {% set fieldLayout = shortLink.getFieldLayout() %}
     {% if fieldLayout %}
         {% for tab in fieldLayout.getTabs() %}
             {% set tabId = 'tab-' ~ tab.id %}
             <div id="{{ tabId }}" class="hidden">
                 {% for element in tab.getElements() %}
-                    {{ element.formHtml(link, link.getIsRevision())|raw }}
+                    {{ element.formHtml(link, shortLink.getIsRevision())|raw }}
                 {% endfor %}
             </div>
         {% endfor %}
     {% endif %}
 
     {# Analytics tab #}
-    {% if plugin.settings.enableAnalytics and link.id and (link.trackAnalytics ?? true) %}
+    {% if plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
         <div id="analytics" class="hidden">
-            {% include "shortlink-manager/links/_partials/analytics" %}
+            {% include "shortlink-manager/shortlinks/_partials/analytics" %}
         </div>
     {% endif %}
 {% endblock %}
@@ -172,13 +172,13 @@
 {% block details %}
     <div class="meta">
         {# Code Field (read-only display) #}
-        {% if link.id %}
+        {% if shortLink.id %}
             <div class="field" data-attribute="code">
                 <div class="heading">
                     <label>{{ "Code"|t('shortlink-manager') }}</label>
                 </div>
                 <div class="input ltr">
-                    <div class="value"><code style="font-size: 13px;">{{ link.code }}</code></div>
+                    <div class="value"><code style="font-size: 13px;">{{ shortLink.code }}</code></div>
                 </div>
             </div>
         {% endif %}
@@ -189,7 +189,7 @@
             id: 'authorId',
             name: 'authorId',
             elementType: 'craft\\elements\\User',
-            elements: link.id and link.getAuthor() ? [link.getAuthor()] : [currentUser],
+            elements: shortLink.id and shortLink.getAuthor() ? [shortLink.getAuthor()] : [currentUser],
             sources: '*',
             criteria: {
                 status: null
@@ -203,7 +203,7 @@
             label: "Post Date"|t('app'),
             id: 'postDate',
             name: 'postDate',
-            value: link.postDate ?? link.dateCreated ?? now,
+            value: shortLink.postDate ?? shortLink.dateCreated ?? now,
             showTimeZone: false
         }) }}
 
@@ -212,18 +212,18 @@
             label: "Expiry Date"|t('app'),
             id: 'expiryDate',
             name: 'expiryDate',
-            value: link.dateExpired ?? null,
+            value: shortLink.dateExpired ?? null,
             showTimeZone: false
         }) }}
     </div>
 
-    {% if link.id %}
+    {% if shortLink.id %}
         <fieldset>
             <legend class="h6">{{ "ShortLink URL"|t('shortlink-manager') }}</legend>
             <div class="meta" style="padding-inline: 0;">
                 <div class="flex" style="gap: 8px;">
                     <div class="textwrapper" style="flex-grow: 1;">
-                        <input type="text" class="text fullwidth" readonly value="{{ link.getUrl() }}" id="shortlink-url" style="border: none; padding-inline: var(--m) var(--s);">
+                        <input type="text" class="text fullwidth" readonly value="{{ shortLink.getUrl() }}" id="shortlink-url" style="border: none; padding-inline: var(--m) var(--s);">
                     </div>
                     <button type="button" class="btn" id="copy-url-btn" style="border-start-start-radius: 0; border-end-start-radius: 0;">
                         {{ "Copy"|t('app') }}
@@ -240,7 +240,7 @@
                 label: "Enabled"|t('app'),
                 id: 'enabled',
                 name: 'enabled',
-                on: link.enabled ?? true,
+                on: shortLink.enabled ?? true,
             }) }}
         </div>
     </fieldset>
@@ -253,7 +253,7 @@
                     label: "Track Analytics"|t('shortlink-manager'),
                     id: 'trackAnalytics',
                     name: 'trackAnalytics',
-                    on: link.trackAnalytics ?? true
+                    on: shortLink.trackAnalytics ?? true
                 }) }}
             </div>
         </fieldset>
@@ -267,23 +267,23 @@
                 label: "Enable QR Code"|t('shortlink-manager'),
                 id: 'qrCodeEnabled',
                 name: 'qrCodeEnabled',
-                on: link.qrCodeEnabled ?? true,
+                on: shortLink.qrCodeEnabled ?? true,
                 toggle: 'qr-settings'
             }) }}
         </div>
 
-        <div id="qr-settings" class="meta {{ not (link.qrCodeEnabled ?? true) ? 'hidden' }}">
-            {% if link.id %}
+        <div id="qr-settings" class="meta {{ not (shortLink.qrCodeEnabled ?? true) ? 'hidden' }}">
+            {% if shortLink.id %}
                 <div class="field nested">
                     <div class="heading">
                         <label>{{ "Preview"|t('shortlink-manager') }}</label>
                     </div>
                     <div class="input" style="text-align: center;">
-                        <a href="{{ link.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
+                        <a href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
                             <img id="qr-preview"
-                                 src="{{ link.getQrCodeDataUri({ size: 150 }) }}"
+                                 src="{{ shortLink.getQrCodeDataUri({ size: 150 }) }}"
                                  alt="QR Code Preview"
-                                 style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ link.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
+                                 style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ shortLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
                         </a>
                     </div>
                 </div>
@@ -293,7 +293,7 @@
                 label: "Size"|t('shortlink-manager'),
                 id: 'qrCodeSize',
                 name: 'qrCodeSize',
-                value: link.qrCodeSize ?? 256,
+                value: shortLink.qrCodeSize ?? 256,
                 type: 'number',
                 min: 100,
                 max: 1000,
@@ -305,7 +305,7 @@
                 label: "Color"|t('shortlink-manager'),
                 id: 'qrCodeColor',
                 name: 'qrCodeColor',
-                value: link.qrCodeColor ?: plugin.settings.defaultQrColor,
+                value: shortLink.qrCodeColor ?: plugin.settings.defaultQrColor,
                 fieldClass: 'nested'
             }) }}
 
@@ -313,7 +313,7 @@
                 label: "Background"|t('shortlink-manager'),
                 id: 'qrCodeBgColor',
                 name: 'qrCodeBgColor',
-                value: link.qrCodeBgColor ?: plugin.settings.defaultQrBgColor,
+                value: shortLink.qrCodeBgColor ?: plugin.settings.defaultQrBgColor,
                 fieldClass: 'nested'
             }) }}
 
@@ -322,7 +322,7 @@
                 instructions: "Color for position markers (leave empty to use main color)"|t('shortlink-manager'),
                 id: 'qrCodeEyeColor',
                 name: 'qrCodeEyeColor',
-                value: link.qrCodeEyeColor ?: (plugin.settings.qrEyeColor ?? ''),
+                value: shortLink.qrCodeEyeColor ?: (plugin.settings.qrEyeColor ?? ''),
                 fieldClass: 'nested'
             }) }}
 
@@ -331,7 +331,7 @@
                 instructions: "Override the default QR code format"|t('shortlink-manager'),
                 id: 'qrCodeFormat',
                 name: 'qrCodeFormat',
-                value: link.qrCodeFormat ?? '',
+                value: shortLink.qrCodeFormat ?? '',
                 options: [
                     { label: 'Default (from settings)', value: '' },
                     { label: 'PNG', value: 'png' },
@@ -343,14 +343,14 @@
             {# QR Logo (only show if logos are enabled in settings) #}
             {% if plugin.settings.enableQrLogo %}
                 {% set selectedLogo = null %}
-                {% if link.qrLogoId %}
-                    {% set selectedLogo = craft.assets.id(link.qrLogoId).one() %}
+                {% if shortLink.qrLogoId %}
+                    {% set selectedLogo = craft.assets.id(shortLink.qrLogoId).one() %}
                 {% elseif plugin.settings.defaultQrLogoId %}
                     {% set selectedLogo = craft.assets.id(plugin.settings.defaultQrLogoId).one() %}
                 {% endif %}
                 {{ forms.elementSelectField({
                     label: "Logo"|t('shortlink-manager'),
-                    instructions: link.qrLogoId ? "Override the default QR code logo"|t('shortlink-manager') : "Using default logo from settings (click to override)"|t('shortlink-manager'),
+                    instructions: shortLink.qrLogoId ? "Override the default QR code logo"|t('shortlink-manager') : "Using default logo from settings (click to override)"|t('shortlink-manager'),
                     id: 'qrLogoId',
                     name: 'qrLogoId',
                     elementType: 'craft\\elements\\Asset',
@@ -364,7 +364,7 @@
             {% endif %}
 
             {# QR Code Actions #}
-            {% if plugin.settings.enableQrDownload and link.id %}
+            {% if plugin.settings.enableQrDownload and shortLink.id %}
                 <div class="field nested" style="margin-top: 15px;">
                     <div class="heading">
                         <label>{{ "Actions"|t('shortlink-manager') }}</label>
@@ -389,12 +389,12 @@
                                         <h6>{{ "View QR Code"|t('shortlink-manager') }}</h6>
                                         <ul>
                                             <li>
-                                                <a href="{{ link.getQrCodeUrl() }}" target="_blank">
+                                                <a href="{{ shortLink.getQrCodeUrl() }}" target="_blank">
                                                     {{ "QR Code Image"|t('shortlink-manager') }}
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="{{ link.getQrCodeDisplayUrl() }}" target="_blank">
+                                                <a href="{{ shortLink.getQrCodeDisplayUrl() }}" target="_blank">
                                                     {{ "QR Code Page"|t('shortlink-manager') }}
                                                 </a>
                                             </li>
@@ -412,16 +412,16 @@
     </fieldset>
     {% endif %}
 
-    {% if link.id %}
+    {% if shortLink.id %}
         <dl class="meta read-only">
             <div class="data">
                 <dt class="heading">{{ "ID"|t('app') }}</dt>
-                <dd class="value">{{ link.id }}</dd>
+                <dd class="value">{{ shortLink.id }}</dd>
             </div>
             <div class="data">
                 <dt class="heading">{{ "Status"|t('app') }}</dt>
                 <dd class="value">
-                    {% if link.enabled %}
+                    {% if shortLink.enabled %}
                         <span class="status live"></span>
                         <span>{{ 'Live'|t('app') }}</span>
                     {% else %}
@@ -432,15 +432,15 @@
             </div>
             <div class="data">
                 <dt class="heading">{{ "Hits"|t('shortlink-manager') }}</dt>
-                <dd class="value">{{ link.hits|number_format }}</dd>
+                <dd class="value">{{ shortLink.hits|number_format }}</dd>
             </div>
             <div class="data">
                 <dt class="heading">{{ "Created at"|t('app') }}</dt>
-                <dd class="value">{{ link.dateCreated|datetime('short') }}</dd>
+                <dd class="value">{{ shortLink.dateCreated|datetime('short') }}</dd>
             </div>
             <div class="data">
                 <dt class="heading">{{ "Updated at"|t('app') }}</dt>
-                <dd class="value">{{ link.dateUpdated|datetime('short') }}</dd>
+                <dd class="value">{{ shortLink.dateUpdated|datetime('short') }}</dd>
             </div>
         </dl>
     {% endif %}
@@ -497,7 +497,7 @@
         updateHttpCodeTip(); // Initialize on load
     }
 
-    // Toggle link type fields
+    // Toggle shortLink type fields
     $('#linkType').on('change', function() {
         const type = $(this).val();
         if (type === 'code') {
@@ -521,7 +521,7 @@
             return;
         }
 
-        Craft.sendActionRequest('POST', 'shortlink-manager/links/generate-code')
+        Craft.sendActionRequest('POST', 'shortlink-manager/shortlinks/generate-code')
             .then(function(response) {
                 if (response.data && response.data.code) {
                     $('#current-code-display').text(response.data.code);
@@ -542,7 +542,7 @@
         }
     }
 
-    {% if link.id %}
+    {% if shortLink.id %}
         // Live QR code preview
         (function() {
             const qrPreview = document.getElementById('qr-preview');
@@ -556,7 +556,7 @@
             const eyeColorInput = document.getElementById('qrCodeEyeColor');
             const sizeInput = document.getElementById('qrCodeSize');
             const formatSelect = document.getElementById('qrCodeFormat');
-            const baseUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: link.id}) }}';
+            const baseUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}) }}';
             let updateTimeout;
 
             function updateQrCode() {
@@ -627,7 +627,7 @@
                     // Update preview background immediately
                     qrPreview.style.background = '#' + bgColor;
 
-                    // Update link to full size
+                    // Update shortLink to full size
                     if (qrLink) {
                         qrLink.href = `${baseUrl}&${fullSizeParams}`;
                     }
@@ -799,7 +799,7 @@
         const format = $('#qrCodeFormat').val() || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
 
         // Build download URL using action URL
-        let downloadUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: link.id}) }}' +
+        let downloadUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}) }}' +
             '&size=' + size +
             '&color=' + color +
             '&bg=' + bgColor +
@@ -820,13 +820,13 @@
         {% endif %}
 
         // Create temporary link and click it
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        const finalFilename = '{{ link.code }}-qr-' + size;
-        link.download = `${finalFilename}.${format}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = downloadUrl;
+        const finalFilename = '{{ shortLink.code }}-qr-' + size;
+        downloadLink.download = `${finalFilename}.${format}`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     });
 
     // Reset QR code settings to defaults

@@ -385,10 +385,10 @@ class ShortLinkManager extends Plugin
     {
         return [
             // Links routes (default page)
-            'shortlink-manager' => 'shortlink-manager/links/index',
-            'shortlink-manager/links' => 'shortlink-manager/links/index',
-            'shortlink-manager/links/new' => 'shortlink-manager/links/edit',
-            'shortlink-manager/links/<linkId:\d+>' => 'shortlink-manager/links/edit',
+            'shortlink-manager' => 'shortlink-manager/shortlinks/index',
+            'shortlink-manager/shortlinks' => 'shortlink-manager/shortlinks/index',
+            'shortlink-manager/shortlinks/new' => 'shortlink-manager/shortlinks/edit',
+            'shortlink-manager/shortlinks/<shortLinkId:\d+>' => 'shortlink-manager/shortlinks/edit',
 
             // Analytics routes
             'shortlink-manager/analytics' => 'shortlink-manager/analytics/index',

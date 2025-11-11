@@ -52,7 +52,7 @@ class ShortLinkManagerUtility extends Utility
 
         // Get system stats using direct queries
         $totalLinks = (new \craft\db\Query())
-            ->from('{{%shortlinkmanager_links}}')
+            ->from('{{%shortlinkmanager}}')
             ->count();
 
         // Get active links count (use element query)

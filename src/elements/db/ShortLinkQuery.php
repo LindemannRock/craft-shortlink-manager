@@ -166,8 +166,8 @@ class ShortLinkQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
-        // Join in the shortlinkmanager_links table
-        $this->joinElementTable('shortlinkmanager_links');
+        // Join in the shortlinkmanager table
+        $this->joinElementTable('shortlinkmanager');
 
         // Join content table for site-specific data (LEFT JOIN so we get all shortlinks even if no content yet)
         $this->query->leftJoin(
@@ -177,24 +177,24 @@ class ShortLinkQuery extends ElementQuery
 
         // Select columns from both tables
         $this->query->select([
-            'shortlinkmanager_links.code',
-            'shortlinkmanager_links.slug',
-            'shortlinkmanager_links.linkType',
-            'shortlinkmanager_links.elementId',
-            'shortlinkmanager_links.elementType',
-            'shortlinkmanager_links.authorId',
-            'shortlinkmanager_links.postDate',
-            'shortlinkmanager_links.dateExpired',
-            'shortlinkmanager_links.httpCode',
-            'shortlinkmanager_links.trackAnalytics',
-            'shortlinkmanager_links.hits',
-            'shortlinkmanager_links.qrCodeEnabled',
-            'shortlinkmanager_links.qrCodeSize',
-            'shortlinkmanager_links.qrCodeColor',
-            'shortlinkmanager_links.qrCodeBgColor',
-            'shortlinkmanager_links.qrCodeEyeColor',
-            'shortlinkmanager_links.qrCodeFormat',
-            'shortlinkmanager_links.qrLogoId',
+            'shortlinkmanager.code',
+            'shortlinkmanager.slug',
+            'shortlinkmanager.linkType',
+            'shortlinkmanager.elementId',
+            'shortlinkmanager.elementType',
+            'shortlinkmanager.authorId',
+            'shortlinkmanager.postDate',
+            'shortlinkmanager.dateExpired',
+            'shortlinkmanager.httpCode',
+            'shortlinkmanager.trackAnalytics',
+            'shortlinkmanager.hits',
+            'shortlinkmanager.qrCodeEnabled',
+            'shortlinkmanager.qrCodeSize',
+            'shortlinkmanager.qrCodeColor',
+            'shortlinkmanager.qrCodeBgColor',
+            'shortlinkmanager.qrCodeEyeColor',
+            'shortlinkmanager.qrCodeFormat',
+            'shortlinkmanager.qrLogoId',
             'shortlinkmanager_content.destinationUrl',
             'shortlinkmanager_content.expiredRedirectUrl',
             // Ensure we get the enabled status from elements_sites for current site
@@ -203,23 +203,23 @@ class ShortLinkQuery extends ElementQuery
 
         // Apply custom filters
         if ($this->slug) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager_links.slug', $this->slug));
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.slug', $this->slug));
         }
 
         if ($this->linkType) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager_links.linkType', $this->linkType));
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.linkType', $this->linkType));
         }
 
         if ($this->elementId) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager_links.elementId', $this->elementId));
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.elementId', $this->elementId));
         }
 
         if ($this->httpCode) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager_links.httpCode', $this->httpCode));
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.httpCode', $this->httpCode));
         }
 
         if ($this->trackAnalytics !== null) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager_links.trackAnalytics', $this->trackAnalytics));
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.trackAnalytics', $this->trackAnalytics));
         }
 
         if ($this->expired !== null) {
@@ -227,15 +227,15 @@ class ShortLinkQuery extends ElementQuery
                 // Only expired links
                 $this->subQuery->andWhere([
                     'and',
-                    ['not', ['shortlinkmanager_links.dateExpired' => null]],
-                    ['<', 'shortlinkmanager_links.dateExpired', Db::prepareDateForDb(new \DateTime())],
+                    ['not', ['shortlinkmanager.dateExpired' => null]],
+                    ['<', 'shortlinkmanager.dateExpired', Db::prepareDateForDb(new \DateTime())],
                 ]);
             } else {
                 // Only non-expired links
                 $this->subQuery->andWhere([
                     'or',
-                    ['shortlinkmanager_links.dateExpired' => null],
-                    ['>=', 'shortlinkmanager_links.dateExpired', Db::prepareDateForDb(new \DateTime())],
+                    ['shortlinkmanager.dateExpired' => null],
+                    ['>=', 'shortlinkmanager.dateExpired', Db::prepareDateForDb(new \DateTime())],
                 ]);
             }
         }
@@ -243,7 +243,7 @@ class ShortLinkQuery extends ElementQuery
         // Handle custom statuses
         if ($this->_requestedStatus === ShortLink::STATUS_EXPIRED) {
             // Show only expired items (must have dateExpired in the past)
-            $this->subQuery->andWhere(['<', 'shortlinkmanager_links.dateExpired', new \yii\db\Expression('NOW()')]);
+            $this->subQuery->andWhere(['<', 'shortlinkmanager.dateExpired', new \yii\db\Expression('NOW()')]);
         }
 
         return parent::beforePrepare();

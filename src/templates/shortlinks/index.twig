@@ -22,7 +22,7 @@
     {% for site in plugin.getEnabledSites() %}
         {% set siteMenuItems = siteMenuItems|merge([{
             label: site.name,
-            url: url('shortlink-manager/links', {site: site.handle}),
+            url: url('shortlink-manager/shortlinks', {site: site.handle}),
             selected: site.handle == selectedSiteHandle
         }]) %}
     {% endfor %}
@@ -47,7 +47,7 @@
 	{% if currentUser.can('shortLinkManager:createLinks') %}
 		{% set singularName = plugin.settings.pluginName matches '/s$/' ? plugin.settings.pluginName|slice(0, -1) : plugin.settings.pluginName %}
 		<div class="btngroup">
-			<a href="{{ url('shortlink-manager/links/new') }}" class="btn submit add icon">{{ 'New {name}'|t('shortlink-manager', {name: singularName|lower}) }}</a>
+			<a href="{{ url('shortlink-manager/shortlinks/new') }}" class="btn submit add icon">{{ 'New {name}'|t('shortlink-manager', {name: singularName|lower}) }}</a>
 		</div>
 	{% endif %}
 {% endblock %}

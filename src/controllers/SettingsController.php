@@ -449,7 +449,7 @@ class SettingsController extends Controller
 
             // Reset hit counts on all links
             Craft::$app->db->createCommand()
-                ->update('{{%shortlinkmanager_links}}', ['hits' => 0])
+                ->update('{{%shortlinkmanager}}', ['hits' => 0])
                 ->execute();
 
             return $this->asJson([

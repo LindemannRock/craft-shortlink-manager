@@ -26,9 +26,9 @@ class Install extends Migration
      */
     public function safeUp(): bool
     {
-        // Create the shortlinkmanager_links table (element-based structure)
-        if (!$this->db->tableExists('{{%shortlinkmanager_links}}')) {
-            $this->createTable('{{%shortlinkmanager_links}}', [
+        // Create the shortlinkmanager table (element-based structure)
+        if (!$this->db->tableExists('{{%shortlinkmanager}}')) {
+            $this->createTable('{{%shortlinkmanager}}', [
                 'id' => $this->integer()->notNull(),
                 'code' => $this->string(100)->null(),
                 'slug' => $this->string(100)->notNull(),
@@ -56,20 +56,20 @@ class Install extends Migration
             ]);
 
             // Create indexes
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'code');
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'slug', true);
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'elementId');
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'authorId');
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'postDate');
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'dateExpired');
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'linkType');
-            $this->createIndex(null, '{{%shortlinkmanager_links}}', 'qrLogoId');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'code');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'slug', true);
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'elementId');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'authorId');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'postDate');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'dateExpired');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'linkType');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'qrLogoId');
 
             // Add foreign keys
-            $this->addForeignKey(null, '{{%shortlinkmanager_links}}', 'id', '{{%elements}}', 'id', 'CASCADE');
-            $this->addForeignKey(null, '{{%shortlinkmanager_links}}', 'authorId', '{{%users}}', 'id', 'SET NULL');
-            $this->addForeignKey(null, '{{%shortlinkmanager_links}}', 'elementId', '{{%elements}}', 'id', 'CASCADE', 'CASCADE');
-            $this->addForeignKey(null, '{{%shortlinkmanager_links}}', 'qrLogoId', '{{%assets}}', 'id', 'SET NULL', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager}}', 'id', '{{%elements}}', 'id', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager}}', 'authorId', '{{%users}}', 'id', 'SET NULL');
+            $this->addForeignKey(null, '{{%shortlinkmanager}}', 'elementId', '{{%elements}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager}}', 'qrLogoId', '{{%assets}}', 'id', 'SET NULL', 'CASCADE');
         }
 
         // Create the shortlinkmanager_content table for site-specific/translatable data
@@ -90,7 +90,7 @@ class Install extends Migration
             $this->createIndex(null, '{{%shortlinkmanager_content}}', 'siteId');
 
             // Add foreign keys
-            $this->addForeignKey(null, '{{%shortlinkmanager_content}}', 'shortLinkId', '{{%shortlinkmanager_links}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager_content}}', 'shortLinkId', '{{%shortlinkmanager}}', 'id', 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%shortlinkmanager_content}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
         }
 
@@ -139,7 +139,7 @@ class Install extends Migration
             $this->createIndex(null, '{{%shortlinkmanager_analytics}}', 'dateCreated');
 
             // Add foreign keys
-            $this->addForeignKey(null, '{{%shortlinkmanager_analytics}}', 'linkId', '{{%shortlinkmanager_links}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager_analytics}}', 'linkId', '{{%shortlinkmanager}}', 'id', 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%shortlinkmanager_analytics}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
         }
 
@@ -235,7 +235,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%shortlinkmanager_analytics}}');
         $this->dropTableIfExists('{{%shortlinkmanager_content}}');
         $this->dropTableIfExists('{{%shortlinkmanager_settings}}');
-        $this->dropTableIfExists('{{%shortlinkmanager_links}}');
+        $this->dropTableIfExists('{{%shortlinkmanager}}');
 
         return true;
     }

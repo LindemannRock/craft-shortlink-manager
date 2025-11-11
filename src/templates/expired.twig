@@ -43,8 +43,8 @@
     <div class="container">
         <h1>{{ "Link Expired"|t('shortlink-manager') }}</h1>
         <p>{{ message }}</p>
-        {% if link %}
-            <p class="light">Code: <span class="code">{{ link.code }}</span></p>
+        {% if shortLink %}
+            <p class="light">Code: <span class="code">{{ shortLink.code }}</span></p>
         {% endif %}
     </div>
 </body>

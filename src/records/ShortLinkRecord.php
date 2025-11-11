@@ -45,6 +45,6 @@ class ShortLinkRecord extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%shortlinkmanager_links}}';
+        return '{{%shortlinkmanager}}';
     }
 }

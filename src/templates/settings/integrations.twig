@@ -68,7 +68,10 @@
                             <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('shortlink-manager') }}</span>
                         {% else %}
                             <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('shortlink-manager') }}</span>
+                            <span style="color: #6c757d; font-size: 12px;">
+                                {{ "Not Installed"|t('shortlink-manager') }}
+                                <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('shortlink-manager') }}</a>
+                            </span>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push shortlink events to Google Tag Manager and analytics platforms for tracking redirects and QR code scans."|t('shortlink-manager') }}</p>
@@ -297,7 +300,10 @@
                             <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('shortlink-manager') }}</span>
                         {% else %}
                             <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Not Installed"|t('shortlink-manager') }}</span>
+                            <span style="color: #6c757d; font-size: 12px;">
+                                {{ "Not Installed"|t('shortlink-manager') }}
+                                <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('shortlink-manager') }}</a>
+                            </span>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when shortlinks are changed, expired, or deleted. Provides centralized redirect management and analytics tracking."|t('shortlink-manager') }}</p>
@@ -392,7 +398,7 @@
                                     </div>
                                     <div>
                                         <strong>{{ "Deleted Shortlinks"|t('shortlink-manager') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete link with traffic → Redirect to <strong>Expired Redirect URL</strong>, or <strong>Default 404 URL</strong>, or <code>/</code>"|t('shortlink-manager')|raw }}</span>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete shortLink with traffic → Redirect to <strong>Expired Redirect URL</strong>, or <strong>Default 404 URL</strong>, or <code>/</code>"|t('shortlink-manager')|raw }}</span>
                                     </div>
                                 </div>
                             </div>

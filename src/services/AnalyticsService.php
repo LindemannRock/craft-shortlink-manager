@@ -37,12 +37,12 @@ class AnalyticsService extends Component
     /**
      * Track a click
      *
-     * @param ShortLink $link
+     * @param ShortLink $shortLink
      * @param Request $request
      * @param string $source Source of the click (qr, direct, etc.)
      * @return void
      */
-    public function trackClick(ShortLink $link, Request $request, string $source = 'direct'): void
+    public function trackClick(ShortLink $shortLink, Request $request, string $source = 'direct'): void
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
@@ -51,8 +51,8 @@ class AnalyticsService extends Component
         }
 
         $record = new AnalyticsRecord();
-        $record->linkId = $link->id;
-        $record->siteId = $link->siteId;
+        $record->linkId = $shortLink->id;
+        $record->siteId = $shortLink->siteId;
 
         // Get IP address
         $ip = $request->getUserIP();
@@ -117,15 +117,15 @@ class AnalyticsService extends Component
     /**
      * Get click statistics for a link
      *
-     * @param int $linkId
+     * @param int $shortLinkId
      * @param array $filters
      * @return array
      */
-    public function getClickStats(int $linkId, array $filters = []): array
+    public function getClickStats(int $shortLinkId, array $filters = []): array
     {
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId]);
+            ->where(['linkId' => $shortLinkId]);
 
         // Apply filters
         if (isset($filters['days'])) {
@@ -149,7 +149,7 @@ class AnalyticsService extends Component
         $clicksByDate = (new Query())
             ->select(['DATE(dateCreated) as date', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->groupBy('DATE(dateCreated)')
             ->orderBy(['date' => SORT_ASC])
             ->all();
@@ -158,7 +158,7 @@ class AnalyticsService extends Component
         $deviceBreakdown = (new Query())
             ->select(['deviceType', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->andWhere(['not', ['deviceType' => null]])
             ->groupBy('deviceType')
             ->orderBy(['count' => SORT_DESC])
@@ -168,7 +168,7 @@ class AnalyticsService extends Component
         $browserBreakdown = (new Query())
             ->select(['browser', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->andWhere(['not', ['browser' => null]])
             ->groupBy('browser')
             ->orderBy(['count' => SORT_DESC])
@@ -179,7 +179,7 @@ class AnalyticsService extends Component
         $referrerBreakdown = (new Query())
             ->select(['referer', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->andWhere(['not', ['referer' => null]])
             ->groupBy('referer')
             ->orderBy(['count' => SORT_DESC])
@@ -192,7 +192,7 @@ class AnalyticsService extends Component
             $geoBreakdown = (new Query())
                 ->select(['country', 'COUNT(*) as count'])
                 ->from('{{%shortlinkmanager_analytics}}')
-                ->where(['linkId' => $linkId])
+                ->where(['linkId' => $shortLinkId])
                 ->andWhere(['not', ['country' => null]])
                 ->groupBy('country')
                 ->orderBy(['count' => SORT_DESC])
@@ -221,7 +221,7 @@ class AnalyticsService extends Component
     {
         $query = (new Query())
             ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
-            ->from('{{%shortlinkmanager_links}} l')
+            ->from('{{%shortlinkmanager}} l')
             ->leftJoin('{{%shortlinkmanager_analytics}} a', 'a.linkId = l.id')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = l.id AND c.siteId = 1')
             ->groupBy('l.id, c.destinationUrl')
@@ -237,15 +237,15 @@ class AnalyticsService extends Component
     /**
      * Get device breakdown
      *
-     * @param int $linkId
+     * @param int $shortLinkId
      * @return array
      */
-    public function getDeviceBreakdown(int $linkId): array
+    public function getDeviceBreakdown(int $shortLinkId): array
     {
         return (new Query())
             ->select(['deviceType', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->andWhere(['not', ['deviceType' => null]])
             ->groupBy('deviceType')
             ->orderBy(['count' => SORT_DESC])
@@ -255,15 +255,15 @@ class AnalyticsService extends Component
     /**
      * Get geo breakdown
      *
-     * @param int $linkId
+     * @param int $shortLinkId
      * @return array
      */
-    public function getGeoBreakdown(int $linkId): array
+    public function getGeoBreakdown(int $shortLinkId): array
     {
         return (new Query())
             ->select(['country', 'city', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->andWhere(['not', ['country' => null]])
             ->groupBy(['country', 'city'])
             ->orderBy(['count' => SORT_DESC])
@@ -274,15 +274,15 @@ class AnalyticsService extends Component
     /**
      * Get referrer breakdown
      *
-     * @param int $linkId
+     * @param int $shortLinkId
      * @return array
      */
-    public function getReferrerBreakdown(int $linkId): array
+    public function getReferrerBreakdown(int $shortLinkId): array
     {
         return (new Query())
             ->select(['referer', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId])
+            ->where(['linkId' => $shortLinkId])
             ->andWhere(['not', ['referer' => null]])
             ->groupBy('referer')
             ->orderBy(['count' => SORT_DESC])
@@ -319,10 +319,10 @@ class AnalyticsService extends Component
      * Get analytics summary
      *
      * @param string $dateRange
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @return array
      */
-    public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $linkId = null): array
+    public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $shortLinkId = null): array
     {
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}');
@@ -331,8 +331,8 @@ class AnalyticsService extends Component
         $this->applyDateRangeFilter($query, $dateRange);
 
         // Filter by link if specified
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $totalClicks = (int) $query->count();
@@ -345,27 +345,27 @@ class AnalyticsService extends Component
 
         // Get total links
         $totalLinks = (new Query())
-            ->from('{{%shortlinkmanager_links}}')
+            ->from('{{%shortlinkmanager}}')
             ->count();
 
         // Get count of links that have been clicked in this period
-        $linksQuery = (new Query())
+        $shortLinksQuery = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
             ->select('COUNT(DISTINCT linkId)');
 
-        $this->applyDateRangeFilter($linksQuery, $dateRange);
-        $linksWithClicks = (int) $linksQuery->scalar();
+        $this->applyDateRangeFilter($shortLinksQuery, $dateRange);
+        $shortLinksWithClicks = (int) $shortLinksQuery->scalar();
 
         // Calculate percentage
-        $linksUsedPercentage = $activeLinks > 0 ? min(100, round(($linksWithClicks / $activeLinks) * 100, 0)) : 0;
+        $shortLinksUsedPercentage = $activeLinks > 0 ? min(100, round(($shortLinksWithClicks / $activeLinks) * 100, 0)) : 0;
 
         return [
             'totalClicks' => $totalClicks,
             'uniqueVisitors' => $uniqueVisitors,
             'activeLinks' => $activeLinks,
             'totalLinks' => $totalLinks,
-            'linksUsed' => $linksWithClicks,
-            'linksUsedPercentage' => $linksUsedPercentage,
+            'linksUsed' => $shortLinksWithClicks,
+            'linksUsedPercentage' => $shortLinksUsedPercentage,
             'topLinks' => $this->getTopLinks(20, $dateRange),
             'topCountries' => $this->getTopCountries(null, $dateRange),
             'topCities' => $this->getTopCities(null, $dateRange),
@@ -422,15 +422,15 @@ class AnalyticsService extends Component
     /**
      * Get analytics for a specific link
      *
-     * @param int $linkId
+     * @param int $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getLinkAnalytics(int $linkId, string $dateRange = 'last7days'): array
+    public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days'): array
     {
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $linkId]);
+            ->where(['linkId' => $shortLinkId]);
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
@@ -488,9 +488,9 @@ class AnalyticsService extends Component
         $recentClicks = (clone $query)
             ->select(['a.*', 'l.code as linkCode', 'l.slug', 'c.destinationUrl'])
             ->from('{{%shortlinkmanager_analytics}} a')
-            ->innerJoin('{{%shortlinkmanager_links}} l', 'l.id = a.linkId')
+            ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
-            ->where(['a.linkId' => $linkId])
+            ->where(['a.linkId' => $shortLinkId])
             ->orderBy(['a.dateCreated' => SORT_DESC])
             ->limit(20)
             ->all();
@@ -538,7 +538,7 @@ class AnalyticsService extends Component
         $query = (new Query())
             ->select(['a.*', 'l.code as linkCode', 'l.slug', 'c.destinationUrl'])
             ->from('{{%shortlinkmanager_analytics}} a')
-            ->innerJoin('{{%shortlinkmanager_links}} l', 'l.id = a.linkId')
+            ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
             ->orderBy(['a.dateCreated' => SORT_DESC])
             ->limit($limit);
@@ -563,12 +563,12 @@ class AnalyticsService extends Component
     /**
      * Get top countries
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @param int $limit
      * @return array
      */
-    public function getTopCountries(?int $linkId, string $dateRange, int $limit = 10): array
+    public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10): array
     {
         $query = (new Query())
             ->select(['country', 'COUNT(*) as clicks'])
@@ -578,8 +578,8 @@ class AnalyticsService extends Component
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -599,12 +599,12 @@ class AnalyticsService extends Component
     /**
      * Get top cities
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @param int $limit
      * @return array
      */
-    public function getTopCities(?int $linkId, string $dateRange, int $limit = 15): array
+    public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15): array
     {
         $query = (new Query())
             ->select(['city', 'country', 'COUNT(*) as clicks'])
@@ -614,8 +614,8 @@ class AnalyticsService extends Component
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -635,11 +635,11 @@ class AnalyticsService extends Component
     /**
      * Get device brand breakdown
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getDeviceBrandBreakdown(?int $linkId, string $dateRange): array
+    public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange): array
     {
         $query = (new Query())
             ->select(['deviceBrand', 'COUNT(*) as clicks'])
@@ -649,8 +649,8 @@ class AnalyticsService extends Component
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(10);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -666,11 +666,11 @@ class AnalyticsService extends Component
     /**
      * Get OS breakdown
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getOsBreakdown(?int $linkId, string $dateRange): array
+    public function getOsBreakdown(?int $shortLinkId, string $dateRange): array
     {
         $query = (new Query())
             ->select(['osName', 'COUNT(*) as clicks'])
@@ -679,8 +679,8 @@ class AnalyticsService extends Component
             ->groupBy('osName')
             ->orderBy(['clicks' => SORT_DESC]);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -703,11 +703,11 @@ class AnalyticsService extends Component
     /**
      * Get browser breakdown
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getBrowserBreakdown(?int $linkId, string $dateRange): array
+    public function getBrowserBreakdown(?int $shortLinkId, string $dateRange): array
     {
         $query = (new Query())
             ->select(['browser', 'COUNT(*) as clicks'])
@@ -717,8 +717,8 @@ class AnalyticsService extends Component
             ->orderBy(['clicks' => SORT_DESC])
             ->limit(10);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -741,11 +741,11 @@ class AnalyticsService extends Component
     /**
      * Get device type breakdown
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getDeviceTypeBreakdown(?int $linkId, string $dateRange): array
+    public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange): array
     {
         $query = (new Query())
             ->select(['deviceType', 'COUNT(*) as clicks'])
@@ -754,8 +754,8 @@ class AnalyticsService extends Component
             ->groupBy('deviceType')
             ->orderBy(['clicks' => SORT_DESC]);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -773,11 +773,11 @@ class AnalyticsService extends Component
     /**
      * Get clicks data for chart
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getClicksData(?int $linkId, string $dateRange): array
+    public function getClicksData(?int $shortLinkId, string $dateRange): array
     {
         $query = (new Query())
             ->select(['DATE(dateCreated) as date', 'COUNT(*) as clicks'])
@@ -785,8 +785,8 @@ class AnalyticsService extends Component
             ->groupBy('DATE(dateCreated)')
             ->orderBy(['date' => SORT_ASC]);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -802,11 +802,11 @@ class AnalyticsService extends Component
     /**
      * Get hourly analytics
      *
-     * @param int|null $linkId
+     * @param int|null $shortLinkId
      * @param string $dateRange
      * @return array
      */
-    public function getHourlyAnalytics(?int $linkId, string $dateRange): array
+    public function getHourlyAnalytics(?int $shortLinkId, string $dateRange): array
     {
         $query = (new Query())
             ->select(['HOUR(dateCreated) as hour', 'COUNT(*) as clicks'])
@@ -814,8 +814,8 @@ class AnalyticsService extends Component
             ->groupBy('hour')
             ->orderBy(['hour' => SORT_ASC]);
 
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $this->applyDateRangeFilter($query, $dateRange);
@@ -1022,12 +1022,12 @@ class AnalyticsService extends Component
     /**
      * Export analytics data to CSV
      *
-     * @param int|null $linkId Optional link ID to filter by
+     * @param int|null $shortLinkId Optional link ID to filter by
      * @param string $dateRange Date range to filter
      * @param string $format Export format (only 'csv' supported)
      * @return string CSV content
      */
-    public function exportAnalytics(?int $linkId, string $dateRange, string $format): string
+    public function exportAnalytics(?int $shortLinkId, string $dateRange, string $format): string
     {
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
@@ -1055,8 +1055,8 @@ class AnalyticsService extends Component
         $this->applyDateRangeFilter($query, $dateRange);
 
         // Filter by link if specified
-        if ($linkId) {
-            $query->andWhere(['linkId' => $linkId]);
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
         }
 
         $results = $query->all();
@@ -1086,8 +1086,8 @@ class AnalyticsService extends Component
 
             // Get the actual status
             $status = $shortLink->getStatus();
-            $linkCode = $shortLink->code;
-            $linkStatus = match($status) {
+            $shortLinkCode = $shortLink->code;
+            $shortLinkStatus = match($status) {
                 ShortLink::STATUS_ENABLED => 'Active',
                 ShortLink::STATUS_DISABLED => 'Disabled',
                 ShortLink::STATUS_PENDING => 'Pending',
@@ -1095,7 +1095,7 @@ class AnalyticsService extends Component
                 default => 'Unknown'
             };
 
-            $linkUrl = '';
+            $shortLinkUrl = '';
             $destinationUrl = $shortLink->destinationUrl ?? '';
 
             // Get site name and build the short link URL
@@ -1105,7 +1105,7 @@ class AnalyticsService extends Component
                 $siteName = $site ? $site->name : '';
                 if ($shortLink) {
                     // Generate the URL for the specific site
-                    $linkUrl = \craft\helpers\UrlHelper::siteUrl("go/{$shortLink->code}", null, null, $row['siteId']);
+                    $shortLinkUrl = \craft\helpers\UrlHelper::siteUrl("go/{$shortLink->code}", null, null, $row['siteId']);
                 }
             }
 
@@ -1121,9 +1121,9 @@ class AnalyticsService extends Component
                     '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
                     $dateStr,
                     $timeStr,
-                    $linkCode,
-                    $linkStatus,
-                    $linkUrl,
+                    $shortLinkCode,
+                    $shortLinkStatus,
+                    $shortLinkUrl,
                     $siteName,
                     $destinationUrl,
                     $referrerDisplay,
@@ -1144,9 +1144,9 @@ class AnalyticsService extends Component
                     '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
                     $dateStr,
                     $timeStr,
-                    $linkCode,
-                    $linkStatus,
-                    $linkUrl,
+                    $shortLinkCode,
+                    $shortLinkStatus,
+                    $shortLinkUrl,
                     $siteName,
                     $destinationUrl,
                     $referrerDisplay,

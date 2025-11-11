@@ -117,7 +117,7 @@ class TopLinksWidget extends Widget
 
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/top-links/body', [
             'widget' => $this,
-            'links' => $topLinks,
+            'shortLinks' => $topLinks,
         ]);
     }
 }

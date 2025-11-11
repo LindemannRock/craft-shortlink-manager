@@ -134,7 +134,7 @@
             <h3 style="margin-bottom: 8px;">{{ "Navigation"|t('shortlink-manager') }}</h3>
             <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('shortlink-manager') }}</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="{{ url('shortlink-manager/links') }}" class="btn">
+                <a href="{{ url('shortlink-manager/shortlinks') }}" class="btn">
                     {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: pluginName|replace({' Manager': '', ' manager': ''})}) }}
                 </a>
                 {% if settings.enableAnalytics %}
