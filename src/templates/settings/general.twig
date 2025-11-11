@@ -113,22 +113,30 @@
 		{# Calculate smart default for qrPrefix if empty #}
 		{% set qrPrefixValue = settings.qrPrefix %}
 		{% if qrPrefixValue is empty %}
-			{% set smartQrDefault = 'qr' %}
+			{# Try nested pattern first (safer and more organized) #}
+			{% set nestedDefault = settings.slugPrefix ~ '/qr' %}
+			{% set smartQrDefault = nestedDefault %}
+
 			{% if smartLinksInstalled and smartLinksPlugin %}
 				{% set smartLinksSettings = smartLinksPlugin.getSettings() %}
 				{% set conflictingPrefixes = [
 					smartLinksSettings.slugPrefix ?? 'go',
 					smartLinksSettings.qrPrefix ?? 'qr',
-					settings.slugPrefix
 				] %}
-				{% set found = false %}
-				{% for candidate in ['qr', 'sqr', 'q', 's-qr'] %}
-					{% if not found and candidate not in conflictingPrefixes %}
-						{% set smartQrDefault = candidate %}
-						{% set found = true %}
-					{% endif %}
-				{% endfor %}
+
+				{# Check if nested pattern conflicts with Smart Links #}
+				{% if nestedDefault in conflictingPrefixes %}
+					{# Try standalone alternatives #}
+					{% set found = false %}
+					{% for candidate in ['qr', 'sqr', 'q', 's-qr'] %}
+						{% if not found and candidate not in conflictingPrefixes and candidate != settings.slugPrefix %}
+							{% set smartQrDefault = candidate %}
+							{% set found = true %}
+						{% endif %}
+					{% endfor %}
+				{% endif %}
 			{% endif %}
+
 			{% set qrPrefixValue = smartQrDefault %}
 		{% endif %}
 
