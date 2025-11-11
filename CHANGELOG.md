@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.0...v5.1.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* improve handling of default QR logo ID in settings ([1e025bc](https://github.com/LindemannRock/craft-shortlink-manager/commit/1e025bcfbc266ad12d0b7b91f46028410fc63120))
+
 ## [5.1.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.0.0...v5.1.0) (2025-11-11)
 
 
