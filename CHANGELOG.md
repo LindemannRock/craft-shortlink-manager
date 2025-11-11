@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.6](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.5...v5.1.6) (2025-11-11)
+
+
+### Bug Fixes
+
+* **ip-salt-error:** enhance error message with copyable commands for generating IP hash salt ([ab26918](https://github.com/LindemannRock/craft-shortlink-manager/commit/ab26918579ac778ec2f24a8fe9433b65c8e6c2e3))
+
 ## [5.1.5](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.4...v5.1.5) (2025-11-11)
 
 
