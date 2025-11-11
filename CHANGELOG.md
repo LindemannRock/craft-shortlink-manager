@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.2...v5.1.3) (2025-11-11)
+
+
+### Code Refactoring
+
+* remove global enableQrCodes setting, keep per-link control ([279a7e8](https://github.com/LindemannRock/craft-shortlink-manager/commit/279a7e8b29830d8766e59dd3655ca393a4994e48))
+
 ## [5.1.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.1...v5.1.2) (2025-11-11)
 
 
