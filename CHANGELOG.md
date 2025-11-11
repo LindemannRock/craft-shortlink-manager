@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.4](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.3...v5.1.4) (2025-11-11)
+
+
+### Bug Fixes
+
+* update QR code URL prefix to support nested patterns ([031a062](https://github.com/LindemannRock/craft-shortlink-manager/commit/031a062dc0584c51979b74e4e5ae914238a33638))
+
 ## [5.1.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.2...v5.1.3) (2025-11-11)
 
 
