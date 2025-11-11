@@ -157,7 +157,13 @@ return [
 
 ```bash
 cd /path/to/project
+```
+
+```bash
 composer require lindemannrock/craft-shortlink-manager
+```
+
+```bash
 ./craft plugin/install shortlink-manager
 ```
 
@@ -165,7 +171,13 @@ composer require lindemannrock/craft-shortlink-manager
 
 ```bash
 cd /path/to/project
+```
+
+```bash
 ddev composer require lindemannrock/craft-shortlink-manager
+```
+
+```bash
 ddev craft plugin/install shortlink-manager
 ```
 
