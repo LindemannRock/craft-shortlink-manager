@@ -153,23 +153,50 @@ return [
 
 ## Installation
 
-1. Install via Composer:
+### Via Composer
+
 ```bash
+cd /path/to/project
 composer require lindemannrock/craft-shortlink-manager
+./craft plugin/install shortlink-manager
 ```
 
-2. Install the plugin:
+### Using DDEV
+
 ```bash
-php craft plugin/install shortlink-manager
+cd /path/to/project
+ddev composer require lindemannrock/craft-shortlink-manager
+ddev craft plugin/install shortlink-manager
 ```
 
-3. **Generate IP hash salt** (required for analytics):
+### Via Control Panel
+
+In the Control Panel, go to Settings → Plugins and click "Install" for ShortLink Manager.
+
+### ⚠️ Required Post-Install Step
+
+**IMPORTANT:** After installation, you MUST generate the IP hash salt for analytics to work:
+
 ```bash
 php craft shortlink-manager/security/generate-salt
 ```
-This automatically adds `SHORTLINK_MANAGER_IP_SALT` to your `.env` file.
 
-4. (Optional) Copy the config file:
+**What happens if you skip this:**
+- ❌ Analytics tracking will fail with error: `IP hash salt not configured`
+- ❌ Shortlinks will still redirect, but won't track clicks
+- ✅ You can generate the salt later, but no analytics will be collected until you do
+
+**Quick Start:**
+```bash
+# After plugin installation:
+php craft shortlink-manager/security/generate-salt
+
+# The command will automatically add SHORTLINK_MANAGER_IP_SALT to your .env file
+# Copy this value to staging/production .env files manually
+```
+
+### Optional: Copy Config File
+
 ```bash
 cp vendor/lindemannrock/craft-shortlink-manager/src/config.php config/shortlink-manager.php
 ```
