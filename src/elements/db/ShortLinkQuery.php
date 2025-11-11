@@ -71,9 +71,9 @@ class ShortLinkQuery extends ElementQuery
         // Store the requested status for use in beforePrepare
         $this->_requestedStatus = $value;
 
-        // For custom statuses (expired), don't pass to parent yet
+        // For custom statuses (expired, pending), don't pass to parent yet
         // We'll handle the filtering in beforePrepare()
-        if ($value === ShortLink::STATUS_EXPIRED) {
+        if ($value === ShortLink::STATUS_EXPIRED || $value === ShortLink::STATUS_PENDING) {
             // Set to null so parent doesn't filter by status
             return parent::status(null);
         }
@@ -244,6 +244,27 @@ class ShortLinkQuery extends ElementQuery
         if ($this->_requestedStatus === ShortLink::STATUS_EXPIRED) {
             // Show only expired items (must have dateExpired in the past)
             $this->subQuery->andWhere(['<', 'shortlinkmanager.dateExpired', new \yii\db\Expression('NOW()')]);
+            // Also must be enabled in elements_sites
+            $this->subQuery->andWhere(['elements_sites.enabled' => true]);
+        } elseif ($this->_requestedStatus === ShortLink::STATUS_PENDING) {
+            // Show only pending items (postDate in the future)
+            $this->subQuery->andWhere(['>', 'shortlinkmanager.postDate', new \yii\db\Expression('NOW()')]);
+            // Also must be enabled in elements_sites
+            $this->subQuery->andWhere(['elements_sites.enabled' => true]);
+        } elseif ($this->_requestedStatus === ShortLink::STATUS_ENABLED) {
+            // For enabled status, exclude expired and pending
+            // Parent already filtered by elements_sites.enabled = true
+            // Add date filters to the MAIN query, not subQuery
+            $this->query->andWhere([
+                'or',
+                ['shortlinkmanager.dateExpired' => null],
+                ['>=', 'shortlinkmanager.dateExpired', new \yii\db\Expression('NOW()')]
+            ]);
+            $this->query->andWhere([
+                'or',
+                ['shortlinkmanager.postDate' => null],
+                ['<=', 'shortlinkmanager.postDate', new \yii\db\Expression('NOW()')]
+            ]);
         }
 
         return parent::beforePrepare();

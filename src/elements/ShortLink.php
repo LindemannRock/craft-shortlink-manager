@@ -272,6 +272,11 @@ class ShortLink extends Element
     const STATUS_EXPIRED = 'expired';
 
     /**
+     * @var string Status pending
+     */
+    const STATUS_PENDING = 'pending';
+
+    /**
      * @inheritdoc
      */
     public static function statuses(): array
@@ -279,6 +284,7 @@ class ShortLink extends Element
         return [
             self::STATUS_ENABLED => Craft::t('app', 'Enabled'),
             self::STATUS_DISABLED => Craft::t('app', 'Disabled'),
+            self::STATUS_PENDING => Craft::t('app', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('app', 'Expired'),
         ];
     }
@@ -688,6 +694,11 @@ class ShortLink extends Element
         // Check if expired
         if ($this->isExpired()) {
             return self::STATUS_EXPIRED;
+        }
+
+        // Check if pending (future post date)
+        if ($this->postDate && $this->postDate > new \DateTime()) {
+            return self::STATUS_PENDING;
         }
 
         return self::STATUS_ENABLED;
