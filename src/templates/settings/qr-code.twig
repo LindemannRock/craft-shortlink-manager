@@ -468,6 +468,82 @@ text-align: center;
     });
 })();
 
+// Add form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const enableLogo = document.getElementById('enableQrLogo');
+    const logoField = document.getElementById('defaultQrLogoId-field');
+
+    if (enableLogo && (enableLogo.checked || enableLogo.classList.contains('on'))) {
+        // Check if logo is selected
+        const hasLogo = logoField && logoField.querySelector('.elements .element');
+
+        if (!hasLogo) {
+            e.preventDefault();
+
+            // Remove any existing error
+            const existingError = logoField.querySelector('.errors');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            // Add error message
+            const errorDiv = document.createElement('ul');
+            errorDiv.className = 'errors';
+            const errorLi = document.createElement('li');
+            errorLi.textContent = Craft.t('shortlink-manager', 'A logo is required when logo overlay is enabled.');
+            errorDiv.appendChild(errorLi);
+            logoField.appendChild(errorDiv);
+
+            // Scroll to error
+            logoField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            return false;
+        }
+    }
+});
+
+// Update required status of logo field when toggle changes
+(function() {
+    const enableToggle = document.getElementById('enableQrLogo');
+    const logoField = document.getElementById('defaultQrLogoId-field');
+
+    if (enableToggle && logoField) {
+        // Get the label
+        const label = logoField.querySelector('label');
+
+        // Function to update required status
+        function updateRequiredStatus() {
+            if (enableToggle.checked || enableToggle.classList.contains('on')) {
+                label.classList.add('required');
+            } else {
+                label.classList.remove('required');
+            }
+        }
+
+        // Initial state
+        updateRequiredStatus();
+
+        // Watch for changes
+        const lightswitch = enableToggle.closest('.lightswitch');
+        if (lightswitch) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        updateRequiredStatus();
+                    }
+                });
+            });
+
+            observer.observe(lightswitch, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+
+        enableToggle.addEventListener('change', updateRequiredStatus);
+    }
+})();
+
 // QR Code Live Preview functionality
 (function() {
     let previewTimeout = null;
