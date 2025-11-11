@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.5](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.4...v5.1.5) (2025-11-11)
+
+
+### Bug Fixes
+
+* enhance QR prefix defaulting logic to support nested patterns and avoid conflicts ([48acf6f](https://github.com/LindemannRock/craft-shortlink-manager/commit/48acf6f363e68912f10758600dd16c5fd27717a7))
+
 ## [5.1.4](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.3...v5.1.4) (2025-11-11)
 
 
