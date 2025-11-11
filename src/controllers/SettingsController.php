@@ -182,8 +182,13 @@ class SettingsController extends Controller
         $settingsData = $this->request->getBodyParam('settings', []);
 
         // Handle asset field (returns array)
-        if (isset($settingsData['defaultQrLogoId']) && is_array($settingsData['defaultQrLogoId'])) {
-            $settingsData['defaultQrLogoId'] = $settingsData['defaultQrLogoId'][0] ?? null;
+        if (isset($settingsData['defaultQrLogoId'])) {
+            if (is_array($settingsData['defaultQrLogoId'])) {
+                $settingsData['defaultQrLogoId'] = $settingsData['defaultQrLogoId'][0] ?? null;
+            } elseif ($settingsData['defaultQrLogoId'] === '' || $settingsData['defaultQrLogoId'] === null) {
+                // Convert empty string to null for integer type
+                $settingsData['defaultQrLogoId'] = null;
+            }
         }
 
         // Handle enabledSites checkbox group
