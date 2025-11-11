@@ -6,7 +6,7 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager'),
     },
     {
@@ -22,7 +22,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-	{% set pluginName = plugin.settings.pluginName %}
 
 	{% include 'shortlink-manager/_components/ip-salt-error' %}
 
@@ -36,7 +35,7 @@
 
 		{{ forms.textField({
             label: "Items Per Page"|t('shortlink-manager'),
-            instructions: "Number of {pluginName} to show per page"|t('shortlink-manager', {pluginName: pluginName|lower}),
+            instructions: "Number of {pluginName} to show per page"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
             id: 'itemsPerPage',
             name: 'settings[itemsPerPage]',
             value: settings.itemsPerPage ?? 50,

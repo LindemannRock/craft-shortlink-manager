@@ -45,7 +45,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
      */
     public static function displayName(): string
     {
-        return Craft::t('shortlink-manager', 'ShortLink');
+        return ShortLinkManager::$plugin->getSettings()->getDisplayName();
     }
 
     /**

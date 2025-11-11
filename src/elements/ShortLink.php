@@ -147,10 +147,7 @@ class ShortLink extends Element
      */
     public static function displayName(): string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'Short Links';
-        // Singularize by removing trailing 's' if present
-        $singular = preg_replace('/s$/', '', $pluginName) ?: $pluginName;
-        return $singular;
+        return ShortLinkManager::$plugin->getSettings()->getDisplayName();
     }
 
     /**
@@ -158,7 +155,7 @@ class ShortLink extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return strtolower(static::displayName());
+        return ShortLinkManager::$plugin->getSettings()->getLowerDisplayName();
     }
 
     /**
@@ -166,8 +163,7 @@ class ShortLink extends Element
      */
     public static function pluralDisplayName(): string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'Short Links';
-        return $pluginName;
+        return ShortLinkManager::$plugin->getSettings()->getPluralDisplayName();
     }
 
     /**
@@ -175,7 +171,7 @@ class ShortLink extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return strtolower(static::pluralDisplayName());
+        return ShortLinkManager::$plugin->getSettings()->getPluralLowerDisplayName();
     }
 
     /**
@@ -301,12 +297,10 @@ class ShortLink extends Element
      */
     protected static function defineSources(string $context = null): array
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'Short Links';
-
         return [
             [
                 'key' => '*',
-                'label' => Craft::t('shortlink-manager', 'All {pluginName}', ['pluginName' => $pluginName]),
+                'label' => Craft::t('shortlink-manager', 'All {pluginName}', ['pluginName' => ShortLinkManager::$plugin->getSettings()->getPluralDisplayName()]),
                 'criteria' => [],
                 'defaultSort' => ['dateCreated', 'desc'],
             ],

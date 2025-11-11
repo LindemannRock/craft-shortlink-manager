@@ -22,8 +22,7 @@ class ShortLinkManagerUtility extends Utility
      */
     public static function displayName(): string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'ShortLink Manager';
-        return $pluginName;
+        return ShortLinkManager::$plugin->getSettings()->getFullName();
     }
 
     /**
@@ -48,7 +47,7 @@ class ShortLinkManagerUtility extends Utility
     public static function contentHtml(): string
     {
         $settings = ShortLinkManager::$plugin->getSettings();
-        $pluginName = $settings->pluginName ?? 'ShortLink Manager';
+        $pluginName = $settings->getFullName();
 
         // Get system stats using direct queries
         $totalLinks = (new \craft\db\Query())

@@ -6,7 +6,7 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager'),
     },
     {

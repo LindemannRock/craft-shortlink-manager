@@ -38,7 +38,7 @@ class AnalyticsSummaryWidget extends Widget
      */
     public static function displayName(): string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'ShortLink Manager';
+        $pluginName = ShortLinkManager::$plugin->getSettings()->getFullName();
         return Craft::t('shortlink-manager', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
     }
 
@@ -63,7 +63,7 @@ class AnalyticsSummaryWidget extends Widget
      */
     public function getTitle(): ?string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'ShortLink Manager';
+        $pluginName = ShortLinkManager::$plugin->getSettings()->getFullName();
         return Craft::t('shortlink-manager', '{pluginName} - Analytics', ['pluginName' => $pluginName]);
     }
 

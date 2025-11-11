@@ -8,6 +8,7 @@
 
 namespace lindemannrock\shortlinkmanager\integrations;
 
+use Craft;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -87,7 +88,9 @@ class RedirectManagerIntegration extends BaseIntegration
             'available' => $this->isAvailable(),
             'enabled' => $this->isEnabled(),
             'events' => $redirectManagerEvents,
-            'description' => 'Creates permanent redirects when shortlink slugs change or links are deleted',
+            'description' => Craft::t('shortlink-manager', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
+                'pluginName' => ShortLinkManager::$plugin->getSettings()->getLowerDisplayName()
+            ]),
         ];
     }
 

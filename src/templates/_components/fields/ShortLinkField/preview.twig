@@ -9,5 +9,5 @@
         {% endif %}
     </div>
 {% else %}
-    <span class="light">{{ "No shortlink created yet"|t('shortlink-manager') }}</span>
+    <span class="light">{{ "No {pluginName} created yet"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</span>
 {% endif %}

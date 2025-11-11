@@ -140,7 +140,9 @@ class AnalyticsController extends Controller
             );
 
             // Generate filename
-            $baseFilename = 'shortlink-manager-analytics';
+            $settings = ShortLinkManager::$plugin->getSettings();
+            $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
+            $baseFilename = $filenamePart . '-analytics';
             if ($linkId) {
                 $shortLink = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
                     ->id($linkId)
@@ -148,7 +150,8 @@ class AnalyticsController extends Controller
                 if ($shortLink) {
                     // Clean the code for filename
                     $cleanCode = preg_replace('/[^a-zA-Z0-9-_]/', '', $shortLink->code);
-                    $baseFilename = 'shortlink-' . $cleanCode . '-analytics';
+                    $singularPart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
+                    $baseFilename = $singularPart . '-' . $cleanCode . '-analytics';
                 }
             }
 

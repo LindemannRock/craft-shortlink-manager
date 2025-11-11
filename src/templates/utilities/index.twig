@@ -1,11 +1,10 @@
 {% import "_includes/forms" as forms %}
 
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set pluginName = plugin.settings.pluginName %}
 
 <div style="margin-bottom: 32px;">
-    <h2>{{ pluginName }} {{ "Overview"|t('shortlink-manager') }}</h2>
-    <p class="light">{{ "Monitor shortlink performance, track analytics, and manage cache for your QR codes and redirects."|t('shortlink-manager') }}</p>
+    <h2>{{ shortlinkHelper.fullName }} {{ "Overview"|t('shortlink-manager') }}</h2>
+    <p class="light">{{ "Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
 </div>
 
 <div style="margin-bottom: 40px;">
@@ -32,7 +31,7 @@
                     </div>
                 </div>
                 <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Active shortlinks"|t('shortlink-manager') }}
+                    {{ "Active {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
                 </div>
 
                 <!-- Bottom Boxes -->
@@ -135,7 +134,7 @@
             <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('shortlink-manager') }}</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ url('shortlink-manager/shortlinks') }}" class="btn">
-                    {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: pluginName|replace({' Manager': '', ' manager': ''})}) }}
+                    {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}
                 </a>
                 {% if settings.enableAnalytics %}
                     <a href="{{ url('shortlink-manager/analytics') }}" class="btn">
@@ -250,7 +249,7 @@ $('#clear-device-cache').on('click', function() {
 {% endif %}
 
 $('#clear-all-caches').on('click', function() {
-    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('shortlink-manager', { pluginName: pluginName })|e('js') }}')) {
+    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('shortlink-manager', { pluginName: shortlinkHelper.fullName })|e('js') }}')) {
         return;
     }
 

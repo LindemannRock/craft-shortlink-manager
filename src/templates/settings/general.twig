@@ -6,12 +6,10 @@
 {% set selectedSettingsItem = 'general' %}
 
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set pluginName = plugin.settings.pluginName %}
-{% set singularName = pluginName|replace({'/s$/': ''}) %}
 
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager'),
     },
     {
@@ -67,7 +65,7 @@
 
 		{{ forms.checkboxGroupField({
 			label: "Enabled Sites"|t('shortlink-manager'),
-			instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('shortlink-manager', {pluginName: pluginName}),
+			instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}),
 			id: 'enabledSites',
 			name: 'settings[enabledSites]',
 			options: siteOptions,
@@ -87,12 +85,12 @@
 
         {% set slugTip = rmActive
             ? "Changing will break existing URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
-            : "Changing the URL prefix will break all existing shortlinks. Only change this before creating your first shortlink."
+            : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, singularName: shortlinkHelper.lowerDisplayName})
         %}
 
 		{{ forms.textField({
-            label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: singularName}),
-            instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: pluginName|lower}),
+            label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
+            instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
             id: 'slugPrefix',
             name: 'settings[slugPrefix]',
             value: settings.slugPrefix,

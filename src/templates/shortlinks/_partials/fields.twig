@@ -1,8 +1,5 @@
 {% import "_includes/forms" as forms %}
 
-{% set pluginName = craft.app.plugins.getPlugin('shortlink-manager').settings.pluginName %}
-{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
-
 {% set currentSite = craft.app.sites.getSiteById(shortLink.siteId ?? craft.app.sites.currentSite.id) %}
 {% set locale = craft.app.i18n.getLocaleById(currentSite.language) %}
 {% set textDir = locale.getOrientation() %}
@@ -25,8 +22,8 @@
     {% endif %}
     {{ forms.selectField({
         first: true,
-        label: "{singularName} Type"|t('shortlink-manager', {singularName: singularName}),
-        instructions: "How the {singularName} code is created"|t('shortlink-manager', {singularName: singularName|lower}),
+        label: "{singularName} Type"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
+        instructions: "How the {singularName} code is created"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
         id: 'linkType',
         name: 'linkType',
         value: shortLink.linkType ?? 'code',
@@ -42,11 +39,11 @@
         {% set linkedElement = shortLink.getLinkedElement() %}
         {% if linkedElement %}
             <p class="light">
-                {{ "This {singularName} is linked to:"|t('shortlink-manager', {singularName: singularName|lower}) }}
+                {{ "This {singularName} is linked to:"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}
                 <a href="{{ linkedElement.getCpEditUrl() }}" class="go">{{ linkedElement.title }}</a>
             </p>
         {% else %}
-            <p class="light">{{ "This {singularName} is linked to an element."|t('shortlink-manager', {singularName: singularName|lower}) }}</p>
+            <p class="light">{{ "This {singularName} is linked to an element."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}</p>
         {% endif %}
     </div>
 {% endif %}
@@ -156,7 +153,7 @@
 {# Expired Redirect URL #}
 {{ forms.textField({
     label: "Expired Redirect URL"|t('shortlink-manager'),
-    instructions: "Where to redirect when this shortLink expires (optional)"|t('shortlink-manager'),
+    instructions: "Where to redirect when this {pluginName} expires (optional)"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
     id: 'expiredRedirectUrl',
     name: 'expiredRedirectUrl',
     value: shortLink.expiredRedirectUrl ?? '',

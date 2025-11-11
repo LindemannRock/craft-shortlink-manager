@@ -1,10 +1,21 @@
 {% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set pluginName = plugin.settings.pluginName %}
 {% set selectedSubnavItem = 'analytics' %}
 
 {% set title = "Analytics"|t('shortlink-manager') %}
+
+{# Set up breadcrumbs #}
+{% set crumbs = [
+    {
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
+        url: url('shortlink-manager')
+    },
+    {
+        label: "Analytics"|t('shortlink-manager'),
+        url: url('shortlink-manager/analytics')
+    }
+] %}
 
 {% block actionButton %}
 	<div id="action-button" class="btngroup">
@@ -71,7 +82,7 @@
 			</div>
 		</div>
 
-		<h2 style="margin: 30px 0 20px;">{{ "Top Performing {pluginName}"|t('shortlink-manager', {pluginName: pluginName}) }}</h2>
+		<h2 style="margin: 30px 0 20px;">{{ "Top Performing {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
 
 		<div class="analytics-charts">
 			<div class="chart-container full-width">

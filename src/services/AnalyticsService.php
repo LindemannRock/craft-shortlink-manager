@@ -1066,10 +1066,13 @@ class AnalyticsService extends Component
         $geoEnabled = $settings->enableGeoDetection ?? true;
 
         // CSV format only - conditionally include geo columns
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $displayName = $settings->getDisplayName();
+
         if ($geoEnabled) {
-            $csv = "Date,Time,ShortLink Code,ShortLink Status,ShortLink URL,Site,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
+            $csv = "Date,Time,{$displayName} Code,{$displayName} Status,{$displayName} URL,Site,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
         } else {
-            $csv = "Date,Time,ShortLink Code,ShortLink Status,ShortLink URL,Site,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
+            $csv = "Date,Time,{$displayName} Code,{$displayName} Status,{$displayName} URL,Site,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
         }
 
         foreach ($results as $row) {

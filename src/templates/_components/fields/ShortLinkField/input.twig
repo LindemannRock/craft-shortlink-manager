@@ -11,13 +11,13 @@
         placeholder: 'my-link',
     }) }}
     <div class="instructions">
-        <p>{{ "Enter a code for this shortlink (e.g., 'pricing' or 'promo-2025'). Letters, numbers, hyphens, and underscores only."|t('shortlink-manager') }}</p>
+        <p>{{ "Enter a code for this {pluginName} (e.g., 'pricing' or 'promo-2025'). Letters, numbers, hyphens, and underscores only."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
     </div>
 
     {% if shortLink %}
         <div class="field">
             <div class="heading">
-                <label>{{ "ShortLink URL"|t('shortlink-manager') }}</label>
+                <label>{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</label>
             </div>
             <div class="input ltr">
                 <div class="flex">

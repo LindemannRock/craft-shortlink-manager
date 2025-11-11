@@ -94,7 +94,7 @@ class ShortLinkManager extends Plugin
         $settings = $this->getSettings();
         LoggingLibrary::configure([
             'pluginHandle' => $this->handle,
-            'pluginName' => $settings->pluginName ?? $this->name,
+            'pluginName' => $settings->getDisplayName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
             'permissions' => ['shortLinkManager:viewLogs'],
@@ -129,6 +129,9 @@ class ShortLinkManager extends Plugin
             'forceTranslation' => true,
             'allowOverrides' => true,
         ];
+
+        // Register Twig extension for plugin name helpers
+        Craft::$app->view->registerTwigExtension(new \lindemannrock\shortlinkmanager\twigextensions\PluginNameExtension());
 
         // Register variables
         Event::on(
@@ -224,7 +227,7 @@ class ShortLinkManager extends Plugin
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
                 $settings = $this->getSettings();
-                $pluginName = $settings->pluginName ?? 'ShortLink Manager';
+                $pluginName = $settings->getFullName();
 
                 $event->options[] = [
                     'key' => 'shortlink-manager-cache',
@@ -271,12 +274,8 @@ class ShortLinkManager extends Plugin
         $item = parent::getCpNavItem();
 
         if ($item) {
-            $item['label'] = $settings->pluginName;
+            $item['label'] = $settings->getFullName();
             $item['icon'] = '@appicons/link.svg';
-
-            // Get singular name for menu
-            $pluginName = $this->getSettings()->pluginName ?? 'ShortLink Manager';
-            $singularName = rtrim($pluginName, 's'); // Remove trailing 's' for singular
 
             $item['subnav'] = [
                 'shortlinks' => [

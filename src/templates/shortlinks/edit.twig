@@ -1,11 +1,9 @@
 {% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set pluginName = plugin.settings.pluginName %}
-{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 {% set currentSite = craft.app.sites.getSiteById(shortLink.siteId) %}
 
-{% set title = shortLink.id ? shortLink.slug : "New {singularName}"|t('shortlink-manager', {singularName: singularName}) %}
+{% set title = shortLink.id ? shortLink.slug : "New {singularName}"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}) %}
 {% set fullPageForm = true %}
 {% set selectedSubnavItem = 'shortlinks' %}
 {% set saveShortcutRedirect = 'shortlink-manager/shortlinks/{id}' %}
@@ -61,7 +59,7 @@
 {# Main navigation #}
 {% set crumbs = crumbs|merge([
     {
-        label: pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager/shortlinks')
     }
 ]) %}
@@ -76,7 +74,7 @@
 {% block actionButton %}
     {% if shortLink.id %}
         <div class="preview-btn-container btngroup">
-            {% set viewLabel = plugin.settings.pluginName|replace({' Manager': '', ' manager': ''}) %}
+            {% set viewLabel = shortlinkHelper.displayName %}
             {% if shortLink.qrCodeEnabled ?? true %}
                 <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
                 <button type="button" class="btn menubtn"></button>
@@ -219,7 +217,7 @@
 
     {% if shortLink.id %}
         <fieldset>
-            <legend class="h6">{{ "ShortLink URL"|t('shortlink-manager') }}</legend>
+            <legend class="h6">{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
             <div class="meta" style="padding-inline: 0;">
                 <div class="flex" style="gap: 8px;">
                     <div class="textwrapper" style="flex-grow: 1;">

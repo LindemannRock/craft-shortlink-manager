@@ -74,7 +74,7 @@ class CleanupAnalyticsJob extends BaseJob
     {
         $settings = ShortLinkManager::$plugin->getSettings();
         $description = Craft::t('shortlink-manager', '{pluginName}: Cleaning up old analytics', [
-            'pluginName' => $settings->pluginName,
+            'pluginName' => $settings->getDisplayName(),
         ]);
 
         if ($this->nextRunTime) {

@@ -7,7 +7,7 @@
 {% if analytics.totalClicks == 0 %}
     <div class="zilch">
         <p>{{ "No analytics data yet"|t('shortlink-manager') }}</p>
-        <p class="light">{{ "Analytics will appear here once your shortlink starts receiving clicks."|t('shortlink-manager') }}</p>
+        <p class="light">{{ "Analytics will appear here once your {pluginName} starts receiving clicks."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
     </div>
 {% else %}
 

@@ -8,7 +8,7 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager'),
     },
     {
@@ -57,7 +57,7 @@
     <p id="httpCodeTip" class="notice has-icon" style="margin-top: 10px;">
         <span class="icon" aria-hidden="true"></span>
         <span class="visually-hidden">Tip:</span>
-        <span id="httpCodeTipText">Most common: Use <strong>301</strong> for permanent shortlinks.
+        <span id="httpCodeTipText">{{ "Most common: Use <strong>301</strong> for permanent {pluginName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName})|raw }}
             <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">Learn more</a>
         </span>
     </p>
@@ -67,7 +67,7 @@
         id: 'notFoundRedirectUrl',
         name: 'settings[notFoundRedirectUrl]',
         value: settings.notFoundRedirectUrl,
-        instructions: "Where to redirect when a shortlink is not found"|t('shortlink-manager'),
+        instructions: "Where to redirect when a {pluginName} is not found"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
         disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),
         warning: settings.isOverriddenByConfig('notFoundRedirectUrl') ?
             "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,

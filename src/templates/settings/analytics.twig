@@ -8,7 +8,7 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager'),
     },
     {
@@ -24,7 +24,6 @@
 {% endblock %}
 
 {% block content %}
-    {% set pluginName = plugin.settings.pluginName %}
 
     {% include 'shortlink-manager/_components/ip-salt-error' %}
 
@@ -38,7 +37,7 @@
 
     {{ forms.lightswitchField({
         label: "Enable Analytics"|t('shortlink-manager'),
-        instructions: "Track clicks and visitor data for {pluginName}"|t('shortlink-manager', {pluginName: pluginName|lower}),
+        instructions: "Track clicks and visitor data for {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
         id: 'enableAnalytics',
         name: 'settings[enableAnalytics]',
         on: settings.enableAnalytics ?? true,
@@ -50,7 +49,7 @@
 
     <div id="analytics-settings" class="{{ not (settings.enableAnalytics ?? true) ? 'hidden' }}">
         <div class="field">
-            <p class="light">{{ "When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('shortlink-manager', {pluginName: pluginName}) }}</p>
+            <p class="light">{{ "When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</p>
         </div>
 
         <hr>

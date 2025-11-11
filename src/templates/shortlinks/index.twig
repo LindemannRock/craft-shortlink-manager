@@ -1,7 +1,6 @@
 {% extends "_layouts/elementindex" %}
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set pluginName = plugin.settings.pluginName %}
-{% set title = plugin.settings.pluginName|t('shortlink-manager') %}
+{% set title = shortlinkHelper.fullName|t('shortlink-manager') %}
 {% set elementType = 'lindemannrock\\shortlinkmanager\\elements\\ShortLink' %}
 {% set selectedSubnavItem = 'shortlinks' %}
 {% set showSiteMenu = false %}
@@ -39,15 +38,14 @@
 {% endif %}
 
 {% set crumbs = crumbs|merge([
-    { label: pluginName, url: url('shortlink-manager') }
+    { label: shortlinkHelper.fullName, url: url('shortlink-manager') }
 ]) %}
 
 
 {% block actionButton %}
 	{% if currentUser.can('shortLinkManager:createLinks') %}
-		{% set singularName = plugin.settings.pluginName matches '/s$/' ? plugin.settings.pluginName|slice(0, -1) : plugin.settings.pluginName %}
 		<div class="btngroup">
-			<a href="{{ url('shortlink-manager/shortlinks/new') }}" class="btn submit add icon">{{ 'New {name}'|t('shortlink-manager', {name: singularName|lower}) }}</a>
+			<a href="{{ url('shortlink-manager/shortlinks/new') }}" class="btn submit add icon">{{ 'New {name}'|t('shortlink-manager', {name: shortlinkHelper.lowerDisplayName}) }}</a>
 		</div>
 	{% endif %}
 {% endblock %}

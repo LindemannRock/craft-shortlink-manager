@@ -6,7 +6,7 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
-        label: plugin.settings.pluginName|t('shortlink-manager'),
+        label: shortlinkHelper.fullName|t('shortlink-manager'),
         url: url('shortlink-manager'),
     },
     {
@@ -38,9 +38,8 @@
 
         <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('shortlink-manager') }}</h2>
 
-        {% set pluginName = plugin.settings.pluginName %}
         <div class="field">
-            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('shortlink-manager', { pluginName: pluginName }) }}</p>
+            <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('shortlink-manager', { pluginName: shortlinkHelper.fullName }) }}</p>
         </div>
 
         {% set integrationStatuses = craft.app.plugins.getPlugin('shortlink-manager').integration.getAllIntegrationStatuses() %}
@@ -74,7 +73,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push shortlink events to Google Tag Manager and analytics platforms for tracking redirects and QR code scans."|t('shortlink-manager') }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {pluginName} events to Google Tag Manager and analytics platforms for tracking redirects and QR code scans."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -108,7 +107,7 @@
                         <div style="margin-bottom: 20px;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                                 <strong style="font-size: 13px;">{{ "Active Tracking Scripts"|t('shortlink-manager') }}</strong>
-                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('shortlink-manager', { pluginName: pluginName }) }}</span>
+                                <span class="light" style="font-size: 11px;">{{ "Scripts receiving {pluginName} events"|t('shortlink-manager', { pluginName: shortlinkHelper.fullName }) }}</span>
                             </div>
                             {% for handle in dataLayerScripts %}
                                 {% if seomaticStatus.scripts[handle] is defined %}
@@ -136,7 +135,7 @@
                         </div>
 
                         {# Hidden for now - Other tracking scripts (Facebook, LinkedIn, HubSpot, Pinterest, Fathom, Matomo, Plausible)
-                           receive events via GTM, not directly from Shortlink Manager, so we don't display them here #}
+                           receive events via GTM, not directly from {{ shortlinkHelper.fullName }}, so we don't display them here #}
                     {% else %}
                         <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
                             <p style="margin: 0; font-size: 13px;">
@@ -183,7 +182,7 @@
                                     </div>
                                     <div>
                                         <strong>{{ "Redirects"|t('shortlink-manager') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Standard shortlink redirects"|t('shortlink-manager') }}</span>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Standard {pluginName} redirects"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</span>
                                     </div>
                                 </div>
 
@@ -253,16 +252,16 @@
                         </p>
                         <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
-                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: pluginName}) }}</strong><br>
+                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</strong><br>
                                 <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('shortlink-manager') }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Use GTM to forward to other platforms"|t('shortlink-manager') }}</strong><br>
-                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: pluginName}) }}</span>
+                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</span>
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Other scripts are detected for reference only"|t('shortlink-manager') }}</strong><br>
-                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('shortlink-manager', {pluginName: pluginName}) }}</span>
+                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</span>
                             </li>
                             <li>
                                 <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') }}</span>
@@ -270,7 +269,7 @@
                         </ul>
                         <p style="margin: 0; font-size: 11px; color: #666;">
                             <strong>{{ "Architecture"|t('shortlink-manager') }}:</strong>
-                            {{ pluginName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                            {{ shortlinkHelper.fullName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
                         </p>
                     </div>
                 </div>
@@ -306,7 +305,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when shortlinks are changed, expired, or deleted. Provides centralized redirect management and analytics tracking."|t('shortlink-manager') }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} are changed, expired, or deleted. Provides centralized redirect management and analytics tracking."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -379,7 +378,7 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "Expired Shortlinks"|t('shortlink-manager') }}</strong>
+                                        <strong>{{ "Expired {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</strong>
                                         <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Link expires → Redirect to its <strong>Expired Redirect URL</strong> (if set)"|t('shortlink-manager')|raw }}</span>
                                     </div>
                                 </div>
@@ -397,8 +396,8 @@
                                         }) }}
                                     </div>
                                     <div>
-                                        <strong>{{ "Deleted Shortlinks"|t('shortlink-manager') }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete shortLink with traffic → Redirect to <strong>Expired Redirect URL</strong>, or <strong>Default 404 URL</strong>, or <code>/</code>"|t('shortlink-manager')|raw }}</span>
+                                        <strong>{{ "Deleted {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</strong>
+                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete {pluginName} with traffic → Redirect to <strong>Expired Redirect URL</strong>, or <strong>Default 404 URL</strong>, or <code>/</code>"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName})|raw }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -413,15 +412,15 @@
                         <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Centralized Management"|t('shortlink-manager') }}</strong> –
-                                {{ "View and manage all redirects (shortlinks + regular pages) in one place"|t('shortlink-manager') }}
+                                {{ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Analytics Tracking"|t('shortlink-manager') }}</strong> –
-                                {{ "See how many people try to access deleted or expired shortlinks, their devices, browsers, and countries"|t('shortlink-manager') }}
+                                {{ "See how many people try to access deleted or expired {pluginName}, their devices, browsers, and countries"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Persistent Redirects"|t('shortlink-manager') }}</strong> –
-                                {{ "Redirects persist even if shortlink is deleted, preventing broken links permanently"|t('shortlink-manager') }}
+                                {{ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}
                             </li>
                             <li>
                                 <strong>{{ "Source Tracking"|t('shortlink-manager') }}</strong> –

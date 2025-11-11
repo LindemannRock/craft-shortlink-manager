@@ -558,7 +558,7 @@ class Settings extends Model
             $this->logError('Database update returned false');
             return false;
         } catch (\Exception $e) {
-            $this->logError('Failed to save ShortLink Manager settings', ['error' => $e->getMessage()]);
+            $this->logError('Failed to save ' . $this->getFullName() . ' settings', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -704,5 +704,58 @@ class Settings extends Model
         $singular = preg_replace('/s$/', '', $name) ?: $name;
 
         return $singular;
+    }
+
+    /**
+     * Get full plugin name (as configured, with "Manager" if present)
+     *
+     * Returns the plugin name exactly as configured in settings.
+     * E.g., "ShortLink Manager", "Short Links", etc.
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->pluginName;
+    }
+
+    /**
+     * Get plural display name (without "Manager")
+     *
+     * Strips "Manager" from the plugin name but keeps plural form.
+     * E.g., "ShortLink Manager" → "ShortLinks", "Short Links" → "Short Links"
+     *
+     * @return string
+     */
+    public function getPluralDisplayName(): string
+    {
+        // Strip "Manager" or "manager" from the name
+        return str_replace([' Manager', ' manager'], '', $this->pluginName);
+    }
+
+    /**
+     * Get lowercase display name (singular, without "Manager")
+     *
+     * Lowercase version of getDisplayName() for use in messages, handles, etc.
+     * E.g., "ShortLink Manager" → "shortlink", "Short Links" → "short link"
+     *
+     * @return string
+     */
+    public function getLowerDisplayName(): string
+    {
+        return strtolower($this->getDisplayName());
+    }
+
+    /**
+     * Get lowercase plural display name (without "Manager")
+     *
+     * Lowercase version of getPluralDisplayName() for use in messages, handles, etc.
+     * E.g., "ShortLink Manager" → "shortlinks", "Short Links" → "short links"
+     *
+     * @return string
+     */
+    public function getPluralLowerDisplayName(): string
+    {
+        return strtolower($this->getPluralDisplayName());
     }
 }

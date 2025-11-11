@@ -45,7 +45,7 @@ class TopLinksWidget extends Widget
      */
     public static function displayName(): string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'ShortLink Manager';
+        $pluginName = ShortLinkManager::$plugin->getSettings()->getFullName();
         return Craft::t('shortlink-manager', '{pluginName} - Top Links', ['pluginName' => $pluginName]);
     }
 
@@ -70,7 +70,7 @@ class TopLinksWidget extends Widget
      */
     public function getTitle(): ?string
     {
-        $pluginName = ShortLinkManager::$plugin->getSettings()->pluginName ?? 'ShortLink Manager';
+        $pluginName = ShortLinkManager::$plugin->getSettings()->getFullName();
         return Craft::t('shortlink-manager', '{pluginName} - Top Links', ['pluginName' => $pluginName]);
     }
 

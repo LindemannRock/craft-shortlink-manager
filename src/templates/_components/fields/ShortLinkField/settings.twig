@@ -22,7 +22,7 @@
 
 {{ forms.selectField({
     label: "Default HTTP Code"|t('shortlink-manager'),
-    instructions: "Default redirect type for shortlinks created with this field"|t('shortlink-manager'),
+    instructions: "Default redirect type for {pluginName} created with this field"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
     id: 'defaultHttpCode',
     name: 'defaultHttpCode',
     value: field.defaultHttpCode,
@@ -36,7 +36,7 @@
 
 {{ forms.lightswitchField({
     label: "Enable Expiration"|t('shortlink-manager'),
-    instructions: "Allow setting expiration dates on shortlinks"|t('shortlink-manager'),
+    instructions: "Allow setting expiration dates on {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
     id: 'enableExpiration',
     name: 'enableExpiration',
     on: field.enableExpiration,

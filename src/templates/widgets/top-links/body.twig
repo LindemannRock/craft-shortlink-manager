@@ -1,6 +1,4 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set pluginName = plugin.settings.pluginName %}
-{% set singularName = pluginName matches '/s$/' ? pluginName|slice(0, -1) : pluginName %}
 
 <div class="top-links-widget">
     {% if shortLinks|length > 0 %}
@@ -40,12 +38,12 @@
         </table>
 
         <div class="widget-footer">
-            <a href="{{ cpUrl('shortlink-manager/shortlinks') }}" class="go">{{ "View all {pluginName}"|t('shortlink-manager', {pluginName: pluginName|lower}) }}</a>
+            <a href="{{ cpUrl('shortlink-manager/shortlinks') }}" class="go">{{ "View all {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</a>
         </div>
     {% else %}
         <div class="zilch">
-            <p>{{ "No {pluginName} yet"|t('shortlink-manager', {pluginName: pluginName|lower}) }}</p>
-            <p class="light">{{ "Create your first {singularName} to see it here."|t('shortlink-manager', {singularName: singularName|lower}) }}</p>
+            <p>{{ "No {pluginName} yet"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</p>
+            <p class="light">{{ "Create your first {singularName} to see it here."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}</p>
         </div>
     {% endif %}
 </div>
