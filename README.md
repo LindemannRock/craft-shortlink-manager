@@ -364,19 +364,19 @@ Two URL patterns for QR codes:
 
 1. **QR Code Image** (direct PNG/SVG):
    ```
-   /sqr/{code}
-   Example: /sqr/abc123
+   /s/qr/{code}
+   Example: /s/qr/abc123
    ```
    Returns just the image (for embedding, emails, APIs)
 
 2. **QR Code Page** (branded template):
    ```
-   /sqr/{code}/view
-   Example: /sqr/abc123/view
+   /s/qr/{code}/view
+   Example: /s/qr/abc123/view
    ```
    Returns full HTML page with SEO, branding, and tracking
 
-The QR prefix (`sqr` in examples above) is configurable in Settings → General → QR Code URL Prefix. Supports both standalone (`qr`) and nested patterns (`s/qr`).
+The QR prefix (`s/qr` in examples above) is configurable in Settings → General → QR Code URL Prefix. Supports both standalone (`qr`) and nested patterns (`s/qr`).
 
 **Check expiration:**
 ```twig
@@ -413,7 +413,7 @@ return [
 
     // URL settings
     'slugPrefix' => 's',
-    'qrPrefix' => 'sqr',  // QR code URL prefix (standalone or nested like 's/qr')
+    'qrPrefix' => 's/qr',  // QR code URL prefix (standalone or nested like 's/qr')
     'codeLength' => 8,
 
     // QR Code settings

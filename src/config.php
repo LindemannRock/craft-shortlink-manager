@@ -35,7 +35,7 @@ return [
 
         // URL Settings
         'slugPrefix' => 's',           // URL prefix for shortlinks (e.g., 's' creates /s/ABC123)
-        'qrPrefix' => 'sqr',           // URL prefix for QR code pages (e.g., 'sqr' or 's/qr')
+        'qrPrefix' => 's/qr',          // URL prefix for QR code pages (e.g., 's/qr' or 'qr')
         'codeLength' => 8,             // Length of generated shortlink codes
         'customDomain' => '',          // Optional custom domain for shortlinks
         'reservedCodes' => ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'],

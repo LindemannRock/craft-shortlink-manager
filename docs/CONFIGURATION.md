@@ -22,7 +22,7 @@ return [
 
     // URL Settings
     'slugPrefix' => 's',
-    'qrPrefix' => 'sqr',
+    'qrPrefix' => 's/qr',
     'codeLength' => 8,
     'customDomain' => '',
     'reservedCodes' => ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'],
@@ -134,9 +134,9 @@ URL prefix for shortlinks (e.g., 's' creates /s/ABC123).
 - **Default:** `'s'`
 
 ##### qrPrefix
-URL prefix for QR code pages (e.g., 'sqr' creates /sqr/ABC123/view). Supports standalone ('qr') or nested ('s/qr') patterns.
+URL prefix for QR code pages (e.g., 's/qr' creates /s/qr/ABC123/view). Supports standalone ('qr') or nested ('s/qr') patterns.
 - **Type:** `string`
-- **Default:** `'sqr'`
+- **Default:** `'s/qr'`
 
 ##### codeLength
 Length of generated shortlink codes.

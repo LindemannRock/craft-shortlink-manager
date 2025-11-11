@@ -153,7 +153,7 @@ class Install extends Migration
                 'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // URL settings
                 'slugPrefix' => $this->string(50)->notNull()->defaultValue('s'),
-                'qrPrefix' => $this->string(50)->notNull()->defaultValue('sqr')->comment('URL prefix for QR code pages (e.g., "sqr" or "s/qr")'),
+                'qrPrefix' => $this->string(50)->notNull()->defaultValue('s/qr')->comment('URL prefix for QR code pages (e.g., "s/qr" or "qr")'),
                 'codeLength' => $this->integer()->notNull()->defaultValue(8),
                 'customDomain' => $this->string()->null(),
                 'reservedCodes' => $this->text()->null()->comment('JSON array of reserved codes'),

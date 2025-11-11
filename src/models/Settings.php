@@ -273,7 +273,7 @@ class Settings extends Model
 
         // Check against own slugPrefix
         if (!$isNested && $qrPrefix === $this->slugPrefix) {
-            $this->addError($attribute, Craft::t('shortlink-manager', 'QR prefix cannot be the same as your URL segment. Try: sqr, q, or {segment}/qr', [
+            $this->addError($attribute, Craft::t('shortlink-manager', 'QR prefix cannot be the same as your URL segment. Try: {segment}/qr, qr, or q', [
                 'segment' => $this->slugPrefix
             ]));
             return;

@@ -86,8 +86,8 @@
         {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
 
         {% set slugTip = rmActive
-            ? "Changing will break existing URLs. To migrate, create a wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
-            : "Changing the URL segment will break all existing shortlinks. Only change this before creating your first shortlink."
+            ? "Changing will break existing URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
+            : "Changing the URL prefix will break all existing shortlinks. Only change this before creating your first shortlink."
         %}
 
 		{{ forms.textField({
@@ -106,8 +106,8 @@
         }) }}
 
         {% set qrTip = rmActive
-            ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
-            : "Standalone (e.g., 'qr') or nested (e.g., 's/qr'). Checked for conflicts with Smart Links."
+            ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard). Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."
+            : "Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns. Checked for conflicts with Smart Links."
         %}
 
 		{# Calculate smart default for qrPrefix if empty #}
@@ -140,7 +140,7 @@
             value: qrPrefixValue,
             errors: settings.getErrors('qrPrefix'),
             required: true,
-            placeholder: 'qr',
+            placeholder: settings.slugPrefix ~ '/qr',
             tip: qrTip|t('shortlink-manager'),
             disabled: settings.isOverriddenByConfig('qrPrefix'),
             warning: settings.isOverriddenByConfig('qrPrefix') ?
