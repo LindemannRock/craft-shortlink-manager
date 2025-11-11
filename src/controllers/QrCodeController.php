@@ -69,11 +69,6 @@ class QrCodeController extends Controller
                 throw new NotFoundHttpException('Short link not found.');
             }
 
-            // Check if QR codes are enabled globally
-            if (!$settings->enableQrCodes) {
-                throw new NotFoundHttpException('QR codes are disabled.');
-            }
-
             // Generate full URL for the short link with QR tracking parameter
             $url = $shortLink->getUrl();
             $separator = strpos($url, '?') !== false ? '&' : '?';
@@ -84,12 +79,6 @@ class QrCodeController extends Controller
 
             if (!$shortLink) {
                 throw new NotFoundHttpException('Short link not found.');
-            }
-
-            // Check if QR codes are enabled globally
-            if (!$settings->enableQrCodes) {
-                // If QR is globally disabled, redirect to destination
-                return Craft::$app->response->redirect($shortLink->destinationUrl);
             }
 
             // Check if QR codes are enabled for this shortlink
@@ -211,12 +200,6 @@ class QrCodeController extends Controller
 
         // Get settings
         $settings = ShortLinkManager::$plugin->getSettings();
-
-        // Check if QR codes are enabled globally
-        if (!$settings->enableQrCodes) {
-            // If QR is globally disabled, redirect to destination
-            return Craft::$app->response->redirect($shortLink->destinationUrl);
-        }
 
         // Check if QR codes are enabled for this shortlink
         if (!$shortLink->qrCodeEnabled) {

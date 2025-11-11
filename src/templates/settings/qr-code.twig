@@ -58,7 +58,6 @@
 		</div>
 	{% endif %}
 
-	{% if settings.enableQrCodes ?? true %}
 	<div class="qr-preview-floating">
 		<div class="qr-preview-header">
 			<span>{{ "Live Preview"|t('shortlink-manager') }}</span>
@@ -85,7 +84,6 @@
 			</div>
 		</div>
 	</div>
-	{% endif %}
 
 	<form method="post" accept-charset="UTF-8">
 		<input type="hidden" name="action" value="shortlink-manager/settings/save">
@@ -93,21 +91,7 @@
 		{{ redirectInput('shortlink-manager/settings/qr-code') }}
 		{{ hiddenInput('section', 'qr-code') }}
 
-		{{ forms.lightswitchField({
-            first: true,
-			label: "Enable QR Codes"|t('shortlink-manager'),
-			instructions: "Enable QR code functionality for shortlinks"|t('shortlink-manager'),
-			id: 'enableQrCodes',
-			name: 'settings[enableQrCodes]',
-			on: settings.enableQrCodes ?? true,
-			toggle: 'qr-settings-container',
-			disabled: settings.isOverriddenByConfig('enableQrCodes'),
-			warning: settings.isOverriddenByConfig('enableQrCodes') ?
-				"This is being overridden by the <code>enableQrCodes</code> setting in <code>config/shortlink-manager.php</code>."|raw : null,
-		}) }}
-
-		<div id="qr-settings-container" class="{{ not (settings.enableQrCodes ?? true) ? 'hidden' }}">
-			<h2 style="margin-top: 0px;">{{ "Appearance & Style"|t('shortlink-manager') }}</h2>
+		<h2 style="margin-top: 0px;">{{ "Appearance & Style"|t('shortlink-manager') }}</h2>
 
 		{{ forms.textField({
         label: "Size"|t('shortlink-manager'),
@@ -346,7 +330,6 @@
 				<a href="{{ url('shortlink-manager/settings/cache') }}">{{ "Go to Cache Settings"|t('shortlink-manager') }}</a>
 			</p>
 		</div>
-		</div>{# End qr-settings-container #}
 
 		<div class="buttons">
 			<button type="submit" class="btn submit">{{ "Save Settings"|t('shortlink-manager') }}</button>
@@ -454,6 +437,9 @@ text-align: center;
 (function() {
     const previewContainer = document.querySelector('.qr-preview-floating');
     const header = document.querySelector('.qr-preview-header');
+
+    // Only run if preview container exists (QR codes enabled)
+    if (!previewContainer || !header) return;
 
     // Load saved state
     const isCollapsed = localStorage.getItem('qr-preview-collapsed') === 'true';

@@ -417,7 +417,6 @@ return [
     'codeLength' => 8,
 
     // QR Code settings
-    'enableQrCodes' => true,
     'defaultQrSize' => 256,
     'defaultQrColor' => '#000000',
     'defaultQrBgColor' => '#FFFFFF',

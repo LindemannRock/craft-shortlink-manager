@@ -42,7 +42,6 @@ return [
     'logLevel' => 'error',
 
     // QR Code Settings
-    'enableQrCodes' => true,
     'defaultQrSize' => 256,
     'defaultQrFormat' => 'png',
     'defaultQrColor' => '#000000',
@@ -194,11 +193,6 @@ Automatically create redirects when shortlinks are deleted.
 - **Default:** `true`
 
 #### QR Code Settings
-
-##### enableQrCodes
-Enable QR code generation for shortlinks.
-- **Type:** `bool`
-- **Default:** `true`
 
 ##### defaultQrSize
 Default size in pixels for generated QR codes.

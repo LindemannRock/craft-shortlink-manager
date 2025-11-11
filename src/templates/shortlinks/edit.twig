@@ -77,7 +77,7 @@
     {% if shortLink.id %}
         <div class="preview-btn-container btngroup">
             {% set viewLabel = plugin.settings.pluginName|replace({' Manager': '', ' manager': ''}) %}
-            {% if plugin.settings.enableQrCodes and (shortLink.qrCodeEnabled ?? true) %}
+            {% if shortLink.qrCodeEnabled ?? true %}
                 <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
                 <button type="button" class="btn menubtn"></button>
                 <div class="menu">
@@ -259,7 +259,6 @@
         </fieldset>
     {% endif %}
 
-    {% if plugin.settings.enableQrCodes %}
     <fieldset>
         <legend class="h6">{{ "QR Code"|t('shortlink-manager') }}</legend>
         <div class="meta">
@@ -410,7 +409,6 @@
             {% endif %}
         </div>
     </fieldset>
-    {% endif %}
 
     {% if shortLink.id %}
         <dl class="meta read-only">

@@ -40,8 +40,7 @@
             </div>
         </div>
 
-        {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-        {% if field.enableQrCode and plugin.settings.enableQrCodes %}
+        {% if field.enableQrCode %}
             <div class="field">
                 <div class="heading">
                     <label>{{ "QR Code"|t('shortlink-manager') }}</label>

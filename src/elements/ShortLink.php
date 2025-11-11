@@ -779,7 +779,7 @@ class ShortLink extends Element
      */
     public function getQrCodeDataUri(array $options = []): string
     {
-        if (!ShortLinkManager::$plugin->getSettings()->enableQrCodes || !$this->qrCodeEnabled) {
+        if (!$this->qrCodeEnabled) {
             return '';
         }
 
@@ -813,7 +813,7 @@ class ShortLink extends Element
         // Get settings for fallback values
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        if (!$settings->enableQrCodes || !$this->qrCodeEnabled) {
+        if (!$this->qrCodeEnabled) {
             return '';
         }
 

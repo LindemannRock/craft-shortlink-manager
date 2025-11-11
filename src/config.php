@@ -58,7 +58,6 @@ return [
         // Note: Individual shortlinks inherit these defaults. Only custom-set values are saved.
         // If a shortlink's color matches the global default, it's stored as NULL and will
         // automatically update when you change the global default.
-        'enableQrCodes' => true,
         'defaultQrSize' => 256,        // Size in pixels (100-1000)
         'defaultQrFormat' => 'png',    // Format: 'png' or 'svg'
         'defaultQrColor' => '#000000', // Foreground color (default: black)

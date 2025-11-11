@@ -41,7 +41,6 @@ class Settings extends Model
     public array $reservedCodes = ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'];
 
     // QR Code settings
-    public bool $enableQrCodes = true;
     public int $defaultQrSize = 256;
     public string $defaultQrColor = '#000000';
     public string $defaultQrBgColor = '#FFFFFF';
@@ -137,7 +136,7 @@ class Settings extends Model
             [['slugPrefix'], 'validateSlugPrefix'],
             [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
             [['qrPrefix'], 'validateQrPrefix'],
-            [['enableQrCodes', 'enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrLogo', 'enableQrDownload'], 'boolean'],
+            [['enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrLogo', 'enableQrDownload'], 'boolean'],
             [['enabledSites', 'enabledIntegrations', 'redirectManagerEvents', 'seomaticTrackingEvents'], 'safe'],
             [['enabledSites'], 'each', 'rule' => ['integer']],
             [['seomaticTrackingEvents'], 'each', 'rule' => ['string']],
@@ -433,7 +432,6 @@ class Settings extends Model
         if (!empty($safeRow)) {
             // Convert numeric boolean values to actual booleans
             $booleanFields = [
-                'enableQrCodes',
                 'enableQrLogo',
                 'enableQrDownload',
                 'enableAnalytics',
@@ -665,7 +663,6 @@ class Settings extends Model
             'codeLength' => Craft::t('shortlink-manager', 'Code Length'),
             'customDomain' => Craft::t('shortlink-manager', 'Custom Domain'),
             'reservedCodes' => Craft::t('shortlink-manager', 'Reserved Codes'),
-            'enableQrCodes' => Craft::t('shortlink-manager', 'Enable QR Codes'),
             'defaultQrSize' => Craft::t('shortlink-manager', 'Default QR Code Size'),
             'defaultQrColor' => Craft::t('shortlink-manager', 'Default QR Code Color'),
             'defaultQrBgColor' => Craft::t('shortlink-manager', 'Default QR Background Color'),

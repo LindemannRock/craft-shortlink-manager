@@ -158,7 +158,6 @@ class Install extends Migration
                 'customDomain' => $this->string()->null(),
                 'reservedCodes' => $this->text()->null()->comment('JSON array of reserved codes'),
                 // QR Code settings
-                'enableQrCodes' => $this->boolean()->notNull()->defaultValue(true),
                 'defaultQrSize' => $this->integer()->notNull()->defaultValue(256),
                 'defaultQrColor' => $this->string(7)->notNull()->defaultValue('#000000'),
                 'defaultQrBgColor' => $this->string(7)->notNull()->defaultValue('#FFFFFF'),
