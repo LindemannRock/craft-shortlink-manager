@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.1...v5.1.2) (2025-11-11)
+
+
+### Bug Fixes
+
+* add form validation for QR logo selection and update required status on toggle change ([3599c95](https://github.com/LindemannRock/craft-shortlink-manager/commit/3599c95cb41c7c150f05657c5ac3e2eee9bf9aa1))
+
 ## [5.1.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.0...v5.1.1) (2025-11-11)
 
 
