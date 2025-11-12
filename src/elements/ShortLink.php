@@ -25,6 +25,7 @@ use lindemannrock\shortlinkmanager\elements\db\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
 use lindemannrock\shortlinkmanager\records\ShortLinkContentRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use yii\validators\RequiredValidator;
 use yii\validators\UrlValidator;
 
@@ -36,6 +37,8 @@ use yii\validators\UrlValidator;
  */
 class ShortLink extends Element
 {
+    use LoggingTrait;
+
     // Properties
     // =========================================================================
 
@@ -451,6 +454,9 @@ class ShortLink extends Element
     public function init(): void
     {
         parent::init();
+
+        // Set logging handle for LoggingTrait
+        $this->setLoggingHandle('shortlink-manager');
 
         // If we have an ID but no content loaded yet, load it now
         if ($this->id && $this->siteId && $this->destinationUrl === null) {
@@ -1217,7 +1223,7 @@ class ShortLink extends Element
             $record->qrLogoId = $this->qrLogoId;
 
             if (!$record->save(false)) {
-                \Craft::error('Failed to save ShortLinkRecord: ' . print_r($record->getErrors(), true), __METHOD__);
+                $this->logError('Failed to save ShortLinkRecord', ['errors' => $record->getErrors()]);
             }
 
             // Save translatable fields to content table
@@ -1242,7 +1248,7 @@ class ShortLink extends Element
             $contentRecord->expiredRedirectUrl = $this->expiredRedirectUrl;
 
             if (!$contentRecord->save(false)) {
-                Craft::error('Failed to save content record', __METHOD__, ['errors' => $contentRecord->getErrors()]);
+                $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
             }
         }
 

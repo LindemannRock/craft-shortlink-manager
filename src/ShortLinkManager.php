@@ -94,7 +94,7 @@ class ShortLinkManager extends Plugin
         $settings = $this->getSettings();
         LoggingLibrary::configure([
             'pluginHandle' => $this->handle,
-            'pluginName' => $settings->getDisplayName(),
+            'pluginName' => $settings->getFullName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
             'permissions' => ['shortLinkManager:viewLogs'],
@@ -246,7 +246,7 @@ class ShortLinkManager extends Plugin
                             }
                         }
 
-                        Craft::info('Cleared ShortLink Manager cache entries', __METHOD__, ['count' => $cleared]);
+                        $this->logInfo('Cleared cache entries', ['count' => $cleared]);
                     },
                 ];
             }
