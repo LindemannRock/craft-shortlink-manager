@@ -535,7 +535,7 @@ class ShortLinksService extends Component
             $undoHandled = $redirectManager->redirects->handleUndoRedirect(
                 $oldUrl,
                 $newUrl,
-                $shortLink->siteId,
+                null, // Shortlink slugs are shared across all sites
                 'shortlink-slug-change',
                 'shortlink-manager'
             );
@@ -549,14 +549,14 @@ class ShortLinksService extends Component
 
         // SCENARIO 2: Create the redirect
         try {
-            $success = $redirectManager->redirects->createRedirectRule([
+            $success = $redirectManager->redirects->createRedirect([
                 'sourceUrl' => $oldUrl,
                 'sourceUrlParsed' => $oldUrl,
                 'destinationUrl' => $newUrl,
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 301,
-                'siteId' => $shortLink->siteId,
+                'siteId' => null, // Shortlink slugs are shared across all sites
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'shortlink-slug-change',
@@ -622,14 +622,14 @@ class ShortLinksService extends Component
 
         // Create the redirect
         try {
-            $success = $redirectManager->redirects->createRedirectRule([
+            $success = $redirectManager->redirects->createRedirect([
                 'sourceUrl' => $sourceUrl,
                 'sourceUrlParsed' => $sourceUrl,
                 'destinationUrl' => $shortLink->expiredRedirectUrl,
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 302,
-                'siteId' => $shortLink->siteId,
+                'siteId' => null, // Shortlink slugs are shared across all sites
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'shortlink-expired',
@@ -695,14 +695,14 @@ class ShortLinksService extends Component
 
         // Create the redirect
         try {
-            $success = $redirectManager->redirects->createRedirectRule([
+            $success = $redirectManager->redirects->createRedirect([
                 'sourceUrl' => $sourceUrl,
                 'sourceUrlParsed' => $sourceUrl,
                 'destinationUrl' => $destinationUrl,
                 'matchType' => 'exact',
                 'redirectSrcMatch' => 'pathonly',
                 'statusCode' => 301,
-                'siteId' => $shortLink->siteId,
+                'siteId' => null, // Shortlink slugs are shared across all sites
                 'enabled' => true,
                 'priority' => 0,
                 'creationType' => 'shortlink-deleted',

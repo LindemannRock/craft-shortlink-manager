@@ -22,6 +22,7 @@ use yii\web\Response;
 class RedirectController extends Controller
 {
     use LoggingTrait;
+    use \lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 
     /**
      * @inheritdoc
