@@ -850,10 +850,10 @@ class AnalyticsService extends Component
         try {
             // Skip local/private IPs - return default location data for local development
             if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                // Check for environment variable to override default location
-                // Defaults to Dubai, UAE if not set
-                $defaultCountry = getenv('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE';
-                $defaultCity = getenv('SHORTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai';
+                // Get default location from settings or env
+                $settings = ShortLinkManager::$plugin->getSettings();
+                $defaultCountry = $settings->defaultCountry ?: (getenv('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
+                $defaultCity = $settings->defaultCity ?: (getenv('SHORTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
 
                 // Predefined locations for common cities worldwide
                 $locations = [

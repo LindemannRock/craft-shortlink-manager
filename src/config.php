@@ -91,6 +91,11 @@ return [
         'anonymizeIpAddress' => false, // Subnet masking (192.168.1.123 → 192.168.1.0) before hashing
         'analyticsRetention' => 90,    // Days to keep analytics data (0 = unlimited)
 
+        // Default location for local development
+        // Used when IP address is private/local (127.0.0.1, 192.168.x.x, etc.)
+        // 'defaultCountry' => App::env('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE', // 2-letter country code (US, GB, AE, etc.)
+        // 'defaultCity' => App::env('SHORTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai', // Must match a city in the predefined locations list
+
 
         // ========================================
         // REDIRECT BEHAVIOR SETTINGS

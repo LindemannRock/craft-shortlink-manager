@@ -78,6 +78,8 @@ class Settings extends Model
     public bool $enableGeoDetection = false;
     public bool $cacheDeviceDetection = true;
     public int $deviceDetectionCacheDuration = 3600; // 1 hour
+    public ?string $defaultCountry = null; // Default country for local development (when IP is private)
+    public ?string $defaultCity = null; // Default city for local development (when IP is private)
 
     // Logging
     public string $logLevel = 'error';
@@ -120,6 +122,14 @@ class Settings extends Model
         // Fallback to .env if ipHashSalt not set by config file
         if ($this->ipHashSalt === null) {
             $this->ipHashSalt = App::env('SHORTLINK_MANAGER_IP_SALT');
+        }
+
+        // Load default location from .env if not set by config file
+        if ($this->defaultCountry === null) {
+            $this->defaultCountry = App::env('SHORTLINK_MANAGER_DEFAULT_COUNTRY');
+        }
+        if ($this->defaultCity === null) {
+            $this->defaultCity = App::env('SHORTLINK_MANAGER_DEFAULT_CITY');
         }
     }
 
@@ -512,8 +522,8 @@ class Settings extends Model
         $db = Craft::$app->getDb();
         $attributes = $this->getAttributes();
 
-        // Exclude ipHashSalt - it's config-only, never saved to database
-        unset($attributes['ipHashSalt']);
+        // Exclude config/env-only fields - never saved to database
+        unset($attributes['ipHashSalt'], $attributes['defaultCountry'], $attributes['defaultCity']);
 
         // Debug: Log what we're trying to save
         $this->logDebug('Attempting to save settings', ['attributes' => $attributes]);

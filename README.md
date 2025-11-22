@@ -243,11 +243,26 @@ ShortLink Manager uses **privacy-focused IP hashing** with a secure salt:
 
 When running locally (DDEV, localhost), analytics will **default to Dubai, UAE** because local IPs can't be geolocated. To set your actual location for testing:
 
+**Option 1: Config File** (recommended for project-wide default)
+```php
+// config/shortlink-manager.php
+return [
+    'defaultCountry' => 'US',
+    'defaultCity' => 'New York',
+];
+```
+
+**Option 2: Environment Variable** (recommended for per-environment control)
 ```bash
-# Add to your .env file:
+# .env
 SHORTLINK_MANAGER_DEFAULT_COUNTRY=US
 SHORTLINK_MANAGER_DEFAULT_CITY=New York
 ```
+
+**Fallback Priority:**
+1. Config file setting
+2. .env variable
+3. Hardcoded default: Dubai, UAE
 
 **Supported locations:**
 - **US**: New York, Los Angeles, Chicago, San Francisco
@@ -262,7 +277,7 @@ SHORTLINK_MANAGER_DEFAULT_CITY=New York
 - **SG**: Singapore
 - **IN**: Mumbai, Delhi
 
-**Note:** This only affects local/private IPs (127.0.0.1, localhost, etc.). Production analytics will use real IP geolocation via ip-api.com.
+**Important:** This setting is **safe to use in all environments** (dev, staging, production). It **only affects private/local IP addresses** (127.0.0.1, 192.168.x.x, 10.x.x.x, etc.). Real visitor IPs in production will always use actual geolocation from ip-api.com. This means you can safely commit config file settings without impacting production analytics.
 
 ## Multi-Site Management
 
