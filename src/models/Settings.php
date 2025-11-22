@@ -28,69 +28,229 @@ class Settings extends Model
      */
     const EVENT_AFTER_SAVE_SETTINGS = 'afterSaveSettings';
 
-    // Plugin settings
+    /**
+     * @var string Plugin display name shown in the control panel
+     */
     public string $pluginName = 'ShortLink Manager';
 
-    // Site settings
+    /**
+     * @var array Site IDs where short links are enabled
+     */
     public array $enabledSites = [];
 
-    // URL settings
+    /**
+     * @var string URL prefix for generated short links (e.g., /s/abc123)
+     */
     public string $slugPrefix = 's';
+
+    /**
+     * @var int Length of generated short codes
+     */
     public int $codeLength = 8;
+
+    /**
+     * @var string Custom domain for short links (empty = use primary site)
+     */
     public string $customDomain = '';
+
+    /**
+     * @var array Reserved codes that cannot be used for short links
+     */
     public array $reservedCodes = ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'];
 
-    // QR Code settings
+    /**
+     * @var int Default QR code size in pixels
+     */
     public int $defaultQrSize = 256;
+
+    /**
+     * @var string Default QR code foreground color (hex)
+     */
     public string $defaultQrColor = '#000000';
+
+    /**
+     * @var string Default QR code background color (hex)
+     */
     public string $defaultQrBgColor = '#FFFFFF';
+
+    /**
+     * @var string Default QR code format (png or svg)
+     */
     public string $defaultQrFormat = 'png';
+
+    /**
+     * @var bool Whether to cache generated QR codes
+     */
     public bool $enableQrCodeCache = true;
-    public int $qrCodeCacheDuration = 86400; // 24 hours
+
+    /**
+     * @var int QR code cache duration in seconds (24 hours)
+     */
+    public int $qrCodeCacheDuration = 86400;
+
+    /**
+     * @var string Default QR error correction level (L, M, Q, H)
+     */
     public string $defaultQrErrorCorrection = 'M';
+
+    /**
+     * @var int Default QR code margin/quiet zone in modules
+     */
     public int $defaultQrMargin = 4;
+
+    /**
+     * @var string QR code module style (square, rounded, dots)
+     */
     public string $qrModuleStyle = 'square';
+
+    /**
+     * @var string QR code eye style (square, rounded, leaf)
+     */
     public string $qrEyeStyle = 'square';
+
+    /**
+     * @var string|null QR eye color override (hex) or null to match modules
+     */
     public ?string $qrEyeColor = null;
+
+    /**
+     * @var bool Enable logo overlay on QR codes
+     */
     public bool $enableQrLogo = false;
+
+    /**
+     * @var string|null Asset volume UID allowed for QR logos (null = all)
+     */
     public ?string $qrLogoVolumeUid = null;
+
+    /**
+     * @var int|null Default QR logo asset ID
+     */
     public ?int $defaultQrLogoId = null;
+
+    /**
+     * @var int QR logo size as a percentage of QR code (10-30)
+     */
     public int $qrLogoSize = 20;
+
+    /**
+     * @var bool Allow QR code downloads
+     */
     public bool $enableQrDownload = true;
+
+    /**
+     * @var string QR code download filename pattern
+     */
     public string $qrDownloadFilename = '{code}-qr-{size}';
 
-    // Redirect settings
+    /**
+     * @var int Default HTTP status code for redirects
+     */
     public int $defaultHttpCode = 301;
+
+    /**
+     * @var string URL to redirect to when a short link is not found
+     */
     public string $notFoundRedirectUrl = '/';
+
+    /**
+     * @var string|null Custom template path for redirects
+     */
     public ?string $redirectTemplate = null;
+
+    /**
+     * @var string Message shown when a link is expired
+     */
     public string $expiredMessage = 'This link has expired';
+
+    /**
+     * @var string|null Custom template path for expired links
+     */
     public ?string $expiredTemplate = null;
 
-    // QR Code settings
+    /**
+     * @var string URL prefix for QR code endpoints (e.g., qr)
+     */
     public string $qrPrefix = '';
+
+    /**
+     * @var string|null Custom QR code display template path
+     */
     public ?string $qrTemplate = null;
 
-    // Analytics settings
+    /**
+     * @var bool Whether analytics tracking is enabled
+     */
     public bool $enableAnalytics = true;
-    public int $analyticsRetention = 90; // days, 0 = forever
-    public bool $anonymizeIpAddress = false; // Subnet masking (192.168.1.123 → 192.168.1.0)
-    public ?string $ipHashSalt = null; // Secret salt for IP hashing (from .env)
-    public bool $enableGeoDetection = false;
-    public bool $cacheDeviceDetection = true;
-    public int $deviceDetectionCacheDuration = 3600; // 1 hour
-    public ?string $defaultCountry = null; // Default country for local development (when IP is private)
-    public ?string $defaultCity = null; // Default city for local development (when IP is private)
 
-    // Logging
+    /**
+     * @var int Analytics retention in days (0 = keep forever)
+     */
+    public int $analyticsRetention = 90;
+
+    /**
+     * @var bool Anonymize IP address with subnet masking (e.g., 192.168.1.123 → 192.168.1.0)
+     */
+    public bool $anonymizeIpAddress = false;
+
+    /**
+     * @var string|null Secret salt for IP hashing (from .env)
+     */
+    public ?string $ipHashSalt = null;
+
+    /**
+     * @var bool Enable geolocation lookup for analytics
+     */
+    public bool $enableGeoDetection = false;
+
+    /**
+     * @var bool Cache device detection results
+     */
+    public bool $cacheDeviceDetection = true;
+
+    /**
+     * @var int Device detection cache duration in seconds (1 hour)
+     */
+    public int $deviceDetectionCacheDuration = 3600;
+
+    /**
+     * @var string|null Default country for local development (when IP is private)
+     */
+    public ?string $defaultCountry = null;
+
+    /**
+     * @var string|null Default city for local development (when IP is private)
+     */
+    public ?string $defaultCity = null;
+
+    /**
+     * @var string Log level (debug, info, warning, error)
+     */
     public string $logLevel = 'error';
 
-    // Display
+    /**
+     * @var int Items per page in element indexes
+     */
     public int $itemsPerPage = 50;
 
-    // Integrations
+    /**
+     * @var array|null Enabled integration handles
+     */
     public ?array $enabledIntegrations = ['redirect-manager'];
+
+    /**
+     * @var array|null Redirect Manager events that trigger link updates
+     */
     public ?array $redirectManagerEvents = ['slug-change', 'expire', 'delete'];
+
+    /**
+     * @var array SEOmatic events to emit for tracking
+     */
     public array $seomaticTrackingEvents = ['redirect', 'qr_scan'];
+
+    /**
+     * @var string Event prefix for SEOmatic/GTM events
+     */
     public string $seomaticEventPrefix = 'shortlink_manager';
 
     /**
