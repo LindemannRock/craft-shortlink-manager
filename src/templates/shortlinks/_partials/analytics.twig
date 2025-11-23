@@ -94,15 +94,40 @@ $(document).ready(function() {
         $btn.closest('.btngroup').find('.menubtn').removeClass('active');
 
         // Show loading state
-        $('#link-analytics-content').css('opacity', '0.5');
+        $('#link-analytics-content').addClass('loading').css('opacity', '0.5');
 
-        // Update URL without reload
-        const url = new URL(window.location);
-        url.searchParams.set('range', range);
-        window.history.pushState({}, '', url);
+        // Make AJAX request
+        $.ajax({
+            url: Craft.getActionUrl('shortlink-manager/analytics/get-link-analytics'),
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                linkId: linkId,
+                range: range
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update the content
+                    $('#link-analytics-content').html(response.html);
 
-        // Reload analytics via page refresh for now
-        window.location.reload();
+                    // Update URL without reload
+                    const url = new URL(window.location);
+                    url.searchParams.set('range', range);
+                    window.history.pushState({}, '', url);
+
+                    // Force update the button text again in case it didn't stick
+                    $('.analytics-header .menubtn span').text(rangeLabels[range] || range);
+                } else {
+                    Craft.cp.displayError(response.error || '{{ "Failed to load analytics data"|t('shortlink-manager')|e('js') }}');
+                }
+            },
+            error: function() {
+                Craft.cp.displayError('{{ "Failed to load analytics data"|t('shortlink-manager')|e('js') }}');
+            },
+            complete: function() {
+                $('#link-analytics-content').removeClass('loading').css('opacity', '1');
+            }
+        });
     });
 });
 {% endjs %}

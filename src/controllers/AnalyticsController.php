@@ -119,6 +119,63 @@ class AnalyticsController extends Controller
     }
 
     /**
+     * Get link analytics data via AJAX
+     *
+     * @return Response
+     */
+    public function actionGetLinkAnalytics(): Response
+    {
+        $this->requireLogin();
+        $this->requireAcceptsJson();
+
+        $linkId = Craft::$app->getRequest()->getParam('linkId');
+        $range = Craft::$app->getRequest()->getParam('range', 'last7days');
+
+        if (!$linkId) {
+            return $this->asJson([
+                'success' => false,
+                'error' => 'Link ID is required'
+            ]);
+        }
+
+        try {
+            // Get the short link
+            $shortLink = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->id($linkId)
+                ->status(null)
+                ->one();
+
+            if (!$shortLink) {
+                return $this->asJson([
+                    'success' => false,
+                    'error' => 'Short link not found'
+                ]);
+            }
+
+            // Set the range parameter in the request so the template can access it
+            $_GET['range'] = $range;
+            Craft::$app->getRequest()->setQueryParams(array_merge(Craft::$app->getRequest()->getQueryParams(), ['range' => $range]));
+
+            // Render only the content part for AJAX
+            $html = Craft::$app->getView()->renderTemplate('shortlink-manager/shortlinks/_partials/analytics-content', [
+                'shortLink' => $shortLink,
+                'dateRange' => $range,
+            ]);
+
+            return $this->asJson([
+                'success' => true,
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            $this->logError('Failed to get link analytics data', ['error' => $e->getMessage()]);
+            return $this->asJson([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * Export analytics data
      *
      * @return Response
