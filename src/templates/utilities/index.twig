@@ -138,13 +138,17 @@
                 </a>
                 {% if settings.enableAnalytics %}
                     <a href="{{ url('shortlink-manager/analytics') }}" class="btn">
-                        {{ "View Detailed Analytics"|t('shortlink-manager') }}
+                        {{ "View Analytics"|t('shortlink-manager') }}
                     </a>
                 {% endif %}
+                <a href="{{ url('shortlink-manager/settings') }}" class="btn">
+                    {{ "View Settings"|t('shortlink-manager') }}
+                </a>
             </div>
         </div>
 
-        <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+        {% if settings.enableQrCodeCache or settings.cacheDeviceDetection %}
+        <hr style="margin: 24px 0;">
 
         <div>
             <h3 style="margin-bottom: 8px;">{{ "Cache Management"|t('shortlink-manager') }}</h3>
@@ -163,14 +167,17 @@
                     </button>
                 {% endif %}
 
+                {% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
                 <button type="button" class="btn secondary" id="clear-all-caches">
                     {{ "Clear All Caches"|t('shortlink-manager') }} ({{ (qrCacheFiles + deviceCacheFiles) }})
                 </button>
+                {% endif %}
             </div>
         </div>
+        {% endif %}
 
         {% if settings.enableAnalytics %}
-            <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+            <hr style="margin: 24px 0;">
 
             <div>
                 <h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('shortlink-manager') }}</h3>

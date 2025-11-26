@@ -1,0 +1,26 @@
+{% extends "_layouts/cp" %}
+
+{% set pluginName = shortlinkHelper.fullName %}
+{% set title = title ?? pluginName %}
+{% set docTitle = title ~ ' - ' ~ pluginName %}
+
+{# Define the plugin's CP section #}
+{% set pluginCpUrl = url('shortlink-manager') %}
+
+{# Set up the CP layout #}
+{% set fullPageForm = fullPageForm ?? false %}
+{% set selectedSubnavItem = selectedSubnavItem ?? '' %}
+
+{# Plugin-wide breadcrumbs #}
+{% set crumbs = crumbs ?? [] %}
+
+{# Don't prepend plugin root if we have site switcher as first crumb #}
+{% set hasSiteSwitcher = crumbs|length > 0 and crumbs[0].id is defined and crumbs[0].id == 'site-crumb' %}
+
+{# Prepend the plugin root to breadcrumbs if not already there #}
+{% if not hasSiteSwitcher and (crumbs|length == 0 or crumbs[0].url != pluginCpUrl) %}
+    {% set crumbs = [{
+        label: pluginName,
+        url: pluginCpUrl
+    }]|merge(crumbs) %}
+{% endif %}

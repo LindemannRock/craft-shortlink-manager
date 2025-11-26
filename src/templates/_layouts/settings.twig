@@ -1,6 +1,7 @@
 {% extends "_layouts/cp" %}
 
 {% set title = title ?? 'Settings'|t('shortlink-manager') %}
+{% set docTitle =  title ~  ' - ' ~ shortlinkHelper.fullName %}
 {% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
 {% set selectedSubnavItem = 'settings' %}
 

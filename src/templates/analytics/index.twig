@@ -1,4 +1,4 @@
-{% extends "_layouts/cp" %}
+{% extends "shortlink-manager/_layouts/cp" %}
 {% import "_includes/forms" as forms %}
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set selectedSubnavItem = 'analytics' %}
@@ -82,7 +82,7 @@
 			</div>
 		</div>
 
-		<h2 style="margin: 30px 0 20px;">{{ "Top Performing {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
+		<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
 
 		<div class="analytics-charts">
 			<div class="chart-container full-width">
@@ -91,6 +91,7 @@
 						<thead>
 							<tr>
 								<th>{{ "Code"|t('shortlink-manager') }}</th>
+								<th>{{ "Site"|t('shortlink-manager') }}</th>
 								<th>{{ "Destination"|t('shortlink-manager') }}</th>
 								<th>{{ "Total Interactions"|t('shortlink-manager') }}</th>
 								<th>{{ "Last Interaction"|t('shortlink-manager') }}</th>
@@ -104,6 +105,14 @@
 											<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
 												<code>{{ shortLink.code }}</code>
 											</a>
+										</td>
+										<td>
+											{% if shortLink.siteId %}
+												{% set site = craft.app.sites.getSiteById(shortLink.siteId) %}
+												{{ site ? site.name : '—' }}
+											{% else %}
+												—
+											{% endif %}
 										</td>
 										<td>
 											<span title="{{ shortLink.destinationUrl }}">
@@ -121,7 +130,7 @@
 			</div>
 		</div>
 
-		<h2 style="margin: 30px 0 20px;">{{ "Latest Interactions"|t('shortlink-manager') }}</h2>
+		<h2 style="margin: 30px 0 20px;">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
 
 		<div class="analytics-charts">
 			<div class="chart-container full-width">
@@ -131,6 +140,7 @@
 							<tr>
 								<th>{{ "Date"|t('shortlink-manager') }}</th>
 								<th>{{ "Code"|t('shortlink-manager') }}</th>
+								<th>{{ "Site"|t('shortlink-manager') }}</th>
 								<th>{{ "Source"|t('shortlink-manager') }}</th>
 								<th>{{ "Destination"|t('shortlink-manager') }}</th>
 								<th>{{ "Device"|t('shortlink-manager') }}</th>
@@ -147,6 +157,14 @@
 									<td>{{ click.dateCreated|datetime('short') }}</td>
 									<td>
 										<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
+									</td>
+									<td>
+										{% if click.siteId %}
+											{% set site = craft.app.sites.getSiteById(click.siteId) %}
+											{{ site ? site.name : '—' }}
+										{% else %}
+											—
+										{% endif %}
 									</td>
 									<td>
 										{% if click.source == 'qr' %}
@@ -181,7 +199,7 @@
 								</tr>
 							{% else %}
 								<tr>
-									<td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '8' : '7' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
+									<td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '9' : '8' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -526,12 +544,13 @@ $(document).ready(function() {
 	function updateTopLinksTable(links) {
 		let html = '';
 		if (links.length === 0) {
-			html = '<tr><td colspan="4" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
+			html = '<tr><td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
 		} else {
 			links.forEach(function(shortLink) {
 				if (shortLink.enabled !== false) {
 					html += '<tr>';
 					html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + shortLink.id) + '"><code>' + Craft.escapeHtml(shortLink.code) + '</code></a></td>';
+					html += '<td>' + (shortLink.siteName || '—') + '</td>';
 					html += '<td><span title="' + Craft.escapeHtml(shortLink.destinationUrl) + '">';
 					const url = shortLink.destinationUrl;
 					html += Craft.escapeHtml(url.length > 50 ? url.substring(0, 50) + '...' : url);
@@ -546,14 +565,17 @@ $(document).ready(function() {
 	}
 
 	function updateRecentClicksTable(clicks) {
+		const geoEnabled = {{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? 'true' : 'false' }};
+		const colspan = geoEnabled ? 9 : 8;
 		let html = '';
 		if (clicks.length === 0) {
-			html = '<tr><td colspan="8" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager')|e('js') }}</td></tr>';
+			html = '<tr><td colspan="' + colspan + '" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager')|e('js') }}</td></tr>';
 		} else {
 			clicks.forEach(function(click) {
 				html += '<tr>';
 				html += '<td>' + Craft.formatDate(new Date(click.dateCreated.date || click.dateCreated)) + '</td>';
 				html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + click.linkId) + '"><code>' + Craft.escapeHtml(click.linkCode) + '</code></a></td>';
+				html += '<td>' + (click.siteName || '—') + '</td>';
 				html += '<td>' + (click.source === 'qr' ? '{{ "QR"|t('shortlink-manager')|e('js') }}' : '{{ "Direct"|t('shortlink-manager')|e('js') }}') + '</td>';
 				html += '<td>';
 				if (click.destinationUrl) {
@@ -566,17 +588,17 @@ $(document).ready(function() {
 				html += '<td>' + (click.deviceType ? Craft.escapeHtml(click.deviceType.charAt(0).toUpperCase() + click.deviceType.slice(1)) : '—') + '</td>';
 				html += '<td>' + (click.browser || '—') + '</td>';
 				html += '<td>' + (click.osName || '—') + '</td>';
-				{% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
-				html += '<td>';
-				if (click.city && click.country) {
-					html += Craft.escapeHtml(click.city + ', ' + click.country);
-				} else if (click.country) {
-					html += Craft.escapeHtml(click.country);
-				} else {
-					html += '—';
+				if (geoEnabled) {
+					html += '<td>';
+					if (click.city && click.country) {
+						html += Craft.escapeHtml(click.city + ', ' + click.country);
+					} else if (click.country) {
+						html += Craft.escapeHtml(click.country);
+					} else {
+						html += '—';
+					}
+					html += '</td>';
 				}
-				html += '</td>';
-				{% endif %}
 				html += '</tr>';
 			});
 		}
