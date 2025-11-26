@@ -22,7 +22,6 @@ use yii\web\Response;
 class RedirectController extends Controller
 {
     use LoggingTrait;
-    use \lindemannrock\redirectmanager\traits\RedirectHandlingTrait;
 
     /**
      * @inheritdoc
@@ -218,5 +217,42 @@ class RedirectController extends Controller
         $notFoundUrl = $settings->notFoundRedirectUrl ?? '/';
 
         return $this->redirect($notFoundUrl, 302);
+    }
+
+    /**
+     * Handle 404 through Redirect Manager if available
+     *
+     * @param string $url The URL that wasn't found
+     * @param string $source Source identifier (e.g., 'shortlink-manager')
+     * @param array $context Additional context data
+     * @return array|null Redirect data or null if no redirect found
+     */
+    private function handleRedirect404(string $url, string $source, array $context = []): ?array
+    {
+        // Use the integration to check availability and enabled status
+        $integration = ShortLinkManager::$plugin->integration->getIntegration('redirect-manager');
+        if (!$integration || !$integration->isAvailable() || !$integration->isEnabled()) {
+            return null;
+        }
+
+        try {
+            // Get Redirect Manager plugin instance
+            $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+            if (!$redirectManager) {
+                return null;
+            }
+
+            // Add source to context
+            $context['source'] = $source;
+
+            // Call the service method to handle external 404
+            return $redirectManager->redirects->handleExternal404($url, $context);
+        } catch (\Throwable $e) {
+            $this->logError('Failed to check Redirect Manager for 404', [
+                'url' => $url,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
     }
 }

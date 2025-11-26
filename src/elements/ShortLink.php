@@ -304,7 +304,7 @@ class ShortLink extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineSources(string $context = null): array
+    protected static function defineSources(?string $context = null): array
     {
         return [
             [
@@ -919,7 +919,7 @@ class ShortLink extends Element
     /**
      * @inheritdoc
      */
-    protected static function defineIndexUrl(string $source = null, ?string $siteHandle = null): ?string
+    protected static function defineIndexUrl(?string $source = null, ?string $siteHandle = null): ?string
     {
         return 'shortlink-manager/shortlinks';
     }
