@@ -349,26 +349,10 @@ class ShortLinkManager extends Plugin
         $settings = parent::getSettings();
 
         if ($settings) {
-            // Load config file settings and merge with database values
-            $configPath = Craft::$app->getPath()->getConfigPath() . '/shortlink-manager.php';
-            if (file_exists($configPath)) {
-                $config = require $configPath;
-
-                // Apply environment-specific overrides
-                $env = Craft::$app->getConfig()->env;
-                if ($env && isset($config[$env])) {
-                    $config = array_merge($config, $config[$env]);
-                }
-
-                // Apply wildcard overrides
-                if (isset($config['*'])) {
-                    $config = array_merge($config, $config['*']);
-                }
-
-                // Remove environment-specific keys
-                unset($config['*'], $config['dev'], $config['staging'], $config['production']);
-
-                // Set config values (these override database values)
+            // Override with config file values using Craft's native multi-environment handling
+            // This properly merges '*' with environment-specific configs (e.g., 'production')
+            $config = Craft::$app->getConfig()->getConfigFromFile('shortlink-manager');
+            if (!empty($config) && is_array($config)) {
                 foreach ($config as $key => $value) {
                     if (property_exists($settings, $key)) {
                         $settings->$key = $value;
