@@ -64,7 +64,7 @@
 
 {# Latest Interactions #}
 {% if analytics.recentClicks|length %}
-    <h3 style="margin-top: 30px;">{{ "Latest Interactions"|t('shortlink-manager') }}</h3>
+    <h2 style="margin-top: 30px;">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
     <div class="recent-clicks" style="overflow-x: auto; max-width: 100%;">
         <table class="data fullwidth">
             <thead>
@@ -135,7 +135,7 @@
     </div>
 {% endif %}
 
-{% js %}
+<script>
 // Load Chart.js if not already loaded
 if (typeof Chart === 'undefined') {
     const script = document.createElement('script');
@@ -263,6 +263,6 @@ function initializeLinkCharts() {
         }
     }
 }
-{% endjs %}
+</script>
 
 {% endif %}

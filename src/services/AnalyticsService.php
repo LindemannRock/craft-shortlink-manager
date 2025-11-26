@@ -220,18 +220,26 @@ class AnalyticsService extends Component
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days'): array
     {
         $query = (new Query())
-            ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
+            ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'c.siteId', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
             ->from('{{%shortlinkmanager}} l')
             ->leftJoin('{{%shortlinkmanager_analytics}} a', 'a.linkId = l.id')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = l.id AND c.siteId = 1')
-            ->groupBy('l.id, c.destinationUrl')
+            ->groupBy('l.id, c.destinationUrl, c.siteId')
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
         // Apply date range filter to analytics table
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
 
-        return $query->all();
+        $results = $query->all();
+
+        // Add site name through Site model to parse env vars
+        foreach ($results as &$result) {
+            $site = !empty($result['siteId']) ? Craft::$app->getSites()->getSiteById($result['siteId']) : null;
+            $result['siteName'] = $site ? $site->name : '-';
+        }
+
+        return $results;
     }
 
     /**
@@ -547,7 +555,7 @@ class AnalyticsService extends Component
 
         $results = $query->all();
 
-        // Parse metadata to extract source (qr, direct, etc.)
+        // Parse metadata and add site name
         foreach ($results as &$result) {
             if (!empty($result['metadata'])) {
                 $metadata = json_decode($result['metadata'], true);
@@ -555,6 +563,10 @@ class AnalyticsService extends Component
             } else {
                 $result['source'] = 'direct';
             }
+
+            // Get site name through Site model to parse env vars
+            $site = !empty($result['siteId']) ? Craft::$app->getSites()->getSiteById($result['siteId']) : null;
+            $result['siteName'] = $site ? $site->name : '-';
         }
 
         return $results;
