@@ -101,7 +101,7 @@ class ShortLinkManagerUtility extends Utility
         }
 
         if ($settings->cacheDeviceDetection) {
-            $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/devices/';
+            $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
             if (is_dir($devicePath)) {
                 $deviceCacheFiles = count(glob($devicePath . '*.cache'));
             }
