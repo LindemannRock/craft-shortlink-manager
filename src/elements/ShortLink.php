@@ -517,8 +517,6 @@ class ShortLink extends Element
      */
     public function afterPopulate(): void
     {
-        parent::afterPopulate();
-
         // Load content data for current site
         $this->loadContent();
     }
@@ -557,7 +555,7 @@ class ShortLink extends Element
      */
     protected function defineAttributes(): array
     {
-        return array_merge(parent::defineAttributes(), [
+        return [
             'code' => null,
             'slug' => null,
             'linkType' => 'code',
@@ -579,7 +577,7 @@ class ShortLink extends Element
             'qrCodeEyeColor' => null,
             'qrCodeFormat' => null,
             'qrLogoId' => null,
-        ]);
+        ];
     }
 
     /**
@@ -1067,12 +1065,12 @@ class ShortLink extends Element
             }
 
             // Copy required fields if not set
-            if (!$this->destinationUrl && $this->duplicateOf->destinationUrl) {
+            if (!$this->destinationUrl && $this->duplicateOf instanceof ShortLink && $this->duplicateOf->destinationUrl) {
                 $this->destinationUrl = $this->duplicateOf->destinationUrl;
             }
 
             // Generate unique slug
-            $baseSlug = $this->duplicateOf->slug ?: $this->slug;
+            $baseSlug = ($this->duplicateOf instanceof ShortLink ? $this->duplicateOf->slug : null) ?: $this->slug;
             $testSlug = $baseSlug;
             $num = 1;
 
@@ -1326,7 +1324,7 @@ class ShortLink extends Element
                 ]);
         }
 
-        return parent::getTableAttributeHtml($attribute);
+        return (string)$this->$attribute;
     }
 
     /**

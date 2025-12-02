@@ -85,11 +85,6 @@ class SettingsController extends Controller
         $plugin = ShortLinkManager::$plugin;
         $settings = $plugin->getSettings();
 
-        // Defensive check
-        if (!$settings) {
-            throw new \Exception('Failed to load settings');
-        }
-
         return $this->renderTemplate('shortlink-manager/settings/qr-code', [
             'settings' => $settings,
             'plugin' => $plugin,
@@ -174,9 +169,6 @@ class SettingsController extends Controller
 
         // Load current settings from database
         $settings = Settings::loadFromDatabase();
-        if (!$settings) {
-            $settings = new Settings();
-        }
 
         // Get only the posted settings (fields from the current page)
         $settingsData = $this->request->getBodyParam('settings', []);
@@ -185,7 +177,7 @@ class SettingsController extends Controller
         if (isset($settingsData['defaultQrLogoId'])) {
             if (is_array($settingsData['defaultQrLogoId'])) {
                 $settingsData['defaultQrLogoId'] = $settingsData['defaultQrLogoId'][0] ?? null;
-            } elseif ($settingsData['defaultQrLogoId'] === '' || $settingsData['defaultQrLogoId'] === null) {
+            } elseif ($settingsData['defaultQrLogoId'] === '') {
                 // Convert empty string to null for integer type
                 $settingsData['defaultQrLogoId'] = null;
             }

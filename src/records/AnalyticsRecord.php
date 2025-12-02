@@ -12,6 +12,35 @@ use craft\db\ActiveRecord;
 
 /**
  * Analytics Record
+ *
+ * @property int $id
+ * @property int $linkId
+ * @property int|null $siteId
+ * @property string|null $ip
+ * @property string|null $userAgent
+ * @property string|null $referer
+ * @property string|null $language
+ * @property string|null $deviceType
+ * @property string|null $deviceBrand
+ * @property string|null $deviceModel
+ * @property string|null $browser
+ * @property string|null $browserVersion
+ * @property string|null $browserEngine
+ * @property string|null $osName
+ * @property string|null $osVersion
+ * @property string|null $clientType
+ * @property bool $isRobot
+ * @property bool $isMobileApp
+ * @property string|null $botName
+ * @property string|null $country
+ * @property string|null $city
+ * @property string|null $region
+ * @property float|null $latitude
+ * @property float|null $longitude
+ * @property string|null $metadata
+ * @property string $dateCreated
+ * @property string $dateUpdated
+ * @property string|null $uid
  */
 class AnalyticsRecord extends ActiveRecord
 {

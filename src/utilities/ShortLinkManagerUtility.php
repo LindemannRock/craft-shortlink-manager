@@ -49,13 +49,17 @@ class ShortLinkManagerUtility extends Utility
         $settings = ShortLinkManager::$plugin->getSettings();
         $pluginName = $settings->getFullName();
 
-        // Get system stats using direct queries
+        // Get system stats (count unique shortlinks, excluding trashed)
         $totalLinks = (new \craft\db\Query())
-            ->from('{{%shortlinkmanager}}')
+            ->from('{{%shortlinkmanager}} sl')
+            ->innerJoin('{{%elements}} e', 'sl.id = e.id')
+            ->where(['e.dateDeleted' => null])
             ->count();
 
-        // Get active links count (use element query)
+        // Get active links count (enabled for current site)
+        $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
         $activeLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+            ->siteId($currentSiteId)
             ->status('enabled')
             ->count();
 

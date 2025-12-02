@@ -180,7 +180,7 @@ class ShortLinkType extends BaseElementLinkType
         if ($element instanceof ShortLink) {
             return sprintf('{shortLink:%s@%s:url}', $element->id, $element->siteId);
         }
-        return parent::value($element);
+        return null;
     }
 
     /**

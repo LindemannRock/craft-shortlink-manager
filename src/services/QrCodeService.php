@@ -357,9 +357,7 @@ class QrCodeService extends Component
             imagedestroy($resizedLogo);
 
             // Clean up temporary file
-            if (file_exists($logoPath)) {
-                unlink($logoPath);
-            }
+            unlink($logoPath);
 
             return $result;
         } catch (\Exception $e) {

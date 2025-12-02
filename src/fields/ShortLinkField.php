@@ -84,7 +84,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     {
         // Get existing shortlink for this element
         $shortLink = null;
-        if ($element && $element->id) {
+        if ($element->id) {
             $shortLink = ShortLinkManager::$plugin->shortLinks->getByElement($element);
         }
 

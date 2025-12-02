@@ -247,7 +247,7 @@ class RedirectController extends Controller
         try {
             // Get Redirect Manager plugin instance
             $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
-            if (!$redirectManager) {
+            if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
                 return null;
             }
 

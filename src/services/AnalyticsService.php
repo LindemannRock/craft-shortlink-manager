@@ -214,7 +214,7 @@ class AnalyticsService extends Component
      * Get top performing links
      *
      * @param int $limit
-     * @param array $filters
+     * @param string $dateRange
      * @return array
      */
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days'): array
@@ -1118,10 +1118,8 @@ class AnalyticsService extends Component
             if (!empty($row['siteId'])) {
                 $site = Craft::$app->getSites()->getSiteById($row['siteId']);
                 $siteName = $site ? $site->name : '';
-                if ($shortLink) {
-                    // Generate the URL for the specific site
-                    $shortLinkUrl = \craft\helpers\UrlHelper::siteUrl("go/{$shortLink->code}", null, null, $row['siteId']);
-                }
+                // Generate the URL for the specific site
+                $shortLinkUrl = \craft\helpers\UrlHelper::siteUrl("go/{$shortLink->code}", null, null, $row['siteId']);
             }
 
             $date = \craft\helpers\DateTimeHelper::toDateTime($row['dateCreated']);

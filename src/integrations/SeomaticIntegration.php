@@ -136,7 +136,7 @@ class SeomaticIntegration extends BaseIntegration
 
             // Try to inject into Google Tag Manager
             $gtmScript = $scriptService->get('googleTagManager');
-            if ($gtmScript && isset($gtmScript->include) && $gtmScript->include) {
+            if ($gtmScript && $gtmScript->include) {
                 // Initialize dataLayer if not exists
                 if (!is_array($gtmScript->dataLayer)) {
                     $gtmScript->dataLayer = [];
@@ -153,7 +153,7 @@ class SeomaticIntegration extends BaseIntegration
 
             // Try to inject into gtag.js (Google Analytics)
             $gtagScript = $scriptService->get('gtag');
-            if ($gtagScript && isset($gtagScript->include) && $gtagScript->include) {
+            if ($gtagScript && $gtagScript->include) {
                 // Initialize dataLayer if not exists
                 if (!is_array($gtagScript->dataLayer)) {
                     $gtagScript->dataLayer = [];
@@ -280,7 +280,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Google Tag Manager
                     $gtmScript = $scriptService->get('googleTagManager');
-                    if ($gtmScript && isset($gtmScript->include) && $gtmScript->include) {
+                    if ($gtmScript && $gtmScript->include) {
                         $gtmId = $gtmScript->vars['googleTagManagerId']['value'] ??
                                 $gtmScript->vars['googleTagManagerContainerId']['value'] ??
                                 null;
@@ -310,7 +310,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Google Analytics (gtag.js)
                     $gtagScript = $scriptService->get('gtag');
-                    if ($gtagScript && isset($gtagScript->include) && $gtagScript->include) {
+                    if ($gtagScript && $gtagScript->include) {
                         $measurementId = $gtagScript->vars['googleAnalyticsId']['value'] ?? null;
 
                         if (is_string($measurementId)) {
@@ -338,7 +338,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check Facebook Pixel
                     $fbScript = $scriptService->get('facebookPixel');
-                    if ($fbScript && isset($fbScript->include) && $fbScript->include) {
+                    if ($fbScript && $fbScript->include) {
                         $fbId = $fbScript->vars['facebookPixelId']['value'] ?? null;
 
                         if (!empty($fbId)) {
@@ -359,7 +359,7 @@ class SeomaticIntegration extends BaseIntegration
 
                     // Check LinkedIn Insight
                     $linkedInScript = $scriptService->get('linkedInInsight');
-                    if ($linkedInScript && isset($linkedInScript->include) && $linkedInScript->include) {
+                    if ($linkedInScript && $linkedInScript->include) {
                         $partnerId = $linkedInScript->vars['dataPartnerId']['value'] ?? null;
 
                         if (is_string($partnerId)) {

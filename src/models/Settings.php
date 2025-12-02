@@ -400,13 +400,17 @@ class Settings extends Model
                     $smartLinksPluginName = $smartLinksSettings->pluginName ?? 'Smart Links';
 
                     // Check against Smart Links slugPrefix
-                    if ($slugPrefix === ($smartLinksSettings->slugPrefix ?? 'go')) {
-                        $conflicts[] = "{$smartLinksPluginName} slug prefix ('{$smartLinksSettings->slugPrefix}')";
+                    /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                    $smartLinksSlugPrefix = property_exists($smartLinksSettings, 'slugPrefix') ? $smartLinksSettings->slugPrefix : 'go';
+                    if ($slugPrefix === $smartLinksSlugPrefix) {
+                        $conflicts[] = "{$smartLinksPluginName} slug prefix ('{$smartLinksSlugPrefix}')";
                     }
 
                     // Check against Smart Links qrPrefix
-                    if ($slugPrefix === ($smartLinksSettings->qrPrefix ?? 'qr')) {
-                        $conflicts[] = "{$smartLinksPluginName} QR prefix ('{$smartLinksSettings->qrPrefix}')";
+                    /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                    $smartLinksQrPrefix = property_exists($smartLinksSettings, 'qrPrefix') ? $smartLinksSettings->qrPrefix : 'qr';
+                    if ($slugPrefix === $smartLinksQrPrefix) {
+                        $conflicts[] = "{$smartLinksPluginName} QR prefix ('{$smartLinksQrPrefix}')";
                     }
                 }
             } catch (\Exception $e) {
@@ -470,13 +474,17 @@ class Settings extends Model
                     $smartLinksPluginName = $smartLinksSettings->pluginName ?? 'Smart Links';
 
                     // Check against Smart Links slugPrefix
-                    if (!$isNested && $qrPrefix === ($smartLinksSettings->slugPrefix ?? 'go')) {
-                        $conflicts[] = "{$smartLinksPluginName} link prefix ('{$smartLinksSettings->slugPrefix}')";
+                    /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                    $smartLinksSlugPrefix = property_exists($smartLinksSettings, 'slugPrefix') ? $smartLinksSettings->slugPrefix : 'go';
+                    if (!$isNested && $qrPrefix === $smartLinksSlugPrefix) {
+                        $conflicts[] = "{$smartLinksPluginName} link prefix ('{$smartLinksSlugPrefix}')";
                     }
 
                     // Check against Smart Links qrPrefix
-                    if (!$isNested && $qrPrefix === ($smartLinksSettings->qrPrefix ?? 'qr')) {
-                        $conflicts[] = "{$smartLinksPluginName} QR prefix ('{$smartLinksSettings->qrPrefix}')";
+                    /** @phpstan-ignore-next-line - Dynamic property access on plugin settings */
+                    $smartLinksQrPrefix = property_exists($smartLinksSettings, 'qrPrefix') ? $smartLinksSettings->qrPrefix : 'qr';
+                    if (!$isNested && $qrPrefix === $smartLinksQrPrefix) {
+                        $conflicts[] = "{$smartLinksPluginName} QR prefix ('{$smartLinksQrPrefix}')";
                     }
                 }
             } catch (\Exception $e) {
@@ -506,6 +514,7 @@ class Settings extends Model
 
     /**
      * Get smart default for qrPrefix that avoids conflicts
+     * @phpstan-ignore-next-line - Method reserved for future use
      */
     private function getSmartQrPrefixDefault(): string
     {
@@ -718,15 +727,10 @@ class Settings extends Model
             // Debug: Log the result
             $this->logDebug('Database update result', ['result' => $result]);
 
-            if ($result !== false) {
-                // Trigger event after successful save
-                $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
-                $this->logInfo('Settings saved successfully to database');
-                return true;
-            }
-
-            $this->logError('Database update returned false');
-            return false;
+            // Trigger event after successful save
+            $this->trigger(self::EVENT_AFTER_SAVE_SETTINGS);
+            $this->logInfo('Settings saved successfully to database');
+            return true;
         } catch (\Exception $e) {
             $this->logError('Failed to save ' . $this->getFullName() . ' settings', ['error' => $e->getMessage()]);
             return false;

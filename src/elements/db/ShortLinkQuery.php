@@ -219,7 +219,7 @@ class ShortLinkQuery extends ElementQuery
         }
 
         if ($this->trackAnalytics !== null) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.trackAnalytics', $this->trackAnalytics));
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.trackAnalytics', (int)$this->trackAnalytics));
         }
 
         if ($this->expired !== null) {

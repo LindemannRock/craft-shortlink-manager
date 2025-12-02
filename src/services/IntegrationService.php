@@ -326,7 +326,7 @@ class IntegrationService extends Component
             $view->setTemplateMode($oldMode);
 
             // Return as Twig Markup so it's automatically treated as safe HTML
-            return \Twig\Markup::class ? new \Twig\Markup($html, 'UTF-8') : $html;
+            return new \Twig\Markup($html, 'UTF-8');
         } catch (\Throwable $e) {
             $view->setTemplateMode($oldMode);
             $this->logError('Failed to render SEOmatic tracking', [
