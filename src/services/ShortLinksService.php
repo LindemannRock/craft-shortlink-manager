@@ -12,12 +12,11 @@ use Craft;
 use craft\base\Component;
 use craft\base\ElementInterface;
 use craft\db\Query;
-use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
-use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
  * ShortLinks Service
@@ -26,8 +25,8 @@ class ShortLinksService extends Component
 {
     use LoggingTrait;
 
-    const CACHE_KEY = 'shortlinkmanager_link_';
-    const CACHE_TAG = 'shortlinkmanager';
+    public const CACHE_KEY = 'shortlinkmanager_link_';
+    public const CACHE_TAG = 'shortlinkmanager';
 
     /**
      * @inheritdoc
@@ -413,7 +412,7 @@ class ShortLinksService extends Component
 
             $this->logInfo('Updated shortlink destination for element', [
                 'elementId' => $element->id,
-                'newUrl' => $shortLink->destinationUrl
+                'newUrl' => $shortLink->destinationUrl,
             ]);
         }
     }
@@ -433,7 +432,7 @@ class ShortLinksService extends Component
 
             $this->logInfo('Deleted shortlink for element', [
                 'elementId' => $element->id,
-                'slug' => $shortLink->slug
+                'slug' => $shortLink->slug,
             ]);
         }
     }

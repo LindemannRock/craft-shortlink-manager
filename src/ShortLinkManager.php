@@ -11,36 +11,36 @@
 namespace lindemannrock\shortlinkmanager;
 
 use Craft;
-use craft\base\Plugin;
 use craft\base\Model;
+use craft\base\Plugin;
+use craft\events\ElementEvent;
 use craft\events\RegisterCacheOptionsEvent;
+use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
-use craft\events\RegisterComponentTypesEvent;
-use craft\events\ElementEvent;
+use craft\fields\Link as LinkField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\UserPermissions;
 use craft\services\Utilities;
-use craft\fields\Link as LinkField;
 use craft\utilities\ClearCaches;
-use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
+use craft\web\UrlManager;
+use lindemannrock\logginglibrary\LoggingLibrary;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
+use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\models\Settings;
-use lindemannrock\shortlinkmanager\services\ShortLinksService;
 use lindemannrock\shortlinkmanager\services\AnalyticsService;
-use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
-use lindemannrock\shortlinkmanager\variables\ShortLinkManagerVariable;
-use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
+use lindemannrock\shortlinkmanager\services\QrCodeService;
+use lindemannrock\shortlinkmanager\services\ShortLinksService;
 use lindemannrock\shortlinkmanager\utilities\ShortLinkManagerUtility;
+use lindemannrock\shortlinkmanager\variables\ShortLinkManagerVariable;
 use lindemannrock\shortlinkmanager\widgets\AnalyticsSummaryWidget;
 use lindemannrock\shortlinkmanager\widgets\TopLinksWidget;
-use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
-use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\logginglibrary\LoggingLibrary;
 use yii\base\Event;
 
 /**
@@ -301,7 +301,7 @@ class ShortLinkManager extends Plugin
             if (Craft::$app->getPlugins()->isPluginInstalled('logging-library') &&
                 Craft::$app->getPlugins()->isPluginEnabled('logging-library')) {
                 $item = LoggingLibrary::addLogsNav($item, $this->handle, [
-                    'shortLinkManager:viewLogs'
+                    'shortLinkManager:viewLogs',
                 ]);
             }
 

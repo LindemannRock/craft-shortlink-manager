@@ -89,7 +89,7 @@ class RedirectManagerIntegration extends BaseIntegration
             'enabled' => $this->isEnabled(),
             'events' => $redirectManagerEvents,
             'description' => Craft::t('shortlink-manager', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
-                'pluginName' => ShortLinkManager::$plugin->getSettings()->getLowerDisplayName()
+                'pluginName' => ShortLinkManager::$plugin->getSettings()->getLowerDisplayName(),
             ]),
         ];
     }

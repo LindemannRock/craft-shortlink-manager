@@ -12,10 +12,10 @@ use Craft;
 use craft\base\Component;
 use craft\db\Query;
 use craft\helpers\Db;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\AnalyticsRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
-use lindemannrock\logginglibrary\traits\LoggingTrait;
 use yii\web\Request;
 
 /**
@@ -524,7 +524,7 @@ class AnalyticsService extends Component
      */
     private function _getDaysCount(string $dateRange): int
     {
-        return match($dateRange) {
+        return match ($dateRange) {
             'today' => 1,
             'yesterday' => 1,
             'last7days' => 7,
@@ -976,7 +976,7 @@ class AnalyticsService extends Component
         if (!$salt || $salt === '$SHORTLINK_MANAGER_IP_SALT' || trim($salt) === '') {
             $this->logError('IP hash salt not configured - analytics tracking disabled', [
                 'ip' => 'hidden',
-                'saltValue' => $salt ?? 'NULL'
+                'saltValue' => $salt ?? 'NULL',
             ]);
             throw new \Exception('IP hash salt not configured. Run: php craft shortlink-manager/security/generate-salt');
         }
@@ -1059,7 +1059,7 @@ class AnalyticsService extends Component
                 'language',
                 'referer as referrer',
                 'ip',
-                'userAgent'
+                'userAgent',
             ])
             ->orderBy(['dateCreated' => SORT_DESC]);
 
@@ -1102,7 +1102,7 @@ class AnalyticsService extends Component
             // Get the actual status
             $status = $shortLink->getStatus();
             $shortLinkCode = $shortLink->code;
-            $shortLinkStatus = match($status) {
+            $shortLinkStatus = match ($status) {
                 ShortLink::STATUS_ENABLED => 'Active',
                 ShortLink::STATUS_DISABLED => 'Disabled',
                 ShortLink::STATUS_PENDING => 'Pending',
@@ -1240,7 +1240,7 @@ class AnalyticsService extends Component
             'UG' => 'Uganda', 'UA' => 'Ukraine', 'AE' => 'United Arab Emirates', 'GB' => 'United Kingdom',
             'US' => 'United States', 'UY' => 'Uruguay', 'UZ' => 'Uzbekistan', 'VU' => 'Vanuatu',
             'VE' => 'Venezuela', 'VN' => 'Vietnam', 'YE' => 'Yemen', 'ZM' => 'Zambia',
-            'ZW' => 'Zimbabwe'
+            'ZW' => 'Zimbabwe',
         ];
 
         return $countries[$countryCode] ?? $countryCode;

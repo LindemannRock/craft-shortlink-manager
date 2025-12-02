@@ -103,7 +103,6 @@ class SeomaticIntegration extends BaseIntegration
             ]);
 
             return true;
-
         } catch (\Throwable $e) {
             $this->logError('Failed to push event', [
                 'eventType' => $eventType,
@@ -171,7 +170,6 @@ class SeomaticIntegration extends BaseIntegration
 
             $this->logDebug('No active tracking scripts found in SEOmatic');
             return false;
-
         } catch (\Throwable $e) {
             $this->logError('Failed to inject data layer event', [
                 'error' => $e->getMessage(),
@@ -200,7 +198,7 @@ class SeomaticIntegration extends BaseIntegration
         Event::on(
             $dynamicMetaClass,
             'addDynamicMeta',
-            function () {
+            function() {
                 $this->onAddDynamicMeta();
             }
         );
@@ -225,7 +223,6 @@ class SeomaticIntegration extends BaseIntegration
             }
 
             $this->logDebug('Injected queued events', ['count' => count($this->queuedEvents)]);
-
         } catch (\Throwable $e) {
             $this->logError('Error in AddDynamicMeta handler', [
                 'error' => $e->getMessage(),
@@ -401,7 +398,6 @@ class SeomaticIntegration extends BaseIntegration
                 'eventPrefix' => $settings->seomaticEventPrefix ?? 'shortlink_manager',
                 'trackingEvents' => $settings->seomaticTrackingEvents ?? [],
             ];
-
         } catch (\Throwable $e) {
             $this->logError('Error getting SEOmatic status', [
                 'error' => $e->getMessage(),

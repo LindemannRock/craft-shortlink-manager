@@ -9,11 +9,10 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
-use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
 /**

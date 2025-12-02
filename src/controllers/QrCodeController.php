@@ -140,7 +140,7 @@ class QrCodeController extends Controller
             'options' => $options,
             'hasLogo' => isset($options['logo']),
             'enableQrLogo' => $settings->enableQrLogo,
-            'shortLinkLogoId' => $shortLink ? $shortLink->qrLogoId : 'N/A'
+            'shortLinkLogoId' => $shortLink ? $shortLink->qrLogoId : 'N/A',
         ]);
 
         // Generate QR code
@@ -226,7 +226,7 @@ class QrCodeController extends Controller
             $this->logError('Failed to render QR template', [
                 'template' => $template,
                 'code' => $code,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             // Fallback to plugin template if custom template fails

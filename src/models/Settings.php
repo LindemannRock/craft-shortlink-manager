@@ -10,9 +10,9 @@ namespace lindemannrock\shortlinkmanager\models;
 
 use Craft;
 use craft\base\Model;
-use craft\helpers\App;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\db\Query;
+use craft\helpers\App;
 use craft\helpers\Db;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 
@@ -26,7 +26,7 @@ class Settings extends Model
     /**
      * @event Event The event that is triggered after settings are saved
      */
-    const EVENT_AFTER_SAVE_SETTINGS = 'afterSaveSettings';
+    public const EVENT_AFTER_SAVE_SETTINGS = 'afterSaveSettings';
 
     /**
      * @var string Plugin display name shown in the control panel
@@ -362,13 +362,13 @@ class Settings extends Model
                 if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
                     if (Craft::$app->getSession()->get('slm_debug_config_warning') === null) {
                         $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                            'configFile' => 'config/shortlink-manager.php'
+                            'configFile' => 'config/shortlink-manager.php',
                         ]);
                         Craft::$app->getSession()->set('slm_debug_config_warning', true);
                     }
                 } else {
                     $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                        'configFile' => 'config/shortlink-manager.php'
+                        'configFile' => 'config/shortlink-manager.php',
                     ]);
                 }
             } else {
@@ -419,7 +419,7 @@ class Settings extends Model
             $this->addError($attribute, Craft::t('shortlink-manager', 'Slug prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
                 'prefix' => $slugPrefix,
                 'conflicts' => implode(', ', $conflicts),
-                'suggestions' => implode(', ', $suggestions)
+                'suggestions' => implode(', ', $suggestions),
             ]));
         }
     }
@@ -444,7 +444,7 @@ class Settings extends Model
         // Check against own slugPrefix
         if (!$isNested && $qrPrefix === $this->slugPrefix) {
             $this->addError($attribute, Craft::t('shortlink-manager', 'QR prefix cannot be the same as your URL segment. Try: {segment}/qr, qr, or q', [
-                'segment' => $this->slugPrefix
+                'segment' => $this->slugPrefix,
             ]));
             return;
         }
@@ -455,7 +455,7 @@ class Settings extends Model
             if ($baseSegment !== $this->slugPrefix) {
                 $this->addError($attribute, Craft::t('shortlink-manager', 'Nested QR prefix must start with your URL segment "{segment}". Use: {segment}/{qr} or use standalone like "qr"', [
                     'segment' => $this->slugPrefix,
-                    'qr' => $segments[1] ?? 'qr'
+                    'qr' => $segments[1] ?? 'qr',
                 ]));
                 return;
             }
@@ -489,7 +489,7 @@ class Settings extends Model
             $this->addError($attribute, Craft::t('shortlink-manager', 'QR prefix "{prefix}" conflicts with: {conflicts}. Suggestions: {suggestions}', [
                 'prefix' => $qrPrefix,
                 'conflicts' => implode(', ', $conflicts),
-                'suggestions' => implode(', ', $suggestions)
+                'suggestions' => implode(', ', $suggestions),
             ]));
         }
     }
@@ -529,7 +529,7 @@ class Settings extends Model
                     $this->logInfo('Checking Smart Links conflicts', [
                         'slugPrefix' => $smartLinksSettings->slugPrefix ?? 'go',
                         'qrPrefix' => $smartLinksSettings->qrPrefix ?? 'qr',
-                        'conflictingPrefixes' => $conflictingPrefixes
+                        'conflictingPrefixes' => $conflictingPrefixes,
                     ]);
                 }
             } catch (\Exception $e) {
@@ -547,7 +547,7 @@ class Settings extends Model
             if (!in_array($prefix, $conflictingPrefixes)) {
                 $this->logInfo('Selected QR prefix', [
                     'selected' => $prefix,
-                    'conflictingPrefixes' => $conflictingPrefixes
+                    'conflictingPrefixes' => $conflictingPrefixes,
                 ]);
                 return $prefix;
             }
@@ -606,7 +606,7 @@ class Settings extends Model
                 'enableQrDownload',
                 'enableAnalytics',
                 'enableGeoDetection',
-                'anonymizeIpAddress'
+                'anonymizeIpAddress',
             ];
 
             foreach ($booleanFields as $field) {
@@ -625,7 +625,7 @@ class Settings extends Model
                 'defaultHttpCode',
                 'analyticsRetention',
                 'defaultQrLogoId',
-                'itemsPerPage'
+                'itemsPerPage',
             ];
 
             foreach ($integerFields as $field) {

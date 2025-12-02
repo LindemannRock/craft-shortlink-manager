@@ -9,8 +9,8 @@
 namespace lindemannrock\shortlinkmanager\integrations;
 
 use Craft;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * Base Integration
@@ -127,7 +127,7 @@ abstract class BaseIntegration implements IntegrationInterface
         // Build base event structure
         $formattedData = [
             'event' => "{$eventPrefix}_{$eventType}",
-            'shortlink' => []
+            'shortlink' => [],
         ];
 
         // Map common fields

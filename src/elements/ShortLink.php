@@ -20,14 +20,12 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\validators\UniqueValidator;
-use lindemannrock\shortlinkmanager\elements\db\ShortLinkQuery;
-use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
-use lindemannrock\shortlinkmanager\records\ShortLinkContentRecord;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\elements\db\ShortLinkQuery;
+use lindemannrock\shortlinkmanager\records\ShortLinkContentRecord;
+use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\validators\RequiredValidator;
-use yii\validators\UrlValidator;
 
 /**
  * ShortLink element
@@ -277,12 +275,12 @@ class ShortLink extends Element
     /**
      * @var string Status expired
      */
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var string Status pending
      */
-    const STATUS_PENDING = 'pending';
+    public const STATUS_PENDING = 'pending';
 
     /**
      * @inheritdoc
@@ -975,7 +973,7 @@ class ShortLink extends Element
                 if ($query->exists()) {
                     $this->addError($attribute, Craft::t('shortlink-manager', 'This code is already in use (slug: {slug}).', ['slug' => $testSlug]));
                 }
-            }
+            },
         ];
 
         // Custom URL validator that accepts both full URLs and paths

@@ -9,9 +9,9 @@
 namespace lindemannrock\shortlinkmanager\variables;
 
 use craft\base\ElementInterface;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
-use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\elements\db\ShortLinkQuery;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLink Manager Variable

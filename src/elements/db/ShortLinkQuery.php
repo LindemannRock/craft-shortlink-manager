@@ -258,12 +258,12 @@ class ShortLinkQuery extends ElementQuery
             $this->query->andWhere([
                 'or',
                 ['shortlinkmanager.dateExpired' => null],
-                ['>=', 'shortlinkmanager.dateExpired', new \yii\db\Expression('NOW()')]
+                ['>=', 'shortlinkmanager.dateExpired', new \yii\db\Expression('NOW()')],
             ]);
             $this->query->andWhere([
                 'or',
                 ['shortlinkmanager.postDate' => null],
-                ['<=', 'shortlinkmanager.postDate', new \yii\db\Expression('NOW()')]
+                ['<=', 'shortlinkmanager.postDate', new \yii\db\Expression('NOW()')],
             ]);
         }
 

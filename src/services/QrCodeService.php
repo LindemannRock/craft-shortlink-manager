@@ -9,17 +9,17 @@
 namespace lindemannrock\shortlinkmanager\services;
 
 use BaconQrCode\Renderer\Color\Rgb;
+use BaconQrCode\Renderer\Eye\ModuleEye;
+use BaconQrCode\Renderer\Eye\SimpleCircleEye;
+use BaconQrCode\Renderer\Eye\SquareEye;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Renderer\RendererStyle\Fill;
-use BaconQrCode\Renderer\RendererStyle\EyeFill;
-use BaconQrCode\Renderer\Module\SquareModule;
-use BaconQrCode\Renderer\Module\RoundnessModule;
 use BaconQrCode\Renderer\Module\DotsModule;
-use BaconQrCode\Renderer\Eye\SquareEye;
-use BaconQrCode\Renderer\Eye\SimpleCircleEye;
-use BaconQrCode\Renderer\Eye\ModuleEye;
+use BaconQrCode\Renderer\Module\RoundnessModule;
+use BaconQrCode\Renderer\Module\SquareModule;
+use BaconQrCode\Renderer\RendererStyle\EyeFill;
+use BaconQrCode\Renderer\RendererStyle\Fill;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Craft;
 use craft\base\Component;
@@ -362,7 +362,6 @@ class QrCodeService extends Component
             }
 
             return $result;
-
         } catch (\Exception $e) {
             $this->logError('Failed to add logo to QR code', ['error' => $e->getMessage()]);
             return $qrCodeData;

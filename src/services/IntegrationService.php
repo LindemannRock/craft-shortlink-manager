@@ -4,10 +4,10 @@ namespace lindemannrock\shortlinkmanager\services;
 
 use Craft;
 use craft\base\Component;
-use lindemannrock\shortlinkmanager\integrations\IntegrationInterface;
-use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
-use lindemannrock\shortlinkmanager\integrations\RedirectManagerIntegration;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\integrations\IntegrationInterface;
+use lindemannrock\shortlinkmanager\integrations\RedirectManagerIntegration;
+use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
 
 /**
  * Integration Service
@@ -66,7 +66,6 @@ class IntegrationService extends Component
                 'count' => count($this->integrations),
                 'available' => $this->getAvailableIntegrations(),
             ]);
-
         } catch (\Throwable $e) {
             $this->logError('Failed to load integrations', [
                 'error' => $e->getMessage(),
@@ -118,7 +117,6 @@ class IntegrationService extends Component
 
                 $success = $integration->pushEvent($eventType, $data);
                 $results[$handle] = $success;
-
             } catch (\Throwable $e) {
                 $this->logError('Integration failed', [
                     'handle' => $handle,
@@ -289,7 +287,6 @@ class IntegrationService extends Component
                     'status' => $integration->getStatus(),
                 ];
             }
-
         } catch (\Throwable $e) {
             return [
                 'success' => false,
@@ -330,7 +327,6 @@ class IntegrationService extends Component
 
             // Return as Twig Markup so it's automatically treated as safe HTML
             return \Twig\Markup::class ? new \Twig\Markup($html, 'UTF-8') : $html;
-
         } catch (\Throwable $e) {
             $view->setTemplateMode($oldMode);
             $this->logError('Failed to render SEOmatic tracking', [
@@ -341,5 +337,4 @@ class IntegrationService extends Component
             return null;
         }
     }
-
 }

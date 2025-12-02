@@ -8,7 +8,6 @@
 
 namespace lindemannrock\shortlinkmanager\console\controllers;
 
-use Craft;
 use craft\console\Controller;
 use craft\helpers\Console;
 use yii\console\ExitCode;

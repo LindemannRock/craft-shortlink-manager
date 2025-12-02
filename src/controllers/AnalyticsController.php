@@ -134,7 +134,7 @@ class AnalyticsController extends Controller
         if (!$linkId) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Link ID is required'
+                'error' => 'Link ID is required',
             ]);
         }
 
@@ -148,7 +148,7 @@ class AnalyticsController extends Controller
             if (!$shortLink) {
                 return $this->asJson([
                     'success' => false,
-                    'error' => 'Short link not found'
+                    'error' => 'Short link not found',
                 ]);
             }
 
@@ -164,13 +164,13 @@ class AnalyticsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
             $this->logError('Failed to get link analytics data', ['error' => $e->getMessage()]);
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }

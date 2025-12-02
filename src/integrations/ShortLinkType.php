@@ -100,7 +100,7 @@ class ShortLinkType extends BaseElementLinkType
                 Html::tag('p', Craft::t('shortlink-manager', '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.', [
                     'pluginName' => $pluginName,
                     'pluginNameLower' => ShortLinkManager::$plugin->getSettings()->getPluralLowerDisplayName(),
-                    'site' => $currentSite->name
+                    'site' => $currentSite->name,
                 ]), ['class' => 'warning']),
                 ['class' => 'field']
             );
@@ -220,7 +220,7 @@ class ShortLinkType extends BaseElementLinkType
         $matches = [];
         if (!preg_match('/^{shortLink:(\d+)(@(\d+))?:url}$/', $value, $matches)) {
             $error = Craft::t('shortlink-manager', 'Invalid {pluginName} format.', [
-                'pluginName' => ShortLinkManager::$plugin->getSettings()->getLowerDisplayName()
+                'pluginName' => ShortLinkManager::$plugin->getSettings()->getLowerDisplayName(),
             ]);
             return false;
         }
@@ -238,7 +238,7 @@ class ShortLinkType extends BaseElementLinkType
 
         if (!$shortLink) {
             $error = Craft::t('shortlink-manager', '{pluginName} not found.', [
-                'pluginName' => ShortLinkManager::$plugin->getSettings()->getDisplayName()
+                'pluginName' => ShortLinkManager::$plugin->getSettings()->getDisplayName(),
             ]);
             return false;
         }

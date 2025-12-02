@@ -10,8 +10,8 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
 /**
@@ -194,7 +194,7 @@ class RedirectController extends Controller
         // Render the expired template (user must create it in their site templates)
         return $this->renderTemplate($template, [
             'message' => $message,
-            'shortLink' => $shortLink
+            'shortLink' => $shortLink,
         ]);
     }
 
@@ -209,13 +209,13 @@ class RedirectController extends Controller
 
         // Check Redirect Manager for matching redirect (if installed)
         $redirect = $this->handleRedirect404($url, 'shortlink-manager', [
-            'type' => 'shortlink-not-found'
+            'type' => 'shortlink-not-found',
         ]);
 
         if ($redirect) {
             $this->logInfo('Shortlink 404 handled by Redirect Manager', [
                 'url' => $url,
-                'destination' => $redirect['destinationUrl']
+                'destination' => $redirect['destinationUrl'],
             ]);
 
             return $this->redirect($redirect['destinationUrl'], $redirect['statusCode']);

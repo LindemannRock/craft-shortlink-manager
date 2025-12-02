@@ -11,8 +11,8 @@ namespace lindemannrock\shortlinkmanager\controllers;
 use Craft;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\models\Settings;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
 /**
@@ -286,7 +286,7 @@ class SettingsController extends Controller
         if (!Craft::$app->getUser()->getIsAdmin()) {
             return $this->asJson([
                 'success' => false,
-                'error' => Craft::t('shortlink-manager', 'Only administrators can clean up analytics data.')
+                'error' => Craft::t('shortlink-manager', 'Only administrators can clean up analytics data.'),
             ]);
         }
 
@@ -296,12 +296,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('shortlink-manager', 'Analytics cleanup job has been queued. It will run in the background.')
+                'message' => Craft::t('shortlink-manager', 'Analytics cleanup job has been queued. It will run in the background.'),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -331,12 +331,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('shortlink-manager', 'Cleared {count} QR code caches.', ['count' => $cleared])
+                'message' => Craft::t('shortlink-manager', 'Cleared {count} QR code caches.', ['count' => $cleared]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -366,12 +366,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('shortlink-manager', 'Cleared {count} device detection caches.', ['count' => $cleared])
+                'message' => Craft::t('shortlink-manager', 'Cleared {count} device detection caches.', ['count' => $cleared]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -413,12 +413,12 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('shortlink-manager', 'Cleared {count} total caches.', ['count' => $totalCleared])
+                'message' => Craft::t('shortlink-manager', 'Cleared {count} total caches.', ['count' => $totalCleared]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -437,7 +437,7 @@ class SettingsController extends Controller
         if (!Craft::$app->getUser()->getIsAdmin()) {
             return $this->asJson([
                 'success' => false,
-                'error' => Craft::t('shortlink-manager', 'Only administrators can clear analytics data.')
+                'error' => Craft::t('shortlink-manager', 'Only administrators can clear analytics data.'),
             ]);
         }
 
@@ -459,15 +459,13 @@ class SettingsController extends Controller
 
             return $this->asJson([
                 'success' => true,
-                'message' => Craft::t('shortlink-manager', 'Deleted {count} analytics records and reset all click counts.', ['count' => $count])
+                'message' => Craft::t('shortlink-manager', 'Deleted {count} analytics records and reset all click counts.', ['count' => $count]),
             ]);
         } catch (\Exception $e) {
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
 }
-
-
