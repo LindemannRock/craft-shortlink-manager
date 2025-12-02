@@ -417,12 +417,19 @@
             <div class="data">
                 <dt class="heading">{{ "Status"|t('app') }}</dt>
                 <dd class="value">
-                    {% if shortLink.enabled %}
-                        <span class="status live"></span>
-                        <span>{{ 'Live'|t('app') }}</span>
-                    {% else %}
+                    {% set status = shortLink.getStatus() %}
+                     {% if status == 'expired' %}
+                        <span class="status expired"></span>
+                        <span>{{ 'Expired'|t('app') }}</span>
+                    {% elseif status == 'pending' %}
+                        <span class="status pending"></span>
+                        <span>{{ 'Pending'|t('app') }}</span>
+                    {% elseif status == 'disabled' %}
                         <span class="status disabled"></span>
                         <span>{{ 'Disabled'|t('app') }}</span>
+                    {% else %}
+                        <span class="status live"></span>
+                        <span>{{ 'Live'|t('app') }}</span>
                     {% endif %}
                 </dd>
             </div>
