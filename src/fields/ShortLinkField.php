@@ -33,11 +33,6 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     public int $defaultHttpCode = 301;
 
     /**
-     * @var bool Enable expiration
-     */
-    public bool $enableExpiration = false;
-
-    /**
      * @inheritdoc
      */
     public static function displayName(): string
@@ -219,7 +214,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     public function __set($name, $value)
     {
         // Ignore deprecated properties that may still be in database
-        if ($name === 'enableQrCode') {
+        if (in_array($name, ['enableQrCode', 'enableExpiration'])) {
             return;
         }
 

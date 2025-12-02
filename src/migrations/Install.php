@@ -80,6 +80,7 @@ class Install extends Migration
                 'siteId' => $this->integer()->notNull(),
                 'destinationUrl' => $this->text()->notNull(),
                 'expiredRedirectUrl' => $this->string()->null(),
+                'expiredMessage' => $this->text()->null(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),

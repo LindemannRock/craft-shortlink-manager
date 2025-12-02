@@ -2,8 +2,17 @@
 
 {% set code = shortLink ? shortLink.code : (value ?? '') %}
 {% set shortLinkUrl = shortLink ? shortLink.getUrl() : '' %}
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set currentSiteId = element.siteId ?? craft.app.sites.currentSite.id %}
+{% set isPluginEnabledForSite = plugin.settings.isSiteEnabled(currentSiteId) %}
 
 <div class="shortlink-field">
+    {% if not isPluginEnabledForSite %}
+        <p class="light">
+            <span class="status disabled"></span>
+            {{ "{pluginName} is not enabled for this site."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
+        </p>
+    {% else %}
     {# Code Input - shown differently based on field.linkType setting #}
     {% if not shortLink %}
         {# Before save - show appropriate input based on field settings #}
@@ -52,16 +61,5 @@
             {% endif %}
         </p>
     {% endif %}
-
-    {% if shortLink %}
-
-        {% if field.enableExpiration %}
-            {{ forms.dateTimeField({
-                label: "Expires At"|t('shortlink-manager'),
-                id: name ~ '-dateExpired',
-                name: name ~ '[dateExpired]',
-                value: shortLink.dateExpired,
-            }) }}
-        {% endif %}
     {% endif %}
 </div>

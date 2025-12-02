@@ -25,11 +25,3 @@
         308: '308 - Permanent Redirect'|t('shortlink-manager'),
     },
 }) }}
-
-{{ forms.lightswitchField({
-    label: "Enable Expiration"|t('shortlink-manager'),
-    instructions: "Allow setting expiration dates on {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
-    id: 'enableExpiration',
-    name: 'enableExpiration',
-    on: field.enableExpiration,
-}) }}

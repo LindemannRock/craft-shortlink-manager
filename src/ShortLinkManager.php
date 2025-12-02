@@ -534,6 +534,12 @@ class ShortLinkManager extends Plugin
                 /** @var \craft\elements\Entry $entry */
                 $entry = $event->sender;
 
+                // Check if ShortLink Manager is enabled for this site
+                $settings = $this->getSettings();
+                if (!$settings->isSiteEnabled($entry->siteId)) {
+                    return;
+                }
+
                 // Check if entry has a shortlink
                 $shortLink = $this->shortLinks->getByElement($entry);
 

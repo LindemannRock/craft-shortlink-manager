@@ -52,6 +52,14 @@ class RedirectController extends Controller
             return $this->redirectToNotFound();
         }
 
+        // Check if ShortLink Manager is enabled for the current site
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+        $settings = ShortLinkManager::$plugin->getSettings();
+        if (!$settings->isSiteEnabled($currentSite->id)) {
+            $this->logInfo('ShortLink Manager disabled for this site', ['siteId' => $currentSite->id, 'code' => $code]);
+            return $this->redirectToNotFound();
+        }
+
         // Get the shortlink
         $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code);
 
@@ -176,8 +184,9 @@ class RedirectController extends Controller
             return $this->redirect($shortLink->expiredRedirectUrl, 302);
         }
 
-        // Show expired message
-        $message = $settings->expiredMessage ?? 'This link has expired';
+        // Show expired message (use per-shortlink message if set, fall back to global default)
+        $messageText = $shortLink->expiredMessage ?: ($settings->expiredMessage ?? 'This link has expired');
+        $message = Craft::t('shortlink-manager', $messageText);
 
         // Get custom template path or use default
         $template = $settings->expiredTemplate ?: 'shortlink-manager/expired';

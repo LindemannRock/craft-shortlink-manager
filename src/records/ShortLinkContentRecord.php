@@ -20,6 +20,7 @@ use craft\db\ActiveRecord;
  * @property int $siteId
  * @property string $destinationUrl
  * @property string|null $expiredRedirectUrl
+ * @property string|null $expiredMessage
  * @property \DateTime $dateCreated
  * @property \DateTime $dateUpdated
  * @property string $uid

@@ -68,6 +68,11 @@ class ShortLink extends Element
     public ?string $expiredRedirectUrl = null;
 
     /**
+     * @var string|null Expired message (translatable per site)
+     */
+    public ?string $expiredMessage = null;
+
+    /**
      * @var int|null Linked element ID
      */
     public ?int $elementId = null;
@@ -505,6 +510,7 @@ class ShortLink extends Element
             // Override with site-specific content
             $this->destinationUrl = $contentRecord->destinationUrl;
             $this->expiredRedirectUrl = $contentRecord->expiredRedirectUrl;
+            $this->expiredMessage = $contentRecord->expiredMessage;
         }
     }
 
@@ -530,6 +536,7 @@ class ShortLink extends Element
             'linkType',
             'destinationUrl',
             'expiredRedirectUrl',
+            'expiredMessage',
             'elementId',
             'elementType',
             'authorId',
@@ -558,6 +565,7 @@ class ShortLink extends Element
             'linkType' => 'code',
             'destinationUrl' => null,
             'expiredRedirectUrl' => null,
+            'expiredMessage' => null,
             'elementId' => null,
             'elementType' => null,
             'dateExpired' => null,
@@ -588,6 +596,7 @@ class ShortLink extends Element
             'linkType',
             'destinationUrl',
             'expiredRedirectUrl',
+            'expiredMessage',
             'elementId',
             'elementType',
             'authorId',
@@ -1254,6 +1263,7 @@ class ShortLink extends Element
                 $contentRecord->destinationUrl = $this->destinationUrl ?: '';
             }
             $contentRecord->expiredRedirectUrl = $this->expiredRedirectUrl;
+            $contentRecord->expiredMessage = $this->expiredMessage;
 
             if (!$contentRecord->save(false)) {
                 $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
