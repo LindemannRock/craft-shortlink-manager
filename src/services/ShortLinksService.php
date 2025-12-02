@@ -65,7 +65,7 @@ class ShortLinksService extends Component
         $element->siteId = $options['siteId'] ?? $element->siteId ?? Craft::$app->getSites()->currentSite->id;
         $element->httpCode = $options['httpCode'] ?? $settings->defaultHttpCode ?? 301;
         $element->enabled = $options['enabled'] ?? true;
-        $element->expiresAt = $options['expiresAt'] ?? null;
+        $element->dateExpired = $options['dateExpired'] ?? $options['expiresAt'] ?? null;
         $element->expiredRedirectUrl = $options['expiredRedirectUrl'] ?? null;
 
         // QR Code settings
@@ -166,6 +166,7 @@ class ShortLinksService extends Component
         return ShortLink::find()
             ->elementId($element->id)
             ->siteId($siteId)
+            ->status(null) // Include all statuses (enabled, disabled, expired, pending)
             ->one();
     }
 

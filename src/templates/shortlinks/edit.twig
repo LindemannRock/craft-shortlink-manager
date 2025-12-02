@@ -271,7 +271,7 @@
 
         <div id="qr-settings" class="meta {{ not (shortLink.qrCodeEnabled ?? true) ? 'hidden' }}">
             {% if shortLink.id %}
-                <div class="field nested">
+                <div class="field">
                     <div class="heading">
                         <label>{{ "Preview"|t('shortlink-manager') }}</label>
                     </div>
@@ -295,7 +295,7 @@
                 min: 100,
                 max: 1000,
                 size: 5,
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.colorField({
@@ -303,7 +303,7 @@
                 id: 'qrCodeColor',
                 name: 'qrCodeColor',
                 value: shortLink.qrCodeColor ?: plugin.settings.defaultQrColor,
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.colorField({
@@ -311,7 +311,7 @@
                 id: 'qrCodeBgColor',
                 name: 'qrCodeBgColor',
                 value: shortLink.qrCodeBgColor ?: plugin.settings.defaultQrBgColor,
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.colorField({
@@ -320,7 +320,7 @@
                 id: 'qrCodeEyeColor',
                 name: 'qrCodeEyeColor',
                 value: shortLink.qrCodeEyeColor ?: (plugin.settings.qrEyeColor ?? ''),
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {{ forms.selectField({
@@ -334,7 +334,7 @@
                     { label: 'PNG', value: 'png' },
                     { label: 'SVG', value: 'svg' },
                 ],
-                fieldClass: 'nested'
+                fieldClass: ''
             }) }}
 
             {# QR Logo (only show if logos are enabled in settings) #}
@@ -362,7 +362,7 @@
 
             {# QR Code Actions #}
             {% if plugin.settings.enableQrDownload and shortLink.id %}
-                <div class="field nested" style="margin-top: 15px;">
+                <div class="field" style="margin-top: 15px;">
                     <div class="heading">
                         <label>{{ "Actions"|t('shortlink-manager') }}</label>
                     </div>

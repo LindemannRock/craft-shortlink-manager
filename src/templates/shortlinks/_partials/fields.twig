@@ -33,8 +33,8 @@
         },
     }) }}
 {% else %}
-    {# Element-linked shortlinks are always vanity type #}
-    <input type="hidden" name="linkType" value="vanity">
+    {# Element-linked shortlinks - preserve their linkType #}
+    <input type="hidden" name="linkType" value="{{ shortLink.linkType ?? 'code' }}">
     <div class="field">
         {% set linkedElement = shortLink.getLinkedElement() %}
         {% if linkedElement %}
@@ -50,17 +50,35 @@
 
 {# Slug/Code Field #}
 {% if shortLink.elementId %}
-    {# Element-linked: Always editable #}
-    {{ forms.textField({
-        label: "Code"|t('shortlink-manager'),
-        instructions: "The short code for this link"|t('shortlink-manager'),
-        id: 'code',
-        name: 'code',
-        value: shortLink.code ?? '',
-        placeholder: 'my-link',
-        required: true,
-        errors: shortLink.getErrors('code'),
-    }) }}
+    {# Element-linked shortlinks - respect linkType #}
+    {% if shortLink.linkType == 'code' %}
+        {# Auto-generated - show read-only with regenerate button #}
+        <div class="field">
+            <div class="heading">
+                <label>{{ "Code"|t('shortlink-manager') }}</label>
+            </div>
+            <div class="input">
+                <div class="flex" style="gap: 8px; align-items: center;">
+                    <code id="current-code-display" style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px;">{{ shortLink.code }}</code>
+                    <button type="button" id="regenerate-code-btn" class="btn" data-icon="refresh" aria-label="{{ 'Generate New Code'|t('shortlink-manager') }}" title="{{ 'Generate New Code'|t('shortlink-manager') }}"></button>
+                </div>
+                <input type="hidden" id="codeAuto" name="code" value="{{ shortLink.code }}">
+                <p class="light" style="margin-top: 8px;">{{ "Auto-generated code for linked element"|t('shortlink-manager') }}</p>
+            </div>
+        </div>
+    {% else %}
+        {# Vanity - editable #}
+        {{ forms.textField({
+            label: "Code"|t('shortlink-manager'),
+            instructions: "The short code for this link"|t('shortlink-manager'),
+            id: 'code',
+            name: 'code',
+            value: shortLink.code ?? '',
+            placeholder: 'my-link',
+            required: true,
+            errors: shortLink.getErrors('code'),
+        }) }}
+    {% endif %}
 {% else %}
     {# Auto-generated field #}
     <div id="code-field-auto" class="{{ shortLink.linkType == 'vanity' ? 'hidden' : '' }}">
@@ -110,18 +128,33 @@
 {% endif %}
 
 {# Destination URL #}
-{{ forms.textField({
-    label: "Destination URL"|t('shortlink-manager'),
-    instructions: "Full URL (https://example.com) or path (/page)"|t('shortlink-manager'),
-    id: 'destinationUrl',
-    name: 'destinationUrl',
-    value: shortLink.destinationUrl ?? '',
-    type: 'url',
-    placeholder: 'https://example.com/your-page',
-    required: true,
-    errors: shortLink.getErrors('destinationUrl'),
-    translatable: craft.app.sites.getTotalEditableSites() > 1,
-}) }}
+{% if shortLink.elementId %}
+    {# Element-linked: Read-only destination (auto-synced from element URL) #}
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Destination URL"|t('shortlink-manager') }}</label>
+        </div>
+        <div class="input">
+            <input type="text" class="text fullwidth" readonly value="{{ shortLink.destinationUrl ?? '' }}" style="background: #f9fafb;">
+            <input type="hidden" name="destinationUrl" value="{{ shortLink.destinationUrl ?? '' }}">
+            <p class="light" style="margin-top: 8px;">{{ "Automatically synced from linked element's URL"|t('shortlink-manager') }}</p>
+        </div>
+    </div>
+{% else %}
+    {# Standalone: Editable destination #}
+    {{ forms.textField({
+        label: "Destination URL"|t('shortlink-manager'),
+        instructions: "Full URL (https://example.com) or path (/page)"|t('shortlink-manager'),
+        id: 'destinationUrl',
+        name: 'destinationUrl',
+        value: shortLink.destinationUrl ?? '',
+        type: 'url',
+        placeholder: 'https://example.com/your-page',
+        required: true,
+        errors: shortLink.getErrors('destinationUrl'),
+        translatable: craft.app.sites.getTotalEditableSites() > 1,
+    }) }}
+{% endif %}
 
 {# HTTP Status Code #}
 <div class="field">

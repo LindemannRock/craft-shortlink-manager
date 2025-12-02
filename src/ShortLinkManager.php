@@ -48,7 +48,7 @@ use yii\base\Event;
  *
  * @author    LindemannRock
  * @package   ShortLinkManager
- * @since     1.0.0
+ * @since     5.0.0
  *
  * @property-read ShortLinksService $shortLinks
  * @property-read AnalyticsService $analytics
@@ -254,6 +254,11 @@ class ShortLinkManager extends Plugin
 
         // Install event listeners for element changes
         $this->installEventListeners();
+
+        // Install sidebar event listeners (only for non-console requests)
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->installSidebarListeners();
+        }
 
         // DO NOT log in init() - it's called on every request
     }
@@ -514,5 +519,35 @@ class ShortLinkManager extends Plugin
                 $this->shortLinks->onDeleteElement($event->element);
             }
         );
+    }
+
+    /**
+     * Install sidebar event listeners for displaying shortlink info
+     */
+    private function installSidebarListeners(): void
+    {
+        // Listen to Entry sidebar HTML
+        Event::on(
+            \craft\elements\Entry::class,
+            \craft\base\Element::EVENT_DEFINE_SIDEBAR_HTML,
+            function(\craft\events\DefineHtmlEvent $event) {
+                /** @var \craft\elements\Entry $entry */
+                $entry = $event->sender;
+
+                // Check if entry has a shortlink
+                $shortLink = $this->shortLinks->getByElement($entry);
+
+                if ($shortLink) {
+                    $html = Craft::$app->getView()->renderTemplate('shortlink-manager/_sidebars/shortlink-info', [
+                        'shortLink' => $shortLink,
+                        'element' => $entry,
+                    ]);
+
+                    $event->html .= $html;
+                }
+            }
+        );
+
+        // TODO: Add support for other element types (Category, Asset, etc.)
     }
 }

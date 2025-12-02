@@ -12,14 +12,6 @@
     },
 }) }}
 
-{{ forms.lightswitchField({
-    label: "Enable QR Code"|t('shortlink-manager'),
-    instructions: "Show QR code in the field"|t('shortlink-manager'),
-    id: 'enableQrCode',
-    name: 'enableQrCode',
-    on: field.enableQrCode,
-}) }}
-
 {{ forms.selectField({
     label: "Default HTTP Code"|t('shortlink-manager'),
     instructions: "Default redirect type for {pluginName} created with this field"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),

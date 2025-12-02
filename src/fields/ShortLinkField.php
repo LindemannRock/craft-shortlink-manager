@@ -14,21 +14,18 @@ use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
 use craft\helpers\Json;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
  * ShortLink Field
  */
 class ShortLinkField extends Field implements PreviewableFieldInterface
 {
+    use LoggingTrait;
     /**
      * @var string Link type (code or vanity)
      */
     public string $linkType = 'code';
-
-    /**
-     * @var bool Enable QR code
-     */
-    public bool $enableQrCode = true;
 
     /**
      * @var int Default HTTP code
@@ -114,44 +111,65 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     {
         parent::afterElementSave($element, $isNew);
 
-        // Skip if element is a draft or doesn't have URLs
-        if ($element->getIsDraft() || !$element->getSite()->hasUrls) {
+        // Skip if element is a draft, revision, or doesn't have URLs
+        if ($element->getIsDraft() || $element->getIsRevision() || !$element->getSite()->hasUrls) {
+            return;
+        }
+
+        // Skip if this is a propagating save (Craft saving to other sites)
+        // We only want to create/update once for the canonical element
+        if ($element->propagating) {
             return;
         }
 
         $value = $element->getFieldValue($this->handle);
 
-        // If value is empty, don't create a shortlink
-        if (empty($value)) {
-            return;
-        }
+        // Value is just the code string (or empty for auto-generated)
+        $code = is_string($value) ? $value : '';
 
-        // Value is just the code string
-        $code = is_string($value) ? $value : (is_array($value) ? ($value['code'] ?? '') : '');
+        // Use field setting for link type
+        $linkType = $this->linkType;
 
-        if (empty($code)) {
-            return;
-        }
+        // Check if shortlink already exists for this element (pass siteId explicitly)
+        $existingLink = ShortLinkManager::$plugin->shortLinks->getByElement($element, $element->siteId);
 
-        // Check if shortlink already exists for this element
-        $existingLink = ShortLinkManager::$plugin->shortLinks->getByElement($element);
+        // Debug logging
+        $this->setLoggingHandle('shortlink-manager');
+        $this->logInfo('afterElementSave called', [
+            'elementId' => $element->id,
+            'siteId' => $element->siteId,
+            'existingLink' => $existingLink ? $existingLink->id : 'null',
+            'code' => $code,
+            'linkType' => $linkType,
+        ]);
 
+        // If existing link, update it
         if ($existingLink) {
-            // Update existing shortlink
+            // Only update destination URL (auto-synced from element)
+            // NEVER update code - it's managed in ShortLink Manager only
             $existingLink->destinationUrl = $element->getUrl() ?? '';
-            $existingLink->destinationUrlHash = md5($existingLink->destinationUrl . $existingLink->siteId);
-            $existingLink->code = $code;
 
             ShortLinkManager::$plugin->shortLinks->saveShortLink($existingLink);
-        } else {
-            // Check if code is already used by another shortlink
+            return;
+        }
+
+        // No existing shortlink found - create one
+
+        // For vanity links, code is required
+        if ($linkType === 'vanity' && empty($code)) {
+            return; // Can't create vanity link without code
+        }
+
+        // For auto-generated, code will be empty - that's fine, it will be generated
+
+        // Check if code is already used (only for vanity links with code provided)
+        if (!empty($code)) {
             $codeExists = ShortLinkManager::$plugin->shortLinks->getByCode($code);
             if ($codeExists) {
                 // Check if it's linked to THIS element (shouldn't happen but handle it)
                 if ($codeExists->elementId == $element->id && $codeExists->siteId == $element->siteId) {
                     // It's for this element, just update it
                     $codeExists->destinationUrl = $element->getUrl() ?? '';
-                    $codeExists->destinationUrlHash = md5($codeExists->destinationUrl . $codeExists->siteId);
                     ShortLinkManager::$plugin->shortLinks->saveShortLink($codeExists);
                     return;
                 }
@@ -160,17 +178,21 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
                 // Log warning but don't create
                 return;
             }
-
-            // Create new shortlink
-            $options = [
-                'element' => $element,
-                'code' => $code,
-                'type' => 'vanity', // Always vanity since user entered the code
-                'httpCode' => $this->defaultHttpCode,
-            ];
-
-            ShortLinkManager::$plugin->shortLinks->createShortLink($options);
         }
+
+        // Create new shortlink
+        $options = [
+            'element' => $element,
+            'type' => $linkType,
+            'httpCode' => $this->defaultHttpCode,
+        ];
+
+        // Only add code if provided (for vanity links)
+        if (!empty($code)) {
+            $options['code'] = $code;
+        }
+
+        ShortLinkManager::$plugin->shortLinks->createShortLink($options);
     }
 
     /**
@@ -189,6 +211,19 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
         if ($shortLink) {
             ShortLinkManager::$plugin->shortLinks->deleteShortLink($shortLink->id);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        // Ignore deprecated properties that may still be in database
+        if ($name === 'enableQrCode') {
+            return;
+        }
+
+        parent::__set($name, $value);
     }
 
     /**

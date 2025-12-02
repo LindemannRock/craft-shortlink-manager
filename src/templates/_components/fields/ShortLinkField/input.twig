@@ -4,67 +4,73 @@
 {% set shortLinkUrl = shortLink ? shortLink.getUrl() : '' %}
 
 <div class="shortlink-field">
-    {{ forms.text({
-        id: name ~ '-code',
-        name: name,
-        value: code,
-        placeholder: 'my-link',
-    }) }}
-    <div class="instructions">
-        <p>{{ "Enter a code for this {pluginName} (e.g., 'pricing' or 'promo-2025'). Letters, numbers, hyphens, and underscores only."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
-    </div>
-
-    {% if shortLink %}
-        <div class="field">
-            <div class="heading">
-                <label>{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</label>
-            </div>
-            <div class="input ltr">
-                <div class="flex">
-                    <div class="textwrapper">
-                        <input type="text" class="text fullwidth" readonly value="{{ shortLinkUrl }}">
-                    </div>
-                    <button type="button" class="btn" onclick="navigator.clipboard.writeText('{{ shortLinkUrl }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager') }}');">
-                        {{ "Copy"|t('app') }}
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="field">
-            <div class="heading">
-                <label>{{ "Clicks"|t('shortlink-manager') }}</label>
-            </div>
-            <div class="input">
-                <span class="text-lg font-bold">{{ shortLink.hits }}</span>
-            </div>
-        </div>
-
-        {% if field.enableQrCode %}
+    {# Code Input - shown differently based on field.linkType setting #}
+    {% if not shortLink %}
+        {# Before save - show appropriate input based on field settings #}
+        {% if field.linkType == 'code' %}
+            {# Auto-generated mode #}
             <div class="field">
                 <div class="heading">
-                    <label>{{ "QR Code"|t('shortlink-manager') }}</label>
+                    <label>{{ "Code"|t('shortlink-manager') }}</label>
                 </div>
                 <div class="input">
-                    <img src="{{ shortLink.getQrCodeDataUri({ size: 200 }) }}" alt="QR Code" style="max-width: 200px;">
-                    <div style="margin-top: 10px;">
-                        <a href="{{ cpUrl('shortlink-manager/qr-code/download', { linkId: shortLink.id, format: 'png' }) }}" class="btn small" download>
-                            {{ "Download PNG"|t('shortlink-manager') }}
-                        </a>
-                        <a href="{{ cpUrl('shortlink-manager/qr-code/download', { linkId: shortLink.id, format: 'svg' }) }}" class="btn small" download>
-                            {{ "Download SVG"|t('shortlink-manager') }}
-                        </a>
-                    </div>
+                    <p class="light">{{ "Will be auto-generated when you save"|t('shortlink-manager') }}</p>
+                    <input type="hidden" id="{{ name }}-code" name="{{ name }}" value="">
                 </div>
             </div>
+        {% else %}
+            {# Vanity mode #}
+            {{ forms.textField({
+                label: "Code"|t('shortlink-manager'),
+                instructions: "Enter a custom memorable code (e.g., 'pricing' or 'promo-2025'). Letters, numbers, hyphens, and underscores only."|t('shortlink-manager'),
+                id: name ~ '-code',
+                name: name,
+                value: code,
+                placeholder: 'my-link',
+            }) }}
+        {% endif %}
+    {% else %}
+        {# After save - show the code (read-only info) #}
+        <div class="field">
+            <div class="heading">
+                <label>{{ "Code"|t('shortlink-manager') }}</label>
+            </div>
+            <div class="input">
+                <code style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px; display: inline-block;">{{ shortLink.code }}</code>
+                <p class="light" style="margin-top: 8px;">{{ shortLink.linkType == 'code' ? 'Auto-generated'|t('shortlink-manager') : 'Custom vanity URL'|t('shortlink-manager') }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if shortLink %}
+        {% set status = shortLink.getStatus() %}
+        {% if status == 'disabled' %}
+            <p class="light">
+                <span class="status disabled"></span>
+                {{ "{pluginName} is disabled for this site. See sidebar to manage."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
+            </p>
+        {% elseif status == 'expired' %}
+            <p class="light">
+                <span class="status expired"></span>
+                {{ "{pluginName} has expired. See sidebar for details."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
+            </p>
+        {% elseif status == 'pending' %}
+            <p class="light">
+                <span class="status pending"></span>
+                {{ "{pluginName} is pending (future post date). See sidebar for details."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
+            </p>
+        {% else %}
+            <p class="light">
+                {{ "{pluginName} created successfully. See sidebar for details."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
+            </p>
         {% endif %}
 
         {% if field.enableExpiration %}
             {{ forms.dateTimeField({
                 label: "Expires At"|t('shortlink-manager'),
-                id: name ~ '-expiresAt',
-                name: name ~ '[expiresAt]',
-                value: shortLink.expiresAt,
+                id: name ~ '-dateExpired',
+                name: name ~ '[dateExpired]',
+                value: shortLink.dateExpired,
             }) }}
         {% endif %}
     {% endif %}

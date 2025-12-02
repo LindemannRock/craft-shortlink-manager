@@ -17,7 +17,7 @@ use craft\helpers\StringHelper;
  *
  * @author    LindemannRock
  * @package   ShortLinkManager
- * @since     2.0.0
+ * @since     5.0.0
  */
 class Install extends Migration
 {

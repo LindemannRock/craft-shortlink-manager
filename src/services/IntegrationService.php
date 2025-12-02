@@ -15,7 +15,7 @@ use lindemannrock\logginglibrary\traits\LoggingTrait;
  * Central manager for all third-party analytics integrations
  * Handles loading, initialization, and routing of events to enabled integrations
  *
- * @since 1.1.0
+ * @since 5.1.0
  */
 class IntegrationService extends Component
 {

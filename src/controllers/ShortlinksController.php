@@ -147,11 +147,20 @@ class ShortlinksController extends Controller
         $shortLink->destinationUrl = $this->request->getBodyParam('destinationUrl');
         $shortLink->siteId = $this->request->getBodyParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id;
         $shortLink->httpCode = $this->request->getBodyParam('httpCode') ?: 301;
-        $shortLink->enabled = (bool) $this->request->getBodyParam('enabled', true);
 
-        // Handle element relationship
-        $shortLink->elementId = $this->request->getBodyParam('elementId');
-        $shortLink->elementType = $this->request->getBodyParam('elementType');
+        // Use setEnabledForSite for per-site enabling (elements_sites.enabled)
+        $enabled = (bool) $this->request->getBodyParam('enabled', true);
+        $shortLink->setEnabledForSite($enabled);
+
+        // Handle element relationship (only set if provided - don't clear existing values)
+        $elementId = $this->request->getBodyParam('elementId');
+        if ($elementId !== null) {
+            $shortLink->elementId = $elementId;
+        }
+        $elementType = $this->request->getBodyParam('elementType');
+        if ($elementType !== null) {
+            $shortLink->elementType = $elementType;
+        }
 
         // Handle author
         $authorId = $this->request->getBodyParam('authorId');

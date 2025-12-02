@@ -19,7 +19,7 @@ use yii\base\Event;
  * Integrates Shortlink Manager with SEOmatic's tracking scripts
  * Pushes click events to Google Tag Manager data layer and Google Analytics
  *
- * @since 1.1.0
+ * @since 5.1.0
  */
 class SeomaticIntegration extends BaseIntegration
 {
