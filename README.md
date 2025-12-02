@@ -312,11 +312,15 @@ return [
 - **CP Navigation**: ShortLink Manager only appears in sidebar for enabled sites
 - **Site Switcher**: Only enabled sites appear in the site dropdown
 - **Access Control**: Direct access to disabled sites returns 403 Forbidden
+- **Frontend Redirects**: Shortlink URLs on disabled sites redirect to 404 URL
+- **Entry Sidebar**: Shortlink info hidden on disabled sites
+- **Field Display**: Shows "ShortLink is not enabled for this site" message
 - **Backwards Compatibility**: Empty selection enables all sites
 
 **Important Notes:**
 - If the primary site is not included in `enabledSites`, ShortLink Manager will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want ShortLink Manager accessible from the main menu.
 - You can still access ShortLink Manager on enabled non-primary sites via direct URLs, but the main navigation will be hidden.
+- Shortlinks are global across sites (one shortlink works on all enabled sites), but the plugin can be disabled per-site for complete isolation.
 
 ## Usage
 
@@ -416,8 +420,13 @@ The QR prefix (`s/qr` in examples above) is configurable in Settings → General
 
 1. Create a new field of type "Short Link"
 2. Add it to your entry type
-3. Configure field settings (link type, QR codes, expiration, etc.)
+3. Configure field settings:
+   - **Link Type**: Auto-generated or Custom Vanity URL
+   - **Default HTTP Code**: 301, 302, 307, or 308
 4. Editors can now add shortlinks directly in entries
+5. Shortlink info appears in the entry sidebar (URL, status, QR code, etc.)
+6. Auto-generated codes can be regenerated in ShortLink Manager
+7. Destination URL is automatically synced from the entry's URL
 
 ## Configuration
 
