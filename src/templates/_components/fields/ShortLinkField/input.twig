@@ -30,40 +30,30 @@
             }) }}
         {% endif %}
     {% else %}
-        {# After save - show the code (read-only info) #}
-        <div class="field">
-            <div class="heading">
-                <label>{{ "Code"|t('shortlink-manager') }}</label>
-            </div>
-            <div class="input">
-                <code style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px; display: inline-block;">{{ shortLink.code }}</code>
-                <p class="light" style="margin-top: 8px;">{{ shortLink.linkType == 'code' ? 'Auto-generated'|t('shortlink-manager') : 'Custom vanity URL'|t('shortlink-manager') }}</p>
-            </div>
-        </div>
+        {# After save - show the code with info #}
+        <code style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px; display: inline-block;">{{ shortLink.code }}</code>
+        <p class="light" style="margin-top: 8px;">
+            {% set status = shortLink.getStatus() %}
+            {% if status == 'disabled' %}
+                <span class="status disabled"></span>
+                {{ "Disabled for this site"|t('shortlink-manager') }}
+            {% elseif status == 'expired' %}
+                <span class="status expired"></span>
+                {{ "Expired"|t('shortlink-manager') }}
+            {% elseif status == 'pending' %}
+                <span class="status pending"></span>
+                {{ "Pending"|t('shortlink-manager') }}
+            {% else %}
+                {% if shortLink.linkType == 'code' %}
+                    {{ "Auto-generated"|t('shortlink-manager') }}. <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}" class="go">{{ "Edit to regenerate"|t('shortlink-manager') }}</a>
+                {% else %}
+                    {{ "Custom vanity URL"|t('shortlink-manager') }}
+                {% endif %}
+            {% endif %}
+        </p>
     {% endif %}
 
     {% if shortLink %}
-        {% set status = shortLink.getStatus() %}
-        {% if status == 'disabled' %}
-            <p class="light">
-                <span class="status disabled"></span>
-                {{ "{pluginName} is disabled for this site. See sidebar to manage."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
-            </p>
-        {% elseif status == 'expired' %}
-            <p class="light">
-                <span class="status expired"></span>
-                {{ "{pluginName} has expired. See sidebar for details."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
-            </p>
-        {% elseif status == 'pending' %}
-            <p class="light">
-                <span class="status pending"></span>
-                {{ "{pluginName} is pending (future post date). See sidebar for details."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
-            </p>
-        {% else %}
-            <p class="light">
-                {{ "{pluginName} created successfully. See sidebar for details."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
-            </p>
-        {% endif %}
 
         {% if field.enableExpiration %}
             {{ forms.dateTimeField({
