@@ -797,9 +797,6 @@ class ShortLink extends Element
         // Get settings for fallback values
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Get logo ID - use per-link logo or fall back to default
-        $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
-
         // Merge per-link settings with options
         $qrOptions = array_merge([
             'size' => $this->qrCodeSize,
@@ -807,8 +804,15 @@ class ShortLink extends Element
             'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
             'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : null,
             'format' => $this->qrCodeFormat,
-            'logo' => $logoId,
         ], $options);
+
+        // Only add logo if logos are enabled in settings
+        if ($settings->enableQrLogo) {
+            $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
+            if ($logoId) {
+                $qrOptions['logo'] = $logoId;
+            }
+        }
 
         return ShortLinkManager::$plugin->qrCode->generateQrCodeDataUrl($this->getUrl(), $qrOptions);
     }
@@ -828,9 +832,6 @@ class ShortLink extends Element
             return '';
         }
 
-        // Get logo ID - use per-link logo or fall back to default
-        $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
-
         // Merge per-link settings with options
         $qrOptions = array_merge([
             'size' => $this->qrCodeSize,
@@ -838,8 +839,15 @@ class ShortLink extends Element
             'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
             'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : null,
             'format' => $this->qrCodeFormat,
-            'logo' => $logoId,
         ], $options);
+
+        // Only add logo if logos are enabled in settings
+        if ($settings->enableQrLogo) {
+            $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
+            if ($logoId) {
+                $qrOptions['logo'] = $logoId;
+            }
+        }
 
         return ShortLinkManager::$plugin->qrCode->generateQrCode($this->getUrl(), $qrOptions);
     }

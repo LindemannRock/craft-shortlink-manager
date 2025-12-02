@@ -2,6 +2,22 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 
 
+{# ShortLink URL #}
+<fieldset>
+	<legend class="h6">{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
+	<div class="meta" style="padding-inline: 0;">
+		<div class="flex" style="gap: 8px;">
+			<div class="textwrapper" style="flex-grow: 1;">
+				<input type="text" class="text fullwidth" readonly value="{{ shortLink.getUrl() }}" id="shortlink-url-sidebar" style="border: none; padding-inline: var(--m) var(--s);">
+			</div>
+			<button type="button" class="btn" onclick="navigator.clipboard.writeText('{{ shortLink.getUrl() }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager') }}');" style="border-start-start-radius: 0; border-end-start-radius: 0;">
+				{{ "Copy"|t('app') }}
+			</button>
+		</div>
+	</div>
+</fieldset>
+
+
 {# Status Section - Consolidated #}
 <fieldset>
 	<legend class="h6">{{ "{pluginName} Status"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
@@ -82,22 +98,6 @@
 		</div>
 	</div>
 </fieldset>
-
-{# ShortLink URL #}
-<fieldset>
-	<legend class="h6">{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
-	<div class="meta" style="padding-inline: 0;">
-		<div class="flex" style="gap: 8px;">
-			<div class="textwrapper" style="flex-grow: 1;">
-				<input type="text" class="text fullwidth" readonly value="{{ shortLink.getUrl() }}" id="shortlink-url-sidebar" style="border: none; padding-inline: var(--m) var(--s);">
-			</div>
-			<button type="button" class="btn" onclick="navigator.clipboard.writeText('{{ shortLink.getUrl() }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager') }}');" style="border-start-start-radius: 0; border-end-start-radius: 0;">
-				{{ "Copy"|t('app') }}
-			</button>
-		</div>
-	</div>
-</fieldset>
-
 
 {# QR Code Details - Only shown if enabled #}
 {% if shortLink.qrCodeEnabled %}
@@ -180,31 +180,45 @@
 						<label>{{ "Actions"|t('shortlink-manager') }}</label>
 					</div>
 					<div class="input">
-						<div class="btngroup">
-							<button type="button" class="btn menubtn" data-icon="settings">{{ "QR Code Actions"|t('shortlink-manager') }}</button>
-							<div class="menu">
-								<ul>
-									<li>
-										<h6>{{ "Download QR Code"|t('shortlink-manager') }}</h6>
-										<ul>
-											<li><ahref="{{cpUrl('shortlink-manager/qr-code/download',{linkId:shortLink.id,format:'png',size:256})}}" download>{{ "Small (256px)"|t('shortlink-manager') }}</a></li>
-											<li><ahref="{{cpUrl('shortlink-manager/qr-code/download',{linkId:shortLink.id,format:'png',size:512})}}" download>{{ "Medium (512px)"|t('shortlink-manager') }}</a></li>
-											<li><ahref="{{cpUrl('shortlink-manager/qr-code/download',{linkId:shortLink.id,format:'png',size:1024})}}" download>{{ "Large (1024px)"|t('shortlink-manager') }}</a></li>
-											<li><ahref="{{cpUrl('shortlink-manager/qr-code/download',{linkId:shortLink.id,format:'png',size:2048})}}" download>{{ "Extra Large (2048px)"|t('shortlink-manager') }}</a></li>
-										</ul>
-									</li>
-									<hr>
-									<li>
-										<h6>{{ "View QR Code"|t('shortlink-manager') }}</h6>
-										<ul>
-											<li><ahref="{{shortLink.getQrCodeUrl()}}" target="_blank">{{ "QR Code Image"|t('shortlink-manager') }}</a></li>
-											<li><ahref="{{shortLink.getQrCodeDisplayUrl()}}" target="_blank">{{ "QR Code Page"|t('shortlink-manager') }}</a></li>
-										</ul>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
+                        <div class="btngroup">
+                            <button type="button" class="btn menubtn" data-icon="settings">{{ "QR Code Actions"|t('shortlink-manager') }}</button>
+                            <div class="menu">
+                                <ul>
+                                    <li>
+                                        <h6>{{ "Download QR Code"|t('shortlink-manager') }}</h6>
+                                        <ul>
+                                            <li><a href="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, format: 'png', size: 256, download: 1 }) }}">{{ "Small (256px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a href="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, format: 'png', size: 512, download: 1 }) }}">{{ "Medium (512px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a href="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, format: 'png', size: 1024, download: 1 }) }}">{{ "Large (1024px)"|t('shortlink-manager') }}</a></li>
+                                            <li><a href="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, format: 'png', size: 2048, download: 1 }) }}">{{ "Extra Large (2048px)"|t('shortlink-manager') }}</a></li>
+                                        </ul>
+                                    </li>
+                                    <hr>
+                                    <li>
+                                        <h6>{{ "View QR Code"|t('shortlink-manager') }}</h6>
+                                        <ul>
+                                            <li>
+                                                <a href="{{ shortLink.getQrCodeUrl() }}" target="_blank">
+                                                    {{ "QR Code Image"|t('shortlink-manager') }}
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ shortLink.getQrCodeDisplayUrl() }}" target="_blank">
+                                                    {{ "QR Code Page"|t('shortlink-manager') }}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <hr>
+                                    <li>
+                                        <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
+                                            {{ "Edit {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 				</div>
 			{% endif %}
 		</div>
