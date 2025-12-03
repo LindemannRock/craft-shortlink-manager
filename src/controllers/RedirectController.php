@@ -18,6 +18,8 @@ use yii\web\Response;
  * Redirect Controller
  *
  * Handles front-end shortlink redirects
+ *
+ * @since 5.0.0
  */
 class RedirectController extends Controller
 {

@@ -14,6 +14,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLink Manager Analytics Summary Widget
+ *
+ * @since 5.0.0
  */
 class AnalyticsSummaryWidget extends Widget
 {

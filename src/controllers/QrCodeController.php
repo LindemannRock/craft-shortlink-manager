@@ -18,6 +18,8 @@ use yii\web\Response;
 
 /**
  * QR Code Controller
+ *
+ * @since 5.0.0
  */
 class QrCodeController extends Controller
 {

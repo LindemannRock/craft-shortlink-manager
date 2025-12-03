@@ -14,6 +14,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLink Manager Top Links Widget
+ *
+ * @since 5.0.0
  */
 class TopLinksWidget extends Widget
 {

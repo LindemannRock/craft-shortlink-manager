@@ -32,6 +32,7 @@ use yii\validators\RequiredValidator;
  *
  * @property-read string $url
  * @property-read \craft\base\ElementInterface|null $linkedElement
+ * @since 5.0.0
  */
 class ShortLink extends Element
 {

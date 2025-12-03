@@ -41,6 +41,7 @@ use craft\db\ActiveRecord;
  * @property string $dateCreated
  * @property string $dateUpdated
  * @property string|null $uid
+ * @since 5.0.0
  */
 class AnalyticsRecord extends ActiveRecord
 {

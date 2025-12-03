@@ -14,6 +14,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLink Manager Utility
+ *
+ * @since 5.0.0
  */
 class ShortLinkManagerUtility extends Utility
 {

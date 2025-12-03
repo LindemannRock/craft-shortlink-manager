@@ -20,6 +20,8 @@ use yii\web\Request;
 
 /**
  * Analytics Service
+ *
+ * @since 5.0.0
  */
 class AnalyticsService extends Component
 {

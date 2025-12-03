@@ -17,6 +17,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  * ShortLink Manager Variable
  *
  * Provides Twig API for shortlinks
+ *
+ * @since 5.0.0
  */
 class ShortLinkManagerVariable
 {

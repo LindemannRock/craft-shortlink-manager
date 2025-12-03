@@ -17,6 +17,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLink Field
+ *
+ * @since 5.0.0
  */
 class ShortLinkField extends Field implements PreviewableFieldInterface
 {

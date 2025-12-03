@@ -29,6 +29,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * QR Code Service
+ *
+ * @since 5.0.0
  */
 class QrCodeService extends Component
 {

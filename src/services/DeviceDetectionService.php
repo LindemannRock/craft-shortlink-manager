@@ -18,6 +18,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  * Device Detection Service
  *
  * Uses Matomo DeviceDetector library for accurate device, browser, and OS detection
+ *
+ * @since 5.0.0
  */
 class DeviceDetectionService extends Component
 {

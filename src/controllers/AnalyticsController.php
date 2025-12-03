@@ -16,6 +16,8 @@ use yii\web\Response;
 
 /**
  * Analytics Controller
+ *
+ * @since 5.0.0
  */
 class AnalyticsController extends Controller
 {

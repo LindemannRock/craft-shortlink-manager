@@ -20,6 +20,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLinks Service
+ *
+ * @since 5.0.0
  */
 class ShortLinksService extends Component
 {

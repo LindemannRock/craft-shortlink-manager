@@ -17,6 +17,8 @@ use yii\web\Response;
 
 /**
  * Shortlinks Controller
+ *
+ * @since 5.0.0
  */
 class ShortlinksController extends Controller
 {

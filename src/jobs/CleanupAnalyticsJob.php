@@ -15,6 +15,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * Cleanup Analytics Job
+ *
+ * @since 5.0.0
  */
 class CleanupAnalyticsJob extends BaseJob
 {
