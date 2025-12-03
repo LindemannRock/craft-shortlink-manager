@@ -208,6 +208,7 @@ class ShortLinkQuery extends ElementQuery
             'shortlinkmanager.qrLogoId',
             'shortlinkmanager_content.destinationUrl',
             'shortlinkmanager_content.expiredRedirectUrl',
+            'shortlinkmanager_content.expiredMessage',
             // Ensure we get the enabled status from elements_sites for current site
             'elements_sites.enabled',
         ]);

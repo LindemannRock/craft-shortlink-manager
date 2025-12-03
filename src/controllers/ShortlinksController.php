@@ -186,6 +186,7 @@ class ShortlinksController extends Controller
         }
 
         $shortLink->expiredRedirectUrl = $this->request->getBodyParam('expiredRedirectUrl');
+        $shortLink->expiredMessage = $this->request->getBodyParam('expiredMessage');
         $shortLink->trackAnalytics = (bool) $this->request->getBodyParam('trackAnalytics', true);
 
         // QR Code settings
