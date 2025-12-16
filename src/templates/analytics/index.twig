@@ -588,7 +588,7 @@ $(document).ready(function() {
 				} else {
 					const dateObj = new Date(click.dateCreated.date || click.dateCreated);
 					html += '<td>' + Craft.formatDate(dateObj, 'short') + '</td>';
-					html += '<td>' + Craft.formatTime(dateObj, 'short') + '</td>';
+					html += '<td>' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) + '</td>';
 				}
 				html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + click.linkId) + '"><code>' + Craft.escapeHtml(click.linkCode) + '</code></a></td>';
 				html += '<td>' + (click.siteName || '—') + '</td>';
