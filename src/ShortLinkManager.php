@@ -317,7 +317,7 @@ class ShortLinkManager extends Plugin
 
         if ($item) {
             $item['label'] = $settings->getFullName();
-            $item['icon'] = '@appicons/link.svg';
+            $item['icon'] = '@appicons/link-simple.svg';
 
             $item['subnav'] = [
                 'shortlinks' => [

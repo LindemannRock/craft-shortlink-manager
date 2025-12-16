@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="shortlinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#shortlinkGradient)" />
+
+  <!-- Shortlink Icon - Chain link with shortened middle -->
+  <g transform="translate(50, 50)">
+    <!-- Left link segment -->
+    <path d="M -25,-8 L -15,-8 C -10,-8 -8,-6 -8,-2 L -8,2 C -8,6 -10,8 -15,8 L -25,8"
+          fill="none"
+          stroke="white"
+          stroke-width="4"
+          stroke-linecap="round"/>
+    <circle cx="-25" cy="-8" r="3" fill="white"/>
+    <circle cx="-25" cy="8" r="3" fill="white"/>
+
+    <!-- Right link segment -->
+    <path d="M 25,-8 L 15,-8 C 10,-8 8,-6 8,-2 L 8,2 C 8,6 10,8 15,8 L 25,8"
+          fill="none"
+          stroke="white"
+          stroke-width="4"
+          stroke-linecap="round"/>
+    <circle cx="25" cy="-8" r="3" fill="white"/>
+    <circle cx="25" cy="8" r="3" fill="white"/>
+
+    <!-- Shortened middle connection (dashed to show compression) -->
+    <line x1="-8" y1="0" x2="8" y2="0"
+          stroke="white"
+          stroke-width="4"
+          stroke-dasharray="4,2"
+          stroke-linecap="round"/>
+
+    <!-- Compression arrows (showing shortening) -->
+    <path d="M -12,-12 L -8,-8 L -12,-4"
+          fill="none"
+          stroke="white"
+          stroke-width="2"
+          opacity="0.7"/>
+    <path d="M 12,-12 L 8,-8 L 12,-4"
+          fill="none"
+          stroke="white"
+          stroke-width="2"
+          opacity="0.7"/>
+  </g>
+</svg>
