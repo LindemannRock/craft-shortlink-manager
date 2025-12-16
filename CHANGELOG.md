@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.0...v5.3.1) (2025-12-16)
+
+
+### Bug Fixes
+
+* simplify redirect manager events to only include slug-change ([ad4cd18](https://github.com/LindemannRock/craft-shortlink-manager/commit/ad4cd1848f9f30e1a52f1e4c58759823322a94e1))
+
 ## [5.3.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.2.0...v5.3.0) (2025-12-16)
 
 
