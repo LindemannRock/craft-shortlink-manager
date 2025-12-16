@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.2...v5.3.3) (2025-12-16)
+
+
+### Bug Fixes
+
+* update icon return value in ShortLinkManagerUtility ([e4f0951](https://github.com/LindemannRock/craft-shortlink-manager/commit/e4f09519a6bb2be44809f86884b7f9593577cc39))
+
 ## [5.3.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.1...v5.3.2) (2025-12-16)
 
 
