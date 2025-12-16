@@ -91,6 +91,11 @@ class Settings extends Model
     public int $qrCodeCacheDuration = 86400;
 
     /**
+     * @var string Cache storage method (file or redis)
+     */
+    public string $cacheStorageMethod = 'file';
+
+    /**
      * @var string Default QR error correction level (L, M, Q, H)
      */
     public string $defaultQrErrorCorrection = 'M';
@@ -328,6 +333,7 @@ class Settings extends Model
             [['qrEyeColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i', 'skipOnEmpty' => true],
             [['defaultQrFormat'], 'in', 'range' => ['png', 'svg']],
             [['defaultQrErrorCorrection'], 'in', 'range' => ['L', 'M', 'Q', 'H']],
+            [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
             [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'leaf']],
             [['qrDownloadFilename'], 'string'],
@@ -844,6 +850,7 @@ class Settings extends Model
             'defaultQrBgColor' => Craft::t('shortlink-manager', 'Default QR Background Color'),
             'defaultQrFormat' => Craft::t('shortlink-manager', 'Default QR Code Format'),
             'qrCodeCacheDuration' => Craft::t('shortlink-manager', 'QR Code Cache Duration (seconds)'),
+            'cacheStorageMethod' => Craft::t('shortlink-manager', 'Cache Storage Method'),
             'defaultQrMargin' => Craft::t('shortlink-manager', 'QR Code Margin'),
             'qrModuleStyle' => Craft::t('shortlink-manager', 'Module Style'),
             'qrEyeStyle' => Craft::t('shortlink-manager', 'Eye Style'),

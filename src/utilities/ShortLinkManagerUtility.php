@@ -51,11 +51,9 @@ class ShortLinkManagerUtility extends Utility
         $settings = ShortLinkManager::$plugin->getSettings();
         $pluginName = $settings->getFullName();
 
-        // Get system stats (count unique shortlinks, excluding trashed)
-        $totalLinks = (new \craft\db\Query())
-            ->from('{{%shortlinkmanager}} sl')
-            ->innerJoin('{{%elements}} e', 'sl.id = e.id')
-            ->where(['e.dateDeleted' => null])
+        // Get system stats (count all shortlinks including all statuses, excluding trashed)
+        $totalLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+            ->status(null)
             ->count();
 
         // Get active links count (enabled for current site)
@@ -63,6 +61,24 @@ class ShortLinkManagerUtility extends Utility
         $activeLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
             ->siteId($currentSiteId)
             ->status('enabled')
+            ->count();
+
+        // Get pending links count
+        $pendingLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+            ->siteId($currentSiteId)
+            ->status('pending')
+            ->count();
+
+        // Get expired links count
+        $expiredLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+            ->siteId($currentSiteId)
+            ->status('expired')
+            ->count();
+
+        // Get disabled links count
+        $disabledLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+            ->siteId($currentSiteId)
+            ->status('disabled')
             ->count();
 
         // Get analytics data
@@ -91,21 +107,24 @@ class ShortLinkManagerUtility extends Utility
             }
         }
 
-        // Get cache file counts
+        // Get cache counts (only for file storage)
         $qrCacheFiles = 0;
         $deviceCacheFiles = 0;
 
-        if ($settings->enableQrCodeCache) {
-            $qrPath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
-            if (is_dir($qrPath)) {
-                $qrCacheFiles = count(glob($qrPath . '*.cache'));
+        // Only count files when using file storage (Redis counts are not displayed)
+        if ($settings->cacheStorageMethod === 'file') {
+            if ($settings->enableQrCodeCache) {
+                $qrPath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+                if (is_dir($qrPath)) {
+                    $qrCacheFiles = count(glob($qrPath . '*.cache'));
+                }
             }
-        }
 
-        if ($settings->cacheDeviceDetection) {
-            $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
-            if (is_dir($devicePath)) {
-                $deviceCacheFiles = count(glob($devicePath . '*.cache'));
+            if ($settings->cacheDeviceDetection) {
+                $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
+                if (is_dir($devicePath)) {
+                    $deviceCacheFiles = count(glob($devicePath . '*.cache'));
+                }
             }
         }
 
@@ -114,6 +133,9 @@ class ShortLinkManagerUtility extends Utility
             'settings' => $settings,
             'totalLinks' => $totalLinks,
             'activeLinks' => $activeLinks,
+            'pendingLinks' => $pendingLinks,
+            'expiredLinks' => $expiredLinks,
+            'disabledLinks' => $disabledLinks,
             'totalClicks' => $totalClicks,
             'qrScans' => $qrScans,
             'directClicks' => $directClicks,

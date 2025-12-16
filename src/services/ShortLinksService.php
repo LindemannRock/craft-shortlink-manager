@@ -470,15 +470,57 @@ class ShortLinksService extends Component
     public function invalidateCaches(): void
     {
         try {
-            // Clear QR code file cache only
-            $cachePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+            $settings = ShortLinkManager::$plugin->getSettings();
             $cleared = 0;
-            if (is_dir($cachePath)) {
-                $files = glob($cachePath . '*.cache');
-                if ($files) {
-                    foreach ($files as $file) {
-                        if (is_file($file) && @unlink($file)) {
-                            $cleared++;
+
+            if ($settings->cacheStorageMethod === 'redis') {
+                // Clear Redis cache
+                $cache = Craft::$app->cache;
+                if ($cache instanceof \yii\redis\Cache) {
+                    $redis = $cache->redis;
+
+                    // Get all keys from tracking sets
+                    $qrKeys = $redis->executeCommand('SMEMBERS', ['shortlinkmanager-qr-keys']) ?: [];
+                    $deviceKeys = $redis->executeCommand('SMEMBERS', ['shortlinkmanager-device-keys']) ?: [];
+                    $cleared = count($qrKeys) + count($deviceKeys);
+
+                    // Delete QR cache keys using Craft's cache component
+                    foreach ($qrKeys as $key) {
+                        $cache->delete($key);
+                    }
+
+                    // Delete device cache keys using Craft's cache component
+                    foreach ($deviceKeys as $key) {
+                        $cache->delete($key);
+                    }
+
+                    // Clear the tracking sets
+                    $redis->executeCommand('DEL', ['shortlinkmanager-qr-keys']);
+                    $redis->executeCommand('DEL', ['shortlinkmanager-device-keys']);
+                }
+            } else {
+                // Clear QR code file caches
+                $qrPath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+                if (is_dir($qrPath)) {
+                    $files = glob($qrPath . '*.cache');
+                    if ($files) {
+                        foreach ($files as $file) {
+                            if (is_file($file) && @unlink($file)) {
+                                $cleared++;
+                            }
+                        }
+                    }
+                }
+
+                // Clear device detection file caches
+                $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
+                if (is_dir($devicePath)) {
+                    $files = glob($devicePath . '*.cache');
+                    if ($files) {
+                        foreach ($files as $file) {
+                            if (is_file($file) && @unlink($file)) {
+                                $cleared++;
+                            }
                         }
                     }
                 }
