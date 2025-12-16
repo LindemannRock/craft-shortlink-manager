@@ -14,15 +14,15 @@
 {# Summary Stats #}
 <div class="analytics-stats">
     <div class="stat-box">
-        <div class="stat-value">{{ analytics.totalClicks }}</div>
+        <div class="stat-value">{{ analytics.totalClicks|number }}</div>
         <div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
     </div>
     <div class="stat-box">
-        <div class="stat-value">{{ analytics.uniqueClicks }}</div>
+        <div class="stat-value">{{ analytics.uniqueClicks|number }}</div>
         <div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
     </div>
     <div class="stat-box">
-        <div class="stat-value">{{ analytics.averageClicksPerDay }}</div>
+        <div class="stat-value">{{ analytics.averageClicksPerDay|number }}</div>
         <div class="stat-label">{{ "Avg. Clicks/Day"|t('shortlink-manager') }}</div>
     </div>
 </div>
@@ -70,6 +70,7 @@
             <thead>
                 <tr>
                     <th>{{ "Date"|t('shortlink-manager') }}</th>
+                    <th>{{ "Time"|t('shortlink-manager') }}</th>
                     <th>{{ "Site"|t('app') }}</th>
                     <th>{{ "Source"|t('shortlink-manager') }}</th>
                     <th>{{ "Destination"|t('shortlink-manager') }}</th>
@@ -84,7 +85,8 @@
             <tbody>
                 {% for click in analytics.recentClicks %}
                     <tr>
-                        <td>{{ click.dateCreated|datetime('short') }}</td>
+                        <td>{{ click.dateCreated|date('short') }}</td>
+                        <td>{{ click.dateCreated|time('short') }}</td>
                         <td>
                             {% if click.siteId %}
                                 {% set site = craft.app.sites.getSiteById(click.siteId) %}

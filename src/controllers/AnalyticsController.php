@@ -225,7 +225,12 @@ class AnalyticsController extends Controller
             );
         } catch (\Exception $e) {
             Craft::$app->getSession()->setError($e->getMessage());
-            return $this->redirect('shortlink-manager/analytics');
+
+            // Preserve the date range when redirecting back
+            if ($linkId) {
+                return $this->redirect('shortlink-manager/shortlinks/' . $linkId . '?range=' . $dateRange);
+            }
+            return $this->redirect('shortlink-manager/analytics?dateRange=' . $dateRange);
         }
     }
 }

@@ -239,6 +239,15 @@ class AnalyticsService extends Component
         foreach ($results as &$result) {
             $site = !empty($result['siteId']) ? Craft::$app->getSites()->getSiteById($result['siteId']) : null;
             $result['siteName'] = $site ? $site->name : '-';
+
+            // Pre-format lastClick for display with timezone
+            // Database stores in UTC, so create DateTime with UTC timezone first
+            if (!empty($result['lastClick'])) {
+                $utcDate = new \DateTime($result['lastClick'], new \DateTimeZone('UTC'));
+                $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+                $result['lastClick'] = $utcDate;
+                $result['lastClickFormatted'] = Craft::$app->getFormatter()->asDatetime($utcDate, 'short');
+            }
         }
 
         return $results;
@@ -505,6 +514,15 @@ class AnalyticsService extends Component
             ->limit(20)
             ->all();
 
+        // Convert dates from UTC to user's timezone
+        foreach ($recentClicks as &$click) {
+            if (!empty($click['dateCreated'])) {
+                $utcDate = new \DateTime($click['dateCreated'], new \DateTimeZone('UTC'));
+                $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+                $click['dateCreated'] = $utcDate;
+            }
+        }
+
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
 
         return [
@@ -569,6 +587,15 @@ class AnalyticsService extends Component
             // Get site name through Site model to parse env vars
             $site = !empty($result['siteId']) ? Craft::$app->getSites()->getSiteById($result['siteId']) : null;
             $result['siteName'] = $site ? $site->name : '-';
+
+            // Pre-format dateCreated for display with timezone
+            // Database stores in UTC, so create DateTime with UTC timezone first
+            if (!empty($result['dateCreated'])) {
+                $utcDate = new \DateTime($result['dateCreated'], new \DateTimeZone('UTC'));
+                $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+                $result['dateCreated'] = $utcDate;
+                $result['dateCreatedFormatted'] = Craft::$app->getFormatter()->asDatetime($utcDate, 'short');
+            }
         }
 
         return $results;
@@ -1074,6 +1101,11 @@ class AnalyticsService extends Component
         }
 
         $results = $query->all();
+
+        // Check if there's any data to export
+        if (empty($results)) {
+            throw new \Exception('No data to export for the selected period.');
+        }
 
         // Check if geo detection is enabled
         $settings = ShortLinkManager::$plugin->getSettings();
