@@ -10,13 +10,13 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 
 ## Features
 
-### 🔗 Flexible Shortlink Creation
+### Flexible Shortlink Creation
 - **Auto-generated codes**: Randomly generated short codes (e.g., `/s/abc123`)
 - **Vanity URLs**: Custom memorable slugs (e.g., `/s/pricing`)
 - **Element linking**: Automatically create shortlinks for Craft entries, assets, etc.
 - **Custom field type**: Add shortlink fields directly to your entry types
 
-### 📊 Comprehensive Analytics
+### Comprehensive Analytics
 - **Device Detection** - Powered by Matomo DeviceDetector for accurate device, browser, and OS identification
 - **Geographic Detection** - Track visitor location (country, city) via ip-api.com
 - **Bot Filtering** - Identify and filter bot traffic (GoogleBot, BingBot, etc.)
@@ -28,7 +28,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 - **Performance Caching** - File or Redis caching for device detection results
 - **Automatic Cleanup** - Configurable retention period (0-3650 days)
 
-### 📱 QR Code Generation
+### QR Code Generation
 - Automatic QR code generation for every shortlink
 - Customizable colors, sizes, and styles (square, rounded, dots)
 - Logo overlay support
@@ -36,7 +36,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 - Downloadable QR codes
 - File or Redis caching for performance
 
-### ⚙️ Advanced Features
+### Advanced Features
 - Link expiration with custom redirect URLs
 - Configurable HTTP status codes (301, 302, 307, 308)
 - Reserved codes protection
@@ -46,7 +46,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 - Config file overrides
 - Comprehensive logging
 
-### 🔄 Redirect Manager Integration (Optional)
+### Redirect Manager Integration (Optional)
 - **Automatic redirect creation** when shortlink slugs change
 - **Centralized redirect management** - view all redirects in one place
 - **Analytics tracking** - track views of changed, expired, or deleted shortlinks
@@ -67,7 +67,7 @@ Configure in: **ShortLink Manager → Settings → Integrations**
 
 The undo window is configured in **Redirect Manager → Settings → General → Undo Window** (applies to all plugins)
 
-### 📊 SEOmatic Integration (Optional)
+### SEOmatic Integration (Optional)
 
 When [SEOmatic](https://plugins.craftcms.com/seomatic) is installed, Shortlink Manager can push click events to Google Tag Manager's data layer for tracking in GTM and Google Analytics.
 
