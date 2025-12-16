@@ -248,7 +248,7 @@ class Settings extends Model
     /**
      * @var array|null Redirect Manager events that trigger link updates
      */
-    public ?array $redirectManagerEvents = ['slug-change', 'expire', 'delete'];
+    public ?array $redirectManagerEvents = ['slug-change'];
 
     /**
      * @var array SEOmatic events to emit for tracking

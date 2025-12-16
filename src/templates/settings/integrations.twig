@@ -284,7 +284,7 @@
         {% set rmAvailable = rmInstalled and rmEnabled %}
         {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? rmPlugin.name ?? 'Redirect Manager') : 'Redirect Manager' %}
         {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
-        {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change', 'expire', 'delete'] %}
+        {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change'] %}
 
         <div class="integration-card" style="border: 1px solid #e3e5e8; border-radius: 4px; margin-bottom: 10px; background: white;">
             <div class="integration-header" style="padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; background: {{ rmAvailable ? '#f7f7f7' : '#f9f9f9' }};">
@@ -305,7 +305,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} are changed, expired, or deleted. Provides centralized redirect management and analytics tracking."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</p>
+                    <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</p>
                 </div>
                 <div style="flex-shrink: 0;">
                     {{ forms.lightswitchField({
@@ -364,42 +364,6 @@
                                         <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Change slug from <code>summer-sale</code> to <code>fall-sale</code> → Creates <code>/s/summer-sale</code> → <code>/s/fall-sale</code>"|t('shortlink-manager')|raw }}</span>
                                     </div>
                                 </div>
-
-                                {# Expired Shortlinks #}
-                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
-                                    <div style="flex-shrink: 0;">
-                                        {{ forms.lightswitchField({
-                                            label: false,
-                                            id: 'redirectManagerEvents-expire',
-                                            name: 'settings[redirectManagerEvents][]',
-                                            value: 'expire',
-                                            on: 'expire' in rmEvents,
-                                            disabled: isOverridden,
-                                        }) }}
-                                    </div>
-                                    <div>
-                                        <strong>{{ "Expired {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Link expires → Redirect to its <strong>Expired Redirect URL</strong> (if set)"|t('shortlink-manager')|raw }}</span>
-                                    </div>
-                                </div>
-
-                                {# Deleted Shortlinks #}
-                                <div style="display: flex; justify-content: flex-start; align-items: flex-start; gap: 15px; padding: 10px; background: #fafafa; border-radius: 4px;">
-                                    <div style="flex-shrink: 0;">
-                                        {{ forms.lightswitchField({
-                                            label: false,
-                                            id: 'redirectManagerEvents-delete',
-                                            name: 'settings[redirectManagerEvents][]',
-                                            value: 'delete',
-                                            on: 'delete' in rmEvents,
-                                            disabled: isOverridden,
-                                        }) }}
-                                    </div>
-                                    <div>
-                                        <strong>{{ "Deleted {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</strong>
-                                        <span class="light" style="display: block; font-size: 12px; margin-top: 2px;">{{ "Delete {pluginName} with traffic → Redirect to <strong>Expired Redirect URL</strong>, or <strong>Default 404 URL</strong>, or <code>/</code>"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName})|raw }}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -416,11 +380,11 @@
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Analytics Tracking"|t('shortlink-manager') }}</strong> –
-                                {{ "See how many people try to access deleted or expired {pluginName}, their devices, browsers, and countries"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
+                                {{ "Track how many people access old {pluginName} slugs after changes"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
                             </li>
                             <li style="margin-bottom: 6px;">
                                 <strong>{{ "Persistent Redirects"|t('shortlink-manager') }}</strong> –
-                                {{ "Redirects persist even if {pluginName} is deleted, preventing broken links permanently"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}
+                                {{ "Slug change redirects remain active permanently, preventing broken links"|t('shortlink-manager') }}
                             </li>
                             <li>
                                 <strong>{{ "Source Tracking"|t('shortlink-manager') }}</strong> –

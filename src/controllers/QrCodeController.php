@@ -71,6 +71,11 @@ class QrCodeController extends Controller
                 throw new NotFoundHttpException('Short link not found.');
             }
 
+            // Check if link is trashed
+            if ($shortLink->trashed) {
+                throw new NotFoundHttpException('Short link not found.');
+            }
+
             // Generate full URL for the short link with QR tracking parameter
             $url = $shortLink->getUrl();
             $separator = strpos($url, '?') !== false ? '&' : '?';
@@ -83,11 +88,17 @@ class QrCodeController extends Controller
                 throw new NotFoundHttpException('Short link not found.');
             }
 
+            // Check if link is trashed
+            if ($shortLink->trashed) {
+                throw new NotFoundHttpException('Short link not found.');
+            }
+
             // Check if QR codes are enabled for this shortlink
             if (!$shortLink->qrCodeEnabled) {
-                // If QR is disabled for this link, redirect to destination
-                // This ensures printed QR codes still work even if feature is disabled
-                return Craft::$app->response->redirect($shortLink->destinationUrl);
+                // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
+                $settings = ShortLinkManager::$plugin->getSettings();
+                $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+                return $this->redirect($redirectUrl);
             }
 
             // Generate full URL for the short link with QR tracking parameter
@@ -195,19 +206,18 @@ class QrCodeController extends Controller
             throw new NotFoundHttpException('Short link not found.');
         }
 
-        // Check if link is enabled
-        if ($shortLink->getStatus() === ShortLink::STATUS_DISABLED) {
-            throw new NotFoundHttpException('Short link is disabled.');
-        }
-
         // Get settings
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Check if QR codes are enabled for this shortlink
+        // Check if link is trashed
+        if ($shortLink->trashed) {
+            throw new NotFoundHttpException('Short link not found.');
+        }
+
+        // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
         if (!$shortLink->qrCodeEnabled) {
-            // If QR is disabled for this link, redirect to destination
-            // This ensures printed QR codes still work even if feature is disabled
-            return Craft::$app->response->redirect($shortLink->destinationUrl);
+            $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+            return $this->redirect($redirectUrl);
         }
 
         // Get template setting

@@ -75,16 +75,16 @@
     {% if shortLink.id %}
         <div class="preview-btn-container btngroup">
             {% set viewLabel = shortlinkHelper.displayName %}
-            {% if shortLink.qrCodeEnabled ?? true %}
-                <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
-                <button type="button" class="btn menubtn"></button>
-                <div class="menu">
-                    <ul role="listbox">
-                        <li>
-                            <a role="option" tabindex="0" href="{{ shortLink.getUrl() }}" target="_blank">
-                                {{ viewLabel }}
-                            </a>
-                        </li>
+            <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+            <button type="button" class="btn menubtn"></button>
+            <div class="menu">
+                <ul role="listbox">
+                    <li>
+                        <a role="option" tabindex="0" href="{{ shortLink.getUrl() }}" target="_blank">
+                            {{ viewLabel }}
+                        </a>
+                    </li>
+                    {% if shortLink.qrCodeEnabled %}
                         <li>
                             <a role="option" tabindex="0" href="{{ shortLink.getQrCodeUrl() }}" target="_blank">
                                 {{ "QR Code Image"|t('shortlink-manager') }}
@@ -95,11 +95,9 @@
                                 {{ "QR Code Page"|t('shortlink-manager') }}
                             </a>
                         </li>
-                    </ul>
-                </div>
-            {% else %}
-                <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
-            {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     {% endif %}
     <div class="btngroup submit">

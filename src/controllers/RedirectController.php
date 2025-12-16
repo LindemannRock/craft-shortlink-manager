@@ -82,6 +82,12 @@ class RedirectController extends Controller
             return $this->redirectToNotFound();
         }
 
+        // Check if pending (future post date)
+        if ($shortLink->getStatus() === \lindemannrock\shortlinkmanager\elements\ShortLink::STATUS_PENDING) {
+            $this->logInfo('Shortlink pending', ['code' => $code]);
+            return $this->redirectToNotFound();
+        }
+
         // Check expiration
         if ($shortLink->isExpired()) {
             $this->logInfo('Shortlink expired', ['code' => $code]);
