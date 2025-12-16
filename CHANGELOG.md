@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.1...v5.3.2) (2025-12-16)
+
+
+### Bug Fixes
+
+* update time formatting in analytics dashboard to use locale settings ([cf2ad60](https://github.com/LindemannRock/craft-shortlink-manager/commit/cf2ad6025677349db175c81ac62b0c6f8e9b3e8b))
+
 ## [5.3.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.0...v5.3.1) (2025-12-16)
 
 
