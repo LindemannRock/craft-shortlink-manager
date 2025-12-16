@@ -49,10 +49,10 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 ### Redirect Manager Integration (Optional)
 - **Automatic redirect creation** when shortlink slugs change
 - **Centralized redirect management** - view all redirects in one place
-- **Analytics tracking** - track views of changed, expired, or deleted shortlinks
+- **Analytics tracking** - track how many people access old shortlink slugs after changes
 - **Smart undo detection** - prevents flip-flop redirects within configurable time window (30-240 minutes)
 - **Loop prevention** - automatically detects and prevents circular redirects
-- **Persistent redirects** - redirects persist even after shortlink deletion
+- **Persistent redirects** - slug change redirects remain active permanently
 - **User notifications** - shows "Redirect created" or "Slug change undone" messages
 
 **Requires:** [LindemannRock Redirect Manager](https://github.com/LindemannRock/craft-redirect-manager) plugin (optional)
@@ -60,8 +60,6 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 When enabled, the plugin automatically creates permanent redirects in Redirect Manager when:
 - **Slug changes:** `/s/summer-sale` → `/s/fall-sale` (creates redirect)
 - **Slug undo:** `/s/test` → `/s/test2` → `/s/test` (deletes redirect if within undo window)
-- **Link expires:** Redirects to its Expired Redirect URL (if set)
-- **Link deleted:** Redirects to fallback URL (only if link has traffic)
 
 Configure in: **ShortLink Manager → Settings → Integrations**
 
@@ -487,11 +485,10 @@ return [
     'seomaticEventPrefix' => 'shortlink_manager',  // GTM event prefix
 
     // Redirect Manager Integration
-    'redirectManagerEvents' => ['slug-change', 'expire', 'delete'],  // Which events create redirects
-    // Available events: 'slug-change', 'expire', 'delete'
+    'redirectManagerEvents' => ['slug-change'],  // Which events create redirects
+    // Available events: 'slug-change'
     // Examples:
-    // ['slug-change'] - Only slug changes create redirects
-    // ['slug-change', 'delete'] - Slug changes and deletions
+    // ['slug-change'] - Slug changes create redirects (recommended)
     // [] - Integration enabled but no redirects created
 
     // Display
@@ -569,9 +566,7 @@ return [
 **Redirect Manager Events** (`redirectManagerEvents`):
 - Array of events that trigger redirect creation
 - `'slug-change'` - Creates redirect when shortlink slug changes
-- `'expire'` - Creates redirect when shortlink expires (requires expiredRedirectUrl)
-- `'delete'` - Creates redirect when shortlink deleted with traffic (hits > 0)
-- Example: `['slug-change', 'delete']` - Only slug changes and deletions create redirects
+- Example: `['slug-change']` - Slug changes create redirects (recommended)
 
 ### Environment-Specific Configuration
 
