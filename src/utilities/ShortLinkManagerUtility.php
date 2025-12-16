@@ -40,7 +40,7 @@ class ShortLinkManagerUtility extends Utility
      */
     public static function icon(): ?string
     {
-        return '@app/icons/tool.svg';
+        return 'link-simple';
     }
 
     /**
