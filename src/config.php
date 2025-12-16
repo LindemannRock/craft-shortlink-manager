@@ -136,6 +136,11 @@ return [
         // ========================================
         // Performance and caching configuration
 
+        // Cache Storage Method
+        // 'file' = File system (default, single server)
+        // 'redis' = Redis/Database (load-balanced, multi-server, cloud hosting)
+        'cacheStorageMethod' => 'file',
+
         // QR Code Caching
         'enableQrCodeCache' => true,   // Cache generated QR codes
         'qrCodeCacheDuration' => 86400, // QR cache duration in seconds (24 hours)
@@ -167,6 +172,7 @@ return [
     'production' => [
         'logLevel' => 'error',         // Only errors in production
         'analyticsRetention' => 365,   // Keep more data in production
+        'cacheStorageMethod' => 'redis', // Use Redis for production (Servd/AWS/Platform.sh)
         'cacheDeviceDetection' => true,
         'deviceDetectionCacheDuration' => 7200, // 2 hours
         'qrCodeCacheDuration' => 604800, // 7 days - QR codes rarely change
