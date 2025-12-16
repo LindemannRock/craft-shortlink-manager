@@ -1,6 +1,8 @@
 {% import "_includes/forms" as forms %}
 
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set settings = plugin.settings %}
+{% set storageMethod = settings.cacheStorageMethod %}
 
 <div style="margin-bottom: 32px;">
     <h2>{{ shortlinkHelper.fullName }} {{ "Overview"|t('shortlink-manager') }}</h2>
@@ -12,39 +14,43 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: stretch;">
         <!-- Links Status Card -->
-        {% set coverage = totalLinks > 0 ? ((activeLinks / totalLinks) * 100)|round : 100 %}
         <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
             <!-- Header -->
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};"></div>
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
                 <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Links Status"|t('shortlink-manager') }}</h4>
             </div>
 
             <!-- Main Content -->
             <div style="flex: 1; display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div style="font-size: 28px; font-weight: 700; color: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %}; line-height: 1;">
-                        {{ coverage }}%
-                    </div>
-                    <div style="padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: white; background: {% if coverage == 100 %}#059669{% elseif coverage >= 90 %}#d97706{% else %}#dc2626{% endif %};">
-                        {% if coverage == 100 %}{{ 'All Active'|t('shortlink-manager') }}{% elseif coverage >= 90 %}{{ 'Good'|t('shortlink-manager') }}{% else %}{{ 'Check Links'|t('shortlink-manager') }}{% endif %}
-                    </div>
+                <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 12px;">
+                    {{ totalLinks|number_format }}
                 </div>
                 <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Active {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
+                    {{ "Total {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
                 </div>
 
-                <!-- Bottom Boxes -->
+                <!-- Bottom Boxes (max 3, hide zeros by priority: disabled, pending, expired) -->
                 <div style="margin-top: auto;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    {% set visibleBoxes = [] %}
+                    {% set visibleBoxes = visibleBoxes|merge([{value: activeLinks, label: 'Active'|t('shortlink-manager')}]) %}
+                    {% if pendingLinks > 0 or (expiredLinks == 0 and disabledLinks == 0) %}
+                        {% set visibleBoxes = visibleBoxes|merge([{value: pendingLinks, label: 'Pending'|t('shortlink-manager')}]) %}
+                    {% endif %}
+                    {% if expiredLinks > 0 or (pendingLinks == 0 and disabledLinks == 0) %}
+                        {% set visibleBoxes = visibleBoxes|merge([{value: expiredLinks, label: 'Expired'|t('shortlink-manager')}]) %}
+                    {% endif %}
+                    {% if disabledLinks > 0 and visibleBoxes|length < 3 %}
+                        {% set visibleBoxes = visibleBoxes|merge([{value: disabledLinks, label: 'Disabled'|t('shortlink-manager')}]) %}
+                    {% endif %}
+
+                    <div style="display: grid; grid-template-columns: repeat({{ visibleBoxes|length }}, 1fr); gap: 8px;">
+                        {% for box in visibleBoxes %}
                         <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ totalLinks|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Total'|t('shortlink-manager') }}</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ box.value|number_format }}</div>
+                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ box.label }}</div>
                         </div>
-                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ activeLinks|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Active'|t('shortlink-manager') }}</div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -92,33 +98,62 @@
             <!-- Header -->
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                 <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
-                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Cache Status"|t('shortlink-manager') }}</h4>
+                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">
+                    {{ "Cache Status"|t('shortlink-manager') }} ({{ storageMethod == 'redis' ? 'Redis' : 'File' }})
+                </h4>
             </div>
 
             <!-- Main Content -->
             <div style="flex: 1; display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
-                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
-                        {{ (qrCacheFiles + deviceCacheFiles)|number_format }}
+                {% if storageMethod == 'redis' %}
+                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 12px;">
+                        {{ "Active"|t('shortlink-manager') }}
                     </div>
-                </div>
-                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Total cached entries"|t('shortlink-manager') }}
-                </div>
+                    <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                        {{ "Cached via Redis"|t('shortlink-manager') }}
+                    </div>
 
-                <!-- Bottom Boxes -->
-                <div style="margin-top: auto;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrCacheFiles|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('shortlink-manager') }}</div>
-                        </div>
-                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ deviceCacheFiles|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('shortlink-manager') }}</div>
+                    <!-- Info Boxes -->
+                    <div style="margin-top: auto;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            {% if settings.enableQrCodeCache %}
+                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;">✓</div>
+                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('shortlink-manager') }}</div>
+                            </div>
+                            {% endif %}
+                            {% if settings.cacheDeviceDetection %}
+                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;">✓</div>
+                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('shortlink-manager') }}</div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
-                </div>
+                {% else %}
+                    <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+                        <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
+                            {{ (qrCacheFiles + deviceCacheFiles)|number_format }}
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
+                        {{ "Total cached entries"|t('shortlink-manager') }}
+                    </div>
+
+                    <!-- Bottom Boxes -->
+                    <div style="margin-top: auto;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrCacheFiles|number_format }}</div>
+                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('shortlink-manager') }}</div>
+                            </div>
+                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ deviceCacheFiles|number_format }}</div>
+                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('shortlink-manager') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -157,19 +192,19 @@
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 {% if settings.enableQrCodeCache %}
                     <button type="button" class="btn" id="clear-qr-cache">
-                        {{ "Clear QR Cache"|t('shortlink-manager') }} ({{ qrCacheFiles }})
+                        {{ "Clear QR Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ qrCacheFiles }}){% endif %}
                     </button>
                 {% endif %}
 
                 {% if settings.cacheDeviceDetection %}
                     <button type="button" class="btn" id="clear-device-cache">
-                        {{ "Clear Device Cache"|t('shortlink-manager') }} ({{ deviceCacheFiles }})
+                        {{ "Clear Device Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ deviceCacheFiles }}){% endif %}
                     </button>
                 {% endif %}
 
                 {% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
                 <button type="button" class="btn secondary" id="clear-all-caches">
-                    {{ "Clear All Caches"|t('shortlink-manager') }} ({{ (qrCacheFiles + deviceCacheFiles) }})
+                    {{ "Clear All Caches"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ (qrCacheFiles + deviceCacheFiles) }}){% endif %}
                 </button>
                 {% endif %}
             </div>

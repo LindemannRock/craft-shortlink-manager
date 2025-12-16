@@ -56,15 +56,15 @@
 	<div id="analytics-dashboard">
 		<div class="analytics-stats">
 			<div class="stat-box">
-				<div class="stat-value" id="total-clicks">{{ analyticsData.totalClicks ?? 0 }}</div>
+				<div class="stat-value" id="total-clicks">{{ (analyticsData.totalClicks ?? 0)|number }}</div>
 				<div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
 			</div>
 			<div class="stat-box">
-				<div class="stat-value" id="unique-visitors">{{ analyticsData.uniqueVisitors ?? 0 }}</div>
+				<div class="stat-value" id="unique-visitors">{{ (analyticsData.uniqueVisitors ?? 0)|number }}</div>
 				<div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
 			</div>
 			<div class="stat-box">
-				<div class="stat-value" id="active-links">{{ analyticsData.activeLinks ?? 0 }}</div>
+				<div class="stat-value" id="active-links">{{ (analyticsData.activeLinks ?? 0)|number }}</div>
 				<div class="stat-label">{{ "Active Links"|t('shortlink-manager') }}</div>
 			</div>
 			<div class="stat-box">
@@ -99,7 +99,7 @@
 						</thead>
 						<tbody>
 							{% for shortLink in analyticsData.topLinks ?? [] %}
-								{% if shortLink.enabled ?? true %}
+								{% if (shortLink.enabled ?? true) and (shortLink.clicks > 0) %}
 									<tr>
 										<td>
 											<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
@@ -119,7 +119,7 @@
 												{{ shortLink.destinationUrl|length > 50 ? shortLink.destinationUrl|slice(0, 50) ~ '...' : shortLink.destinationUrl }}
 											</span>
 										</td>
-										<td>{{ shortLink.clicks }}</td>
+										<td>{{ shortLink.clicks|number }}</td>
 										<td>{{ shortLink.lastClick ? shortLink.lastClick|datetime('short') : '-' }}</td>
 									</tr>
 								{% endif %}
@@ -139,6 +139,7 @@
 						<thead>
 							<tr>
 								<th>{{ "Date"|t('shortlink-manager') }}</th>
+								<th>{{ "Time"|t('shortlink-manager') }}</th>
 								<th>{{ "Code"|t('shortlink-manager') }}</th>
 								<th>{{ "Site"|t('shortlink-manager') }}</th>
 								<th>{{ "Source"|t('shortlink-manager') }}</th>
@@ -154,7 +155,8 @@
 						<tbody>
 							{% for click in analyticsData.recentClicks ?? [] %}
 								<tr>
-									<td>{{ click.dateCreated|datetime('short') }}</td>
+									<td>{{ click.dateCreated|date('short') }}</td>
+									<td>{{ click.dateCreated|time('short') }}</td>
 									<td>
 										<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
 									</td>
@@ -199,7 +201,7 @@
 								</tr>
 							{% else %}
 								<tr>
-									<td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '9' : '8' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
+									<td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -255,7 +257,7 @@
 								{% for country in topCountries %}
 									<tr>
 										<td>{{ country.name }}</td>
-										<td>{{ country.clicks }}</td>
+										<td>{{ country.clicks|number }}</td>
 										<td>{{ country.percentage }}%</td>
 									</tr>
 								{% endfor %}
@@ -290,7 +292,7 @@
 									<tr>
 										<td>{{ city.city }}</td>
 										<td>{{ city.countryName }}</td>
-										<td>{{ city.clicks }}</td>
+										<td>{{ city.clicks|number }}</td>
 										<td>{{ city.percentage }}%</td>
 									</tr>
 								{% endfor %}
@@ -514,10 +516,10 @@ $(document).ready(function() {
 			},
 			success: function(response) {
 				if (response.success && response.data) {
-					// Update stat boxes
-					$('#total-clicks').text(response.data.totalClicks || 0);
-					$('#unique-visitors').text(response.data.uniqueVisitors || 0);
-					$('#active-links').text(response.data.activeLinks || 0);
+					// Update stat boxes with number formatting
+					$('#total-clicks').text((response.data.totalClicks || 0).toLocaleString());
+					$('#unique-visitors').text((response.data.uniqueVisitors || 0).toLocaleString());
+					$('#active-links').text((response.data.activeLinks || 0).toLocaleString());
 					$('#links-used').text((response.data.linksUsedPercentage || 0) + '%');
 
 					// Update tables
@@ -543,11 +545,13 @@ $(document).ready(function() {
 	// Update tables
 	function updateTopLinksTable(links) {
 		let html = '';
+		let hasData = false;
 		if (links.length === 0) {
 			html = '<tr><td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
 		} else {
 			links.forEach(function(shortLink) {
-				if (shortLink.enabled !== false) {
+				if (shortLink.enabled !== false && (shortLink.clicks || 0) > 0) {
+					hasData = true;
 					html += '<tr>';
 					html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + shortLink.id) + '"><code>' + Craft.escapeHtml(shortLink.code) + '</code></a></td>';
 					html += '<td>' + (shortLink.siteName || '—') + '</td>';
@@ -555,25 +559,37 @@ $(document).ready(function() {
 					const url = shortLink.destinationUrl;
 					html += Craft.escapeHtml(url.length > 50 ? url.substring(0, 50) + '...' : url);
 					html += '</span></td>';
-					html += '<td>' + shortLink.clicks + '</td>';
-					html += '<td>' + (shortLink.lastClick ? Craft.formatDate(new Date(shortLink.lastClick.date || shortLink.lastClick)) : '-') + '</td>';
+					html += '<td>' + (shortLink.clicks || 0).toLocaleString() + '</td>';
+					html += '<td>' + (shortLink.lastClickFormatted || (shortLink.lastClick ? Craft.formatDate(new Date(shortLink.lastClick.date || shortLink.lastClick)) : '-')) + '</td>';
 					html += '</tr>';
 				}
 			});
+			if (!hasData) {
+				html = '<tr><td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
+			}
 		}
 		$('#top-links-table tbody').html(html);
 	}
 
 	function updateRecentClicksTable(clicks) {
 		const geoEnabled = {{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? 'true' : 'false' }};
-		const colspan = geoEnabled ? 9 : 8;
+		const colspan = geoEnabled ? 10 : 9;
 		let html = '';
 		if (clicks.length === 0) {
 			html = '<tr><td colspan="' + colspan + '" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager')|e('js') }}</td></tr>';
 		} else {
 			clicks.forEach(function(click) {
 				html += '<tr>';
-				html += '<td>' + Craft.formatDate(new Date(click.dateCreated.date || click.dateCreated)) + '</td>';
+				if (click.dateCreatedFormatted) {
+					// Pre-formatted from server, split into date and time
+					const parts = click.dateCreatedFormatted.split(', ');
+					html += '<td>' + (parts[0] || '') + '</td>';
+					html += '<td>' + (parts[1] || '') + '</td>';
+				} else {
+					const dateObj = new Date(click.dateCreated.date || click.dateCreated);
+					html += '<td>' + Craft.formatDate(dateObj, 'short') + '</td>';
+					html += '<td>' + Craft.formatTime(dateObj, 'short') + '</td>';
+				}
 				html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + click.linkId) + '"><code>' + Craft.escapeHtml(click.linkCode) + '</code></a></td>';
 				html += '<td>' + (click.siteName || '—') + '</td>';
 				html += '<td>' + (click.source === 'qr' ? '{{ "QR"|t('shortlink-manager')|e('js') }}' : '{{ "Direct"|t('shortlink-manager')|e('js') }}') + '</td>';
@@ -611,7 +627,7 @@ $(document).ready(function() {
 			countries.forEach(function(country) {
 				html += '<tr>';
 				html += '<td>' + country.name + '</td>';
-				html += '<td>' + country.clicks + '</td>';
+				html += '<td>' + (country.clicks || 0).toLocaleString() + '</td>';
 				html += '<td>' + country.percentage + '%</td>';
 				html += '</tr>';
 			});
@@ -628,7 +644,7 @@ $(document).ready(function() {
 				html += '<tr>';
 				html += '<td>' + city.city + '</td>';
 				html += '<td>' + city.countryName + '</td>';
-				html += '<td>' + city.clicks + '</td>';
+				html += '<td>' + (city.clicks || 0).toLocaleString() + '</td>';
 				html += '<td>' + city.percentage + '%</td>';
 				html += '</tr>';
 			});
