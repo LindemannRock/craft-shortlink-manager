@@ -174,6 +174,7 @@ class Install extends Migration
                 'qrLogoSize' => $this->integer()->notNull()->defaultValue(20),
                 'enableQrCodeCache' => $this->boolean()->notNull()->defaultValue(true),
                 'qrCodeCacheDuration' => $this->integer()->notNull()->defaultValue(86400),
+                'cacheStorageMethod' => $this->string(10)->notNull()->defaultValue('file')->comment('Cache storage method: file or redis'),
                 'enableQrDownload' => $this->boolean()->notNull()->defaultValue(true),
                 'qrDownloadFilename' => $this->string()->notNull()->defaultValue('{code}-qr-{size}'),
                 // Analytics settings
