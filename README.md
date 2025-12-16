@@ -25,7 +25,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 - **Referrer Tracking** - See where visitors are coming from
 - **CSV Export** - Export comprehensive analytics including device and geo data
 - **Privacy-First** - IP hashing with salt, optional subnet masking, GDPR-friendly
-- **Performance Caching** - File-based caching for device detection results
+- **Performance Caching** - File or Redis caching for device detection results
 - **Automatic Cleanup** - Configurable retention period (0-3650 days)
 
 ### 📱 QR Code Generation
@@ -34,7 +34,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 - Logo overlay support
 - Multiple formats (PNG, SVG)
 - Downloadable QR codes
-- File-based caching for performance
+- File or Redis caching for performance
 
 ### ⚙️ Advanced Features
 - Link expiration with custom redirect URLs
@@ -456,8 +456,13 @@ return [
     'defaultQrSize' => 256,
     'defaultQrColor' => '#000000',
     'defaultQrBgColor' => '#FFFFFF',
+
+    // Cache settings
+    'cacheStorageMethod' => 'file',  // 'file' or 'redis'
     'enableQrCodeCache' => true,
     'qrCodeCacheDuration' => 86400,  // 24 hours
+    'cacheDeviceDetection' => true,
+    'deviceDetectionCacheDuration' => 3600,  // 1 hour
 
     // Template settings
     'redirectTemplate' => null,  // e.g., 'shortlink-manager/redirect'
@@ -469,8 +474,6 @@ return [
     'analyticsRetention' => 90, // days
     'enableGeoDetection' => false,  // Track visitor location
     'anonymizeIpAddress' => false,  // Subnet masking for privacy
-    'cacheDeviceDetection' => true,
-    'deviceDetectionCacheDuration' => 3600,  // 1 hour
 
     // Redirect settings
     'defaultHttpCode' => 301,
@@ -579,10 +582,12 @@ return [
     ],
     'dev' => [
         'analyticsRetention' => 30,
-        'cacheDeviceDetection' => false,  // Disable cache in dev
+        'cacheStorageMethod' => 'file',
+        'cacheDeviceDetection' => false,  // Disable cache in dev for testing
     ],
     'production' => [
         'analyticsRetention' => 365,
+        'cacheStorageMethod' => 'redis',  // Use Redis in production (Servd/AWS/Platform.sh)
         'enableGeoDetection' => true,
         'cacheDeviceDetection' => true,
     ],
