@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.2.0...v5.3.0) (2025-12-16)
+
+
+### Features
+
+* add cache storage method configuration for different environments ([186fd37](https://github.com/LindemannRock/craft-shortlink-manager/commit/186fd37257b2ebd4afe4866ac99b4da56ef29aa8))
+* add cache storage method configuration to Install migration ([4a1c9f4](https://github.com/LindemannRock/craft-shortlink-manager/commit/4a1c9f46ee4a435c3d3e848370a1bd285831fa7d))
+* add Info Box component and enhance analytics display with number formatting ([6b3ee45](https://github.com/LindemannRock/craft-shortlink-manager/commit/6b3ee4514113a66b7bb49cf053a681ec481f6c70))
+* enhance analytics display and timezone handling in AnalyticsController and AnalyticsService ([c636a3f](https://github.com/LindemannRock/craft-shortlink-manager/commit/c636a3fc6c75a93f2868ccfaef98f315f10ea1fa))
+* implement Redis caching support and enhance cache management in ShortLinkManager ([a6429d9](https://github.com/LindemannRock/craft-shortlink-manager/commit/a6429d91eb6da1ed55ea9530905fd1f77f5cced6))
+* update icon to 'link-simple.svg' and refine Redis cache display in index template ([167dd39](https://github.com/LindemannRock/craft-shortlink-manager/commit/167dd39cba300cc23cec2aeb317eba3e7fa34a4d))
+
 ## [5.2.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.6...v5.2.0) (2025-12-03)
 
 
