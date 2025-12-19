@@ -46,18 +46,23 @@ class AnalyticsController extends Controller
         $siteId = $request->getQueryParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
 
+        // Get settings
+        $settings = ShortLinkManager::$plugin->getSettings();
+
         // Get analytics summary
         $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
 
-        // Get all sites for site selector
-        $sites = Craft::$app->getSites()->getAllSites();
+        // Get enabled sites for site selector (respects enabledSites setting)
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+        $allSites = Craft::$app->getSites()->getAllSites();
+        $sites = array_filter($allSites, fn($site) => in_array($site->id, $enabledSiteIds));
 
         return $this->renderTemplate('shortlink-manager/analytics/index', [
             'analyticsData' => $analyticsData,
             'dateRange' => $dateRange,
             'siteId' => $siteId,
             'sites' => $sites,
-            'settings' => ShortLinkManager::$plugin->getSettings(),
+            'settings' => $settings,
         ]);
     }
 
