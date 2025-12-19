@@ -377,7 +377,7 @@ class ShortLink extends Element
         return [
             'slug' => Craft::t('shortlink-manager', 'Code/Slug'),
             [
-                'label' => Craft::t('shortlink-manager', 'Hits'),
+                'label' => Craft::t('shortlink-manager', 'Interactions'),
                 'orderBy' => 'shortlinkmanager.hits',
                 'attribute' => 'hits',
                 'defaultDir' => 'desc',
@@ -418,7 +418,7 @@ class ShortLink extends Element
             'linkType' => ['label' => Craft::t('shortlink-manager', 'Type')],
             'destinationUrl' => ['label' => Craft::t('shortlink-manager', 'Destination')],
             'status' => ['label' => Craft::t('app', 'Status')],
-            'hits' => ['label' => Craft::t('shortlink-manager', 'Hits')],
+            'hits' => ['label' => Craft::t('shortlink-manager', 'Interactions')],
             'postDate' => ['label' => Craft::t('app', 'Post Date')],
             'dateExpired' => ['label' => Craft::t('app', 'Expiry Date')],
             'dateCreated' => ['label' => Craft::t('app', 'Date Created')],
