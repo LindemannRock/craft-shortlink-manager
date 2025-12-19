@@ -227,11 +227,11 @@ class ShortLinkManager extends Plugin
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
                 $settings = $this->getSettings();
-                $pluginName = $settings->getFullName();
+                $displayName = $settings->getDisplayName();
 
                 $event->options[] = [
                     'key' => 'shortlink-manager-cache',
-                    'label' => Craft::t('shortlink-manager', '{pluginName} Cache', ['pluginName' => $pluginName]),
+                    'label' => Craft::t('shortlink-manager', '{displayName} caches', ['displayName' => $displayName]),
                     'action' => function() use ($settings) {
                         $cleared = 0;
 
