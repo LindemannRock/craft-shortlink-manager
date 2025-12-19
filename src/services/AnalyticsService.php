@@ -631,7 +631,7 @@ class AnalyticsService extends Component
         // Add percentages and country names
         foreach ($results as &$result) {
             $result['percentage'] = $total > 0 ? round(($result['clicks'] / $total) * 100, 1) : 0;
-            $result['name'] = $result['country']; // You could map country codes to names here
+            $result['name'] = $this->_getCountryName($result['country'] ?? '');
         }
 
         return $results;
@@ -667,7 +667,7 @@ class AnalyticsService extends Component
         // Add percentages and country names
         foreach ($results as &$result) {
             $result['percentage'] = $total > 0 ? round(($result['clicks'] / $total) * 100, 1) : 0;
-            $result['countryName'] = $result['country']; // You could map country codes to names here
+            $result['countryName'] = $this->_getCountryName($result['country'] ?? '');
         }
 
         return $results;
