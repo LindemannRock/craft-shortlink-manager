@@ -17,6 +17,21 @@
     }
 ] %}
 
+{# Define Tabs #}
+{% set tabs = {
+    overview: { label: "Overview"|t('shortlink-manager'), url: '#overview' },
+    'traffic-devices': { label: "Traffic & Devices"|t('shortlink-manager'), url: '#traffic-devices' }
+} %}
+
+{# Only add Geographic tab if geo detection is enabled #}
+{% if settings.enableGeoDetection %}
+    {% set tabs = tabs|merge({
+        geographic: { label: "Geographic"|t('shortlink-manager'), url: '#geographic' }
+    }) %}
+{% endif %}
+
+{% set selectedTab = 'overview' %}
+
 {% block actionButton %}
 	<div id="action-button" class="btngroup">
 		<button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('shortlink-manager') }}</button>
@@ -25,6 +40,9 @@
 				<li>
 					<a href="#" class="export-link" data-format="csv" data-action="shortlink-manager/analytics/export">{{ "Export as CSV"|t('shortlink-manager') }}</a>
 				</li>
+				<li>
+					<a href="#" class="export-link" data-format="json" data-action="shortlink-manager/analytics/export">{{ "Export as JSON"|t('shortlink-manager') }}</a>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -32,6 +50,23 @@
 
 {% block toolbar %}
 	<div class="flex">
+		{% if sites|length > 1 %}
+		<div>
+			<div class="btngroup">
+				<button type="button" class="btn menubtn">
+					<span id="siteLabel">{{ siteId ? sites|filter(s => s.id == siteId)|first.name : 'All Sites'|t('shortlink-manager') }}</span>
+				</button>
+				<div class="menu">
+					<ul>
+						<li><a href="#" data-site="" class="site-option {{ not siteId ? 'sel' : '' }}">{{ "All Sites"|t('shortlink-manager') }}</a></li>
+						{% for site in sites %}
+							<li><a href="#" data-site="{{ site.id }}" class="site-option {{ siteId == site.id ? 'sel' : '' }}">{{ site.name }}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+		{% endif %}
 		<div>
 			<div class="btngroup">
 				<button type="button" class="btn menubtn">
@@ -53,277 +88,25 @@
 {% endblock %}
 
 {% block content %}
-	<div id="analytics-dashboard">
-		<div class="analytics-stats">
-			<div class="stat-box">
-				<div class="stat-value" id="total-clicks">{{ (analyticsData.totalClicks ?? 0)|number }}</div>
-				<div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
-			</div>
-			<div class="stat-box">
-				<div class="stat-value" id="unique-visitors">{{ (analyticsData.uniqueVisitors ?? 0)|number }}</div>
-				<div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
-			</div>
-			<div class="stat-box">
-				<div class="stat-value" id="active-links">{{ (analyticsData.activeLinks ?? 0)|number }}</div>
-				<div class="stat-label">{{ "Active Links"|t('shortlink-manager') }}</div>
-			</div>
-			<div class="stat-box">
-				<div class="stat-value" id="links-used">{{ analyticsData.linksUsedPercentage ?? 0 }}%</div>
-				<div class="stat-label">{{ "Engagement Rate"|t('shortlink-manager') }}</div>
-			</div>
-		</div>
-
-		<h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('shortlink-manager') }}</h2>
-
-		<div class="analytics-charts">
-			<div class="chart-container full-width">
-				<h3>{{ "Daily Interactions"|t('shortlink-manager') }}</h3>
-				<canvas id="clicks-chart"></canvas>
-			</div>
-		</div>
-
-		<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
-
-		<div class="analytics-charts">
-			<div class="chart-container full-width">
-				<div id="top-links-table" class="table-scroll-container">
-					<table class="data fullwidth">
-						<thead>
-							<tr>
-								<th>{{ "Code"|t('shortlink-manager') }}</th>
-								<th>{{ "Site"|t('shortlink-manager') }}</th>
-								<th>{{ "Destination"|t('shortlink-manager') }}</th>
-								<th>{{ "Total Interactions"|t('shortlink-manager') }}</th>
-								<th>{{ "Last Interaction"|t('shortlink-manager') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for shortLink in analyticsData.topLinks ?? [] %}
-								{% if (shortLink.enabled ?? true) and (shortLink.clicks > 0) %}
-									<tr>
-										<td>
-											<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
-												<code>{{ shortLink.code }}</code>
-											</a>
-										</td>
-										<td>
-											{% if shortLink.siteId %}
-												{% set site = craft.app.sites.getSiteById(shortLink.siteId) %}
-												{{ site ? site.name : '—' }}
-											{% else %}
-												—
-											{% endif %}
-										</td>
-										<td>
-											<span title="{{ shortLink.destinationUrl }}">
-												{{ shortLink.destinationUrl|length > 50 ? shortLink.destinationUrl|slice(0, 50) ~ '...' : shortLink.destinationUrl }}
-											</span>
-										</td>
-										<td>{{ shortLink.clicks|number }}</td>
-										<td>{{ shortLink.lastClick ? shortLink.lastClick|datetime('short') : '-' }}</td>
-									</tr>
-								{% endif %}
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-
-		<h2 style="margin: 30px 0 20px;">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
-
-		<div class="analytics-charts">
-			<div class="chart-container full-width">
-				<div id="recent-clicks-table" class="table-scroll-container">
-					<table class="data fullwidth">
-						<thead>
-							<tr>
-								<th>{{ "Date"|t('shortlink-manager') }}</th>
-								<th>{{ "Time"|t('shortlink-manager') }}</th>
-								<th>{{ "Code"|t('shortlink-manager') }}</th>
-								<th>{{ "Site"|t('shortlink-manager') }}</th>
-								<th>{{ "Source"|t('shortlink-manager') }}</th>
-								<th>{{ "Destination"|t('shortlink-manager') }}</th>
-								<th>{{ "Device"|t('shortlink-manager') }}</th>
-								<th>{{ "Browser"|t('shortlink-manager') }}</th>
-								<th>{{ "OS"|t('shortlink-manager') }}</th>
-								{% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
-									<th>{{ "Location"|t('shortlink-manager') }}</th>
-								{% endif %}
-							</tr>
-						</thead>
-						<tbody>
-							{% for click in analyticsData.recentClicks ?? [] %}
-								<tr>
-									<td>{{ click.dateCreated|date('short') }}</td>
-									<td>{{ click.dateCreated|time('short') }}</td>
-									<td>
-										<a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
-									</td>
-									<td>
-										{% if click.siteId %}
-											{% set site = craft.app.sites.getSiteById(click.siteId) %}
-											{{ site ? site.name : '—' }}
-										{% else %}
-											—
-										{% endif %}
-									</td>
-									<td>
-										{% if click.source == 'qr' %}
-											{{ "QR"|t('shortlink-manager') }}
-										{% else %}
-											{{ "Direct"|t('shortlink-manager') }}
-										{% endif %}
-									</td>
-									<td>
-										{% if click.destinationUrl %}
-											<span title="{{ click.destinationUrl }}">
-												{{ click.destinationUrl|length > 30 ? click.destinationUrl|slice(0, 30) ~ '...' : click.destinationUrl }}
-											</span>
-										{% else %}
-											—
-										{% endif %}
-									</td>
-									<td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
-									<td>{{ click.browser ?? '—' }}</td>
-									<td>{{ click.osName ?? '—' }}</td>
-									{% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
-										<td>
-											{% if click.city and click.country %}
-												{{ click.city }}, {{ click.country }}
-											{% elseif click.country %}
-												{{ click.country }}
-											{% else %}
-												—
-											{% endif %}
-										</td>
-									{% endif %}
-								</tr>
-							{% else %}
-								<tr>
-									<td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-
-		<h2 style="margin: 30px 0 20px;">{{ "Device Analytics"|t('shortlink-manager') }}</h2>
-
-		<div class="analytics-charts two-columns">
-			<div class="chart-container">
-				<h3>{{ "Device Types"|t('shortlink-manager') }}</h3>
-				<canvas id="device-chart"></canvas>
-			</div>
-
-			<div class="chart-container">
-				<h3>{{ "Device Brands"|t('shortlink-manager') }}</h3>
-				<canvas id="brand-chart"></canvas>
-			</div>
-		</div>
-
-		<div class="analytics-charts two-columns" style="margin-top: 30px;">
-			<div class="chart-container">
-				<h3>{{ "Operating Systems"|t('shortlink-manager') }}</h3>
-				<canvas id="os-chart"></canvas>
-			</div>
-
-			<div class="chart-container">
-				<h3>{{ "Browser Usage"|t('shortlink-manager') }}</h3>
-				<canvas id="browser-chart"></canvas>
-			</div>
-		</div>
-
-		<h2 style="margin: 30px 0 20px;">{{ "Geographic Distribution"|t('shortlink-manager') }}</h2>
-
-		{% if settings.enableGeoDetection %}
-		<div class="analytics-charts two-columns">
-			<div class="chart-container">
-				<h3>{{ "Top Countries"|t('shortlink-manager') }}</h3>
-				<div id="countries-table">
-					<table class="data fullwidth">
-						<thead>
-							<tr>
-								<th>{{ "Country"|t('shortlink-manager') }}</th>
-								<th>{{ "Interactions"|t('shortlink-manager') }}</th>
-								<th>{{ "Percentage"|t('shortlink-manager') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% set topCountries = analyticsData.topCountries ?? [] %}
-							{% if topCountries|length > 0 %}
-								{% for country in topCountries %}
-									<tr>
-										<td>{{ country.name }}</td>
-										<td>{{ country.clicks|number }}</td>
-										<td>{{ country.percentage }}%</td>
-									</tr>
-								{% endfor %}
-							{% else %}
-								<tr>
-									<td colspan="3" style="text-align: center; color: #999;">
-										{{ "No country data available"|t('shortlink-manager') }}
-									</td>
-								</tr>
-							{% endif %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<div class="chart-container">
-				<h3>{{ "Top Cities"|t('shortlink-manager') }}</h3>
-				<div id="cities-table">
-					<table class="data fullwidth">
-						<thead>
-							<tr>
-								<th>{{ "City"|t('shortlink-manager') }}</th>
-								<th>{{ "Country"|t('shortlink-manager') }}</th>
-								<th>{{ "Interactions"|t('shortlink-manager') }}</th>
-								<th>{{ "Percentage"|t('shortlink-manager') }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% set topCities = analyticsData.topCities ?? [] %}
-							{% if topCities|length > 0 %}
-								{% for city in topCities %}
-									<tr>
-										<td>{{ city.city }}</td>
-										<td>{{ city.countryName }}</td>
-										<td>{{ city.clicks|number }}</td>
-										<td>{{ city.percentage }}%</td>
-									</tr>
-								{% endfor %}
-							{% else %}
-								<tr>
-									<td colspan="4" style="text-align: center; color: #999;">
-										{{ "No city data available"|t('shortlink-manager') }}
-									</td>
-								</tr>
-							{% endif %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		{% endif %}
-
-		<h2 style="margin: 30px 0 20px;">{{ "Usage Patterns"|t('shortlink-manager') }}</h2>
-
-		<div class="analytics-charts">
-			<div class="chart-container">
-				<h3>{{ "Peak Usage Hours"|t('shortlink-manager') }}</h3>
-				<canvas id="hourly-chart"></canvas>
-				<div id="peak-hour-info" style="text-align: center; margin-top: 10px;"></div>
-			</div>
-		</div>
+	{# Tab Content - IDs must match tab URLs #}
+	<div id="overview">
+		{% include 'shortlink-manager/analytics/_tabs/overview' %}
 	</div>
+
+	<div id="traffic-devices" class="hidden">
+		{% include 'shortlink-manager/analytics/_tabs/traffic-devices' %}
+	</div>
+
+	{% if settings.enableGeoDetection %}
+	<div id="geographic" class="hidden">
+		{% include 'shortlink-manager/analytics/_tabs/geographic' %}
+	</div>
+	{% endif %}
 {% endblock %}
 
 {% css %}
-#analytics-dashboard {
+/* Tab content padding */
+#overview, #traffic-devices, #geographic {
 	padding: 24px;
 }
 
@@ -380,8 +163,8 @@
 	border: 1px solid #e3e5e8;
 	border-radius: 4px;
 	padding: 24px;
-	min-width: 0; /* Allow flex/grid item to shrink below content size */
-	overflow: hidden; /* Prevent content from pushing out */
+	min-width: 0;
+	overflow: hidden;
 }
 
 .chart-container h3 {
@@ -394,7 +177,6 @@
 	max-width: 100%;
 }
 
-/* Ensure chart wrapper respects container size */
 .chart-container > canvas {
 	display: block;
 	box-sizing: border-box;
@@ -425,515 +207,322 @@
 {% endcss %}
 
 {% js %}
-// Store chart instances globally
-window.analyticsCharts = window.analyticsCharts || {};
+// Global chart instances
+window.slmCharts = {};
+window.currentTab = 'overview';
 
 // Load Chart.js if not already loaded
 if (typeof Chart === 'undefined') {
 	var script = document.createElement('script');
 	script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-	script.onload = initCharts;
+	script.onload = function() { initCharts(); };
 	document.head.appendChild(script);
 } else {
 	initCharts();
 }
 
-// Date range change handler
-$(document).ready(function() {
-	let currentDateRange = '{{ dateRange }}';
+// Chart colors
+const chartColors = [
+	'#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c',
+	'#34495e', '#e67e22', '#3498db', '#2ecc71', '#c0392b', '#f1c40f'
+];
 
-	// Handle date range selection via AJAX
-	$(document).on('click', '.main-date-range-option', function(e) {
-		e.preventDefault();
-
-		const $btn = $(this);
-		const range = $btn.data('range');
-
-		// Update the button text
-		const rangeLabels = {
-			'today': '{{ "Today"|t('shortlink-manager')|e('js') }}',
-			'yesterday': '{{ "Yesterday"|t('shortlink-manager')|e('js') }}',
-			'last7days': '{{ "Last 7 days"|t('shortlink-manager')|e('js') }}',
-			'last30days': '{{ "Last 30 days"|t('shortlink-manager')|e('js') }}',
-			'last90days': '{{ "Last 90 days"|t('shortlink-manager')|e('js') }}',
-			'all': '{{ "All time"|t('shortlink-manager')|e('js') }}'
-		};
-
-		// Update button text immediately
-		$('#dateRangeLabel').text(rangeLabels[range] || range);
-
-		// Update selected state
-		$btn.closest('ul').find('.sel').removeClass('sel');
-		$btn.addClass('sel');
-
-		// Close the menu
-		$btn.closest('.menu').removeClass('active');
-		$btn.closest('.btngroup').find('.menubtn').removeClass('active');
-
-		// Update current range
-		currentDateRange = range;
-
-		// Update URL without reload
-		const url = new URL(window.location);
-		url.searchParams.set('dateRange', range);
-		window.history.pushState({}, '', url);
-
-		// Show loading state
-		$('#analytics-dashboard').css('opacity', '0.5');
-
-		// Reload the page data via AJAX
-		loadAnalyticsData(range);
-	});
-
-	// Handle export link clicks
-	$(document).on('click', '.export-link', function(e) {
-		e.preventDefault();
-		const $link = $(this);
-		const action = $link.data('action');
-		const format = $link.data('format') || 'csv';
-
-		// Build URL with current date range
-		const exportUrl = Craft.getActionUrl(action, {
-			dateRange: currentDateRange,
-			format: format
-		});
-
-		// Trigger download
-		window.location.href = exportUrl;
-	});
-
-	// Load analytics data
-	function loadAnalyticsData(dateRange) {
-		// Update summary stats
-		$.ajax({
-			url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
-			type: 'POST',
-			dataType: 'json',
-			data: {
-				dateRange: dateRange,
-				type: 'summary',
-				{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-			},
-			success: function(response) {
-				if (response.success && response.data) {
-					// Update stat boxes with number formatting
-					$('#total-clicks').text((response.data.totalClicks || 0).toLocaleString());
-					$('#unique-visitors').text((response.data.uniqueVisitors || 0).toLocaleString());
-					$('#active-links').text((response.data.activeLinks || 0).toLocaleString());
-					$('#links-used').text((response.data.linksUsedPercentage || 0) + '%');
-
-					// Update tables
-					updateTopLinksTable(response.data.topLinks || []);
-					updateRecentClicksTable(response.data.recentClicks || []);
-					updateTopCountriesTable(response.data.topCountries || []);
-					updateTopCitiesTable(response.data.topCities || []);
-				}
-
-				// Restore opacity
-				$('#analytics-dashboard').css('opacity', '1');
-
-				// Re-initialize charts with new data
-				initCharts();
-			},
-			error: function() {
-				$('#analytics-dashboard').css('opacity', '1');
-				Craft.cp.displayError('{{ "Failed to load analytics data"|t('shortlink-manager')|e('js') }}');
-			}
-		});
-	}
-
-	// Update tables
-	function updateTopLinksTable(links) {
-		let html = '';
-		let hasData = false;
-		if (links.length === 0) {
-			html = '<tr><td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
-		} else {
-			links.forEach(function(shortLink) {
-				if (shortLink.enabled !== false && (shortLink.clicks || 0) > 0) {
-					hasData = true;
-					html += '<tr>';
-					html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + shortLink.id) + '"><code>' + Craft.escapeHtml(shortLink.code) + '</code></a></td>';
-					html += '<td>' + (shortLink.siteName || '—') + '</td>';
-					html += '<td><span title="' + Craft.escapeHtml(shortLink.destinationUrl) + '">';
-					const url = shortLink.destinationUrl;
-					html += Craft.escapeHtml(url.length > 50 ? url.substring(0, 50) + '...' : url);
-					html += '</span></td>';
-					html += '<td>' + (shortLink.clicks || 0).toLocaleString() + '</td>';
-					html += '<td>' + (shortLink.lastClickFormatted || (shortLink.lastClick ? Craft.formatDate(new Date(shortLink.lastClick.date || shortLink.lastClick)) : '-')) + '</td>';
-					html += '</tr>';
-				}
-			});
-			if (!hasData) {
-				html = '<tr><td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager')|e('js') }}</td></tr>';
-			}
-		}
-		$('#top-links-table tbody').html(html);
-	}
-
-	function updateRecentClicksTable(clicks) {
-		const geoEnabled = {{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? 'true' : 'false' }};
-		const colspan = geoEnabled ? 10 : 9;
-		let html = '';
-		if (clicks.length === 0) {
-			html = '<tr><td colspan="' + colspan + '" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager')|e('js') }}</td></tr>';
-		} else {
-			clicks.forEach(function(click) {
-				html += '<tr>';
-				if (click.dateCreatedFormatted) {
-					// Pre-formatted from server, split into date and time
-					const parts = click.dateCreatedFormatted.split(', ');
-					html += '<td>' + (parts[0] || '') + '</td>';
-					html += '<td>' + (parts[1] || '') + '</td>';
-				} else {
-					const dateObj = new Date(click.dateCreated.date || click.dateCreated);
-					html += '<td>' + Craft.formatDate(dateObj, 'short') + '</td>';
-					html += '<td>' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) + '</td>';
-				}
-				html += '<td><a href="' + Craft.getUrl('shortlink-manager/shortlinks/' + click.linkId) + '"><code>' + Craft.escapeHtml(click.linkCode) + '</code></a></td>';
-				html += '<td>' + (click.siteName || '—') + '</td>';
-				html += '<td>' + (click.source === 'qr' ? '{{ "QR"|t('shortlink-manager')|e('js') }}' : '{{ "Direct"|t('shortlink-manager')|e('js') }}') + '</td>';
-				html += '<td>';
-				if (click.destinationUrl) {
-					const url = click.destinationUrl;
-					html += '<span title="' + Craft.escapeHtml(url) + '">' + Craft.escapeHtml(url.length > 30 ? url.substring(0, 30) + '...' : url) + '</span>';
-				} else {
-					html += '—';
-				}
-				html += '</td>';
-				html += '<td>' + (click.deviceType ? Craft.escapeHtml(click.deviceType.charAt(0).toUpperCase() + click.deviceType.slice(1)) : '—') + '</td>';
-				html += '<td>' + (click.browser || '—') + '</td>';
-				html += '<td>' + (click.osName || '—') + '</td>';
-				if (geoEnabled) {
-					html += '<td>';
-					if (click.city && click.country) {
-						html += Craft.escapeHtml(click.city + ', ' + click.country);
-					} else if (click.country) {
-						html += Craft.escapeHtml(click.country);
-					} else {
-						html += '—';
-					}
-					html += '</td>';
-				}
-				html += '</tr>';
-			});
-		}
-		$('#recent-clicks-table tbody').html(html);
-	}
-
-	function updateTopCountriesTable(countries) {
-		let html = '';
-		if (countries.length > 0) {
-			countries.forEach(function(country) {
-				html += '<tr>';
-				html += '<td>' + country.name + '</td>';
-				html += '<td>' + (country.clicks || 0).toLocaleString() + '</td>';
-				html += '<td>' + country.percentage + '%</td>';
-				html += '</tr>';
-			});
-		} else {
-			html += '<tr><td colspan="3" style="text-align: center; color: #999;">{{ "No country data available"|t('shortlink-manager')|e('js') }}</td></tr>';
-		}
-		$('#countries-table tbody').html(html);
-	}
-
-	function updateTopCitiesTable(cities) {
-		let html = '';
-		if (cities.length > 0) {
-			cities.forEach(function(city) {
-				html += '<tr>';
-				html += '<td>' + city.city + '</td>';
-				html += '<td>' + city.countryName + '</td>';
-				html += '<td>' + (city.clicks || 0).toLocaleString() + '</td>';
-				html += '<td>' + city.percentage + '%</td>';
-				html += '</tr>';
-			});
-		} else {
-			html += '<tr><td colspan="4" style="text-align: center; color: #999;">{{ "No city data available"|t('shortlink-manager')|e('js') }}</td></tr>';
-		}
-		$('#cities-table tbody').html(html);
-	}
-});
-
+// Initialize all charts
 function initCharts() {
 	// Destroy existing charts
-	if (window.analyticsCharts) {
-		Object.keys(window.analyticsCharts).forEach(function(key) {
-			if (window.analyticsCharts[key] && typeof window.analyticsCharts[key].destroy === 'function') {
-				window.analyticsCharts[key].destroy();
-			}
-		});
-		window.analyticsCharts = {};
-	}
+	Object.values(window.slmCharts).forEach(c => { if (c && c.destroy) c.destroy(); });
+	window.slmCharts = {};
 
-	// Get current date range
+	// Get current parameters
 	const urlParams = new URLSearchParams(window.location.search);
 	const currentRange = urlParams.get('dateRange') || '{{ dateRange }}';
+	const currentSite = urlParams.get('siteId') || '';
 
-	// Chart colors
-	const chartColors = [
-		'#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c',
-		'#34495e', '#e67e22', '#3498db', '#2ecc71', '#c0392b', '#f1c40f'
-	];
+	// Load all chart data
+	loadChartData(currentRange, currentSite);
+}
+
+// Load chart data for all tabs
+function loadChartData(dateRange, siteId) {
+	const csrfToken = '{{ craft.app.request.csrfToken }}';
+	const csrfName = '{{ craft.app.config.general.csrfTokenName }}';
+	const actionUrl = '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}';
 
 	// Daily clicks chart
 	$.ajax({
-		url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
+		url: actionUrl,
 		type: 'POST',
 		dataType: 'json',
-		data: {
-			dateRange: currentRange,
-			type: 'clicks',
-			{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		},
+		data: { dateRange: dateRange, siteId: siteId, type: 'clicks', [csrfName]: csrfToken },
 		success: function(response) {
 			if (response.success && response.data) {
-				window.analyticsCharts.clicksChart = new Chart(document.getElementById('clicks-chart'), {
-					type: 'line',
-					data: {
-						labels: response.data.labels,
-						datasets: [{
-							label: '{{ "Interactions"|t('shortlink-manager') }}',
-							data: response.data.values,
-							borderColor: chartColors[0],
-							backgroundColor: chartColors[0] + '20',
-							tension: 0.1,
-							fill: true
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: false,
-						scales: {
-							y: {
-								beginAtZero: true,
-								ticks: {
-									stepSize: 1,
-									precision: 0
-								}
-							}
-						},
-						plugins: {
-							legend: {
-								display: false
-							}
-						}
-					}
-				});
+				renderClicksChart(response.data);
 			}
 		}
 	});
 
 	// Device types chart
 	$.ajax({
-		url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
+		url: actionUrl,
 		type: 'POST',
 		dataType: 'json',
-		data: {
-			dateRange: currentRange,
-			type: 'devices',
-			{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		},
+		data: { dateRange: dateRange, siteId: siteId, type: 'devices', [csrfName]: csrfToken },
 		success: function(response) {
-			if (response.success && response.data) {
-				window.analyticsCharts.deviceChart = new Chart(document.getElementById('device-chart'), {
-					type: 'doughnut',
-					data: {
-						labels: response.data.labels,
-						datasets: [{
-							data: response.data.values,
-							backgroundColor: chartColors.slice(0, 6)
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: true,
-						plugins: {
-							legend: {
-								position: 'bottom'
-							}
-						}
-					}
-				});
+			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+				renderDeviceChart(response.data);
 			}
 		}
 	});
 
 	// Device brands chart
 	$.ajax({
-		url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
+		url: actionUrl,
 		type: 'POST',
 		dataType: 'json',
-		data: {
-			dateRange: currentRange,
-			type: 'device-brands',
-			{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		},
+		data: { dateRange: dateRange, siteId: siteId, type: 'device-brands', [csrfName]: csrfToken },
 		success: function(response) {
-			if (response.success && response.data) {
-				const brandCtx = document.getElementById('brand-chart');
-				if (brandCtx) {
-					brandCtx.parentElement.style.minHeight = '300px';
-				}
-				window.analyticsCharts.brandChart = new Chart(brandCtx, {
-					type: 'bar',
-					data: {
-						labels: response.data.labels,
-						datasets: [{
-							label: '{{ "Interactions"|t('shortlink-manager') }}',
-							data: response.data.values,
-							backgroundColor: chartColors[0],
-							borderColor: chartColors[0],
-							borderWidth: 1
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: false,
-						scales: {
-							y: {
-								beginAtZero: true,
-								ticks: {
-									stepSize: 1,
-									precision: 0
-								}
-							}
-						},
-						plugins: {
-							legend: {
-								display: false
-							}
-						}
-					}
-				});
+			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+				renderBrandChart(response.data);
 			}
 		}
 	});
 
 	// OS breakdown chart
 	$.ajax({
-		url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
+		url: actionUrl,
 		type: 'POST',
 		dataType: 'json',
-		data: {
-			dateRange: currentRange,
-			type: 'os-breakdown',
-			{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		},
+		data: { dateRange: dateRange, siteId: siteId, type: 'os-breakdown', [csrfName]: csrfToken },
 		success: function(response) {
-			if (response.success && response.data) {
-				window.analyticsCharts.osChart = new Chart(document.getElementById('os-chart'), {
-					type: 'doughnut',
-					data: {
-						labels: response.data.labels,
-						datasets: [{
-							data: response.data.values,
-							backgroundColor: chartColors
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: true,
-						plugins: {
-							legend: {
-								position: 'bottom'
-							}
-						}
-					}
-				});
+			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+				renderOsChart(response.data);
 			}
 		}
 	});
 
 	// Browser breakdown chart
 	$.ajax({
-		url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
+		url: actionUrl,
 		type: 'POST',
 		dataType: 'json',
-		data: {
-			dateRange: currentRange,
-			type: 'browsers',
-			{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		},
+		data: { dateRange: dateRange, siteId: siteId, type: 'browsers', [csrfName]: csrfToken },
 		success: function(response) {
-			if (response.success && response.data) {
-				window.analyticsCharts.browserChart = new Chart(document.getElementById('browser-chart'), {
-					type: 'doughnut',
-					data: {
-						labels: response.data.labels,
-						datasets: [{
-							data: response.data.values,
-							backgroundColor: chartColors
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: true,
-						plugins: {
-							legend: {
-								position: 'bottom'
-							}
-						}
-					}
-				});
+			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+				renderBrowserChart(response.data);
 			}
 		}
 	});
 
 	// Hourly analytics chart
 	$.ajax({
-		url: '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}',
+		url: actionUrl,
 		type: 'POST',
 		dataType: 'json',
-		data: {
-			dateRange: currentRange,
-			type: 'hourly',
-			{{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-		},
+		data: { dateRange: dateRange, siteId: siteId, type: 'hourly', [csrfName]: csrfToken },
 		success: function(response) {
 			if (response.success && response.data) {
-				const hourlyCtx = document.getElementById('hourly-chart');
-				if (hourlyCtx) {
-					hourlyCtx.parentElement.style.minHeight = '300px';
-				}
-				window.analyticsCharts.hourlyChart = new Chart(hourlyCtx, {
-					type: 'bar',
-					data: {
-						labels: Array.from({length: 24}, (_, i) => i + ':00'),
-						datasets: [{
-							label: '{{ "Interactions"|t('shortlink-manager') }}',
-							data: response.data.data,
-							backgroundColor: chartColors[0],
-							borderColor: chartColors[0],
-							borderWidth: 1
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: false,
-						scales: {
-							y: {
-								beginAtZero: true,
-								ticks: {
-									stepSize: 1,
-									precision: 0
-								}
-							}
-						},
-						plugins: {
-							legend: {
-								display: false
-							}
-						}
-					}
-				});
-
-				// Show peak hour
-				$('#peak-hour-info').html(
-					'{{ "Peak usage at"|t('shortlink-manager') }} <strong>' + response.data.peakHourFormatted + '</strong>'
-				);
+				renderHourlyChart(response.data);
 			}
 		}
 	});
 }
+
+// Chart rendering functions
+function renderClicksChart(data) {
+	const ctx = document.getElementById('clicks-chart');
+	if (!ctx) return;
+
+	if (window.slmCharts.clicks) window.slmCharts.clicks.destroy();
+
+	window.slmCharts.clicks = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: data.labels,
+			datasets: [{
+				label: '{{ "Interactions"|t('shortlink-manager') }}',
+				data: data.values,
+				borderColor: chartColors[0],
+				backgroundColor: chartColors[0] + '20',
+				tension: 0.1,
+				fill: true
+			}]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+			scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+			plugins: { legend: { display: false } }
+		}
+	});
+}
+
+function renderDeviceChart(data) {
+	const ctx = document.getElementById('device-chart');
+	if (!ctx) return;
+
+	if (window.slmCharts.device) window.slmCharts.device.destroy();
+
+	window.slmCharts.device = new Chart(ctx, {
+		type: 'doughnut',
+		data: {
+			labels: data.labels,
+			datasets: [{ data: data.values, backgroundColor: chartColors.slice(0, 6) }]
+		},
+		options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+	});
+}
+
+function renderBrandChart(data) {
+	const ctx = document.getElementById('brand-chart');
+	if (!ctx) return;
+
+	if (window.slmCharts.brand) window.slmCharts.brand.destroy();
+	ctx.parentElement.style.minHeight = '300px';
+
+	window.slmCharts.brand = new Chart(ctx, {
+		type: 'bar',
+		data: {
+			labels: data.labels,
+			datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.values, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+			scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+			plugins: { legend: { display: false } }
+		}
+	});
+}
+
+function renderOsChart(data) {
+	const ctx = document.getElementById('os-chart');
+	if (!ctx) return;
+
+	if (window.slmCharts.os) window.slmCharts.os.destroy();
+
+	window.slmCharts.os = new Chart(ctx, {
+		type: 'doughnut',
+		data: {
+			labels: data.labels,
+			datasets: [{ data: data.values, backgroundColor: chartColors }]
+		},
+		options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+	});
+}
+
+function renderBrowserChart(data) {
+	const ctx = document.getElementById('browser-chart');
+	if (!ctx) return;
+
+	if (window.slmCharts.browser) window.slmCharts.browser.destroy();
+
+	window.slmCharts.browser = new Chart(ctx, {
+		type: 'doughnut',
+		data: {
+			labels: data.labels,
+			datasets: [{ data: data.values, backgroundColor: chartColors }]
+		},
+		options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+	});
+}
+
+function renderHourlyChart(data) {
+	const ctx = document.getElementById('hourly-chart');
+	if (!ctx) return;
+
+	if (window.slmCharts.hourly) window.slmCharts.hourly.destroy();
+	ctx.parentElement.style.minHeight = '300px';
+
+	window.slmCharts.hourly = new Chart(ctx, {
+		type: 'bar',
+		data: {
+			labels: Array.from({length: 24}, (_, i) => i + ':00'),
+			datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.data, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+			scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+			plugins: { legend: { display: false } }
+		}
+	});
+
+	// Show peak hour
+	$('#peak-hour-info').html('{{ "Peak usage at"|t('shortlink-manager') }} <strong>' + data.peakHourFormatted + '</strong>');
+}
+
+// Tab Switching
+function switchTab(tabId) {
+	if (!tabId) tabId = 'overview';
+
+	// Hide all tab content
+	$('#content > div[id]').addClass('hidden');
+	// Show selected tab content
+	$('#' + tabId).removeClass('hidden');
+
+	window.currentTab = tabId;
+}
+
+// Handle hash changes (when Craft switches tabs)
+window.addEventListener('hashchange', function() {
+	var hash = window.location.hash.substring(1);
+	switchTab(hash);
+});
+
+// Document ready
+$(document).ready(function() {
+	// Handle clicks on tab links
+	$(document).on('click', 'a[href^="#"]', function() {
+		var href = $(this).attr('href');
+		if (href && href.startsWith('#')) {
+			setTimeout(function() {
+				var hash = window.location.hash.substring(1);
+				switchTab(hash);
+			}, 10);
+		}
+	});
+
+	// Handle initial tab
+	var hash = window.location.hash.substring(1) || 'overview';
+	switchTab(hash);
+
+	// Date Range Handler - reload page
+	$(document).on('click', '.main-date-range-option', function(e) {
+		e.preventDefault();
+		const range = $(this).data('range');
+		const url = new URL(window.location);
+		url.searchParams.set('dateRange', range);
+		window.location = url;
+	});
+
+	// Site Filter Handler - reload page
+	$(document).on('click', '.site-option', function(e) {
+		e.preventDefault();
+		const siteId = $(this).data('site');
+		const url = new URL(window.location);
+		if (siteId) {
+			url.searchParams.set('siteId', siteId);
+		} else {
+			url.searchParams.delete('siteId');
+		}
+		window.location = url;
+	});
+
+	// Export Handler
+	$(document).on('click', '.export-link', function(e) {
+		e.preventDefault();
+		const action = $(this).data('action');
+		const format = $(this).data('format') || 'csv';
+		const dateRange = new URLSearchParams(window.location.search).get('dateRange') || 'last7days';
+		const siteId = new URLSearchParams(window.location.search).get('siteId') || '';
+
+		const exportUrl = Craft.getActionUrl(action, {
+			dateRange: dateRange,
+			siteId: siteId,
+			format: format
+		});
+
+		window.location.href = exportUrl;
+	});
+});
 {% endjs %}

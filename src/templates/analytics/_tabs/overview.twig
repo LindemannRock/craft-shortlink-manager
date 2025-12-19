@@ -1,0 +1,161 @@
+{# Overview Tab - Stats, Daily Interactions, Top Links, Recent Interactions #}
+
+<div class="analytics-stats">
+    <div class="stat-box">
+        <div class="stat-value" id="total-clicks">{{ (analyticsData.totalClicks ?? 0)|number }}</div>
+        <div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value" id="unique-visitors">{{ (analyticsData.uniqueVisitors ?? 0)|number }}</div>
+        <div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value" id="active-links">{{ (analyticsData.activeLinks ?? 0)|number }}</div>
+        <div class="stat-label">{{ "Active Links"|t('shortlink-manager') }}</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-value" id="links-used">{{ analyticsData.linksUsedPercentage ?? 0 }}%</div>
+        <div class="stat-label">{{ "Engagement Rate"|t('shortlink-manager') }}</div>
+    </div>
+</div>
+
+<h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('shortlink-manager') }}</h2>
+
+<div class="analytics-charts">
+    <div class="chart-container full-width">
+        <h3>{{ "Daily Interactions"|t('shortlink-manager') }}</h3>
+        <canvas id="clicks-chart"></canvas>
+    </div>
+</div>
+
+<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
+
+<div class="analytics-charts">
+    <div class="chart-container full-width">
+        <div id="top-links-table" class="table-scroll-container">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ "Code"|t('shortlink-manager') }}</th>
+                        <th>{{ "Site"|t('shortlink-manager') }}</th>
+                        <th>{{ "Destination"|t('shortlink-manager') }}</th>
+                        <th>{{ "Total Interactions"|t('shortlink-manager') }}</th>
+                        <th>{{ "Last Interaction"|t('shortlink-manager') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shortLink in analyticsData.topLinks ?? [] %}
+                        {% if (shortLink.enabled ?? true) and (shortLink.clicks > 0) %}
+                            <tr>
+                                <td>
+                                    <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
+                                        <code>{{ shortLink.code }}</code>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if shortLink.siteId %}
+                                        {% set site = craft.app.sites.getSiteById(shortLink.siteId) %}
+                                        {{ site ? site.name : '—' }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span title="{{ shortLink.destinationUrl }}">
+                                        {{ shortLink.destinationUrl|length > 50 ? shortLink.destinationUrl|slice(0, 50) ~ '...' : shortLink.destinationUrl }}
+                                    </span>
+                                </td>
+                                <td>{{ shortLink.clicks|number }}</td>
+                                <td>{{ shortLink.lastClick ? shortLink.lastClick|datetime('short') : '-' }}</td>
+                            </tr>
+                        {% endif %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<h2 style="margin: 30px 0 20px;">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
+
+<div class="analytics-charts">
+    <div class="chart-container full-width">
+        <div id="recent-clicks-table" class="table-scroll-container">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ "Date"|t('shortlink-manager') }}</th>
+                        <th>{{ "Time"|t('shortlink-manager') }}</th>
+                        <th>{{ "Code"|t('shortlink-manager') }}</th>
+                        <th>{{ "Site"|t('shortlink-manager') }}</th>
+                        <th>{{ "Source"|t('shortlink-manager') }}</th>
+                        <th>{{ "Destination"|t('shortlink-manager') }}</th>
+                        <th>{{ "Device"|t('shortlink-manager') }}</th>
+                        <th>{{ "Browser"|t('shortlink-manager') }}</th>
+                        <th>{{ "OS"|t('shortlink-manager') }}</th>
+                        {% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
+                            <th>{{ "Location"|t('shortlink-manager') }}</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for click in analyticsData.recentClicks ?? [] %}
+                        <tr>
+                            <td>{{ click.dateCreated|date('short') }}</td>
+                            <td>{{ click.dateCreated|time('short') }}</td>
+                            <td>
+                                <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
+                            </td>
+                            <td>
+                                {% if click.siteId %}
+                                    {% set site = craft.app.sites.getSiteById(click.siteId) %}
+                                    {{ site ? site.name : '—' }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if click.source == 'qr' %}
+                                    {{ "QR"|t('shortlink-manager') }}
+                                {% else %}
+                                    {{ "Direct"|t('shortlink-manager') }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if click.destinationUrl %}
+                                    <span title="{{ click.destinationUrl }}">
+                                        {{ click.destinationUrl|length > 30 ? click.destinationUrl|slice(0, 30) ~ '...' : click.destinationUrl }}
+                                    </span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
+                            <td>{{ click.browser ?? '—' }}</td>
+                            <td>{{ click.osName ?? '—' }}</td>
+                            {% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
+                                <td>
+                                    {% if click.city and click.country %}
+                                        {{ click.city }}, {{ click.country }}
+                                    {% elseif click.country %}
+                                        {{ click.country }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,82 @@
+{# Geographic Tab - Countries and Cities #}
+
+{% set settings = craft.app.plugins.getPlugin('shortlink-manager').settings %}
+
+{% if settings.enableGeoDetection %}
+    <h2 style="margin: 0 0 20px;">{{ "Geographic Distribution"|t('shortlink-manager') }}</h2>
+
+    <div class="analytics-charts two-columns">
+        <div class="chart-container">
+            <h3>{{ "Top Countries"|t('shortlink-manager') }}</h3>
+            <div id="countries-table" class="table-scroll-container">
+                <table class="data fullwidth">
+                    <thead>
+                        <tr>
+                            <th>{{ "Country"|t('shortlink-manager') }}</th>
+                            <th>{{ "Interactions"|t('shortlink-manager') }}</th>
+                            <th>{{ "Percentage"|t('shortlink-manager') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set topCountries = analyticsData.topCountries ?? [] %}
+                        {% if topCountries|length > 0 %}
+                            {% for country in topCountries %}
+                                <tr>
+                                    <td>{{ country.name }}</td>
+                                    <td>{{ country.clicks|number }}</td>
+                                    <td>{{ country.percentage }}%</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: #999;">
+                                    {{ "No country data available"|t('shortlink-manager') }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>{{ "Top Cities"|t('shortlink-manager') }}</h3>
+            <div id="cities-table" class="table-scroll-container">
+                <table class="data fullwidth">
+                    <thead>
+                        <tr>
+                            <th>{{ "City"|t('shortlink-manager') }}</th>
+                            <th>{{ "Country"|t('shortlink-manager') }}</th>
+                            <th>{{ "Interactions"|t('shortlink-manager') }}</th>
+                            <th>{{ "Percentage"|t('shortlink-manager') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set topCities = analyticsData.topCities ?? [] %}
+                        {% if topCities|length > 0 %}
+                            {% for city in topCities %}
+                                <tr>
+                                    <td>{{ city.city }}</td>
+                                    <td>{{ city.countryName }}</td>
+                                    <td>{{ city.clicks|number }}</td>
+                                    <td>{{ city.percentage }}%</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #999;">
+                                    {{ "No city data available"|t('shortlink-manager') }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="pane" style="text-align: center; padding: 60px 20px;">
+        <p class="light">{{ "Geographic detection is disabled."|t('shortlink-manager') }}</p>
+        <p><a href="{{ url('shortlink-manager/settings/analytics') }}" class="btn">{{ "Enable in Settings"|t('shortlink-manager') }}</a></p>
+    </div>
+{% endif %}

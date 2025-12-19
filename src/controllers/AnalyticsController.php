@@ -41,15 +41,22 @@ class AnalyticsController extends Controller
     {
         $this->requirePermission('shortLinkManager:viewAnalytics');
 
-        // Get date range from query params or use default
-        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'last7days');
+        $request = Craft::$app->getRequest();
+        $dateRange = $request->getQueryParam('dateRange', 'last7days');
+        $siteId = $request->getQueryParam('siteId');
+        $siteId = $siteId ? (int)$siteId : null;
 
         // Get analytics summary
-        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange);
+        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
+
+        // Get all sites for site selector
+        $sites = Craft::$app->getSites()->getAllSites();
 
         return $this->renderTemplate('shortlink-manager/analytics/index', [
             'analyticsData' => $analyticsData,
             'dateRange' => $dateRange,
+            'siteId' => $siteId,
+            'sites' => $sites,
             'settings' => ShortLinkManager::$plugin->getSettings(),
         ]);
     }
@@ -68,37 +75,39 @@ class AnalyticsController extends Controller
         $dateRange = $request->getBodyParam('dateRange', 'last7days');
         $type = $request->getBodyParam('type', 'summary');
         $linkId = $request->getBodyParam('linkId');
+        $siteId = $request->getBodyParam('siteId');
+        $siteId = $siteId ? (int)$siteId : null;
 
         $data = [];
 
         try {
             switch ($type) {
                 case 'summary':
-                    $data = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, $linkId);
+                    $data = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, $linkId, $siteId);
                     break;
 
                 case 'clicks':
-                    $data = ShortLinkManager::$plugin->analytics->getClicksData($linkId, $dateRange);
+                    $data = ShortLinkManager::$plugin->analytics->getClicksData($linkId, $dateRange, $siteId);
                     break;
 
                 case 'devices':
-                    $data = ShortLinkManager::$plugin->analytics->getDeviceTypeBreakdown($linkId, $dateRange);
+                    $data = ShortLinkManager::$plugin->analytics->getDeviceTypeBreakdown($linkId, $dateRange, $siteId);
                     break;
 
                 case 'device-brands':
-                    $data = ShortLinkManager::$plugin->analytics->getDeviceBrandBreakdown($linkId, $dateRange);
+                    $data = ShortLinkManager::$plugin->analytics->getDeviceBrandBreakdown($linkId, $dateRange, $siteId);
                     break;
 
                 case 'os-breakdown':
-                    $data = ShortLinkManager::$plugin->analytics->getOsBreakdown($linkId, $dateRange);
+                    $data = ShortLinkManager::$plugin->analytics->getOsBreakdown($linkId, $dateRange, $siteId);
                     break;
 
                 case 'browsers':
-                    $data = ShortLinkManager::$plugin->analytics->getBrowserBreakdown($linkId, $dateRange);
+                    $data = ShortLinkManager::$plugin->analytics->getBrowserBreakdown($linkId, $dateRange, $siteId);
                     break;
 
                 case 'hourly':
-                    $data = ShortLinkManager::$plugin->analytics->getHourlyAnalytics($linkId, $dateRange);
+                    $data = ShortLinkManager::$plugin->analytics->getHourlyAnalytics($linkId, $dateRange, $siteId);
                     break;
 
                 default:
@@ -190,12 +199,15 @@ class AnalyticsController extends Controller
         $dateRange = $request->getQueryParam('dateRange', 'last7days');
         $format = $request->getQueryParam('format', 'csv');
         $linkId = $request->getQueryParam('linkId');
+        $siteId = $request->getQueryParam('siteId');
+        $siteId = $siteId ? (int)$siteId : null;
 
         try {
             $csvData = ShortLinkManager::$plugin->analytics->exportAnalytics(
                 $linkId ? (int)$linkId : null,
                 $dateRange,
-                $format
+                $format,
+                $siteId
             );
 
             // Generate filename
@@ -214,7 +226,16 @@ class AnalyticsController extends Controller
                 }
             }
 
-            $filename = $baseFilename . '-' . $dateRange . '-' . date('Y-m-d') . '.' . $format;
+            // Get site name for filename
+            $sitePart = 'all';
+            if ($siteId) {
+                $site = Craft::$app->getSites()->getSiteById($siteId);
+                if ($site) {
+                    $sitePart = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', str_replace(' ', '-', $site->name)));
+                }
+            }
+
+            $filename = $baseFilename . '-' . $sitePart . '-' . $dateRange . '-' . date('Y-m-d') . '.' . $format;
 
             return Craft::$app->getResponse()->sendContentAsFile(
                 $csvData,
