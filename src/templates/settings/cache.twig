@@ -90,24 +90,18 @@
 		<div id="qr-cache-settings" class="{{ not (settings.enableQrCodeCache ?? true) ? 'hidden' }}">
 			{{ forms.textField({
 	            label: "QR Code Cache Duration"|t('shortlink-manager'),
-	            instructions: "How long to cache generated QR codes (in seconds). Default: 86400 (24 hours)"|t('shortlink-manager'),
+	            instructions: ('Cache duration in seconds. Current: <strong id="qrCodeCacheDuration-human"></strong>')|raw,
 	            id: 'qrCodeCacheDuration',
 	            name: 'settings[qrCodeCacheDuration]',
-	            value: settings.qrCodeCacheDuration,
+	            value: settings.qrCodeCacheDuration ?? 86400,
 	            type: 'number',
-	            min: 0,
+	            min: 60,
+	            max: 604800,
+	            tip: 'Min: 60 (1 minute), Max: 604800 (7 days)'|t('shortlink-manager'),
 	            disabled: settings.isOverriddenByConfig('qrCodeCacheDuration'),
 	            warning: settings.isOverriddenByConfig('qrCodeCacheDuration') ?
 	                "This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
 	        }) }}
-
-			<div class="field">
-				<p class="light">
-					<strong>Tips:</strong><br>
-					• Higher values reduce server load but may show outdated QR codes after settings changes<br>
-					• Set to 0 to disable caching (not recommended for production)
-				</p>
-			</div>
 		</div>
 
 		{% if settings.enableAnalytics ?? true %}
@@ -130,25 +124,25 @@
 			<div id="device-cache-settings" class="{{ not (settings.cacheDeviceDetection ?? true) ? 'hidden' }}">
 				{{ forms.textField({
 	                label: "Device Detection Cache Duration"|t('shortlink-manager'),
-	                instructions: "Cache duration in seconds. Default: 3600 (1 hour)"|t('shortlink-manager'),
+	                instructions: ('Cache duration in seconds. Current: <strong id="deviceDetectionCacheDuration-human"></strong>')|raw,
 	                id: 'deviceDetectionCacheDuration',
 	                name: 'settings[deviceDetectionCacheDuration]',
 	                value: settings.deviceDetectionCacheDuration ?? 3600,
 	                type: 'number',
-	                min: 0,
+	                min: 60,
+	                max: 604800,
+	                tip: 'Min: 60 (1 minute), Max: 604800 (7 days)'|t('shortlink-manager'),
 	                disabled: settings.isOverriddenByConfig('deviceDetectionCacheDuration'),
 	                warning: settings.isOverriddenByConfig('deviceDetectionCacheDuration') ?
 	                    "This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
 	            }) }}
 
-				<div class="field">
-					<p class="light">
-						<strong>How it works:</strong><br>
-						• Device detection parses user-agent strings to identify devices, browsers, and operating systems<br>
-						• Results are cached to avoid re-parsing the same user-agent repeatedly<br>
-						• Recommended to keep enabled for production sites
-					</p>
-				</div>
+				{% include 'shortlink-manager/_components/info-box' with {
+					message: '<strong>How it works:</strong><br>
+• Device detection parses user-agent strings to identify devices, browsers, and operating systems<br>
+• Results are cached to avoid re-parsing the same user-agent repeatedly<br>
+• Recommended to keep enabled for production sites'
+				} %}
 			</div>
 		{% else %}
 			<hr>
@@ -184,4 +178,34 @@ $('#cacheStorageMethod').on('change', function() {
 		$('#cache-location-file').removeClass('hidden');
 	}
 });
+
+// Convert seconds to human-readable duration
+function secondsToHuman(seconds) {
+	seconds = parseInt(seconds) || 0;
+	if (seconds < 60) {
+		return seconds + ' second' + (seconds !== 1 ? 's' : '');
+	} else if (seconds < 3600) {
+		const mins = Math.round(seconds / 60 * 10) / 10;
+		return mins + ' minute' + (mins !== 1 ? 's' : '');
+	} else if (seconds < 86400) {
+		const hours = Math.round(seconds / 3600 * 10) / 10;
+		return hours + ' hour' + (hours !== 1 ? 's' : '');
+	} else {
+		const days = Math.round(seconds / 86400 * 10) / 10;
+		return days + ' day' + (days !== 1 ? 's' : '');
+	}
+}
+
+// Update human-readable duration on input change
+$('#qrCodeCacheDuration').on('input', function() {
+	$('#qrCodeCacheDuration-human').text(secondsToHuman($(this).val()));
+});
+
+$('#deviceDetectionCacheDuration').on('input', function() {
+	$('#deviceDetectionCacheDuration-human').text(secondsToHuman($(this).val()));
+});
+
+// Initialize on page load
+$('#qrCodeCacheDuration-human').text(secondsToHuman($('#qrCodeCacheDuration').val()));
+$('#deviceDetectionCacheDuration-human').text(secondsToHuman($('#deviceDetectionCacheDuration').val()));
 {% endjs %}
