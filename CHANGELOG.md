@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.0...v5.4.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* Refactor site selection logic in AnalyticsController for improved clarity ([60d38a3](https://github.com/LindemannRock/craft-shortlink-manager/commit/60d38a37023d9a7f6ee20b9e371014d7aa681f3d))
+
 ## [5.4.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.3...v5.4.0) (2025-12-19)
 
 
