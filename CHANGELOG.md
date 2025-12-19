@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.4.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.3...v5.4.0) (2025-12-19)
+
+
+### Features
+
+* Add Traffic & Devices tab with device analytics charts ([0c5fbd3](https://github.com/LindemannRock/craft-shortlink-manager/commit/0c5fbd3eb3c3a284666edc6e3fc8536b6317b664))
+
+
+### Bug Fixes
+
+* improve cache duration settings and user feedback ([f278cca](https://github.com/LindemannRock/craft-shortlink-manager/commit/f278cca6741b1ec721935e426643a81f0d12c34b))
+* Rename 'Hits' label to 'Interactions' in ShortLink elements and templates ([ea90868](https://github.com/LindemannRock/craft-shortlink-manager/commit/ea9086845fdb424a3f7199357f614a66df602fcd))
+* update cache label to use display name and trim whitespace in settings methods ([d134c38](https://github.com/LindemannRock/craft-shortlink-manager/commit/d134c38745f298a07c4df3a03d68fc46d6cb87b6))
+* update country name mapping in analytics results ([0ece6ac](https://github.com/LindemannRock/craft-shortlink-manager/commit/0ece6ac137be3e821830b33f3981727d59acc0f2))
+
 ## [5.3.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.2...v5.3.3) (2025-12-16)
 
 
