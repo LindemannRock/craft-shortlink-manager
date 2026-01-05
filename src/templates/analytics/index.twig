@@ -89,24 +89,26 @@
 
 {% block content %}
 	{# Tab Content - IDs must match tab URLs #}
-	<div id="overview">
+	<div id="overview" class="tab-content">
 		{% include 'shortlink-manager/analytics/_tabs/overview' %}
 	</div>
 
-	<div id="traffic-devices" class="hidden">
+	<div id="traffic-devices" class="tab-content hidden">
 		{% include 'shortlink-manager/analytics/_tabs/traffic-devices' %}
 	</div>
 
 	{% if settings.enableGeoDetection %}
-	<div id="geographic" class="hidden">
+	<div id="geographic" class="tab-content hidden">
 		{% include 'shortlink-manager/analytics/_tabs/geographic' %}
 	</div>
 	{% endif %}
+
+	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
 {% endblock %}
 
 {% css %}
 /* Tab content padding */
-#overview, #traffic-devices, #geographic {
+.tab-content {
 	padding: 24px;
 }
 
@@ -456,7 +458,7 @@ function switchTab(tabId) {
 	if (!tabId) tabId = 'overview';
 
 	// Hide all tab content
-	$('#content > div[id]').addClass('hidden');
+	$('.tab-content').addClass('hidden');
 	// Show selected tab content
 	$('#' + tabId).removeClass('hidden');
 
