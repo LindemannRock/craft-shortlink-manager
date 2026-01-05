@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.1...v5.4.2) (2026-01-05)
+
+
+### Bug Fixes
+
+* add tab-content class to analytics sections for improved styling ([4b4c0ec](https://github.com/LindemannRock/craft-shortlink-manager/commit/4b4c0ec0f659c0997db2378ccbec3e5b361de8ec))
+
 ## [5.4.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.0...v5.4.1) (2025-12-19)
 
 
