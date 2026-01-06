@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.2...v5.5.0) (2026-01-06)
+
+
+### Features
+
+* migrate to shared base plugin ([e74da6f](https://github.com/LindemannRock/craft-shortlink-manager/commit/e74da6f349f972837e68fd2e0b22ebd80c2c67af))
+
 ## [5.4.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.1...v5.4.2) (2026-01-05)
 
 
