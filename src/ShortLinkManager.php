@@ -27,6 +27,7 @@ use craft\services\Utilities;
 use craft\utilities\ClearCaches;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
@@ -90,6 +91,10 @@ class ShortLinkManager extends Plugin
         parent::init();
         self::$plugin = $this;
 
+        // Bootstrap shared plugin functionality (Twig helper, logging nav)
+        PluginHelper::bootstrap($this, 'shortlinkHelper', ['shortLinkManager:viewLogs']);
+        PluginHelper::applyPluginNameFromConfig($this);
+
         // Configure logging
         $settings = $this->getSettings();
         LoggingLibrary::configure([
@@ -99,15 +104,6 @@ class ShortLinkManager extends Plugin
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
             'permissions' => ['shortLinkManager:viewLogs'],
         ]);
-
-        // Set plugin name from config if available
-        $configPath = Craft::$app->getPath()->getConfigPath() . '/shortlink-manager.php';
-        if (file_exists($configPath)) {
-            $rawConfig = require $configPath;
-            if (isset($rawConfig['pluginName'])) {
-                $this->name = $rawConfig['pluginName'];
-            }
-        }
 
         // Register services
         $this->setComponents([
@@ -129,9 +125,6 @@ class ShortLinkManager extends Plugin
             'forceTranslation' => true,
             'allowOverrides' => true,
         ];
-
-        // Register Twig extension for plugin name helpers
-        Craft::$app->view->registerTwigExtension(new \lindemannrock\shortlinkmanager\twigextensions\PluginNameExtension());
 
         // Register variables
         Event::on(

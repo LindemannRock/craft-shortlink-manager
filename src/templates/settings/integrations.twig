@@ -3,7 +3,6 @@
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'integrations' %}
 
-{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
         label: shortlinkHelper.fullName|t('shortlink-manager'),
@@ -22,7 +21,10 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {% include 'shortlink-manager/_components/ip-salt-error' %}
+    {% include 'lindemannrock-base/_components/ip-salt-error' with {
+        pluginHandle: 'shortlink-manager',
+        envVarName: 'SHORTLINK_MANAGER_IP_SALT'
+    } %}
 
     <style>
         /* Make status dot visible when not installed - darker gray */
@@ -464,5 +466,5 @@
         </div>
     </form>
 
-    {% include 'shortlink-manager/_components/plugin-credit.twig' %}
+    {% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}

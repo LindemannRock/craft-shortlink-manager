@@ -5,7 +5,6 @@
 {% set fullPageForm = true %}
 {% set selectedSettingsItem = 'behavior' %}
 
-{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set crumbs = [
     {
         label: shortlinkHelper.fullName|t('shortlink-manager'),
@@ -28,7 +27,10 @@
 {% endblock %}
 
 {% block content %}
-	{% include 'shortlink-manager/_components/ip-salt-error' %}
+	{% include 'lindemannrock-base/_components/ip-salt-error' with {
+		pluginHandle: 'shortlink-manager',
+		envVarName: 'SHORTLINK_MANAGER_IP_SALT'
+	} %}
 
 	<form method="post" accept-charset="UTF-8">
 		<input type="hidden" name="action" value="shortlink-manager/settings/save">
@@ -78,7 +80,7 @@
 		</div>
 	</form>
 
-	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+	{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}
 
 {% js %}

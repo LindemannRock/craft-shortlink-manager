@@ -1,6 +1,5 @@
 {% extends "shortlink-manager/_layouts/cp" %}
 {% import "_includes/forms" as forms %}
-{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set selectedSubnavItem = 'analytics' %}
 
 {% set title = "Analytics"|t('shortlink-manager') %}
@@ -103,7 +102,7 @@
 	</div>
 	{% endif %}
 
-	{% include 'shortlink-manager/_components/plugin-credit.twig' %}
+	{% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}
 
 {% css %}
