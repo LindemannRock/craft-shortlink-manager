@@ -38,6 +38,7 @@
         "matomo/device-detector": "^6.4"
     },
     "require-dev": {
+        "craftcms/ecs": "dev-main",
         "craftcms/phpstan": "dev-main"
     },
     "autoload": {

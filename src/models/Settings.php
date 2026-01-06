@@ -267,15 +267,15 @@ class Settings extends Model
     /**
      * Database table name for settings persistence
      */
-    public static function tableName(): string
+    protected static function tableName(): string
     {
-        return '{{%shortlinkmanager_settings}}';
+        return 'shortlinkmanager_settings';
     }
 
     /**
      * Plugin handle for config file lookup
      */
-    public static function pluginHandle(): string
+    protected static function pluginHandle(): string
     {
         return 'shortlink-manager';
     }
@@ -283,7 +283,7 @@ class Settings extends Model
     /**
      * Boolean fields for type casting from database
      */
-    public static function booleanFields(): array
+    protected static function booleanFields(): array
     {
         return [
             'enableQrCodeCache',
@@ -299,7 +299,7 @@ class Settings extends Model
     /**
      * Integer fields for type casting from database
      */
-    public static function integerFields(): array
+    protected static function integerFields(): array
     {
         return [
             'codeLength',
@@ -318,7 +318,7 @@ class Settings extends Model
     /**
      * Array fields for JSON serialization/deserialization
      */
-    public static function arrayFields(): array
+    protected static function jsonFields(): array
     {
         return [
             'enabledSites',
@@ -332,7 +332,7 @@ class Settings extends Model
     /**
      * Fields to exclude from database save (env/config only)
      */
-    public static function excludeFromSave(): array
+    protected static function excludeFromSave(): array
     {
         return ['ipHashSalt', 'defaultCountry', 'defaultCity'];
     }
@@ -425,6 +425,20 @@ class Settings extends Model
             [['logLevel'], 'in', 'range' => ['debug', 'info', 'warning', 'error']],
             [['logLevel'], 'validateLogLevel'],
         ];
+    }
+
+    /**
+     * Set default QR logo ID from asset field (handles array input)
+     *
+     * @param int|array|null $value
+     */
+    public function setDefaultQrLogoId(int|array|null $value): void
+    {
+        if (is_array($value)) {
+            $this->defaultQrLogoId = !empty($value) ? (int) reset($value) : null;
+        } else {
+            $this->defaultQrLogoId = $value !== null ? (int) $value : null;
+        }
     }
 
     /**
