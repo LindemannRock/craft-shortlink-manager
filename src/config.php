@@ -9,7 +9,7 @@
  * and make your changes there to override default settings.
  *
  * Once copied to 'craft/config', this file will be multi-environment aware as
- * well, so you can have different settings groups for each environment, just as
+ * well, so you can have different settings groucps for each environment, just as
  * you do for 'general.php'
  *
  * @since 5.0.0
@@ -39,7 +39,6 @@ return [
         'slugPrefix' => 's',           // URL prefix for shortlinks (e.g., 's' creates /s/ABC123)
         'qrPrefix' => 's/qr',          // URL prefix for QR code pages (e.g., 's/qr' or 'qr')
         'codeLength' => 8,             // Length of generated shortlink codes
-        'customDomain' => '',          // Optional custom domain for shortlinks
         'reservedCodes' => ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'],
 
         // Template Settings

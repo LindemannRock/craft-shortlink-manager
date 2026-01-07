@@ -718,17 +718,15 @@ class ShortLink extends Element
 
     /**
      * Get the shortlink URL
+     *
+     * Uses the site's base URL for the shortlink. To use a custom short domain,
+     * create a dedicated site in Craft with that domain as its base URL.
      */
     public function getUrl(): string
     {
         $settings = ShortLinkManager::$plugin->getSettings();
-        $customDomain = $settings->customDomain;
-
-        if (!empty($customDomain)) {
-            return rtrim($customDomain, '/') . '/' . $this->slug;
-        }
-
         $slugPrefix = $settings->slugPrefix;
+
         return UrlHelper::siteUrl($slugPrefix . '/' . $this->slug, null, null, $this->siteId);
     }
 

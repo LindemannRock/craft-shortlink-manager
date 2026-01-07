@@ -328,6 +328,53 @@ return [
 - You can still access ShortLink Manager on enabled non-primary sites via direct URLs, but the main navigation will be hidden.
 - Shortlinks are global across sites (one shortlink works on all enabled sites), but the plugin can be disabled per-site for complete isolation.
 
+## Custom Short Domain
+
+If you want to use a dedicated short domain (e.g., `short.example.com/s/abc123` instead of `example.com/s/abc123`), you can leverage Craft's multi-site feature.
+
+**Note:** The URL prefix (e.g., `/s/`) is always required. A custom short domain changes the domain portion, not the URL structure.
+
+### Setup
+
+1. **Create a dedicated site** in Craft CP (Settings → Sites):
+
+   | Site | Handle | Base URL |
+   |------|--------|----------|
+   | Main Site | `default` | `https://example.com` |
+   | Short URLs | `short` | `https://short.example.com` |
+
+2. **Configure DNS** to point `short.example.com` to your server
+
+3. **Configure your web server** (nginx/Apache) to route the domain to Craft
+
+4. **Enable ShortLink Manager** for the Short URLs site in Settings → Plugins → ShortLink Manager → General
+
+5. **Create shortlinks** and select the "Short URLs" site
+
+Shortlinks will automatically use the site's base URL:
+- `https://short.example.com/s/abc123`
+
+### Multi-Language Short Domains
+
+For multi-language sites, create a short URL site for each language:
+
+| Site | Handle | Base URL |
+|------|--------|----------|
+| Main Site (EN) | `en` | `https://example.com` |
+| Main Site (AR) | `ar` | `https://ar.example.com` |
+| Short URLs (EN) | `short-en` | `https://short.example.com` |
+| Short URLs (AR) | `short-ar` | `https://ar.short.example.com` |
+
+Each shortlink is created on the appropriate short URL site for its language.
+
+### How It Works
+
+- Shortlinks are assigned to a site (via `siteId`)
+- `getUrl()` uses that site's base URL automatically
+- Edit shortlinks from any CP domain (e.g., `example.com/admin`)
+- Shortlink URLs use the assigned site's domain
+- No special configuration needed beyond standard Craft multi-site setup
+
 ## Usage
 
 ### Creating Shortlinks via Control Panel

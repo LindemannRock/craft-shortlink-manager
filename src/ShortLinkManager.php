@@ -298,12 +298,14 @@ class ShortLinkManager extends Plugin
      */
     public function getCpNavItem(): ?array
     {
-        // Check if ShortLink Manager is enabled for the current site
-        $currentSite = Craft::$app->getSites()->getCurrentSite();
         $settings = $this->getSettings();
 
-        if (!$settings->isSiteEnabled($currentSite->id)) {
-            return null; // Hide navigation item entirely
+        // Show nav if enabled for ANY site (not just current site)
+        // This allows managing shortlinks from any CP context, even if
+        // shortlinks are only enabled for a dedicated short URL site
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+        if (empty($enabledSiteIds)) {
+            return null; // Hide navigation item if not enabled for any site
         }
 
         $item = parent::getCpNavItem();

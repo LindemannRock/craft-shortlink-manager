@@ -256,7 +256,7 @@ class SettingsController extends Controller
             // Update the plugin's cached settings (CRITICAL - forces Craft to refresh)
             $plugin->setSettings($settings->getAttributes());
 
-            $this->setSuccessFlash(Craft::t('shortlink-manager', 'Settings saved successfully.'));
+            $this->setSuccessFlash(Craft::t('shortlink-manager', 'Settings saved.'));
         } else {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save settings.'));
             return null;

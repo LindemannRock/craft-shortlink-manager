@@ -24,7 +24,6 @@ return [
     'slugPrefix' => 's',
     'qrPrefix' => 's/qr',
     'codeLength' => 8,
-    'customDomain' => '',
     'reservedCodes' => ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'],
 
     // Redirect Settings
@@ -142,11 +141,6 @@ URL prefix for QR code pages (e.g., 's/qr' creates /s/qr/ABC123/view). Supports 
 Length of generated shortlink codes.
 - **Type:** `int`
 - **Default:** `8`
-
-##### customDomain
-Optional custom domain for shortlinks.
-- **Type:** `string`
-- **Default:** `''` (empty)
 
 ##### reservedCodes
 Array of codes that cannot be used for shortlinks.
@@ -349,7 +343,6 @@ use craft\helpers\App;
 return [
     'enableAnalytics' => (bool)App::env('SHORTLINK_ANALYTICS') ?: true,
     'analyticsRetention' => (int)App::env('SHORTLINK_RETENTION') ?: 90,
-    'customDomain' => App::env('SHORTLINK_CUSTOM_DOMAIN') ?: '',
 ];
 ```
 
@@ -365,3 +358,15 @@ return [
     'deviceDetectionCacheDuration' => 7200,
 ],
 ```
+
+### Custom Short Domain
+
+To use a dedicated short domain (e.g., `short.example.com`), leverage Craft's multi-site feature instead of plugin configuration:
+
+1. **Create a dedicated site** in Craft CP (Settings → Sites) with your short domain as the Base URL
+2. **Configure DNS** to point the domain to your server
+3. **Configure your web server** to route the domain to Craft
+4. **Enable ShortLink Manager** for that site
+5. **Create shortlinks** on that site
+
+Shortlinks automatically use their assigned site's base URL. See the [Custom Short Domain](../README.md#custom-short-domain) section in the README for detailed setup instructions.

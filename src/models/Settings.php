@@ -55,11 +55,6 @@ class Settings extends Model
     public int $codeLength = 8;
 
     /**
-     * @var string Custom domain for short links (empty = use primary site)
-     */
-    public string $customDomain = '';
-
-    /**
      * @var array Reserved codes that cannot be used for short links
      */
     public array $reservedCodes = ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'];
@@ -346,7 +341,6 @@ class Settings extends Model
             'parser' => [
                 'class' => EnvAttributeParserBehavior::class,
                 'attributes' => [
-                    'customDomain',
                     'notFoundRedirectUrl',
                     'expiredMessage',
                     'ipHashSalt',
@@ -419,7 +413,7 @@ class Settings extends Model
             [['defaultQrLogoId'], 'required', 'when' => function($model) {
                 return $model->enableQrLogo;
             }, 'message' => Craft::t('shortlink-manager', 'Default logo is required when logo overlay is enabled.')],
-            [['customDomain', 'notFoundRedirectUrl', 'expiredMessage'], 'string'],
+            [['notFoundRedirectUrl', 'expiredMessage'], 'string'],
             [['ipHashSalt'], 'string', 'min' => 32, 'message' => Craft::t('shortlink-manager', 'Salt must be at least 32 characters'), 'skipOnEmpty' => true],
             [['reservedCodes'], 'each', 'rule' => ['string']],
             [['logLevel'], 'in', 'range' => ['debug', 'info', 'warning', 'error']],
@@ -712,7 +706,6 @@ class Settings extends Model
             'enabledSites' => Craft::t('shortlink-manager', 'Enabled Sites'),
             'slugPrefix' => Craft::t('shortlink-manager', 'Slug Prefix'),
             'codeLength' => Craft::t('shortlink-manager', 'Code Length'),
-            'customDomain' => Craft::t('shortlink-manager', 'Custom Domain'),
             'reservedCodes' => Craft::t('shortlink-manager', 'Reserved Codes'),
             'defaultQrSize' => Craft::t('shortlink-manager', 'Default QR Code Size'),
             'defaultQrColor' => Craft::t('shortlink-manager', 'Default QR Code Color'),
