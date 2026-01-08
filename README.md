@@ -21,6 +21,7 @@ If you are using this plugin, please be aware that future versions may have diff
 ### Flexible Shortlink Creation
 - **Auto-generated codes**: Randomly generated short codes (e.g., `/s/abc123`)
 - **Vanity URLs**: Custom memorable slugs (e.g., `/s/pricing`)
+- **Multiple destination types**: Link to custom URLs, Entries, Categories, or Assets
 - **Element linking**: Automatically create shortlinks for Craft entries, assets, etc.
 - **Custom field type**: Add shortlink fields directly to your entry types
 
@@ -31,7 +32,7 @@ If you are using this plugin, please be aware that future versions may have diff
 - **Rich Dashboard** - Interactive charts for devices, browsers, OS, geographic distribution
 - **Date Range Filtering** - View analytics for today, last 7/30/90 days, or all time
 - **Referrer Tracking** - See where visitors are coming from
-- **CSV Export** - Export comprehensive analytics including device and geo data
+- **CSV/JSON Export** - Export comprehensive analytics including device and geo data
 - **Privacy-First** - IP hashing with salt, optional subnet masking, GDPR-friendly
 - **Performance Caching** - File or Redis caching for device detection results
 - **Automatic Cleanup** - Configurable retention period (0-3650 days)
@@ -327,6 +328,20 @@ return [
 - If the primary site is not included in `enabledSites`, ShortLink Manager will not appear in the main CP navigation at all, as the navigation uses the primary site context. Ensure you include your primary site ID if you want ShortLink Manager accessible from the main menu.
 - You can still access ShortLink Manager on enabled non-primary sites via direct URLs, but the main navigation will be hidden.
 - Shortlinks are global across sites (one shortlink works on all enabled sites), but the plugin can be disabled per-site for complete isolation.
+
+### Per-Site Translatable Destinations
+
+Shortlink destinations are **translatable per site**, allowing different content for each language/site:
+
+| Shortlink Type | Destination Behavior |
+|----------------|---------------------|
+| **Manual** (created in CP) | Each site can have its own destination URL or element (Entry/Category/Asset) |
+| **Auto** (field-managed) | Same element across all sites, but URLs are resolved per-site from the element |
+
+**Example:** A manual shortlink `/s/promo` can redirect to:
+- English site → `/en/summer-sale` (Entry)
+- Arabic site → `/ar/custom-landing` (custom URL)
+- French site → A specific Asset (PDF)
 
 ## Custom Short Domain
 
