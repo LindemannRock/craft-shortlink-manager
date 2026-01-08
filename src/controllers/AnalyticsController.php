@@ -198,7 +198,7 @@ class AnalyticsController extends Controller
      */
     public function actionExport(): Response
     {
-        $this->requirePermission('shortLinkManager:viewAnalytics');
+        $this->requirePermission('shortLinkManager:exportAnalytics');
 
         $request = Craft::$app->getRequest();
         $dateRange = $request->getQueryParam('dateRange', 'last7days');

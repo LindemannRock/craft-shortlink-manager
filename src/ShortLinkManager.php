@@ -102,7 +102,8 @@ class ShortLinkManager extends Plugin
             'pluginName' => $settings->getFullName(),
             'logLevel' => $settings->logLevel ?? 'error',
             'itemsPerPage' => $settings->itemsPerPage ?? 50,
-            'permissions' => ['shortLinkManager:viewLogs'],
+            'viewPermissions' => ['shortLinkManager:viewLogs'],
+            'downloadPermissions' => ['shortLinkManager:downloadLogs'],
         ]);
 
         // Register services
@@ -219,6 +220,11 @@ class ShortLinkManager extends Plugin
             ClearCaches::class,
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
+                // Only show cache option if user has permission to clear cache
+                if (!Craft::$app->getUser()->checkPermission('shortLinkManager:clearCache')) {
+                    return;
+                }
+
                 $settings = $this->getSettings();
                 $displayName = $settings->getDisplayName();
 
@@ -309,20 +315,33 @@ class ShortLinkManager extends Plugin
         }
 
         $item = parent::getCpNavItem();
+        $user = Craft::$app->getUser();
+
+        // Check if user has view access to each section
+        $hasLinksAccess = $user->checkPermission('shortLinkManager:viewLinks');
+        $hasAnalyticsAccess = $user->checkPermission('shortLinkManager:viewAnalytics') && $settings->enableAnalytics;
+        $hasLogsAccess = $user->checkPermission('shortLinkManager:viewLogs');
+        $hasSettingsAccess = $user->checkPermission('shortLinkManager:manageSettings');
+
+        // If no access at all, hide the plugin from nav
+        if (!$hasLinksAccess && !$hasAnalyticsAccess && !$hasLogsAccess && !$hasSettingsAccess) {
+            return null;
+        }
 
         if ($item) {
             $item['label'] = $settings->getFullName();
             $item['icon'] = '@appicons/link-simple.svg';
 
-            $item['subnav'] = [
-                'shortlinks' => [
+            $item['subnav'] = [];
+
+            if ($hasLinksAccess) {
+                $item['subnav']['shortlinks'] = [
                     'label' => 'Links',
                     'url' => 'shortlink-manager',
-                ],
-            ];
+                ];
+            }
 
-            // Add analytics if enabled
-            if ($this->getSettings()->enableAnalytics) {
+            if ($hasAnalyticsAccess) {
                 $item['subnav']['analytics'] = [
                     'label' => Craft::t('shortlink-manager', 'Analytics'),
                     'url' => 'shortlink-manager/analytics',
@@ -337,7 +356,7 @@ class ShortLinkManager extends Plugin
                 ]);
             }
 
-            if (Craft::$app->getUser()->checkPermission('shortLinkManager:manageSettings')) {
+            if ($hasSettingsAccess) {
                 $item['subnav']['settings'] = [
                     'label' => Craft::t('shortlink-manager', 'Settings'),
                     'url' => 'shortlink-manager/settings',
@@ -468,27 +487,49 @@ class ShortLinkManager extends Plugin
      */
     private function getPluginPermissions(): array
     {
+        $settings = $this->getSettings();
+        $plural = $settings->getPluralLowerDisplayName();
+
         return [
-            'shortLinkManager:viewLinks' => [
-                'label' => Craft::t('shortlink-manager', 'View shortlinks'),
-            ],
-            'shortLinkManager:createLinks' => [
-                'label' => Craft::t('shortlink-manager', 'Create shortlinks'),
-            ],
-            'shortLinkManager:editLinks' => [
-                'label' => Craft::t('shortlink-manager', 'Edit shortlinks'),
-            ],
-            'shortLinkManager:deleteLinks' => [
-                'label' => Craft::t('shortlink-manager', 'Delete shortlinks'),
+            // Shortlinks - grouped
+            'shortLinkManager:manageLinks' => [
+                'label' => Craft::t('shortlink-manager', 'Manage {plural}', ['plural' => $plural]),
+                'nested' => [
+                    'shortLinkManager:viewLinks' => [
+                        'label' => Craft::t('shortlink-manager', 'View {plural}', ['plural' => $plural]),
+                    ],
+                    'shortLinkManager:createLinks' => [
+                        'label' => Craft::t('shortlink-manager', 'Create {plural}', ['plural' => $plural]),
+                    ],
+                    'shortLinkManager:editLinks' => [
+                        'label' => Craft::t('shortlink-manager', 'Edit {plural}', ['plural' => $plural]),
+                    ],
+                    'shortLinkManager:deleteLinks' => [
+                        'label' => Craft::t('shortlink-manager', 'Delete {plural}', ['plural' => $plural]),
+                    ],
+                ],
             ],
             'shortLinkManager:viewAnalytics' => [
                 'label' => Craft::t('shortlink-manager', 'View analytics'),
+                'nested' => [
+                    'shortLinkManager:exportAnalytics' => [
+                        'label' => Craft::t('shortlink-manager', 'Export analytics'),
+                    ],
+                    'shortLinkManager:clearAnalytics' => [
+                        'label' => Craft::t('shortlink-manager', 'Clear analytics'),
+                    ],
+                ],
             ],
-            'shortLinkManager:exportAnalytics' => [
-                'label' => Craft::t('shortlink-manager', 'Export analytics'),
+            'shortLinkManager:clearCache' => [
+                'label' => Craft::t('shortlink-manager', 'Clear cache'),
             ],
             'shortLinkManager:viewLogs' => [
                 'label' => Craft::t('shortlink-manager', 'View logs'),
+                'nested' => [
+                    'shortLinkManager:downloadLogs' => [
+                        'label' => Craft::t('shortlink-manager', 'Download logs'),
+                    ],
+                ],
             ],
             'shortLinkManager:manageSettings' => [
                 'label' => Craft::t('shortlink-manager', 'Manage settings'),

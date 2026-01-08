@@ -40,15 +40,29 @@ class ShortlinksController extends Controller
      */
     public function actionIndex(): Response
     {
-        $this->requirePermission('shortLinkManager:viewLinks');
+        $user = Craft::$app->getUser();
+        $settings = ShortLinkManager::$plugin->getSettings();
+
+        // If user doesn't have viewLinks permission, redirect to first accessible section
+        if (!$user->checkPermission('shortLinkManager:viewLinks')) {
+            if ($user->checkPermission('shortLinkManager:viewAnalytics') && $settings->enableAnalytics) {
+                return $this->redirect('shortlink-manager/analytics');
+            }
+            if ($user->checkPermission('shortLinkManager:viewLogs')) {
+                return $this->redirect('shortlink-manager/logs');
+            }
+            if ($user->checkPermission('shortLinkManager:manageSettings')) {
+                return $this->redirect('shortlink-manager/settings');
+            }
+            // No access at all
+            $this->requirePermission('shortLinkManager:viewLinks');
+        }
 
         // Get current site from request or Craft's current site
         $siteHandle = $this->request->getParam('site');
         $currentSite = $siteHandle
             ? Craft::$app->getSites()->getSiteByHandle($siteHandle)
             : Craft::$app->getSites()->getCurrentSite();
-
-        $settings = ShortLinkManager::$plugin->getSettings();
 
         // If current site is not enabled, redirect to first enabled site
         if (!$settings->isSiteEnabled($currentSite->id)) {

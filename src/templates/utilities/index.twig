@@ -165,21 +165,25 @@
             <h3 style="margin-bottom: 8px;">{{ "Navigation"|t('shortlink-manager') }}</h3>
             <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('shortlink-manager') }}</p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="{{ url('shortlink-manager/shortlinks') }}" class="btn">
-                    {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}
-                </a>
-                {% if settings.enableAnalytics %}
+                {% if currentUser.can('shortLinkManager:viewLinks') %}
+                    <a href="{{ url('shortlink-manager/shortlinks') }}" class="btn">
+                        {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}
+                    </a>
+                {% endif %}
+                {% if settings.enableAnalytics and currentUser.can('shortLinkManager:viewAnalytics') %}
                     <a href="{{ url('shortlink-manager/analytics') }}" class="btn">
                         {{ "View Analytics"|t('shortlink-manager') }}
                     </a>
                 {% endif %}
-                <a href="{{ url('shortlink-manager/settings') }}" class="btn">
-                    {{ "View Settings"|t('shortlink-manager') }}
-                </a>
+                {% if currentUser.can('shortLinkManager:manageSettings') %}
+                    <a href="{{ url('shortlink-manager/settings') }}" class="btn">
+                        {{ "View Settings"|t('shortlink-manager') }}
+                    </a>
+                {% endif %}
             </div>
         </div>
 
-        {% if settings.enableQrCodeCache or settings.cacheDeviceDetection %}
+        {% if (settings.enableQrCodeCache or settings.cacheDeviceDetection) and currentUser.can('shortLinkManager:clearCache') %}
         <hr style="margin: 24px 0;">
 
         <div>
@@ -208,7 +212,7 @@
         </div>
         {% endif %}
 
-        {% if settings.enableAnalytics %}
+        {% if settings.enableAnalytics and currentUser.can('shortLinkManager:clearAnalytics') %}
             <hr style="margin: 24px 0;">
 
             <div>

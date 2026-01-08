@@ -390,6 +390,43 @@ Each shortlink is created on the appropriate short URL site for its language.
 - Shortlink URLs use the assigned site's domain
 - No special configuration needed beyond standard Craft multi-site setup
 
+### Important Limitations
+
+#### ShortLink Field Compatibility
+
+The **ShortLink field only works on sites where ShortLink Manager is enabled**. This means:
+
+| Setup | ShortLink Field | Manual Creation |
+|-------|-----------------|-----------------|
+| ShortLink Manager enabled on main sites | ✓ Works | ✓ Works |
+| ShortLink Manager enabled only on short URL site | ✗ Does not work | ✓ Works |
+
+**Why?** The ShortLink field creates shortlinks on the **entry's site**. If ShortLink Manager is not enabled for that site, the field cannot create shortlinks.
+
+**Recommendation:**
+- If you need the ShortLink field, enable ShortLink Manager on **all sites** where entries will use the field
+- If you only want custom short domain URLs, create shortlinks **manually** in the Control Panel on the short URL site
+
+#### Planning Ahead
+
+⚠️ **Plan your site structure before creating shortlinks.** Changing site configuration after shortlinks are in use can cause issues:
+
+| Action | Consequence |
+|--------|-------------|
+| Disable a shortlink site | Existing shortlinks on that site stop redirecting |
+| Delete a shortlink site | Shortlinks are orphaned, URLs become dead |
+| Printed QR codes | Already distributed materials point to non-working URLs |
+
+**Best Practice:** Decide on your shortlink site structure before launch and avoid disabling sites with active shortlinks.
+
+#### Per-Site Destinations
+
+When using dedicated short URL sites, remember that **destinations are per-site**:
+
+- A shortlink on `short.example.com` needs its destination URL set for **that site**
+- If linking to an entry, ensure the entry exists on the short URL site, or set a custom URL
+- For multi-language, you need separate short URL sites (one per language) to have language-specific destinations
+
 ## Usage
 
 ### Creating Shortlinks via Control Panel

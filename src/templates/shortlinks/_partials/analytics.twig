@@ -24,15 +24,17 @@
                 </div>
             </div>
             <div class="flex-grow"></div>
-            <div class="btngroup">
-                <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('shortlink-manager') }}</button>
-                <div class="menu" data-align="right">
-                    <ul>
-                        <li><a href="#" class="export-link-analytics" data-format="csv">{{ "Export as CSV"|t('shortlink-manager') }}</a></li>
-                        <li><a href="#" class="export-link-analytics" data-format="json">{{ "Export as JSON"|t('shortlink-manager') }}</a></li>
-                    </ul>
+            {% if currentUser.can('shortLinkManager:exportAnalytics') %}
+                <div class="btngroup">
+                    <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('shortlink-manager') }}</button>
+                    <div class="menu" data-align="right">
+                        <ul>
+                            <li><a href="#" class="export-link-analytics" data-format="csv">{{ "Export as CSV"|t('shortlink-manager') }}</a></li>
+                            <li><a href="#" class="export-link-analytics" data-format="json">{{ "Export as JSON"|t('shortlink-manager') }}</a></li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 
