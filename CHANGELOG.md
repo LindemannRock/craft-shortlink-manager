@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.6.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.5.0...v5.6.0) (2026-01-08)
+
+
+### Features
+
+* enhance documentation for custom short domains and update settings handling ([a22b7c5](https://github.com/LindemannRock/craft-shortlink-manager/commit/a22b7c58c2824b32202b3a30ae8d886e80348212))
+* make element selection translatable per site for manual shortlinks ([5a1104d](https://github.com/LindemannRock/craft-shortlink-manager/commit/5a1104da21beb0cb0355c719d6aa20d9ef60ad3b))
+* Refactor permissions to use grouped nested structure ([eaf3b05](https://github.com/LindemannRock/craft-shortlink-manager/commit/eaf3b0521d54de5a86a80a4b6d98f4bd278dd5b0))
+* update README to include per-site translatable destinations and enhance export formats ([855d782](https://github.com/LindemannRock/craft-shortlink-manager/commit/855d782f1ce762a1bfa5b2efcf6f951237a63692))
+* update Settings model methods to protected and add setDefaultQrLogoId method ([7e2690e](https://github.com/LindemannRock/craft-shortlink-manager/commit/7e2690e0bc6d0ceff5c2f5a155e2fdd34bb9892d))
+
+
+### Miscellaneous Chores
+
+* remove local composer.lock file ([705b8b8](https://github.com/LindemannRock/craft-shortlink-manager/commit/705b8b80b00e7e296ef6a0c0e44f29d9221d7ea0))
+
 ## [5.5.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.2...v5.5.0) (2026-01-06)
 
 
