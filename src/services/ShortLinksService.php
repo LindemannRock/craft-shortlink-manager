@@ -62,6 +62,7 @@ class ShortLinksService extends Component
         // Set properties from options
         $element->slug = $options['code'] ?? $options['slug'] ?? '';
         $element->linkType = $options['type'] ?? $options['linkType'] ?? 'code';
+        $element->shortLinkType = $options['shortLinkType'] ?? 'manual';
         $element->destinationUrl = $options['url'] ?? $options['destinationUrl'] ?? $element->destinationUrl ?? '';
         $element->siteId = $options['siteId'] ?? $element->siteId ?? Craft::$app->getSites()->currentSite->id;
         $element->httpCode = $options['httpCode'] ?? $settings->defaultHttpCode ?? 301;

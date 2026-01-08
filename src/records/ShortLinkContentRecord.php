@@ -18,6 +18,8 @@ use craft\db\ActiveRecord;
  * @property int $id
  * @property int $shortLinkId
  * @property int $siteId
+ * @property int|null $elementId
+ * @property string|null $elementType
  * @property string $destinationUrl
  * @property string|null $expiredRedirectUrl
  * @property string|null $expiredMessage

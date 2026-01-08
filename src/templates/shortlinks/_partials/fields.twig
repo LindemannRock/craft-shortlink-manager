@@ -6,8 +6,8 @@
 
 {# DO NOT namespace - these are native element attributes, not custom fields #}
 
-{# Link Type Selection (only for standalone links, not element-linked) #}
-{% if not shortLink.elementId %}
+{# Link Type Selection (only for manual/standalone links, not auto/field-managed) #}
+{% if shortLink.shortLinkType != 'auto' %}
     {# Show actual code if editing, otherwise show random example #}
     {% if shortLink.id and shortLink.code %}
         {% set codeExample = shortLink.code %}
@@ -33,23 +33,12 @@
         },
     }) }}
 {% else %}
-    {# Element-linked shortlinks - preserve their linkType #}
+    {# Auto (field-managed) shortlinks - preserve their linkType #}
     <input type="hidden" name="linkType" value="{{ shortLink.linkType ?? 'code' }}">
-    <div class="field">
-        {% set linkedElement = shortLink.getLinkedElement() %}
-        {% if linkedElement %}
-            <p class="light">
-                {{ "This {singularName} is linked to:"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}
-                <a href="{{ linkedElement.getCpEditUrl() }}" class="go">{{ linkedElement.title }}</a>
-            </p>
-        {% else %}
-            <p class="light">{{ "This {singularName} is linked to an element."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}</p>
-        {% endif %}
-    </div>
 {% endif %}
 
 {# Slug/Code Field #}
-{% if shortLink.elementId %}
+{% if shortLink.shortLinkType == 'auto' %}
     {# Element-linked shortlinks - respect linkType #}
     {% if shortLink.linkType == 'code' %}
         {# Auto-generated - show read-only with regenerate button #}
@@ -128,32 +117,138 @@
 {% endif %}
 
 {# Destination URL #}
-{% if shortLink.elementId %}
-    {# Element-linked: Read-only destination (auto-synced from element URL) #}
+{% if shortLink.shortLinkType == 'auto' %}
+    {# AUTO (field-managed): Read-only destination (auto-synced from element URL) #}
     <div class="field">
         <div class="heading">
             <label>{{ "Destination URL"|t('shortlink-manager') }}</label>
         </div>
         <div class="input">
+            {% set linkedElement = shortLink.getLinkedElement() %}
+            {% if linkedElement %}
+                <p class="light" style="margin-bottom: 8px;">
+                    {{ "This {singularName} is managed by a field on:"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}
+                    <a href="{{ linkedElement.getCpEditUrl() }}" class="go">{{ linkedElement.title }}</a>
+                </p>
+            {% endif %}
             <input type="text" class="text fullwidth" readonly value="{{ shortLink.destinationUrl ?? '' }}" style="background: #f9fafb;">
             <input type="hidden" name="destinationUrl" value="{{ shortLink.destinationUrl ?? '' }}">
             <p class="light" style="margin-top: 8px;">{{ "Automatically synced from linked element's URL"|t('shortlink-manager') }}</p>
         </div>
     </div>
 {% else %}
-    {# Standalone: Editable destination #}
-    {{ forms.textField({
-        label: "Destination URL"|t('shortlink-manager'),
-        instructions: "Full URL (https://example.com) or path (/page)"|t('shortlink-manager'),
-        id: 'destinationUrl',
-        name: 'destinationUrl',
-        value: shortLink.destinationUrl ?? '',
-        type: 'url',
-        placeholder: 'https://example.com/your-page',
-        required: true,
-        errors: shortLink.getErrors('destinationUrl'),
-        translatable: craft.app.sites.getTotalEditableSites() > 1,
+    {# MANUAL: Show destination type selector #}
+    {% set destinationType = shortLink.elementId ?
+        (shortLink.elementType ends with 'Entry' ? 'entry' :
+         shortLink.elementType ends with 'Category' ? 'category' :
+         shortLink.elementType ends with 'Asset' ? 'asset' : 'url')
+        : 'url' %}
+
+    {{ forms.selectField({
+        label: "Destination Type"|t('shortlink-manager'),
+        instructions: "Choose how to set the destination"|t('shortlink-manager'),
+        id: 'destinationType',
+        name: 'destinationType',
+        value: destinationType,
+        options: [
+            { value: 'url', label: 'Custom URL'|t('shortlink-manager') },
+            { value: 'entry', label: 'Entry'|t('shortlink-manager') },
+            { value: 'category', label: 'Category'|t('shortlink-manager') },
+            { value: 'asset', label: 'Asset'|t('shortlink-manager') },
+        ],
     }) }}
+
+    {# Custom URL field #}
+    <div id="destination-url-field" class="{{ destinationType != 'url' ? 'hidden' : '' }}">
+        {{ forms.textField({
+            label: "Destination URL"|t('shortlink-manager'),
+            instructions: "Full URL (https://example.com) or path (/page)"|t('shortlink-manager'),
+            id: 'destinationUrl',
+            name: 'destinationUrl',
+            value: destinationType == 'url' ? (shortLink.destinationUrl ?? '') : '',
+            type: 'url',
+            placeholder: 'https://example.com/your-page',
+            required: destinationType == 'url',
+            errors: shortLink.getErrors('destinationUrl'),
+            translatable: craft.app.sites.getTotalEditableSites() > 1,
+        }) }}
+    </div>
+
+    {# Get linked element once (may be null) #}
+    {% set linkedElement = shortLink.getLinkedElement() %}
+
+    {# Entry picker #}
+    <div id="destination-entry-field" class="{{ destinationType != 'entry' ? 'hidden' : '' }}">
+        {{ forms.elementSelectField({
+            label: "Select Entry"|t('shortlink-manager'),
+            instructions: "Choose an entry as the destination"|t('shortlink-manager'),
+            id: 'destinationElementEntry',
+            name: 'destinationElementEntry',
+            elementType: 'craft\\elements\\Entry',
+            selectionLabel: "Choose an entry"|t('shortlink-manager'),
+            limit: 1,
+            elements: (destinationType == 'entry' and linkedElement) ? [linkedElement] : [],
+            required: destinationType == 'entry',
+            showSiteMenu: true,
+            criteria: { status: ['live', 'pending', 'expired'] },
+        }) }}
+    </div>
+
+    {# Category picker #}
+    <div id="destination-category-field" class="{{ destinationType != 'category' ? 'hidden' : '' }}">
+        {{ forms.elementSelectField({
+            label: "Select Category"|t('shortlink-manager'),
+            instructions: "Choose a category as the destination"|t('shortlink-manager'),
+            id: 'destinationElementCategory',
+            name: 'destinationElementCategory',
+            elementType: 'craft\\elements\\Category',
+            selectionLabel: "Choose a category"|t('shortlink-manager'),
+            limit: 1,
+            elements: (destinationType == 'category' and linkedElement) ? [linkedElement] : [],
+            required: destinationType == 'category',
+            showSiteMenu: true,
+        }) }}
+    </div>
+
+    {# Asset picker #}
+    <div id="destination-asset-field" class="{{ destinationType != 'asset' ? 'hidden' : '' }}">
+        {{ forms.elementSelectField({
+            label: "Select Asset"|t('shortlink-manager'),
+            instructions: "Choose an asset as the destination"|t('shortlink-manager'),
+            id: 'destinationElementAsset',
+            name: 'destinationElementAsset',
+            elementType: 'craft\\elements\\Asset',
+            selectionLabel: "Choose an asset"|t('shortlink-manager'),
+            limit: 1,
+            elements: (destinationType == 'asset' and linkedElement) ? [linkedElement] : [],
+            required: destinationType == 'asset',
+            showSiteMenu: true,
+        }) }}
+    </div>
+
+    {# JavaScript to toggle destination fields #}
+    {% js %}
+        (function() {
+            const destinationTypeSelect = document.getElementById('destinationType');
+            if (!destinationTypeSelect) return;
+
+            function toggleDestinationFields() {
+                const type = destinationTypeSelect.value;
+                document.getElementById('destination-url-field').classList.toggle('hidden', type !== 'url');
+                document.getElementById('destination-entry-field').classList.toggle('hidden', type !== 'entry');
+                document.getElementById('destination-category-field').classList.toggle('hidden', type !== 'category');
+                document.getElementById('destination-asset-field').classList.toggle('hidden', type !== 'asset');
+
+                // Update required attributes
+                const urlInput = document.getElementById('destinationUrl');
+                if (urlInput) {
+                    urlInput.required = (type === 'url');
+                }
+            }
+
+            destinationTypeSelect.addEventListener('change', toggleDestinationFields);
+        })();
+    {% endjs %}
 {% endif %}
 
 {# HTTP Status Code #}

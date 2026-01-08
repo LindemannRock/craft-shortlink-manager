@@ -240,7 +240,9 @@ class AnalyticsController extends Controller
                 }
             }
 
-            $filename = $baseFilename . '-' . $sitePart . '-' . $dateRange . '-' . date('Y-m-d') . '.' . $format;
+            // Use "alltime" instead of "all" for clearer filename
+            $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+            $filename = $baseFilename . '-' . $sitePart . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.' . $format;
 
             return Craft::$app->getResponse()->sendContentAsFile(
                 $csvData,

@@ -57,6 +57,11 @@ class ShortLink extends Element
     public string $linkType = 'code';
 
     /**
+     * @var string ShortLink type: 'auto' (field-managed) or 'manual' (standalone)
+     */
+    public string $shortLinkType = 'manual';
+
+    /**
      * @var string|null Destination URL (translatable per site)
      */
     public ?string $destinationUrl = null;
@@ -507,6 +512,8 @@ class ShortLink extends Element
 
         if ($contentRecord) {
             // Override with site-specific content
+            $this->elementId = $contentRecord->elementId;
+            $this->elementType = $contentRecord->elementType;
             $this->destinationUrl = $contentRecord->destinationUrl;
             $this->expiredRedirectUrl = $contentRecord->expiredRedirectUrl;
             $this->expiredMessage = $contentRecord->expiredMessage;
@@ -531,6 +538,7 @@ class ShortLink extends Element
             'code',
             'slug',
             'linkType',
+            'shortLinkType',
             'destinationUrl',
             'expiredRedirectUrl',
             'expiredMessage',
@@ -560,6 +568,7 @@ class ShortLink extends Element
             'code' => null,
             'slug' => null,
             'linkType' => 'code',
+            'shortLinkType' => 'manual',
             'destinationUrl' => null,
             'expiredRedirectUrl' => null,
             'expiredMessage' => null,
@@ -591,6 +600,7 @@ class ShortLink extends Element
             'code',
             'slug',
             'linkType',
+            'shortLinkType',
             'destinationUrl',
             'expiredRedirectUrl',
             'expiredMessage',
@@ -741,7 +751,8 @@ class ShortLink extends Element
             return null;
         }
 
-        return Craft::$app->elements->getElementById($this->elementId, $this->elementType, $this->siteId);
+        // Search all sites since manual shortlinks can link to elements from any site
+        return Craft::$app->elements->getElementById($this->elementId, $this->elementType, '*');
     }
 
     /**
@@ -943,7 +954,20 @@ class ShortLink extends Element
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['code', 'destinationUrl', 'linkType'], RequiredValidator::class];
+        $rules[] = [['code', 'linkType'], RequiredValidator::class];
+        // destinationUrl is required only when no elementId is set (custom URL mode)
+        $rules[] = [['destinationUrl'], RequiredValidator::class, 'when' => fn($model) => empty($model->elementId)];
+        // When elementId is set, validate that the element exists and has a URL
+        $rules[] = [['elementId'], function($attribute, $params, $validator) {
+            if (!empty($this->elementId) && empty($this->destinationUrl)) {
+                $element = Craft::$app->elements->getElementById($this->elementId, $this->elementType, '*');
+                if (!$element) {
+                    $this->addError($attribute, Craft::t('shortlink-manager', 'The selected element no longer exists.'));
+                } elseif (!$element->getUrl()) {
+                    $this->addError($attribute, Craft::t('shortlink-manager', 'The selected element does not have a URL.'));
+                }
+            }
+        }];
         $rules[] = [['code'], 'match', 'pattern' => '/^[a-zA-Z0-9_\-\s]+$/', 'message' => Craft::t('shortlink-manager', '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.')];
         $rules[] = [['linkType'], 'in', 'range' => ['code', 'vanity']];
 
@@ -1018,6 +1042,7 @@ class ShortLink extends Element
                     $this->code = $record->code;
                     $this->slug = $record->slug;
                     $this->linkType = $record->linkType;
+                    $this->shortLinkType = $record->shortLinkType;
                 }
             }
 
@@ -1215,11 +1240,11 @@ class ShortLink extends Element
             }
 
             // Save non-translatable fields to main table
+            // Note: elementId and elementType are now per-site (stored in content table)
             $record->code = $this->code;
             $record->slug = $this->slug;
             $record->linkType = $this->linkType;
-            $record->elementId = $this->elementId;
-            $record->elementType = $this->elementType;
+            $record->shortLinkType = $this->shortLinkType;
             $record->dateExpired = $this->dateExpired;
             $record->authorId = $this->authorId;
             $record->postDate = $this->postDate;
@@ -1250,6 +1275,10 @@ class ShortLink extends Element
                 $contentRecord->siteId = $this->siteId;
             }
 
+            // Save translatable fields - elementId, elementType, and destinationUrl
+            $contentRecord->elementId = $this->elementId;
+            $contentRecord->elementType = $this->elementType;
+
             // Save content - use existing value if destinationUrl not loaded
             if (!$this->destinationUrl && $contentRecord->id) {
                 // Keep existing destinationUrl if this is just a status change
@@ -1263,9 +1292,78 @@ class ShortLink extends Element
             if (!$contentRecord->save(false)) {
                 $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
             }
+
+            // For auto shortlinks (field-managed), sync elementId/elementType to ALL sites
+            // This ensures the linked element is the same across all sites
+            if ($this->shortLinkType === 'auto' && $this->elementId && !$this->propagating) {
+                $this->syncElementToAllSites();
+            }
         }
 
         parent::afterSave($isNew);
+    }
+
+    /**
+     * Sync elementId/elementType to all sites for auto shortlinks
+     *
+     * For field-managed shortlinks, the linked element is the same across all sites,
+     * but each site may have a different destination URL (resolved from the element).
+     */
+    private function syncElementToAllSites(): void
+    {
+        if (!$this->id || !$this->elementId) {
+            return;
+        }
+
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $enabledSiteIds = $settings->getEnabledSiteIds();
+
+        // Get the linked element to resolve destination URLs per site
+        $linkedElement = $this->getLinkedElement();
+
+        foreach ($enabledSiteIds as $siteId) {
+            // Skip the current site (already saved)
+            if ($siteId == $this->siteId) {
+                continue;
+            }
+
+            // Find or create content record for this site
+            $contentRecord = ShortLinkContentRecord::findOne([
+                'shortLinkId' => $this->id,
+                'siteId' => $siteId,
+            ]);
+
+            if (!$contentRecord) {
+                $contentRecord = new ShortLinkContentRecord();
+                $contentRecord->shortLinkId = $this->id;
+                $contentRecord->siteId = $siteId;
+            }
+
+            // Set the same elementId/elementType for all sites
+            $contentRecord->elementId = $this->elementId;
+            $contentRecord->elementType = $this->elementType;
+
+            // Resolve destination URL for this site from the linked element
+            if ($linkedElement) {
+                // Get the element for this specific site
+                $siteElement = Craft::$app->elements->getElementById(
+                    $this->elementId,
+                    $this->elementType,
+                    $siteId
+                );
+                $contentRecord->destinationUrl = $siteElement ? ($siteElement->getUrl() ?? '') : '';
+            } else {
+                // Fallback to empty or existing URL
+                $contentRecord->destinationUrl = $contentRecord->destinationUrl ?? '';
+            }
+
+            if (!$contentRecord->save(false)) {
+                $this->logError('Failed to sync content record to site', [
+                    'siteId' => $siteId,
+                    'errors' => $contentRecord->getErrors(),
+                ]);
+            }
+        }
     }
 
     /**

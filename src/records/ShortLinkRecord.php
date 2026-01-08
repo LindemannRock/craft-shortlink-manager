@@ -19,6 +19,7 @@ use craft\db\ActiveRecord;
  * @property string|null $code
  * @property string $slug
  * @property string $linkType
+ * @property string $shortLinkType
  * @property int|null $elementId
  * @property string|null $elementType
  * @property int|null $authorId

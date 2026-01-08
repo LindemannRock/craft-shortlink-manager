@@ -33,6 +33,7 @@ class Install extends Migration
                 'code' => $this->string(100)->null(),
                 'slug' => $this->string(100)->notNull(),
                 'linkType' => $this->string(10)->notNull()->defaultValue('code'),
+                'shortLinkType' => $this->string(10)->notNull()->defaultValue('manual'),
                 'elementId' => $this->integer()->null(),
                 'elementType' => $this->string()->null(),
                 'authorId' => $this->integer()->null(),
@@ -78,6 +79,8 @@ class Install extends Migration
                 'id' => $this->primaryKey(),
                 'shortLinkId' => $this->integer()->notNull(),
                 'siteId' => $this->integer()->notNull(),
+                'elementId' => $this->integer()->null(),
+                'elementType' => $this->string()->null(),
                 'destinationUrl' => $this->text()->notNull(),
                 'expiredRedirectUrl' => $this->string()->null(),
                 'expiredMessage' => $this->text()->null(),
@@ -89,10 +92,12 @@ class Install extends Migration
             // Create indexes
             $this->createIndex(null, '{{%shortlinkmanager_content}}', ['shortLinkId', 'siteId'], true);
             $this->createIndex(null, '{{%shortlinkmanager_content}}', 'siteId');
+            $this->createIndex(null, '{{%shortlinkmanager_content}}', 'elementId');
 
             // Add foreign keys
             $this->addForeignKey(null, '{{%shortlinkmanager_content}}', 'shortLinkId', '{{%shortlinkmanager}}', 'id', 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%shortlinkmanager_content}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager_content}}', 'elementId', '{{%elements}}', 'id', 'SET NULL', 'CASCADE');
         }
 
         // Create the shortlinkmanager_analytics table
@@ -101,6 +106,7 @@ class Install extends Migration
                 'id' => $this->primaryKey(),
                 'linkId' => $this->integer()->notNull(),
                 'siteId' => $this->integer()->notNull(),
+                'destinationUrl' => $this->text()->null(),
                 'ip' => $this->string(64)->null(),
                 'userAgent' => $this->text()->null(),
                 'metadata' => $this->text()->null(),

@@ -56,6 +56,7 @@ class AnalyticsService extends Component
         $record = new AnalyticsRecord();
         $record->linkId = $shortLink->id;
         $record->siteId = $shortLink->siteId;
+        $record->destinationUrl = $shortLink->destinationUrl; // Capture destination at click time
 
         // Get IP address
         $ip = $request->getUserIP();
@@ -525,8 +526,17 @@ class AnalyticsService extends Component
         }
 
         // Get recent clicks for this link
+        // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $recentClicks = (clone $query)
-            ->select(['a.*', 'l.code as linkCode', 'l.slug', 'c.destinationUrl'])
+            ->select([
+                'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referer', 'a.metadata',
+                'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
+                'a.browserEngine', 'a.osName', 'a.osVersion', 'a.clientType', 'a.isRobot',
+                'a.isMobileApp', 'a.botName', 'a.country', 'a.city', 'a.language', 'a.region',
+                'a.latitude', 'a.longitude', 'a.dateCreated', 'a.dateUpdated',
+                'l.code as linkCode', 'l.slug',
+                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
+            ])
             ->from('{{%shortlinkmanager_analytics}} a')
             ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
@@ -585,8 +595,17 @@ class AnalyticsService extends Component
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, ?int $siteId = null): array
     {
+        // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
-            ->select(['a.*', 'l.code as linkCode', 'l.slug', 'c.destinationUrl'])
+            ->select([
+                'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referer', 'a.metadata',
+                'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
+                'a.browserEngine', 'a.osName', 'a.osVersion', 'a.clientType', 'a.isRobot',
+                'a.isMobileApp', 'a.botName', 'a.country', 'a.city', 'a.language', 'a.region',
+                'a.latitude', 'a.longitude', 'a.dateCreated', 'a.dateUpdated',
+                'l.code as linkCode', 'l.slug',
+                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
+            ])
             ->from('{{%shortlinkmanager_analytics}} a')
             ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
@@ -1138,39 +1157,42 @@ class AnalyticsService extends Component
      */
     public function exportAnalytics(?int $shortLinkId, string $dateRange, string $format, ?int $siteId = null): string
     {
+        // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
-            ->from('{{%shortlinkmanager_analytics}}')
+            ->from('{{%shortlinkmanager_analytics}} a')
+            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
             ->select([
-                'dateCreated',
-                'linkId',
-                'siteId',
-                'deviceType',
-                'deviceBrand',
-                'deviceModel',
-                'osName',
-                'osVersion',
-                'browser',
-                'browserVersion',
-                'country',
-                'city',
-                'language',
-                'referer as referrer',
-                'ip',
-                'userAgent',
+                'a.dateCreated',
+                'a.linkId',
+                'a.siteId',
+                'a.deviceType',
+                'a.deviceBrand',
+                'a.deviceModel',
+                'a.osName',
+                'a.osVersion',
+                'a.browser',
+                'a.browserVersion',
+                'a.country',
+                'a.city',
+                'a.language',
+                'a.referer as referrer',
+                'a.ip',
+                'a.userAgent',
+                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
             ])
-            ->orderBy(['dateCreated' => SORT_DESC]);
+            ->orderBy(['a.dateCreated' => SORT_DESC]);
 
-        // Apply date range filter
-        $this->applyDateRangeFilter($query, $dateRange);
+        // Apply date range filter (use table alias to avoid ambiguity with joined table)
+        $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
 
-        // Filter by link if specified
+        // Filter by link if specified (use table alias)
         if ($shortLinkId) {
-            $query->andWhere(['linkId' => $shortLinkId]);
+            $query->andWhere(['a.linkId' => $shortLinkId]);
         }
 
-        // Filter by site if specified
+        // Filter by site if specified (use table alias)
         if ($siteId) {
-            $query->andWhere(['siteId' => $siteId]);
+            $query->andWhere(['a.siteId' => $siteId]);
         }
 
         $results = $query->all();
@@ -1222,7 +1244,8 @@ class AnalyticsService extends Component
             };
 
             $shortLinkUrl = '';
-            $destinationUrl = $shortLink->destinationUrl ?? '';
+            // Use the destination URL from the row (captured at click time), not the current shortLink
+            $destinationUrl = $row['destinationUrl'] ?? '';
 
             // Get site name and build the short link URL
             $siteName = '';
@@ -1400,7 +1423,8 @@ class AnalyticsService extends Component
                 ],
                 'siteId' => $row['siteId'] ? (int)$row['siteId'] : null,
                 'siteName' => $siteName,
-                'destinationUrl' => $shortLink->destinationUrl ?? null,
+                // Use the destination URL from the row (captured at click time), not the current shortLink
+                'destinationUrl' => $row['destinationUrl'] ?? null,
                 'referrer' => $row['referrer'] ?? null,
                 'device' => [
                     'type' => $row['deviceType'] ?? null,

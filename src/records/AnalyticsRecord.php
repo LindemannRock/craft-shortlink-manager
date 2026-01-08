@@ -16,6 +16,7 @@ use craft\db\ActiveRecord;
  * @property int $id
  * @property int $linkId
  * @property int|null $siteId
+ * @property string|null $destinationUrl
  * @property string|null $ip
  * @property string|null $userAgent
  * @property string|null $referer

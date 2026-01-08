@@ -164,7 +164,6 @@ class ShortlinksController extends Controller
 
         // Note: slug will be auto-generated from code in beforeValidate()
 
-        $shortLink->destinationUrl = $this->request->getBodyParam('destinationUrl');
         $shortLink->siteId = $this->request->getBodyParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id;
         $shortLink->httpCode = $this->request->getBodyParam('httpCode') ?: 301;
 
@@ -172,14 +171,51 @@ class ShortlinksController extends Controller
         $enabled = (bool) $this->request->getBodyParam('enabled', true);
         $shortLink->setEnabledForSite($enabled);
 
-        // Handle element relationship (only set if provided - don't clear existing values)
-        $elementId = $this->request->getBodyParam('elementId');
-        if ($elementId !== null) {
-            $shortLink->elementId = $elementId;
-        }
-        $elementType = $this->request->getBodyParam('elementType');
-        if ($elementType !== null) {
-            $shortLink->elementType = $elementType;
+        // Handle destination based on shortLinkType
+        if ($shortLink->shortLinkType !== 'auto') {
+            // Manual shortlinks: process destination type selection
+            $destinationType = $this->request->getBodyParam('destinationType', 'url');
+
+            if ($destinationType === 'url') {
+                // Custom URL: clear element link
+                $shortLink->elementId = null;
+                $shortLink->elementType = null;
+                $shortLink->destinationUrl = $this->request->getBodyParam('destinationUrl');
+            } else {
+                // Element-based destination
+                $elementTypeMap = [
+                    'entry' => \craft\elements\Entry::class,
+                    'category' => \craft\elements\Category::class,
+                    'asset' => \craft\elements\Asset::class,
+                ];
+
+                $elementFieldName = 'destinationElement' . ucfirst($destinationType);
+                $elementIds = $this->request->getBodyParam($elementFieldName);
+                $elementId = is_array($elementIds) ? ($elementIds[0] ?? null) : $elementIds;
+
+                if ($elementId && isset($elementTypeMap[$destinationType])) {
+                    $shortLink->elementId = (int)$elementId;
+                    $shortLink->elementType = $elementTypeMap[$destinationType];
+
+                    // Resolve destination URL from element for the CURRENT site
+                    // This ensures each site gets the correct URL for its version of the element
+                    $element = Craft::$app->elements->getElementById(
+                        (int)$elementId,
+                        $shortLink->elementType,
+                        $shortLink->siteId
+                    );
+                    if ($element) {
+                        $shortLink->destinationUrl = $element->getUrl() ?? '';
+                    } else {
+                        // Element doesn't exist on this site - try to get URL from any site as fallback
+                        $element = Craft::$app->elements->getElementById((int)$elementId, $shortLink->elementType, '*');
+                        $shortLink->destinationUrl = $element ? ($element->getUrl() ?? '') : '';
+                    }
+                }
+            }
+        } else {
+            // Auto (field-managed) shortlinks: just preserve destinationUrl from form
+            $shortLink->destinationUrl = $this->request->getBodyParam('destinationUrl');
         }
 
         // Handle author

@@ -36,6 +36,11 @@ class ShortLinkQuery extends ElementQuery
     public mixed $linkType = null;
 
     /**
+     * @var string|string[]|null The shortlink type(s) that the resulting short links must have ('auto' or 'manual').
+     */
+    public mixed $shortLinkType = null;
+
+    /**
      * @var int|int[]|null The element ID(s) that the resulting short links must be linked to.
      */
     public mixed $elementId = null;
@@ -79,6 +84,18 @@ class ShortLinkQuery extends ElementQuery
     public function linkType(mixed $value): static
     {
         $this->linkType = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the [[shortLinkType]] property.
+     *
+     * @param string|string[]|null $value
+     * @return static
+     */
+    public function shortLinkType(mixed $value): static
+    {
+        $this->shortLinkType = $value;
         return $this;
     }
 
@@ -187,12 +204,12 @@ class ShortLinkQuery extends ElementQuery
         );
 
         // Select columns from both tables
+        // Note: elementId and elementType are now per-site (stored in content table)
         $this->query->select([
             'shortlinkmanager.code',
             'shortlinkmanager.slug',
             'shortlinkmanager.linkType',
-            'shortlinkmanager.elementId',
-            'shortlinkmanager.elementType',
+            'shortlinkmanager.shortLinkType',
             'shortlinkmanager.authorId',
             'shortlinkmanager.postDate',
             'shortlinkmanager.dateExpired',
@@ -206,6 +223,8 @@ class ShortLinkQuery extends ElementQuery
             'shortlinkmanager.qrCodeEyeColor',
             'shortlinkmanager.qrCodeFormat',
             'shortlinkmanager.qrLogoId',
+            'shortlinkmanager_content.elementId',
+            'shortlinkmanager_content.elementType',
             'shortlinkmanager_content.destinationUrl',
             'shortlinkmanager_content.expiredRedirectUrl',
             'shortlinkmanager_content.expiredMessage',
@@ -222,8 +241,20 @@ class ShortLinkQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.linkType', $this->linkType));
         }
 
+        if ($this->shortLinkType) {
+            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.shortLinkType', $this->shortLinkType));
+        }
+
         if ($this->elementId) {
-            $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.elementId', $this->elementId));
+            // elementId is now in the content table (per-site)
+            // Use EXISTS subquery to filter by elementId since elements_sites may not be joined yet
+            $this->subQuery->andWhere([
+                'exists',
+                (new Query())
+                    ->from('{{%shortlinkmanager_content}} slm_content_filter')
+                    ->where('[[slm_content_filter.shortLinkId]] = [[elements.id]]')
+                    ->andWhere(Db::parseParam('slm_content_filter.elementId', $this->elementId)),
+            ]);
         }
 
         if ($this->httpCode) {

@@ -180,6 +180,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
         $options = [
             'element' => $element,
             'type' => $linkType,
+            'shortLinkType' => 'auto', // Field-managed shortlinks are 'auto'
             'httpCode' => $this->defaultHttpCode,
         ];
 
