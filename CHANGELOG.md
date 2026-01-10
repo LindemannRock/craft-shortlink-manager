@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.6.0...v5.7.0) (2026-01-10)
+
+
+### Features
+
+* Replace custom country name retrieval with GeoHelper utility ([0dcc15b](https://github.com/LindemannRock/craft-shortlink-manager/commit/0dcc15b292ea38259b2390dc1aaeeb2a8e40132c))
+
 ## [5.6.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.5.0...v5.6.0) (2026-01-08)
 
 
