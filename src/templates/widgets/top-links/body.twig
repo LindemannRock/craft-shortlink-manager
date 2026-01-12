@@ -7,7 +7,6 @@
                 <tr>
                     <th>{{ "Link"|t('shortlink-manager') }}</th>
                     <th>{{ "Interactions"|t('shortlink-manager') }}</th>
-                    <th class="thin"></th>
                 </tr>
             </thead>
             <tbody>
@@ -15,22 +14,19 @@
                     <tr>
                         <td>
                             <div class="link-cell">
-                                <span class="link-name">{{ shortLink.code }}</span>
-                                <div class="link-slug">
-                                    <span title="{{ shortLink.destinationUrl }}">{{ shortLink.destinationUrl|length > 30 ? shortLink.destinationUrl|slice(0, 30) ~ '...' : shortLink.destinationUrl }}</span>
+                                <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}" class="link-name">
+                                    {{ shortLink.code }}
+                                </a>
+                                <div class="link-destination">
+                                    {% set domain = shortLink.destinationUrl|split('://')|last|split('/')|first %}
+                                    <a href="{{ shortLink.destinationUrl }}" target="_blank" title="{{ shortLink.destinationUrl }}">
+                                        {{ domain }}
+                                    </a>
                                 </div>
                             </div>
                         </td>
-                        <td class="clicks-cell">
+                        <td class="interactions-cell">
                             <span class="badge">{{ shortLink.clicks|number }}</span>
-                        </td>
-                        <td class="thin actions-cell">
-                            <a href="{{ siteUrl(craft.app.plugins.getPlugin('shortlink-manager').settings.slugPrefix ~ '/' ~ shortLink.slug) }}"
-                               target="_blank"
-                               class="btn small"
-                               title="{{ 'View'|t('app') }}">
-                                {{ svg('@app/icons/arrow-up-right-from-square.svg') }}
-                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -63,8 +59,6 @@
 
 .link-cell {
     min-width: 0;
-    max-width: 200px;
-    overflow: hidden;
 }
 
 .link-name {
@@ -76,26 +70,33 @@
     border-radius: 3px;
     display: inline-block;
     margin-bottom: 4px;
+    text-decoration: none;
 }
 
-.link-slug {
+.link-name:hover {
+    text-decoration: underline;
+}
+
+.link-destination {
     font-size: 11px;
+}
+
+.link-destination a {
     color: #6b7280;
+    text-decoration: none;
 }
 
-.link-slug span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
+.link-destination a:hover {
+    text-decoration: underline;
+    color: #0d78f2;
 }
 
-.clicks-cell {
+.interactions-cell {
     text-align: left;
     white-space: nowrap;
 }
 
-.clicks-cell .badge {
+.interactions-cell .badge {
     background: #eff6ff;
     color: #0d78f2;
     padding: 10px;
@@ -104,21 +105,6 @@
     font-weight: 600;
     display: inline-block;
     line-height: 0;
-}
-
-.actions-cell {
-    text-align: right;
-    white-space: nowrap;
-}
-
-.actions-cell .btn {
-    padding: 4px 8px;
-    min-height: auto;
-}
-
-.actions-cell .btn svg {
-    width: 14px;
-    height: 14px;
 }
 
 .widget-footer {

@@ -2,7 +2,7 @@
     <div class="widget-stats">
         <div class="stat-item">
             <div class="stat-value">{{ data.totalClicks|number }}</div>
-            <div class="stat-label">{{ "Total Clicks"|t('shortlink-manager') }}</div>
+            <div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ data.uniqueVisitors|number }}</div>
@@ -30,11 +30,10 @@
                         <code>{{ topLink.code }}</code>
                     </a>
                     <div class="link-meta">
-                        <span title="{{ topLink.destinationUrl }}">
-                            {{ topLink.destinationUrl|length > 30 ? topLink.destinationUrl|slice(0, 30) ~ '...' : topLink.destinationUrl }}
-                        </span>
+                        {% set domain = topLink.destinationUrl|split('://')|last|split('/')|first %}
+                        <a href="{{ topLink.destinationUrl }}" target="_blank" class="destination-link" title="{{ topLink.destinationUrl }}">{{ domain }}</a>
                         <span class="separator">•</span>
-                        <span>{{ topLink.clicks|number }} {{ "clicks"|t('shortlink-manager') }}</span>
+                        <span>{{ topLink.clicks|number }} {{ "interactions"|t('shortlink-manager') }}</span>
                     </div>
                 </div>
             </div>
@@ -119,6 +118,16 @@
 .link-meta {
     font-size: 12px;
     color: #8b95a1;
+}
+
+.link-meta .destination-link {
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.link-meta .destination-link:hover {
+    text-decoration: underline;
+    color: #0d78f2;
 }
 
 .link-meta .separator {
