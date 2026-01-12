@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.8.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.7.0...v5.8.0) (2026-01-12)
+
+
+### Features
+
+* Format cache file counts and total clicks in cache clearing buttons ([c843262](https://github.com/LindemannRock/craft-shortlink-manager/commit/c84326261e84dd14a970013b5ea2bf41a1f67b10))
+* Update terminology from "Clicks" to "Interactions" and enhance link display in top links widget ([530e9aa](https://github.com/LindemannRock/craft-shortlink-manager/commit/530e9aa63f6352c9848d4a7d1f417d9c858df8c1))
+
 ## [5.7.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.6.0...v5.7.0) (2026-01-10)
 
 
