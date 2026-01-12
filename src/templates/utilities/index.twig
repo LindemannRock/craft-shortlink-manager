@@ -193,19 +193,19 @@
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 {% if settings.enableQrCodeCache %}
                     <button type="button" class="btn" id="clear-qr-cache">
-                        {{ "Clear QR Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ qrCacheFiles }}){% endif %}
+                        {{ "Clear QR Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ qrCacheFiles|number_format }}){% endif %}
                     </button>
                 {% endif %}
 
                 {% if settings.cacheDeviceDetection %}
                     <button type="button" class="btn" id="clear-device-cache">
-                        {{ "Clear Device Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ deviceCacheFiles }}){% endif %}
+                        {{ "Clear Device Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ deviceCacheFiles|number_format }}){% endif %}
                     </button>
                 {% endif %}
 
                 {% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
                 <button type="button" class="btn secondary" id="clear-all-caches">
-                    {{ "Clear All Caches"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ (qrCacheFiles + deviceCacheFiles) }}){% endif %}
+                    {{ "Clear All Caches"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ (qrCacheFiles + deviceCacheFiles)|number_format }}){% endif %}
                 </button>
                 {% endif %}
             </div>
@@ -220,8 +220,8 @@
                 <p class="light" style="margin-bottom: 16px;">{{ "Permanently delete all analytics tracking data. This action cannot be undone!"|t('shortlink-manager') }}</p>
 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="button" class="btn submit" id="clear-all-analytics" style="background: #dc2626; border-color: #dc2626; color: white;">
-                        {{ "Clear All Analytics"|t('shortlink-manager') }}
+                    <button type="button" class="btn secondary" id="clear-all-analytics">
+                        {{ "Clear All Analytics"|t('shortlink-manager') }} ({{ totalClicks|number_format }})
                     </button>
                 </div>
             </div>
