@@ -217,7 +217,7 @@ class AnalyticsController extends Controller
 
             // Generate filename
             $settings = ShortLinkManager::$plugin->getSettings();
-            $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
+            $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
             $baseFilename = $filenamePart . '-analytics';
             if ($linkId) {
                 $shortLink = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
