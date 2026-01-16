@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.8.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.0...v5.8.1) (2026-01-16)
+
+
+### Bug Fixes
+
+* reorganize and standardize analytics templates ([919a245](https://github.com/LindemannRock/craft-shortlink-manager/commit/919a245b1a9c7b78480db71b0eae82be6e499794))
+* update cache location message to use shortlinkHelper for dynamic path ([0fd1669](https://github.com/LindemannRock/craft-shortlink-manager/commit/0fd166900606f4f948e78811aea967810abc371f))
+* update filename generation to use lowerDisplayName for analytics export ([0f96df2](https://github.com/LindemannRock/craft-shortlink-manager/commit/0f96df2d29bb27b5f6166d77854cb81eee647efe))
+* update hardcoded cache paths with PluginHelper for consistency ([130bd28](https://github.com/LindemannRock/craft-shortlink-manager/commit/130bd2888e418870719bac3360eee384e28929e8))
+* update PluginHelper bootstrap to include download permissions for logging ([eec20fd](https://github.com/LindemannRock/craft-shortlink-manager/commit/eec20fd6b569d738d98d965fa497deb4f93533a6))
+
 ## [5.8.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.7.0...v5.8.0) (2026-01-12)
 
 
