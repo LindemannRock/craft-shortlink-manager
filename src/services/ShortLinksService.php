@@ -13,6 +13,7 @@ use craft\base\Component;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\helpers\StringHelper;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
@@ -498,7 +499,7 @@ class ShortLinksService extends Component
                 }
             } else {
                 // Clear QR code file caches
-                $qrPath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+                $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
                 if (is_dir($qrPath)) {
                     $files = glob($qrPath . '*.cache');
                     if ($files) {
@@ -511,7 +512,7 @@ class ShortLinksService extends Component
                 }
 
                 // Clear device detection file caches
-                $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
+                $devicePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
                 if (is_dir($devicePath)) {
                     $files = glob($devicePath . '*.cache');
                     if ($files) {

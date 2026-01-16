@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\utilities;
 
 use Craft;
 use craft\base\Utility;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -114,14 +115,14 @@ class ShortLinkManagerUtility extends Utility
         // Only count files when using file storage (Redis counts are not displayed)
         if ($settings->cacheStorageMethod === 'file') {
             if ($settings->enableQrCodeCache) {
-                $qrPath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+                $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
                 if (is_dir($qrPath)) {
                     $qrCacheFiles = count(glob($qrPath . '*.cache'));
                 }
             }
 
             if ($settings->cacheDeviceDetection) {
-                $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
+                $devicePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
                 if (is_dir($devicePath)) {
                     $deviceCacheFiles = count(glob($devicePath . '*.cache'));
                 }

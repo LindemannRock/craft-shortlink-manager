@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -333,7 +334,7 @@ class SettingsController extends Controller
                 }
             } else {
                 // Clear file cache
-                $cachePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+                $cachePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
                 if (is_dir($cachePath)) {
                     $files = glob($cachePath . '*.cache');
                     foreach ($files as $file) {
@@ -393,7 +394,7 @@ class SettingsController extends Controller
                 }
             } else {
                 // Clear file cache
-                $cachePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
+                $cachePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
                 if (is_dir($cachePath)) {
                     $files = glob($cachePath . '*.cache');
                     foreach ($files as $file) {
@@ -462,7 +463,7 @@ class SettingsController extends Controller
                 }
             } else {
                 // Clear QR code file caches
-                $qrPath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/qr/';
+                $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
                 if (is_dir($qrPath)) {
                     $files = glob($qrPath . '*.cache');
                     foreach ($files as $file) {
@@ -473,7 +474,7 @@ class SettingsController extends Controller
                 }
 
                 // Clear device detection file caches
-                $devicePath = Craft::$app->path->getRuntimePath() . '/shortlink-manager/cache/device/';
+                $devicePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
                 if (is_dir($devicePath)) {
                     $files = glob($devicePath . '*.cache');
                     foreach ($files as $file) {
