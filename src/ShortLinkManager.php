@@ -91,20 +91,14 @@ class ShortLinkManager extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        // Bootstrap shared plugin functionality (Twig helper, logging nav)
-        PluginHelper::bootstrap($this, 'shortlinkHelper', ['shortLinkManager:viewLogs']);
+        // Bootstrap shared plugin functionality (Twig helper, logging)
+        PluginHelper::bootstrap(
+            $this,
+            'shortlinkHelper',
+            ['shortLinkManager:viewLogs'],
+            ['shortLinkManager:downloadLogs']
+        );
         PluginHelper::applyPluginNameFromConfig($this);
-
-        // Configure logging
-        $settings = $this->getSettings();
-        LoggingLibrary::configure([
-            'pluginHandle' => $this->handle,
-            'pluginName' => $settings->getFullName(),
-            'logLevel' => $settings->logLevel ?? 'error',
-            'itemsPerPage' => $settings->itemsPerPage ?? 50,
-            'viewPermissions' => ['shortLinkManager:viewLogs'],
-            'downloadPermissions' => ['shortLinkManager:downloadLogs'],
-        ]);
 
         // Register services
         $this->setComponents([
