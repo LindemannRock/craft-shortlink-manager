@@ -193,6 +193,8 @@ class Install extends Migration
                 'qrTemplate' => $this->string(500)->null()->comment('Custom QR code template path'),
                 // Device & Geo Detection
                 'enableGeoDetection' => $this->boolean()->notNull()->defaultValue(false),
+                'geoProvider' => $this->string(50)->notNull()->defaultValue('ip-api.com'),
+                'geoApiKey' => $this->string(255)->null(),
                 'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
                 'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),
                 // Redirect/Behavior settings

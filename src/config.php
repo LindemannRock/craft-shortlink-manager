@@ -92,6 +92,18 @@ return [
         'anonymizeIpAddress' => false, // Subnet masking (192.168.1.123 → 192.168.1.0) before hashing
         'analyticsRetention' => 90,    // Days to keep analytics data (0 = unlimited)
 
+        // Geo IP lookup provider
+        // Options: 'ip-api.com', 'ipapi.co', 'ipinfo.io'
+        // - ip-api.com: HTTP free (45/min), HTTPS requires paid key (default, backward compatible)
+        // - ipapi.co: HTTPS, 1,000 requests/day free
+        // - ipinfo.io: HTTPS, 50,000 requests/month free
+        // 'geoProvider' => 'ip-api.com',
+
+        // Geo provider API key
+        // Required for ip-api.com HTTPS (Pro tier)
+        // Optional for ipapi.co and ipinfo.io (increases rate limits)
+        // 'geoApiKey' => App::env('SHORTLINK_MANAGER_GEO_API_KEY'),
+
         // Default location for local development
         // Used when IP address is private/local (127.0.0.1, 192.168.x.x, etc.)
         // 'defaultCountry' => App::env('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE', // 2-letter country code (US, GB, AE, etc.)

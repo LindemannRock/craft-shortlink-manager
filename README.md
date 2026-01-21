@@ -578,6 +578,8 @@ return [
     'enableAnalytics' => true,
     'analyticsRetention' => 90, // days
     'enableGeoDetection' => false,  // Track visitor location
+    'geoProvider' => 'ip-api.com',  // Options: 'ip-api.com', 'ipapi.co', 'ipinfo.io'
+    'geoApiKey' => App::env('SHORTLINK_MANAGER_GEO_API_KEY'),  // Required for ip-api.com HTTPS
     'anonymizeIpAddress' => false,  // Subnet masking for privacy
 
     // Redirect settings
