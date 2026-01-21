@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.9.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.1...v5.9.0) (2026-01-21)
+
+
+### Features
+
+* Add configurable geo IP provider settings with HTTPS support ([4730d8c](https://github.com/LindemannRock/craft-shortlink-manager/commit/4730d8c535730ad8553f4097cfbfe9722144e60e))
+
+
+### Bug Fixes
+
+* swap QR Code and Behavior settings links and update heading in General Settings ([f74eccd](https://github.com/LindemannRock/craft-shortlink-manager/commit/f74eccda39aca1491fe2ef0f09ce3e9b848d9409))
+
 ## [5.8.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.0...v5.8.1) (2026-01-16)
 
 
