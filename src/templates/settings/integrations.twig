@@ -26,12 +26,6 @@
         envVarName: 'SHORTLINK_MANAGER_IP_SALT'
     } %}
 
-    <style>
-        /* Make status dot visible when not installed - darker gray */
-        .status:not(.on) {
-            background-color: #9ca3af;
-        }
-    </style>
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('shortlink-manager/settings/save') }}
         {{ csrfInput() }}
@@ -62,17 +56,24 @@
                     <strong style="font-size: 15px; {{ not seomaticAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('shortlink-manager', { pluginName: seomaticPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if seomaticAvailable %}
-                            <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('shortlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed & Active'|t('shortlink-manager'),
+                                value: 'active',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% elseif seomaticInstalled %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('shortlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed but Disabled'|t('shortlink-manager'),
+                                value: 'disabled',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% else %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">
-                                {{ "Not Installed"|t('shortlink-manager') }}
-                                <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('shortlink-manager') }}</a>
-                            </span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Not Installed'|t('shortlink-manager'),
+                                value: 'notInstalled',
+                                colorSet: 'pluginStatus',
+                            } only %}
+                            <a href="https://plugins.craftcms.com/seomatic" target="_blank" class="go">{{ "Install Plugin"|t('shortlink-manager') }}</a>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Push {pluginName} events to Google Tag Manager and analytics platforms for tracking redirects and QR code scans."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
@@ -116,7 +117,10 @@
                                     {% set script = seomaticStatus.scripts[handle] %}
                                     <div style="background: #f7f7f7; border: 1px solid #e3e5e8; padding: 10px 12px; border-radius: 3px; margin-bottom: 8px;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                            <span class="status on" style="width: 8px; height: 8px;"></span>
+                                            {% include 'lindemannrock-base/_components/status-dot' with {
+                                                status: 'enabled',
+                                                size: 8,
+                                            } only %}
                                             <strong style="font-size: 13px;">{{ script.name }}</strong>
                                         </div>
                                         {% if script.sites is defined and script.sites is not empty %}
@@ -248,32 +252,33 @@
                     </details>
 
                     {# Help Text #}
-                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
-                        <p style="margin: 0 0 8px 0; font-size: 13px;">
-                            <strong>{{ "How Events Are Sent"|t('shortlink-manager') }}:</strong>
-                        </p>
-                        <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</strong><br>
-                                <span class="light">{{ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('shortlink-manager') }}</span>
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Use GTM to forward to other platforms"|t('shortlink-manager') }}</strong><br>
-                                <span class="light">{{ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</span>
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Other scripts are detected for reference only"|t('shortlink-manager') }}</strong><br>
-                                <span class="light">{{ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</span>
-                            </li>
-                            <li>
-                                <span class="light">{{ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') }}</span>
-                            </li>
-                        </ul>
-                        <p style="margin: 0; font-size: 11px; color: #666;">
-                            <strong>{{ "Architecture"|t('shortlink-manager') }}:</strong>
-                            {{ shortlinkHelper.fullName }} → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
-                        </p>
-                    </div>
+                    {% include 'lindemannrock-base/_components/info-box' with {
+                        type: 'info',
+                        variant: 'colored',
+                        margin: 'none',
+                        message: '<strong>' ~ "How Events Are Sent"|t('shortlink-manager') ~ ':</strong>
+                            <ul style="margin: 8px 0 12px 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</strong><br>
+                                    <span class="light">' ~ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('shortlink-manager') ~ '</span>
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Use GTM to forward to other platforms"|t('shortlink-manager') ~ '</strong><br>
+                                    <span class="light">' ~ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</span>
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Other scripts are detected for reference only"|t('shortlink-manager') ~ '</strong><br>
+                                    <span class="light">' ~ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</span>
+                                </li>
+                                <li>
+                                    <span class="light">' ~ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') ~ '</span>
+                                </li>
+                            </ul>
+                            <p style="margin: 0; font-size: 11px; color: #666;">
+                                <strong>' ~ "Architecture"|t('shortlink-manager') ~ ':</strong>
+                                ' ~ shortlinkHelper.fullName ~ ' → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                            </p>'
+                    } %}
                 </div>
             {% endif %}
         </div>
@@ -294,17 +299,24 @@
                     <strong style="font-size: 15px; {{ not rmAvailable ? 'color: #999;' : '' }}">{{ "{pluginName} Integration"|t('shortlink-manager', { pluginName: rmPluginName }) }}</strong>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
                         {% if rmAvailable %}
-                            <span class="status on"></span>
-                            <span style="color: #28a745; font-size: 12px;">{{ "Installed & Active"|t('shortlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed & Active'|t('shortlink-manager'),
+                                value: 'active',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% elseif rmInstalled %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">{{ "Installed but Disabled"|t('shortlink-manager') }}</span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Installed but Disabled'|t('shortlink-manager'),
+                                value: 'disabled',
+                                colorSet: 'pluginStatus',
+                            } only %}
                         {% else %}
-                            <span class="status"></span>
-                            <span style="color: #6c757d; font-size: 12px;">
-                                {{ "Not Installed"|t('shortlink-manager') }}
-                                <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go" style="margin-left: 8px;">{{ "Install Plugin"|t('shortlink-manager') }}</a>
-                            </span>
+                            {% include 'lindemannrock-base/_components/badge' with {
+                                label: 'Not Installed'|t('shortlink-manager'),
+                                value: 'notInstalled',
+                                colorSet: 'pluginStatus',
+                            } only %}
+                            <a href="https://github.com/LindemannRock/craft-redirect-manager" target="_blank" class="go">{{ "Install Plugin"|t('shortlink-manager') }}</a>
                         {% endif %}
                     </div>
                     <p class="light" style="margin: 8px 0 0 0; font-size: 12px;">{{ "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</p>
@@ -371,29 +383,30 @@
                     </div>
 
                     {# Help Text #}
-                    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px 15px; border-radius: 3px;">
-                        <p style="margin: 0 0 8px 0; font-size: 13px;">
-                            <strong>{{ "Benefits of This Integration"|t('shortlink-manager') }}:</strong>
-                        </p>
-                        <ul style="margin: 0 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Centralized Management"|t('shortlink-manager') }}</strong> –
-                                {{ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Analytics Tracking"|t('shortlink-manager') }}</strong> –
-                                {{ "Track how many people access old {pluginName} slugs after changes"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
-                            </li>
-                            <li style="margin-bottom: 6px;">
-                                <strong>{{ "Persistent Redirects"|t('shortlink-manager') }}</strong> –
-                                {{ "Slug change redirects remain active permanently, preventing broken links"|t('shortlink-manager') }}
-                            </li>
-                            <li>
-                                <strong>{{ "Source Tracking"|t('shortlink-manager') }}</strong> –
-                                {{ "{rmPluginName} shows which plugin created each redirect for better organization"|t('shortlink-manager', {rmPluginName: rmPluginName}) }}
-                            </li>
-                        </ul>
-                    </div>
+                    {% include 'lindemannrock-base/_components/info-box' with {
+                        type: 'info',
+                        variant: 'colored',
+                        margin: 'none',
+                        message: '<strong>' ~ "Benefits of This Integration"|t('shortlink-manager') ~ ':</strong>
+                            <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px; line-height: 1.6;">
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Centralized Management"|t('shortlink-manager') ~ '</strong> –
+                                    ' ~ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) ~ '
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Analytics Tracking"|t('shortlink-manager') ~ '</strong> –
+                                    ' ~ "Track how many people access old {pluginName} slugs after changes"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) ~ '
+                                </li>
+                                <li style="margin-bottom: 6px;">
+                                    <strong>' ~ "Persistent Redirects"|t('shortlink-manager') ~ '</strong> –
+                                    ' ~ "Slug change redirects remain active permanently, preventing broken links"|t('shortlink-manager') ~ '
+                                </li>
+                                <li>
+                                    <strong>' ~ "Source Tracking"|t('shortlink-manager') ~ '</strong> –
+                                    ' ~ "{rmPluginName} shows which plugin created each redirect for better organization"|t('shortlink-manager', {rmPluginName: rmPluginName}) ~ '
+                                </li>
+                            </ul>'
+                    } %}
                 </div>
             {% endif %}
         </div>
