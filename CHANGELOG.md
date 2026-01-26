@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.10.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.9.0...v5.10.0) (2026-01-26)
+
+
+### Features
+
+* replace Craft plugin calls with PluginHelper methods for consistency ([e219ba6](https://github.com/LindemannRock/craft-shortlink-manager/commit/e219ba6f839a6a36b7b27ecc52046ee438d94c14))
+
+
+### Bug Fixes
+
+* **jobs:** prevent duplicate scheduling of CleanupAnalyticsJob ([6d08934](https://github.com/LindemannRock/craft-shortlink-manager/commit/6d089345eb81778e09fd32dfa82bf00ee3a59e4d))
+
 ## [5.9.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.1...v5.9.0) (2026-01-21)
 
 
