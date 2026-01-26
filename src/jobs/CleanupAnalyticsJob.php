@@ -98,6 +98,19 @@ class CleanupAnalyticsJob extends BaseJob
             return;
         }
 
+        // Prevent duplicate scheduling - check if another cleanup job already exists
+        // This prevents fan-out if multiple jobs end up in the queue (manual runs, retries, etc.)
+        $existingJob = (new \craft\db\Query())
+            ->from('{{%queue}}')
+            ->where(['like', 'job', 'shortlinkmanager'])
+            ->andWhere(['like', 'job', 'CleanupAnalyticsJob'])
+            ->exists();
+
+        if ($existingJob) {
+            $this->logDebug('Skipping reschedule - cleanup job already exists');
+            return;
+        }
+
         $delay = $this->calculateNextRunDelay();
 
         if ($delay > 0) {
@@ -110,6 +123,11 @@ class CleanupAnalyticsJob extends BaseJob
             ]);
 
             Craft::$app->getQueue()->delay($delay)->push($job);
+
+            $this->logDebug('Scheduled next analytics cleanup', [
+                'delay' => $delay,
+                'nextRun' => $nextRunTime,
+            ]);
         }
     }
 
