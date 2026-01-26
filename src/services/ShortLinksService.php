@@ -567,7 +567,7 @@ class ShortLinksService extends Component
         }
 
         // Get redirect manager plugin instance
-        $redirectManager = Craft::$app->plugins->getPlugin('redirect-manager');
+        $redirectManager = PluginHelper::getPlugin('redirect-manager');
         if (!$redirectManager instanceof \lindemannrock\redirectmanager\RedirectManager) {
             $this->logDebug('Redirect Manager plugin not found');
             return;

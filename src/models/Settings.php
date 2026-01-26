@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\helpers\App;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\traits\SettingsConfigTrait;
 use lindemannrock\base\traits\SettingsDisplayNameTrait;
 use lindemannrock\base\traits\SettingsPersistenceTrait;
@@ -497,9 +498,9 @@ class Settings extends Model
         $conflicts = [];
 
         // Check against Smart Links if installed
-        if (Craft::$app->plugins->isPluginInstalled('smart-links')) {
+        if (PluginHelper::isPluginInstalled('smart-links')) {
             try {
-                $smartLinksPlugin = Craft::$app->plugins->getPlugin('smart-links');
+                $smartLinksPlugin = PluginHelper::getPlugin('smart-links');
                 if ($smartLinksPlugin) {
                     $smartLinksSettings = $smartLinksPlugin->getSettings();
                     $smartLinksPluginName = $smartLinksSettings->pluginName ?? 'Smart Links';
@@ -571,9 +572,9 @@ class Settings extends Model
         }
 
         // Check against Smart Links if installed
-        if (Craft::$app->plugins->isPluginInstalled('smart-links')) {
+        if (PluginHelper::isPluginInstalled('smart-links')) {
             try {
-                $smartLinksPlugin = Craft::$app->plugins->getPlugin('smart-links');
+                $smartLinksPlugin = PluginHelper::getPlugin('smart-links');
                 if ($smartLinksPlugin) {
                     $smartLinksSettings = $smartLinksPlugin->getSettings();
                     $smartLinksPluginName = $smartLinksSettings->pluginName ?? 'Smart Links';
@@ -627,12 +628,12 @@ class Settings extends Model
         $conflictingPrefixes = [];
 
         // Check against Smart Links if installed
-        $smartLinksInstalled = Craft::$app->plugins->isPluginInstalled('smart-links');
+        $smartLinksInstalled = PluginHelper::isPluginInstalled('smart-links');
         $this->logInfo('Smart Links check', ['installed' => $smartLinksInstalled]);
 
         if ($smartLinksInstalled) {
             try {
-                $smartLinksPlugin = Craft::$app->plugins->getPlugin('smart-links');
+                $smartLinksPlugin = PluginHelper::getPlugin('smart-links');
                 $this->logInfo('Smart Links plugin', ['found' => $smartLinksPlugin ? 'yes' : 'no']);
 
                 if ($smartLinksPlugin) {

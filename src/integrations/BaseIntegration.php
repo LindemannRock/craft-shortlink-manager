@@ -8,7 +8,7 @@
 
 namespace lindemannrock\shortlinkmanager\integrations;
 
-use Craft;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
@@ -195,7 +195,7 @@ abstract class BaseIntegration implements IntegrationInterface
      */
     protected function isPluginInstalled(string $pluginHandle): bool
     {
-        return Craft::$app->plugins->isPluginEnabled($pluginHandle);
+        return PluginHelper::isPluginEnabled($pluginHandle);
     }
 
     // Abstract methods that must be implemented by child classes
