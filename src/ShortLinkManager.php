@@ -451,10 +451,6 @@ class ShortLinkManager extends Plugin
             // QR Code generation for preview
             'shortlink-manager/qr-code/generate' => 'shortlink-manager/qr-code/generate',
             'shortlink-manager/qr-code/download' => 'shortlink-manager/qr-code/download',
-
-            // Logging routes
-            'shortlink-manager/logs' => 'logging-library/logs/index',
-            'shortlink-manager/logs/download' => 'logging-library/logs/download',
         ];
     }
 
@@ -518,10 +514,10 @@ class ShortLinkManager extends Plugin
                 'label' => Craft::t('shortlink-manager', 'Clear cache'),
             ],
             'shortLinkManager:viewLogs' => [
-                'label' => Craft::t('shortlink-manager', 'View logs'),
+                'label' => Craft::t('shortlink-manager', 'View system logs'),
                 'nested' => [
                     'shortLinkManager:downloadLogs' => [
-                        'label' => Craft::t('shortlink-manager', 'Download logs'),
+                        'label' => Craft::t('shortlink-manager', 'Download system logs'),
                     ],
                 ],
             ],

@@ -42,7 +42,7 @@ return [
     'Delete shortlinks' => 'Delete shortlinks',
     'View analytics' => 'View analytics',
     'Export analytics' => 'Export analytics',
-    'View logs' => 'View logs',
+    'View system logs' => 'View system logs',
     'Manage settings' => 'Manage settings',
 
     // Messages
