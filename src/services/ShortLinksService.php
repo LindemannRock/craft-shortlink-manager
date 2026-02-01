@@ -479,7 +479,7 @@ class ShortLinksService extends Component
                     $redis = $cache->redis;
 
                     // Get all keys from tracking sets
-                    $qrKeys = $redis->executeCommand('SMEMBERS', ['shortlinkmanager-qr-keys']) ?: [];
+                    $qrKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]) ?: [];
                     $deviceKeys = $redis->executeCommand('SMEMBERS', ['shortlinkmanager-device-keys']) ?: [];
                     $cleared = count($qrKeys) + count($deviceKeys);
 
@@ -494,7 +494,7 @@ class ShortLinksService extends Component
                     }
 
                     // Clear the tracking sets
-                    $redis->executeCommand('DEL', ['shortlinkmanager-qr-keys']);
+                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]);
                     $redis->executeCommand('DEL', ['shortlinkmanager-device-keys']);
                 }
             } else {
