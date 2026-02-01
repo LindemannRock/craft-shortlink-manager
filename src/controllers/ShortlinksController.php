@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -45,14 +46,10 @@ class ShortlinksController extends Controller
 
         // If user doesn't have viewLinks permission, redirect to first accessible section
         if (!$user->checkPermission('shortLinkManager:viewLinks')) {
-            if ($user->checkPermission('shortLinkManager:viewAnalytics') && $settings->enableAnalytics) {
-                return $this->redirect('shortlink-manager/analytics');
-            }
-            if ($user->checkPermission('shortLinkManager:viewSystemLogs')) {
-                return $this->redirect('shortlink-manager/logs');
-            }
-            if ($user->checkPermission('shortLinkManager:manageSettings')) {
-                return $this->redirect('shortlink-manager/settings');
+            $sections = ShortLinkManager::$plugin->getCpSections($settings, false, true);
+            $route = CpNavHelper::firstAccessibleRoute($user, $settings, $sections);
+            if ($route) {
+                return $this->redirect($route);
             }
             // No access at all
             $this->requirePermission('shortLinkManager:viewLinks');
