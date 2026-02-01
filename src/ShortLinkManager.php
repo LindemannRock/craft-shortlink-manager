@@ -95,8 +95,8 @@ class ShortLinkManager extends Plugin
         PluginHelper::bootstrap(
             $this,
             'shortlinkHelper',
-            ['shortLinkManager:viewLogs'],
-            ['shortLinkManager:downloadLogs']
+            ['shortLinkManager:viewSystemLogs'],
+            ['shortLinkManager:downloadSystemLogs']
         );
         PluginHelper::applyPluginNameFromConfig($this);
 
@@ -314,7 +314,7 @@ class ShortLinkManager extends Plugin
         // Check if user has view access to each section
         $hasLinksAccess = $user->checkPermission('shortLinkManager:viewLinks');
         $hasAnalyticsAccess = $user->checkPermission('shortLinkManager:viewAnalytics') && $settings->enableAnalytics;
-        $hasLogsAccess = $user->checkPermission('shortLinkManager:viewLogs');
+        $hasLogsAccess = $user->checkPermission('shortLinkManager:viewSystemLogs');
         $hasSettingsAccess = $user->checkPermission('shortLinkManager:manageSettings');
 
         // If no access at all, hide the plugin from nav
@@ -343,10 +343,9 @@ class ShortLinkManager extends Plugin
             }
 
             // Add logs section using the logging library
-            if (Craft::$app->getPlugins()->isPluginInstalled('logging-library') &&
-                Craft::$app->getPlugins()->isPluginEnabled('logging-library')) {
+            if (PluginHelper::isPluginEnabled('logging-library')) {
                 $item = LoggingLibrary::addLogsNav($item, $this->handle, [
-                    'shortLinkManager:viewLogs',
+                    'shortLinkManager:viewSystemLogs',
                 ]);
             }
 
@@ -514,10 +513,15 @@ class ShortLinkManager extends Plugin
                 'label' => Craft::t('shortlink-manager', 'Clear cache'),
             ],
             'shortLinkManager:viewLogs' => [
-                'label' => Craft::t('shortlink-manager', 'View system logs'),
+                'label' => Craft::t('shortlink-manager', 'View logs'),
                 'nested' => [
-                    'shortLinkManager:downloadLogs' => [
-                        'label' => Craft::t('shortlink-manager', 'Download system logs'),
+                    'shortLinkManager:viewSystemLogs' => [
+                        'label' => Craft::t('shortlink-manager', 'View system logs'),
+                        'nested' => [
+                            'shortLinkManager:downloadSystemLogs' => [
+                                'label' => Craft::t('shortlink-manager', 'Download system logs'),
+                            ],
+                        ],
                     ],
                 ],
             ],

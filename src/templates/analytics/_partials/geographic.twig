@@ -5,10 +5,10 @@
 {% if settings.enableGeoDetection %}
     <h2 style="margin: 0 0 20px;">{{ "Geographic Distribution"|t('shortlink-manager') }}</h2>
 
-    <div class="analytics-charts two-columns">
-        <div class="chart-container">
+    <div class="lr-analytics-charts two-columns">
+        <div class="lr-chart-container">
             <h3>{{ "Top Countries"|t('shortlink-manager') }}</h3>
-            <div id="countries-table" class="table-scroll-container">
+            <div class="lr-table-scroll">
                 <table class="data fullwidth">
                     <thead>
                         <tr>
@@ -39,9 +39,9 @@
             </div>
         </div>
 
-        <div class="chart-container">
+        <div class="lr-chart-container">
             <h3>{{ "Top Cities"|t('shortlink-manager') }}</h3>
-            <div id="cities-table" class="table-scroll-container">
+            <div class="lr-table-scroll">
                 <table class="data fullwidth">
                     <thead>
                         <tr>

@@ -48,8 +48,8 @@ class ShortlinksController extends Controller
             if ($user->checkPermission('shortLinkManager:viewAnalytics') && $settings->enableAnalytics) {
                 return $this->redirect('shortlink-manager/analytics');
             }
-            if ($user->checkPermission('shortLinkManager:viewLogs')) {
-                return $this->redirect('shortlink-manager/logs/system');
+            if ($user->checkPermission('shortLinkManager:viewSystemLogs')) {
+                return $this->redirect('shortlink-manager/logs');
             }
             if ($user->checkPermission('shortLinkManager:manageSettings')) {
                 return $this->redirect('shortlink-manager/settings');

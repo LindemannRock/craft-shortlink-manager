@@ -1,531 +1,252 @@
-{% extends "shortlink-manager/_layouts/cp" %}
-{% import "_includes/forms" as forms %}
-{% set selectedSubnavItem = 'analytics' %}
+{#
+ # Analytics Page
+ #
+ # Uses the base plugin's cp-analytics layout for consistent styling.
+ #}
 
-{% set title = "Analytics"|t('shortlink-manager') %}
+{% extends 'lindemannrock-base/_layouts/cp-analytics' %}
 
-{# Set up breadcrumbs #}
-{% set crumbs = [
-    {
-        label: shortlinkHelper.fullName|t('shortlink-manager'),
-        url: url('shortlink-manager')
-    },
-    {
-        label: "Analytics"|t('shortlink-manager'),
-        url: url('shortlink-manager/analytics')
-    }
-] %}
+{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set settings = plugin.settings %}
 
-{# Define Tabs #}
-{% set tabs = {
-    overview: { label: "Overview"|t('shortlink-manager'), url: '#overview' },
-    'traffic-devices': { label: "Traffic & Devices"|t('shortlink-manager'), url: '#traffic-devices' }
+{# Define tabs - Geographic only if geo detection enabled #}
+{% set tabsConfig = {
+    overview: { label: "Overview"|t('shortlink-manager') },
+    'traffic-devices': { label: "Traffic & Devices"|t('shortlink-manager') }
 } %}
 
-{# Only add Geographic tab if geo detection is enabled #}
 {% if settings.enableGeoDetection %}
-    {% set tabs = tabs|merge({
-        geographic: { label: "Geographic"|t('shortlink-manager'), url: '#geographic' }
+    {% set tabsConfig = tabsConfig|merge({
+        geographic: { label: "Geographic"|t('shortlink-manager') }
     }) %}
 {% endif %}
 
-{% set selectedTab = 'overview' %}
+{% set analyticsConfig = {
+    plugin: {
+        handle: 'shortlink-manager',
+        name: shortlinkHelper.fullName,
+    },
+    page: {
+        title: 'Analytics'|t('shortlink-manager'),
+        subnav: 'analytics',
+        crumbs: [
+            { label: shortlinkHelper.fullName, url: url('shortlink-manager') },
+            { label: 'Analytics'|t('shortlink-manager'), url: url('shortlink-manager/analytics') },
+        ],
+    },
+    tabs: tabsConfig,
+    filters: {
+        dateRange: {
+            current: dateRange,
+        },
+        sites: {
+            enabled: sites|length > 1,
+            current: siteId,
+            sites: sites,
+        },
+    },
+    export: {
+        permission: 'shortLinkManager:exportAnalytics',
+        action: 'shortlink-manager/analytics/export',
+        extraParams: {siteId: siteId},
+    },
+    charts: {
+        prefix: 'slm',
+        dataEndpoint: 'shortlink-manager/analytics/get-data',
+    },
+} %}
 
-{% block actionButton %}
-	{% if currentUser.can('shortLinkManager:exportAnalytics') %}
-		<div id="action-button" class="btngroup">
-			<button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('shortlink-manager') }}</button>
-			<div class="menu" data-align="right">
-				<ul>
-					<li>
-						<a href="#" class="export-link" data-format="csv" data-action="shortlink-manager/analytics/export">{{ "Export as CSV"|t('shortlink-manager') }}</a>
-					</li>
-					<li>
-						<a href="#" class="export-link" data-format="json" data-action="shortlink-manager/analytics/export">{{ "Export as JSON"|t('shortlink-manager') }}</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-	{% endif %}
+{% block tabs %}
+    <div id="overview" class="lr-tab-content">
+        {% include 'shortlink-manager/analytics/_partials/overview' %}
+    </div>
+
+    <div id="traffic-devices" class="lr-tab-content hidden">
+        {% include 'shortlink-manager/analytics/_partials/traffic-devices' %}
+    </div>
+
+    {% if settings.enableGeoDetection %}
+    <div id="geographic" class="lr-tab-content hidden">
+        {% include 'shortlink-manager/analytics/_partials/geographic' %}
+    </div>
+    {% endif %}
 {% endblock %}
 
-{% block toolbar %}
-	<div class="flex">
-		{% if sites|length > 1 %}
-		<div>
-			<div class="btngroup">
-				<button type="button" class="btn menubtn">
-					<span id="siteLabel">{{ siteId ? sites|filter(s => s.id == siteId)|first.name : 'All Sites'|t('shortlink-manager') }}</span>
-				</button>
-				<div class="menu">
-					<ul>
-						<li><a href="#" data-site="" class="site-option {{ not siteId ? 'sel' : '' }}">{{ "All Sites"|t('shortlink-manager') }}</a></li>
-						{% for site in sites %}
-							<li><a href="#" data-site="{{ site.id }}" class="site-option {{ siteId == site.id ? 'sel' : '' }}">{{ site.name }}</a></li>
-						{% endfor %}
-					</ul>
-				</div>
-			</div>
-		</div>
-		{% endif %}
-		<div>
-			<div class="btngroup">
-				<button type="button" class="btn menubtn">
-					<span id="dateRangeLabel">{{ dateRange == 'today' ? 'Today' : (dateRange == 'yesterday' ? 'Yesterday' : (dateRange == 'last7days' ? 'Last 7 days' : (dateRange == 'last30days' ? 'Last 30 days' : (dateRange == 'last90days' ? 'Last 90 days' : 'All time')))) }}</span>
-				</button>
-				<div class="menu">
-					<ul>
-						<li><a href="#" data-range="today" class="main-date-range-option {{ dateRange == 'today' ? 'sel' : '' }}">{{ "Today"|t('shortlink-manager') }}</a></li>
-						<li><a href="#" data-range="yesterday" class="main-date-range-option {{ dateRange == 'yesterday' ? 'sel' : '' }}">{{ "Yesterday"|t('shortlink-manager') }}</a></li>
-						<li><a href="#" data-range="last7days" class="main-date-range-option {{ dateRange == 'last7days' ? 'sel' : '' }}">{{ "Last 7 days"|t('shortlink-manager') }}</a></li>
-						<li><a href="#" data-range="last30days" class="main-date-range-option {{ dateRange == 'last30days' ? 'sel' : '' }}">{{ "Last 30 days"|t('shortlink-manager') }}</a></li>
-						<li><a href="#" data-range="last90days" class="main-date-range-option {{ dateRange == 'last90days' ? 'sel' : '' }}">{{ "Last 90 days"|t('shortlink-manager') }}</a></li>
-						<li><a href="#" data-range="all" class="main-date-range-option {{ dateRange == 'all' ? 'sel' : '' }}">{{ "All time"|t('shortlink-manager') }}</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
-{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('lr:analyticsInit', function() {
+    // Chart colors
+    const chartColors = window.lrChartColors || [
+        '#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c',
+        '#34495e', '#e67e22', '#3498db', '#2ecc71', '#c0392b', '#f1c40f'
+    ];
 
-{% block content %}
-	{# Tab Content - IDs must match tab URLs #}
-	<div id="overview" class="tab-content">
-		{% include 'shortlink-manager/analytics/_partials/overview' %}
-	</div>
+    // Get current parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentRange = urlParams.get('dateRange') || '{{ dateRange }}';
+    const currentSite = urlParams.get('siteId') || '';
 
-	<div id="traffic-devices" class="tab-content hidden">
-		{% include 'shortlink-manager/analytics/_partials/traffic-devices' %}
-	</div>
+    // Load all chart data
+    loadAllCharts(currentRange, currentSite);
 
-	{% if settings.enableGeoDetection %}
-	<div id="geographic" class="tab-content hidden">
-		{% include 'shortlink-manager/analytics/_partials/geographic' %}
-	</div>
-	{% endif %}
+    function loadAllCharts(dateRange, siteId) {
+        const csrfToken = '{{ craft.app.request.csrfToken }}';
+        const csrfName = '{{ craft.app.config.general.csrfTokenName }}';
+        const endpoint = Craft.getActionUrl('shortlink-manager/analytics/get-data');
 
-	{% include 'lindemannrock-base/_components/plugin-credit' %}
-{% endblock %}
+        // Daily clicks chart
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            dataType: 'json',
+            data: { dateRange: dateRange, siteId: siteId, type: 'clicks', [csrfName]: csrfToken },
+            success: function(response) {
+                if (response.success && response.data) {
+                    renderClicksChart(response.data);
+                }
+            }
+        });
 
-{% css %}
-/* Tab content padding */
-.tab-content {
-	padding: 24px;
-}
+        // Device types chart
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            dataType: 'json',
+            data: { dateRange: dateRange, siteId: siteId, type: 'devices', [csrfName]: csrfToken },
+            success: function(response) {
+                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+                    renderDeviceChart(response.data);
+                }
+            }
+        });
 
-.analytics-stats {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 20px;
-	margin-bottom: 40px;
-}
+        // Device brands chart
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            dataType: 'json',
+            data: { dateRange: dateRange, siteId: siteId, type: 'device-brands', [csrfName]: csrfToken },
+            success: function(response) {
+                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+                    renderBrandChart(response.data);
+                }
+            }
+        });
 
-.stat-box {
-	background: #f3f7fc;
-	padding: 24px;
-	border-radius: 4px;
-	text-align: center;
-	border: 1px solid var(--border-hairline);
-}
+        // OS breakdown chart
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            dataType: 'json',
+            data: { dateRange: dateRange, siteId: siteId, type: 'os-breakdown', [csrfName]: csrfToken },
+            success: function(response) {
+                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+                    renderOsChart(response.data);
+                }
+            }
+        });
 
-.stat-value {
-	font-size: 32px;
-	font-weight: 600;
-	color: #0d78f2;
-	margin-bottom: 8px;
-}
+        // Browser breakdown chart
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            dataType: 'json',
+            data: { dateRange: dateRange, siteId: siteId, type: 'browsers', [csrfName]: csrfToken },
+            success: function(response) {
+                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
+                    renderBrowserChart(response.data);
+                }
+            }
+        });
 
-.stat-label {
-	font-size: 14px;
-	color: #596673;
-}
+        // Hourly analytics chart
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            dataType: 'json',
+            data: { dateRange: dateRange, siteId: siteId, type: 'hourly', [csrfName]: csrfToken },
+            success: function(response) {
+                if (response.success && response.data) {
+                    renderHourlyChart(response.data);
+                }
+            }
+        });
+    }
 
-.analytics-charts {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-	gap: 30px;
-	margin-bottom: 30px;
-}
+    function renderClicksChart(data) {
+        window.lrCreateChart('clicks-chart', 'line', {
+            labels: data.labels,
+            datasets: [{
+                label: '{{ "Interactions"|t('shortlink-manager') }}',
+                data: data.values,
+                borderColor: chartColors[0],
+                backgroundColor: chartColors[0] + '20',
+                tension: 0.1,
+                fill: true
+            }]
+        }, {
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+            plugins: { legend: { display: false } }
+        });
+    }
 
-.analytics-charts.two-columns {
-	grid-template-columns: repeat(2, 1fr);
-}
+    function renderDeviceChart(data) {
+        window.lrCreateChart('device-chart', 'doughnut', {
+            labels: data.labels,
+            datasets: [{ data: data.values, backgroundColor: chartColors.slice(0, 6) }]
+        }, {
+            plugins: { legend: { position: 'bottom' } }
+        });
+    }
 
-@media (max-width: 1024px) {
-	.analytics-charts.two-columns {
-		grid-template-columns: 1fr;
-	}
-}
+    function renderBrandChart(data) {
+        const ctx = document.getElementById('brand-chart');
+        if (!ctx) return;
+        ctx.parentElement.style.minHeight = '300px';
 
-.chart-container.full-width {
-	grid-column: 1 / -1;
-}
+        window.lrCreateChart('brand-chart', 'bar', {
+            labels: data.labels,
+            datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.values, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
+        }, {
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+            plugins: { legend: { display: false } }
+        });
+    }
 
-.chart-container {
-	background: #fff;
-	border: 1px solid #e3e5e8;
-	border-radius: 4px;
-	padding: 24px;
-	min-width: 0;
-	overflow: hidden;
-}
+    function renderOsChart(data) {
+        window.lrCreateChart('os-chart', 'doughnut', {
+            labels: data.labels,
+            datasets: [{ data: data.values, backgroundColor: chartColors }]
+        }, {
+            plugins: { legend: { position: 'bottom' } }
+        });
+    }
 
-.chart-container h3 {
-	margin: 0 0 20px;
-	font-size: 16px;
-}
+    function renderBrowserChart(data) {
+        window.lrCreateChart('browser-chart', 'doughnut', {
+            labels: data.labels,
+            datasets: [{ data: data.values, backgroundColor: chartColors }]
+        }, {
+            plugins: { legend: { position: 'bottom' } }
+        });
+    }
 
-.chart-container canvas {
-	max-height: 300px;
-	max-width: 100%;
-}
+    function renderHourlyChart(data) {
+        const ctx = document.getElementById('hourly-chart');
+        if (!ctx) return;
+        ctx.parentElement.style.minHeight = '300px';
 
-.chart-container > canvas {
-	display: block;
-	box-sizing: border-box;
-}
+        window.lrCreateChart('hourly-chart', 'bar', {
+            labels: Array.from({length: 24}, (_, i) => i + ':00'),
+            datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.data, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
+        }, {
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+            plugins: { legend: { display: false } }
+        });
 
-#clicks-chart {
-	max-height: 200px !important;
-}
-
-.table-scroll-container {
-	overflow-x: auto;
-	-webkit-overflow-scrolling: touch;
-	margin: 0 -24px;
-	padding: 0 24px;
-}
-
-.table-scroll-container table {
-	min-width: 100%;
-	width: 100%;
-}
-
-@media (max-width: 768px) {
-	.table-scroll-container {
-		margin: 0 -12px;
-		padding: 0 12px;
-	}
-}
-{% endcss %}
-
-{% js %}
-// Global chart instances
-window.slmCharts = {};
-window.currentTab = 'overview';
-
-// Load Chart.js if not already loaded
-if (typeof Chart === 'undefined') {
-	var script = document.createElement('script');
-	script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-	script.onload = function() { initCharts(); };
-	document.head.appendChild(script);
-} else {
-	initCharts();
-}
-
-// Chart colors
-const chartColors = [
-	'#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c',
-	'#34495e', '#e67e22', '#3498db', '#2ecc71', '#c0392b', '#f1c40f'
-];
-
-// Initialize all charts
-function initCharts() {
-	// Destroy existing charts
-	Object.values(window.slmCharts).forEach(c => { if (c && c.destroy) c.destroy(); });
-	window.slmCharts = {};
-
-	// Get current parameters
-	const urlParams = new URLSearchParams(window.location.search);
-	const currentRange = urlParams.get('dateRange') || '{{ dateRange }}';
-	const currentSite = urlParams.get('siteId') || '';
-
-	// Load all chart data
-	loadChartData(currentRange, currentSite);
-}
-
-// Load chart data for all tabs
-function loadChartData(dateRange, siteId) {
-	const csrfToken = '{{ craft.app.request.csrfToken }}';
-	const csrfName = '{{ craft.app.config.general.csrfTokenName }}';
-	const actionUrl = '{{ actionUrl('shortlink-manager/analytics/get-data')|raw }}';
-
-	// Daily clicks chart
-	$.ajax({
-		url: actionUrl,
-		type: 'POST',
-		dataType: 'json',
-		data: { dateRange: dateRange, siteId: siteId, type: 'clicks', [csrfName]: csrfToken },
-		success: function(response) {
-			if (response.success && response.data) {
-				renderClicksChart(response.data);
-			}
-		}
-	});
-
-	// Device types chart
-	$.ajax({
-		url: actionUrl,
-		type: 'POST',
-		dataType: 'json',
-		data: { dateRange: dateRange, siteId: siteId, type: 'devices', [csrfName]: csrfToken },
-		success: function(response) {
-			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-				renderDeviceChart(response.data);
-			}
-		}
-	});
-
-	// Device brands chart
-	$.ajax({
-		url: actionUrl,
-		type: 'POST',
-		dataType: 'json',
-		data: { dateRange: dateRange, siteId: siteId, type: 'device-brands', [csrfName]: csrfToken },
-		success: function(response) {
-			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-				renderBrandChart(response.data);
-			}
-		}
-	});
-
-	// OS breakdown chart
-	$.ajax({
-		url: actionUrl,
-		type: 'POST',
-		dataType: 'json',
-		data: { dateRange: dateRange, siteId: siteId, type: 'os-breakdown', [csrfName]: csrfToken },
-		success: function(response) {
-			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-				renderOsChart(response.data);
-			}
-		}
-	});
-
-	// Browser breakdown chart
-	$.ajax({
-		url: actionUrl,
-		type: 'POST',
-		dataType: 'json',
-		data: { dateRange: dateRange, siteId: siteId, type: 'browsers', [csrfName]: csrfToken },
-		success: function(response) {
-			if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-				renderBrowserChart(response.data);
-			}
-		}
-	});
-
-	// Hourly analytics chart
-	$.ajax({
-		url: actionUrl,
-		type: 'POST',
-		dataType: 'json',
-		data: { dateRange: dateRange, siteId: siteId, type: 'hourly', [csrfName]: csrfToken },
-		success: function(response) {
-			if (response.success && response.data) {
-				renderHourlyChart(response.data);
-			}
-		}
-	});
-}
-
-// Chart rendering functions
-function renderClicksChart(data) {
-	const ctx = document.getElementById('clicks-chart');
-	if (!ctx) return;
-
-	if (window.slmCharts.clicks) window.slmCharts.clicks.destroy();
-
-	window.slmCharts.clicks = new Chart(ctx, {
-		type: 'line',
-		data: {
-			labels: data.labels,
-			datasets: [{
-				label: '{{ "Interactions"|t('shortlink-manager') }}',
-				data: data.values,
-				borderColor: chartColors[0],
-				backgroundColor: chartColors[0] + '20',
-				tension: 0.1,
-				fill: true
-			}]
-		},
-		options: {
-			responsive: true,
-			maintainAspectRatio: false,
-			scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
-			plugins: { legend: { display: false } }
-		}
-	});
-}
-
-function renderDeviceChart(data) {
-	const ctx = document.getElementById('device-chart');
-	if (!ctx) return;
-
-	if (window.slmCharts.device) window.slmCharts.device.destroy();
-
-	window.slmCharts.device = new Chart(ctx, {
-		type: 'doughnut',
-		data: {
-			labels: data.labels,
-			datasets: [{ data: data.values, backgroundColor: chartColors.slice(0, 6) }]
-		},
-		options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-	});
-}
-
-function renderBrandChart(data) {
-	const ctx = document.getElementById('brand-chart');
-	if (!ctx) return;
-
-	if (window.slmCharts.brand) window.slmCharts.brand.destroy();
-	ctx.parentElement.style.minHeight = '300px';
-
-	window.slmCharts.brand = new Chart(ctx, {
-		type: 'bar',
-		data: {
-			labels: data.labels,
-			datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.values, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
-		},
-		options: {
-			responsive: true,
-			maintainAspectRatio: false,
-			scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
-			plugins: { legend: { display: false } }
-		}
-	});
-}
-
-function renderOsChart(data) {
-	const ctx = document.getElementById('os-chart');
-	if (!ctx) return;
-
-	if (window.slmCharts.os) window.slmCharts.os.destroy();
-
-	window.slmCharts.os = new Chart(ctx, {
-		type: 'doughnut',
-		data: {
-			labels: data.labels,
-			datasets: [{ data: data.values, backgroundColor: chartColors }]
-		},
-		options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-	});
-}
-
-function renderBrowserChart(data) {
-	const ctx = document.getElementById('browser-chart');
-	if (!ctx) return;
-
-	if (window.slmCharts.browser) window.slmCharts.browser.destroy();
-
-	window.slmCharts.browser = new Chart(ctx, {
-		type: 'doughnut',
-		data: {
-			labels: data.labels,
-			datasets: [{ data: data.values, backgroundColor: chartColors }]
-		},
-		options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-	});
-}
-
-function renderHourlyChart(data) {
-	const ctx = document.getElementById('hourly-chart');
-	if (!ctx) return;
-
-	if (window.slmCharts.hourly) window.slmCharts.hourly.destroy();
-	ctx.parentElement.style.minHeight = '300px';
-
-	window.slmCharts.hourly = new Chart(ctx, {
-		type: 'bar',
-		data: {
-			labels: Array.from({length: 24}, (_, i) => i + ':00'),
-			datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.data, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
-		},
-		options: {
-			responsive: true,
-			maintainAspectRatio: false,
-			scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
-			plugins: { legend: { display: false } }
-		}
-	});
-
-	// Show peak hour
-	$('#peak-hour-info').html('{{ "Peak usage at"|t('shortlink-manager') }} <strong>' + data.peakHourFormatted + '</strong>');
-}
-
-// Tab Switching
-function switchTab(tabId) {
-	if (!tabId) tabId = 'overview';
-
-	// Hide all tab content
-	$('.tab-content').addClass('hidden');
-	// Show selected tab content
-	$('#' + tabId).removeClass('hidden');
-
-	window.currentTab = tabId;
-}
-
-// Handle hash changes (when Craft switches tabs)
-window.addEventListener('hashchange', function() {
-	var hash = window.location.hash.substring(1);
-	switchTab(hash);
+        // Show peak hour
+        $('#peak-hour-info').html('{{ "Peak usage at"|t('shortlink-manager') }} <strong>' + data.peakHourFormatted + '</strong>');
+    }
 });
-
-// Document ready
-$(document).ready(function() {
-	// Handle clicks on tab links
-	$(document).on('click', 'a[href^="#"]', function() {
-		var href = $(this).attr('href');
-		if (href && href.startsWith('#')) {
-			setTimeout(function() {
-				var hash = window.location.hash.substring(1);
-				switchTab(hash);
-			}, 10);
-		}
-	});
-
-	// Handle initial tab
-	var hash = window.location.hash.substring(1) || 'overview';
-	switchTab(hash);
-
-	// Date Range Handler - reload page
-	$(document).on('click', '.main-date-range-option', function(e) {
-		e.preventDefault();
-		const range = $(this).data('range');
-		const url = new URL(window.location);
-		url.searchParams.set('dateRange', range);
-		window.location = url;
-	});
-
-	// Site Filter Handler - reload page
-	$(document).on('click', '.site-option', function(e) {
-		e.preventDefault();
-		const siteId = $(this).data('site');
-		const url = new URL(window.location);
-		if (siteId) {
-			url.searchParams.set('siteId', siteId);
-		} else {
-			url.searchParams.delete('siteId');
-		}
-		window.location = url;
-	});
-
-	// Export Handler
-	$(document).on('click', '.export-link', function(e) {
-		e.preventDefault();
-		const action = $(this).data('action');
-		const format = $(this).data('format') || 'csv';
-		const dateRange = new URLSearchParams(window.location.search).get('dateRange') || 'last7days';
-		const siteId = new URLSearchParams(window.location.search).get('siteId') || '';
-
-		const exportUrl = Craft.getActionUrl(action, {
-			dateRange: dateRange,
-			siteId: siteId,
-			format: format
-		});
-
-		window.location.href = exportUrl;
-	});
-});
-{% endjs %}
+</script>
+{% endblock %}

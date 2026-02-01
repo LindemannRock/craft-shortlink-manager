@@ -1,28 +1,36 @@
 {# Overview Tab - Stats, Daily Interactions, Top Links, Recent Interactions #}
 
-<div class="analytics-stats">
-    <div class="stat-box">
-        <div class="stat-value" id="total-clicks">{{ (analyticsData.totalClicks ?? 0)|number }}</div>
-        <div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
-    </div>
-    <div class="stat-box">
-        <div class="stat-value" id="unique-visitors">{{ (analyticsData.uniqueVisitors ?? 0)|number }}</div>
-        <div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
-    </div>
-    <div class="stat-box">
-        <div class="stat-value" id="active-links">{{ (analyticsData.activeLinks ?? 0)|number }}</div>
-        <div class="stat-label">{{ "Active Links"|t('shortlink-manager') }}</div>
-    </div>
-    <div class="stat-box">
-        <div class="stat-value" id="links-used">{{ analyticsData.linksUsedPercentage ?? 0 }}%</div>
-        <div class="stat-label">{{ "Engagement Rate"|t('shortlink-manager') }}</div>
-    </div>
+<div class="lr-analytics-stats">
+    {% include 'lindemannrock-base/_components/stat-box' with {
+        value: analyticsData.totalClicks ?? 0,
+        label: 'Total Interactions'|t('shortlink-manager'),
+        id: 'total-clicks',
+    } only %}
+
+    {% include 'lindemannrock-base/_components/stat-box' with {
+        value: analyticsData.uniqueVisitors ?? 0,
+        label: 'Unique Visitors'|t('shortlink-manager'),
+        id: 'unique-visitors',
+    } only %}
+
+    {% include 'lindemannrock-base/_components/stat-box' with {
+        value: analyticsData.activeLinks ?? 0,
+        label: 'Active Links'|t('shortlink-manager'),
+        id: 'active-links',
+    } only %}
+
+    {% include 'lindemannrock-base/_components/stat-box' with {
+        value: analyticsData.linksUsedPercentage ?? 0,
+        suffix: '%',
+        label: 'Engagement Rate'|t('shortlink-manager'),
+        id: 'links-used',
+    } only %}
 </div>
 
 <h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('shortlink-manager') }}</h2>
 
-<div class="analytics-charts">
-    <div class="chart-container full-width">
+<div class="lr-analytics-charts">
+    <div class="lr-chart-container full-width">
         <h3>{{ "Daily Interactions"|t('shortlink-manager') }}</h3>
         <canvas id="clicks-chart"></canvas>
     </div>
@@ -30,9 +38,9 @@
 
 <h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
 
-<div class="analytics-charts">
-    <div class="chart-container full-width">
-        <div id="top-links-table" class="table-scroll-container">
+<div class="lr-analytics-charts">
+    <div class="lr-chart-container full-width">
+        <div class="lr-table-scroll">
             <table class="data fullwidth">
                 <thead>
                     <tr>
@@ -66,7 +74,7 @@
                                     </span>
                                 </td>
                                 <td>{{ shortLink.clicks|number }}</td>
-                                <td>{{ shortLink.lastClick ? shortLink.lastClick|datetime('short') : '-' }}</td>
+                                <td>{{ shortLink.lastClick ? shortLink.lastClick|lrDatetime('short') : '-' }}</td>
                             </tr>
                         {% endif %}
                     {% else %}
@@ -82,9 +90,9 @@
 
 <h2 style="margin: 30px 0 20px;">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
 
-<div class="analytics-charts">
-    <div class="chart-container full-width">
-        <div id="recent-clicks-table" class="table-scroll-container">
+<div class="lr-analytics-charts">
+    <div class="lr-chart-container full-width">
+        <div class="lr-table-scroll">
             <table class="data fullwidth">
                 <thead>
                     <tr>
@@ -105,8 +113,8 @@
                 <tbody>
                     {% for click in analyticsData.recentClicks ?? [] %}
                         <tr>
-                            <td>{{ click.dateCreated|date('short') }}</td>
-                            <td>{{ click.dateCreated|time('short') }}</td>
+                            <td>{{ click.dateCreated|lrDate('short') }}</td>
+                            <td>{{ click.dateCreated|lrTime('short') }}</td>
                             <td>
                                 <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
                             </td>

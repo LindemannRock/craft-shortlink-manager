@@ -10,6 +10,8 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\DateRangeHelper;
+use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
@@ -42,7 +44,7 @@ class AnalyticsController extends Controller
         $this->requirePermission('shortLinkManager:viewAnalytics');
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getQueryParam('dateRange', 'last7days');
+        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange());
         $siteId = $request->getQueryParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
 
@@ -77,7 +79,7 @@ class AnalyticsController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getBodyParam('dateRange', 'last7days');
+        $dateRange = $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange());
         $type = $request->getBodyParam('type', 'summary');
         $linkId = $request->getBodyParam('linkId');
         $siteId = $request->getBodyParam('siteId');
@@ -145,7 +147,7 @@ class AnalyticsController extends Controller
         $this->requireAcceptsJson();
 
         $linkId = Craft::$app->getRequest()->getParam('linkId');
-        $range = Craft::$app->getRequest()->getParam('range', 'last7days');
+        $range = Craft::$app->getRequest()->getParam('range', DateRangeHelper::getDefaultDateRange());
 
         if (!$linkId) {
             return $this->asJson([
@@ -194,71 +196,104 @@ class AnalyticsController extends Controller
     /**
      * Export analytics data
      *
+     * Supports CSV, JSON, and Excel formats using ExportHelper.
+     *
      * @return Response
+     * @since 5.0.0
      */
     public function actionExport(): Response
     {
         $this->requirePermission('shortLinkManager:exportAnalytics');
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getQueryParam('dateRange', 'last7days');
+        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange());
         $format = $request->getQueryParam('format', 'csv');
         $linkId = $request->getQueryParam('linkId');
         $siteId = $request->getQueryParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
 
-        try {
-            $csvData = ShortLinkManager::$plugin->analytics->exportAnalytics(
-                $linkId ? (int)$linkId : null,
-                $dateRange,
-                $format,
-                $siteId
-            );
+        // Get export data
+        $exportData = ShortLinkManager::$plugin->analytics->getExportData(
+            $linkId ? (int)$linkId : null,
+            $dateRange,
+            $siteId
+        );
 
-            // Generate filename
-            $settings = ShortLinkManager::$plugin->getSettings();
-            $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
-            $baseFilename = $filenamePart . '-analytics';
-            if ($linkId) {
-                $shortLink = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-                    ->id($linkId)
-                    ->one();
-                if ($shortLink) {
-                    // Clean the code for filename
-                    $cleanCode = preg_replace('/[^a-zA-Z0-9-_]/', '', $shortLink->code);
-                    $singularPart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
-                    $baseFilename = $singularPart . '-' . $cleanCode . '-analytics';
-                }
-            }
-
-            // Get site name for filename
-            $sitePart = 'all';
-            if ($siteId) {
-                $site = Craft::$app->getSites()->getSiteById($siteId);
-                if ($site) {
-                    $sitePart = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', str_replace(' ', '-', $site->name)));
-                }
-            }
-
-            // Use "alltime" instead of "all" for clearer filename
-            $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
-            $filename = $baseFilename . '-' . $sitePart . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.' . $format;
-
-            return Craft::$app->getResponse()->sendContentAsFile(
-                $csvData,
-                $filename,
-                [
-                    'mimeType' => $format === 'csv' ? 'text/csv' : 'application/json',
-                ]
-            );
-        } catch (\Exception $e) {
-            Craft::$app->getSession()->setError($e->getMessage());
-
-            // Preserve the date range when redirecting back
+        // Check for empty data
+        if (empty($exportData)) {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'No analytics data to export.'));
             if ($linkId) {
                 return $this->redirect('shortlink-manager/shortlinks/' . $linkId . '?range=' . $dateRange);
             }
             return $this->redirect('shortlink-manager/analytics?dateRange=' . $dateRange);
         }
+
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $geoEnabled = $settings->enableGeoDetection ?? true;
+
+        // Build filename parts
+        $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+        $filenameParts = ['analytics', $dateRangeLabel];
+
+        // Add link code to filename if specific link
+        if ($linkId) {
+            $shortLink = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->id($linkId)
+                ->one();
+            if ($shortLink) {
+                $cleanCode = preg_replace('/[^a-zA-Z0-9-_]/', '', $shortLink->code);
+                array_unshift($filenameParts, $cleanCode);
+            }
+        }
+
+        // Add site to filename if filtered
+        if ($siteId) {
+            $site = Craft::$app->getSites()->getSiteById($siteId);
+            if ($site) {
+                $filenameParts[] = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', str_replace(' ', '-', $site->name)));
+            }
+        }
+
+        // Build headers for CSV/Excel
+        $headers = [
+            'dateCreated' => Craft::t('shortlink-manager', 'Date/Time'),
+            'code' => Craft::t('shortlink-manager', 'Code'),
+            'status' => Craft::t('shortlink-manager', 'Status'),
+            'shortLinkUrl' => Craft::t('shortlink-manager', 'Short Link URL'),
+            'siteName' => Craft::t('shortlink-manager', 'Site'),
+            'source' => Craft::t('shortlink-manager', 'Source'),
+            'destinationUrl' => Craft::t('shortlink-manager', 'Destination URL'),
+            'referrer' => Craft::t('shortlink-manager', 'Referrer'),
+            'deviceType' => Craft::t('shortlink-manager', 'Device Type'),
+            'deviceBrand' => Craft::t('shortlink-manager', 'Device Brand'),
+            'deviceModel' => Craft::t('shortlink-manager', 'Device Model'),
+            'osName' => Craft::t('shortlink-manager', 'OS'),
+            'osVersion' => Craft::t('shortlink-manager', 'OS Version'),
+            'browser' => Craft::t('shortlink-manager', 'Browser'),
+            'browserVersion' => Craft::t('shortlink-manager', 'Browser Version'),
+            'language' => Craft::t('shortlink-manager', 'Language'),
+            'userAgent' => Craft::t('shortlink-manager', 'User Agent'),
+        ];
+
+        // Add geo headers if enabled
+        if ($geoEnabled) {
+            $headers['country'] = Craft::t('shortlink-manager', 'Country');
+            $headers['city'] = Craft::t('shortlink-manager', 'City');
+        }
+
+        // Date columns for formatting
+        $dateColumns = ['dateCreated'];
+
+        // Export based on format
+        $extension = $format === 'excel' ? 'xlsx' : $format;
+        $filename = ExportHelper::filename($settings, $filenameParts, $extension);
+
+        return match ($format) {
+            'json' => ExportHelper::toJson($exportData, $filename, $dateColumns),
+            'excel' => ExportHelper::toExcel($exportData, $headers, $filename, $dateColumns, [
+                'sheetTitle' => Craft::t('shortlink-manager', 'Analytics'),
+            ]),
+            default => ExportHelper::toCsv($exportData, $headers, $filename, $dateColumns),
+        };
     }
 }
