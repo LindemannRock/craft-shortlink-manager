@@ -237,7 +237,7 @@ class ShortLinkManager extends Plugin
 
                                 // Get all keys from tracking sets
                                 $qrKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet($this->id, 'qr')]) ?: [];
-                                $deviceKeys = $redis->executeCommand('SMEMBERS', ['shortlinkmanager-device-keys']) ?: [];
+                                $deviceKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet($this->id, 'device')]) ?: [];
 
                                 // Delete QR cache keys using Craft's cache component
                                 foreach ($qrKeys as $key) {
@@ -251,7 +251,7 @@ class ShortLinkManager extends Plugin
 
                                 // Clear the tracking sets
                                 $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet($this->id, 'qr')]);
-                                $redis->executeCommand('DEL', ['shortlinkmanager-device-keys']);
+                                $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet($this->id, 'device')]);
                             }
                         } else {
                             // Clear QR code file caches
