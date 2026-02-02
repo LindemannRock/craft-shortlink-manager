@@ -315,6 +315,11 @@ class RedirectController extends Controller
         // Parse the destination URL
         $parsedUrl = parse_url($destinationUrl);
 
+        // Return original if URL is malformed and cannot be parsed
+        if ($parsedUrl === false) {
+            return $destinationUrl;
+        }
+
         // Get existing query params from destination
         $existingParams = [];
         if (!empty($parsedUrl['query'])) {
@@ -341,6 +346,11 @@ class RedirectController extends Controller
 
         // Build query string (mergedParams is never empty since we return early if no incoming params)
         $queryString = '?' . http_build_query($mergedParams);
+
+        // Handle protocol-relative URLs (starting with //)
+        if (str_starts_with($destinationUrl, '//')) {
+            return '//' . $auth . $host . $port . $path . $queryString . $fragment;
+        }
 
         // Handle relative URLs (starting with /)
         if (empty($scheme) && str_starts_with($destinationUrl, '/')) {
