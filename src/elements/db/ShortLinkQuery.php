@@ -215,6 +215,7 @@ class ShortLinkQuery extends ElementQuery
             'shortlinkmanager.dateExpired',
             'shortlinkmanager.httpCode',
             'shortlinkmanager.trackAnalytics',
+            'shortlinkmanager.passQueryParams',
             'shortlinkmanager.hits',
             'shortlinkmanager.qrCodeEnabled',
             'shortlinkmanager.qrCodeSize',

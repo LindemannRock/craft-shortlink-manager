@@ -27,6 +27,7 @@ use craft\db\ActiveRecord;
  * @property \DateTime|null $dateExpired
  * @property int $httpCode
  * @property bool $trackAnalytics
+ * @property bool|null $passQueryParams
  * @property int $hits
  * @property bool $qrCodeEnabled
  * @property int $qrCodeSize

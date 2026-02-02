@@ -112,6 +112,11 @@ class ShortLink extends Element
     public bool $trackAnalytics = true;
 
     /**
+     * @var bool|null Pass query params to destination (null = use global setting)
+     */
+    public ?bool $passQueryParams = null;
+
+    /**
      * @var int Total hits/clicks
      */
     public int $hits = 0;
@@ -549,6 +554,7 @@ class ShortLink extends Element
             'dateExpired',
             'httpCode',
             'trackAnalytics',
+            'passQueryParams',
             'qrCodeEnabled',
             'qrCodeSize',
             'qrCodeColor',
@@ -579,6 +585,7 @@ class ShortLink extends Element
             'postDate' => null,
             'httpCode' => 301,
             'trackAnalytics' => true,
+            'passQueryParams' => null,
             'hits' => 0,
             'qrCodeEnabled' => true,
             'qrCodeSize' => 256,
@@ -611,6 +618,7 @@ class ShortLink extends Element
             'dateExpired',
             'httpCode',
             'trackAnalytics',
+            'passQueryParams',
             'qrCodeEnabled',
             'qrCodeSize',
             'qrCodeColor',
@@ -1018,7 +1026,7 @@ class ShortLink extends Element
         }];
 
         $rules[] = [['httpCode'], 'in', 'range' => [301, 302, 307, 308]];
-        $rules[] = [['trackAnalytics', 'qrCodeEnabled'], 'boolean'];
+        $rules[] = [['trackAnalytics', 'passQueryParams', 'qrCodeEnabled'], 'boolean'];
         $rules[] = [['qrCodeSize'], 'integer', 'min' => 100, 'max' => 1000];
         $rules[] = [['qrCodeColor', 'qrCodeBgColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i'];
         $rules[] = [['qrCodeEyeColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i', 'when' => function($model) {
@@ -1250,6 +1258,7 @@ class ShortLink extends Element
             $record->postDate = $this->postDate;
             $record->httpCode = $this->httpCode;
             $record->trackAnalytics = $this->trackAnalytics;
+            $record->passQueryParams = $this->passQueryParams;
             $record->hits = $this->hits;
             $record->qrCodeEnabled = $this->qrCodeEnabled;
             $record->qrCodeSize = $this->qrCodeSize;

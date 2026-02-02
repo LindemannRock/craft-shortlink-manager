@@ -257,6 +257,12 @@ class ShortlinksController extends Controller
         $shortLink->expiredMessage = $this->request->getBodyParam('expiredMessage');
         $shortLink->trackAnalytics = (bool) $this->request->getBodyParam('trackAnalytics', true);
 
+        // Handle passQueryParams - only set if explicitly provided (preserves existing value for API callers)
+        $passQueryParams = $this->request->getBodyParam('passQueryParams');
+        if ($passQueryParams !== null) {
+            $shortLink->passQueryParams = (bool) $passQueryParams;
+        }
+
         // QR Code settings
         $shortLink->qrCodeEnabled = (bool) $this->request->getBodyParam('qrCodeEnabled', true);
         $shortLink->qrCodeSize = (int) $this->request->getBodyParam('qrCodeSize', 256);

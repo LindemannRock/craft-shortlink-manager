@@ -241,6 +241,20 @@
         </div>
     </fieldset>
 
+    <fieldset>
+        <legend class="h6">{{ "Behavior"|t('shortlink-manager') }}</legend>
+        <div class="meta">
+            {% set effectiveValue = shortLink.passQueryParams ?? plugin.settings.passQueryParams %}
+
+            {{ forms.lightswitchField({
+                label: "Pass Query Params"|t('shortlink-manager'),
+                id: 'passQueryParams',
+                name: 'passQueryParams',
+                on: effectiveValue,
+            }) }}
+        </div>
+    </fieldset>
+
     {% if plugin.settings.enableAnalytics %}
         <fieldset>
             <legend class="h6">{{ "Analytics"|t('shortlink-manager') }}</legend>
@@ -845,4 +859,5 @@
 
         Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('shortlink-manager')|e('js') }}');
     });
+
 {% endjs %}

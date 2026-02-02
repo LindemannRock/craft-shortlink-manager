@@ -123,10 +123,19 @@ class RedirectController extends Controller
             return $this->redirectToNotFound();
         }
 
+        // Check if we should pass query params to destination
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $shouldPassQueryParams = $shortLink->passQueryParams ?? $settings->passQueryParams;
+
+        if ($shouldPassQueryParams) {
+            $destinationUrl = $this->mergeQueryParams($destinationUrl);
+        }
+
         $this->logInfo('Redirecting shortlink', [
             'slug' => $shortLink->slug,
             'destination' => $destinationUrl,
             'httpCode' => $shortLink->httpCode,
+            'passQueryParams' => $shouldPassQueryParams,
         ]);
 
         // Get source parameter for QR tracking (like Smart Links does)
@@ -272,5 +281,72 @@ class RedirectController extends Controller
             ]);
             return null;
         }
+    }
+
+    /**
+     * Merge query parameters from the request into the destination URL
+     *
+     * Excludes internal parameters (src, debug, p) and merges remaining
+     * query params from the shortlink request into the destination URL.
+     * Incoming params take precedence over existing destination params.
+     *
+     * @param string $destinationUrl The original destination URL
+     * @return string The destination URL with merged query parameters
+     * @since 5.11.0
+     */
+    private function mergeQueryParams(string $destinationUrl): string
+    {
+        $request = Craft::$app->getRequest();
+
+        // Get all query params from the request
+        $incomingParams = $request->getQueryParams();
+
+        // Remove internal params that shouldn't be passed through
+        $excludeParams = ['src', 'debug', 'p'];
+        foreach ($excludeParams as $param) {
+            unset($incomingParams[$param]);
+        }
+
+        // If no params to merge, return original URL
+        if (empty($incomingParams)) {
+            return $destinationUrl;
+        }
+
+        // Parse the destination URL
+        $parsedUrl = parse_url($destinationUrl);
+
+        // Get existing query params from destination
+        $existingParams = [];
+        if (!empty($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $existingParams);
+        }
+
+        // Merge params - incoming params take precedence (override existing)
+        $mergedParams = array_merge($existingParams, $incomingParams);
+
+        // Rebuild the URL
+        $scheme = !empty($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '';
+        $auth = '';
+        if (!empty($parsedUrl['user'])) {
+            $auth = $parsedUrl['user'];
+            if (!empty($parsedUrl['pass'])) {
+                $auth .= ':' . $parsedUrl['pass'];
+            }
+            $auth .= '@';
+        }
+        $host = $parsedUrl['host'] ?? '';
+        $port = !empty($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
+        $path = $parsedUrl['path'] ?? '';
+        $fragment = !empty($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : '';
+
+        // Build query string (mergedParams is never empty since we return early if no incoming params)
+        $queryString = '?' . http_build_query($mergedParams);
+
+        // Handle relative URLs (starting with /)
+        if (empty($scheme) && str_starts_with($destinationUrl, '/')) {
+            return $path . $queryString . $fragment;
+        }
+
+        return $scheme . $auth . $host . $port . $path . $queryString . $fragment;
     }
 }

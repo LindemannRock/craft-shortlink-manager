@@ -116,6 +116,7 @@ return [
         // How redirects behave and where they go
 
         'defaultHttpCode' => 301,      // Default HTTP redirect code (301, 302, 307, 308)
+        'passQueryParams' => false,    // Pass query params from shortlink URL to destination
         'notFoundRedirectUrl' => '/',  // Where to redirect for invalid/disabled shortlinks
 
 

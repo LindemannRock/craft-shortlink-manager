@@ -64,6 +64,21 @@
         </span>
     </p>
 
+		{{ forms.lightswitchField({
+        label: "Pass Query Parameters"|t('shortlink-manager'),
+        id: 'passQueryParams',
+        name: 'settings[passQueryParams]',
+        on: settings.passQueryParams,
+        instructions: "When enabled, query parameters from the {pluginName} URL will be passed to the destination URL."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+        disabled: settings.isOverriddenByConfig('passQueryParams'),
+        warning: settings.isOverriddenByConfig('passQueryParams') ?
+            "This is being overridden by the <code>passQueryParams</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
+    <p class="light" style="margin-top: -10px; margin-bottom: 24px;">
+        {{ "Example: <code>{prefix}/abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: settings.slugPrefix})|raw }}
+    </p>
+
 		{{ forms.textField({
         label: "Default 404 Redirect URL"|t('shortlink-manager'),
         id: 'notFoundRedirectUrl',

@@ -48,6 +48,7 @@ If you are using this plugin, please be aware that future versions may have diff
 ### Advanced Features
 - Link expiration with custom redirect URLs
 - Configurable HTTP status codes (301, 302, 307, 308)
+- Query parameter pass-through to destination URLs
 - Reserved codes protection
 - IP anonymization for GDPR compliance
 - Multi-site support
@@ -584,6 +585,7 @@ return [
 
     // Redirect settings
     'defaultHttpCode' => 301,
+    'passQueryParams' => false,  // Pass query params from shortlink to destination
     'notFoundRedirectUrl' => '/',
 
     // Integrations (optional)
