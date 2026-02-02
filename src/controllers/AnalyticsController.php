@@ -144,6 +144,7 @@ class AnalyticsController extends Controller
     public function actionGetLinkAnalytics(): Response
     {
         $this->requireLogin();
+        $this->requirePermission('shortLinkManager:viewAnalytics');
         $this->requireAcceptsJson();
 
         $linkId = Craft::$app->getRequest()->getParam('linkId');

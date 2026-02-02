@@ -879,14 +879,13 @@ class ShortLink extends Element
      * Get QR code URL for this shortlink (for use in templates)
      *
      * @param array $options Optional parameters to override defaults
-     * @return string QR code action URL
+     * @return string QR code URL (site URL with code)
      */
     public function getQrCodeUrl(array $options = []): string
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
         $params = array_merge([
-            'linkId' => $this->id,
             'size' => $this->qrCodeSize,
             'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
             'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
@@ -897,15 +896,13 @@ class ShortLink extends Element
             'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null),
         ], $options);
 
-        // Add logo ID if logos are enabled and one is set
-        if ($settings->enableQrLogo) {
-            $logoId = $this->qrLogoId ?: $settings->defaultQrLogoId;
-            if ($logoId) {
-                $params['logo'] = $logoId;
-            }
-        }
+        // Remove null values
+        $params = array_filter($params, fn($value) => $value !== null);
 
-        return \craft\helpers\UrlHelper::actionUrl('shortlink-manager/qr-code/generate', $params);
+        // Get the QR prefix from settings
+        $qrPrefix = $settings->qrPrefix ?? 'qr';
+
+        return \craft\helpers\UrlHelper::siteUrl("{$qrPrefix}/{$this->code}", $params);
     }
 
     /**
@@ -936,9 +933,6 @@ class ShortLink extends Element
         return \craft\helpers\UrlHelper::siteUrl("{$qrPrefix}/{$this->code}/view", $params);
     }
 
-    /**
-     * @inheritdoc
-     */
     /**
      * @inheritdoc
      */

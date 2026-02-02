@@ -309,6 +309,7 @@ class SettingsController extends Controller
     public function actionClearQrCache(): Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:clearCache');
         $this->requireAcceptsJson();
 
         try {
@@ -369,6 +370,7 @@ class SettingsController extends Controller
     public function actionClearDeviceCache(): Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:clearCache');
         $this->requireAcceptsJson();
 
         try {
@@ -429,6 +431,7 @@ class SettingsController extends Controller
     public function actionClearAllCaches(): Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:clearCache');
         $this->requireAcceptsJson();
 
         try {

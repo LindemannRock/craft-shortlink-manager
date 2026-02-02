@@ -57,11 +57,16 @@ class QrCodeController extends Controller
         $linkId = $request->getQueryParam('linkId');
 
         if ($isPreview && $url) {
+            // Preview mode requires login (CP feature only)
+            $this->requireLogin();
+
             // Preview mode - generate QR code for any URL
             $fullUrl = $url;
             $shortLink = null;
         } elseif ($linkId) {
-            // CP mode - get by link ID
+            // CP mode - get by link ID (requires login)
+            $this->requireLogin();
+
             $shortLink = ShortLink::find()
                 ->id($linkId)
                 ->status(null)

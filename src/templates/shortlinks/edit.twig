@@ -229,59 +229,46 @@
         </fieldset>
     {% endif %}
 
-    <fieldset>
-        <legend class="h6">Status</legend>
-        <div class="meta">
-            {{ forms.lightswitchField({
-                label: "Enabled"|t('app'),
-                id: 'enabled',
-                name: 'enabled',
-                on: shortLink.enabled ?? true,
-            }) }}
-        </div>
-    </fieldset>
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled"|t('app'),
+            id: 'enabled',
+            name: 'enabled',
+            on: shortLink.enabled ?? true,
+        }) }}
 
-    <fieldset>
-        <legend class="h6">{{ "Behavior"|t('shortlink-manager') }}</legend>
-        <div class="meta">
-            {% set effectiveValue = shortLink.passQueryParams ?? plugin.settings.passQueryParams %}
-
+        {% if plugin.settings.passQueryParams %}
             {{ forms.lightswitchField({
                 label: "Pass Query Params"|t('shortlink-manager'),
+                instructions: "Pass query parameters from the {pluginName} URL to the destination."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
                 id: 'passQueryParams',
                 name: 'passQueryParams',
-                on: effectiveValue,
+                on: shortLink.passQueryParams ?? true,
             }) }}
-        </div>
-    </fieldset>
+        {% endif %}
 
-    {% if plugin.settings.enableAnalytics %}
-        <fieldset>
-            <legend class="h6">{{ "Analytics"|t('shortlink-manager') }}</legend>
-            <div class="meta">
-                {{ forms.lightswitchField({
-                    label: "Track Analytics"|t('shortlink-manager'),
-                    id: 'trackAnalytics',
-                    name: 'trackAnalytics',
-                    on: shortLink.trackAnalytics ?? true
-                }) }}
-            </div>
-        </fieldset>
-    {% endif %}
-
-    <fieldset>
-        <legend class="h6">{{ "QR Code"|t('shortlink-manager') }}</legend>
-        <div class="meta">
+        {% if plugin.settings.enableAnalytics %}
             {{ forms.lightswitchField({
-                label: "Enable QR Code"|t('shortlink-manager'),
-                id: 'qrCodeEnabled',
-                name: 'qrCodeEnabled',
-                on: shortLink.qrCodeEnabled ?? true,
-                toggle: 'qr-settings'
+                label: "Track Analytics"|t('shortlink-manager'),
+                id: 'trackAnalytics',
+                name: 'trackAnalytics',
+                on: shortLink.trackAnalytics ?? true
             }) }}
-        </div>
+        {% endif %}
 
-        <div id="qr-settings" class="meta {{ not (shortLink.qrCodeEnabled ?? true) ? 'hidden' }}">
+        {{ forms.lightswitchField({
+            label: "Enable QR Code"|t('shortlink-manager'),
+            id: 'qrCodeEnabled',
+            name: 'qrCodeEnabled',
+            on: shortLink.qrCodeEnabled ?? true,
+            toggle: 'qr-settings'
+        }) }}
+    </div>
+
+    <fieldset id="qr-settings" class="{{ not (shortLink.qrCodeEnabled ?? true) ? 'hidden' }}">
+        <legend class="h6">{{ "QR Code"|t('shortlink-manager') }}</legend>
+
+        <div class="meta">
             {% if shortLink.id %}
                 <div class="field">
                     <div class="heading">

@@ -122,22 +122,26 @@
 
     <script>
         (function() {
+            // Safely encode values for JS context
+            var destinationUrl = {{ destinationUrl|json_encode|raw }};
+            var eventType = {{ eventType|json_encode|raw }};
+            var shortlinkCode = {{ shortLink.code|json_encode|raw }};
+
             // Get debug mode from URL parameter
             var urlParams = new URLSearchParams(window.location.search);
             var debugMode = urlParams.get('debug') === '1';
 
             if (debugMode) {
                 console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
-                console.log('🔍 Destination URL:', '{{ destinationUrl }}');
-                console.log('📊 Event Type:', '{{ eventType }}');
-                console.log('🔗 Shortlink Code:', '{{ shortLink.code }}');
+                console.log('🔍 Destination URL:', destinationUrl);
+                console.log('📊 Event Type:', eventType);
+                console.log('🔗 Shortlink Code:', shortlinkCode);
 
                 // SEOmatic tracking debug
                 console.log('\n📡 SEOmatic Integration:');
                 {% if seomaticTracking %}
                     console.log('✅ SEOmatic tracking enabled');
-                    console.log('📝 Tracking script rendered:');
-                    console.log('{{ seomaticTracking|escape('js')|raw }}');
+                    console.log('📝 Tracking script rendered (see page source for details)');
 
                     // Check if dataLayer exists
                     if (typeof window.dataLayer !== 'undefined') {
@@ -164,7 +168,7 @@
 
             // Wait 100ms for GTM dataLayer to process, then redirect
             setTimeout(function() {
-                window.location.replace('{{ destinationUrl }}');
+                window.location.replace(destinationUrl);
             }, 100);
         })();
     </script>
