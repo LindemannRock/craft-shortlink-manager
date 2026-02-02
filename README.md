@@ -480,7 +480,7 @@ link.renderSeomaticTracking('qr_scan')
 ```
 
 **QR Code Method Usage:**
-- Use **getQrCodeUrl()** for regular templates (browser fetches image via URL)
+- Use **getQrCodeUrl()** for templates (returns public code-based URL)
 - Use **getQrCodeDataUri()** for emails or when you need inline base64 data
 - Use **getQrCode()** when you need raw binary data (downloads, API responses, file saving)
 
@@ -725,6 +725,8 @@ return [
 
 **Methods:**
 - `getUrl()` - Get full shortlink URL
+- `getQrCodeUrl(options)` - Get QR code image URL
+- `getQrCodeDisplayUrl(options)` - Get QR code display page URL
 - `getQrCode(options)` - Get QR code binary data
 - `getQrCodeDataUri(options)` - Get QR code as data URI
 - `isExpired()` - Check if expired
