@@ -31,7 +31,7 @@ class AnalyticsController extends Controller
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('shortlink-manager');
+        $this->setLoggingHandle(ShortLinkManager::$plugin->id);
     }
 
     /**
@@ -44,7 +44,7 @@ class AnalyticsController extends Controller
         $this->requirePermission('shortLinkManager:viewAnalytics');
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange());
+        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $siteId = $request->getQueryParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
 
@@ -79,7 +79,7 @@ class AnalyticsController extends Controller
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange());
+        $dateRange = $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $type = $request->getBodyParam('type', 'summary');
         $linkId = $request->getBodyParam('linkId');
         $siteId = $request->getBodyParam('siteId');
@@ -147,7 +147,7 @@ class AnalyticsController extends Controller
         $this->requireAcceptsJson();
 
         $linkId = Craft::$app->getRequest()->getParam('linkId');
-        $range = Craft::$app->getRequest()->getParam('range', DateRangeHelper::getDefaultDateRange());
+        $range = Craft::$app->getRequest()->getParam('range', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
 
         if (!$linkId) {
             return $this->asJson([
@@ -206,7 +206,7 @@ class AnalyticsController extends Controller
         $this->requirePermission('shortLinkManager:exportAnalytics');
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange());
+        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $format = $request->getQueryParam('format', 'csv');
         $linkId = $request->getQueryParam('linkId');
         $siteId = $request->getQueryParam('siteId');

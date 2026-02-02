@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\integrations;
 
 use Craft;
 use craft\helpers\App;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use nystudio107\seomatic\Seomatic;
 use yii\base\Event;
 
@@ -42,7 +43,7 @@ class SeomaticIntegration extends BaseIntegration
         $this->name = 'SEOmatic';
 
         // Set logging handle for LoggingTrait
-        $this->setLoggingHandle('shortlink-manager');
+        $this->setLoggingHandle(ShortLinkManager::$plugin->id);
     }
 
     /**

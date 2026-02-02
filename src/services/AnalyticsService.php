@@ -38,7 +38,7 @@ class AnalyticsService extends Component
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('shortlink-manager');
+        $this->setLoggingHandle(ShortLinkManager::$plugin->id);
     }
 
     /**

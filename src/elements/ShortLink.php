@@ -465,7 +465,7 @@ class ShortLink extends Element
         parent::init();
 
         // Set logging handle for LoggingTrait
-        $this->setLoggingHandle('shortlink-manager');
+        $this->setLoggingHandle(ShortLinkManager::$plugin->id);
 
         // If we have an ID but no content loaded yet, load it now
         if ($this->id && $this->siteId && $this->destinationUrl === null) {

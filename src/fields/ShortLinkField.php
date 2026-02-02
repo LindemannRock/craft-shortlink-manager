@@ -130,7 +130,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
         $existingLink = ShortLinkManager::$plugin->shortLinks->getByElement($element, $element->siteId);
 
         // Debug logging
-        $this->setLoggingHandle('shortlink-manager');
+        $this->setLoggingHandle(ShortLinkManager::$plugin->id);
         $this->logInfo('afterElementSave called', [
             'elementId' => $element->id,
             'siteId' => $element->siteId,

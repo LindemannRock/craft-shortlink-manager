@@ -366,7 +366,7 @@ class Settings extends Model
     public function init(): void
     {
         parent::init();
-        $this->setLoggingHandle('shortlink-manager');
+        $this->setLoggingHandle(static::pluginHandle());
 
         // Fallback to .env if ipHashSalt not set by config file
         if ($this->ipHashSalt === null) {

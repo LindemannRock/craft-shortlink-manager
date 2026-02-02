@@ -159,6 +159,33 @@ return [
         // Device Detection Caching
         'cacheDeviceDetection' => true, // Cache device detection results
         'deviceDetectionCacheDuration' => 3600, // Device detection cache in seconds (1 hour)
+
+
+        // ========================================
+        // BASE PLUGIN OVERRIDES
+        // ========================================
+        // Override settings from lindemannrock-base config
+        // These affect all LindemannRock plugins, but can be overridden here per-plugin
+        //
+        // Configure globally in: config/lindemannrock-base.php
+        // Or override per-plugin below:
+        //
+        // Date/time formatting:
+        // 'timeFormat' => '12',       // '12' (AM/PM) or '24' (military)
+        // 'dateOrder' => 'dmy',       // 'dmy', 'mdy', or 'ymd'
+        // 'dateSeparator' => '/',     // '/', '-', or '.'
+        // 'monthFormat' => 'numeric', // 'numeric', 'short', 'long'
+        // 'showSeconds' => false,     // Include seconds in time display
+        //
+        // Analytics defaults:
+        // 'defaultDateRange' => 'last7days',  // Default date range for analytics
+        //
+        // Export formats:
+        // 'exports' => [
+        //     'excel' => true,
+        //     'csv' => true,
+        //     'json' => true,
+        // ],
     ],
 
     // Dev environment settings
