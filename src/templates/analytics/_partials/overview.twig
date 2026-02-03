@@ -1,29 +1,28 @@
 {# Overview Tab - Stats, Daily Interactions, Top Links, Recent Interactions #}
 
-<div class="lr-analytics-stats">
-    {% include 'lindemannrock-base/_components/stat-box' with {
+<div class="lr-unified-cards">
+    {% include 'lindemannrock-base/_components/cards/unified-card' with {
         value: analyticsData.totalClicks ?? 0,
-        label: 'Total Interactions'|t('shortlink-manager'),
-        id: 'total-clicks',
+        description: 'Total Interactions'|t('shortlink-manager'),
+        align: 'center',
     } only %}
 
-    {% include 'lindemannrock-base/_components/stat-box' with {
+    {% include 'lindemannrock-base/_components/cards/unified-card' with {
         value: analyticsData.uniqueVisitors ?? 0,
-        label: 'Unique Visitors'|t('shortlink-manager'),
-        id: 'unique-visitors',
+        description: 'Unique Visitors'|t('shortlink-manager'),
+        align: 'center',
     } only %}
 
-    {% include 'lindemannrock-base/_components/stat-box' with {
+    {% include 'lindemannrock-base/_components/cards/unified-card' with {
         value: analyticsData.activeLinks ?? 0,
-        label: 'Active Links'|t('shortlink-manager'),
-        id: 'active-links',
+        description: 'Active Links'|t('shortlink-manager'),
+        align: 'center',
     } only %}
 
-    {% include 'lindemannrock-base/_components/stat-box' with {
-        value: analyticsData.linksUsedPercentage ?? 0,
-        suffix: '%',
-        label: 'Engagement Rate'|t('shortlink-manager'),
-        id: 'links-used',
+    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+        value: (analyticsData.linksUsedPercentage ?? 0) ~ '%',
+        description: 'Engagement Rate'|t('shortlink-manager'),
+        align: 'center',
     } only %}
 </div>
 
