@@ -207,7 +207,8 @@ class AnalyticsController extends Controller
         $this->requirePermission('shortLinkManager:exportAnalytics');
 
         $request = Craft::$app->getRequest();
-        $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
+        // Accept both 'range' and 'dateRange' parameter names
+        $dateRange = $request->getQueryParam('range') ?? $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $format = $request->getQueryParam('format', 'csv');
         $linkId = $request->getQueryParam('linkId');
         $siteId = $request->getQueryParam('siteId');
