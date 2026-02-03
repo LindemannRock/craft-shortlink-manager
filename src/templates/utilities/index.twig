@@ -1,366 +1,203 @@
-{% import "_includes/forms" as forms %}
+{% extends 'lindemannrock-base/_layouts/cp-utilities' %}
+
+{# Permission checks #}
+{% set canViewLinks = currentUser.can('shortLinkManager:viewLinks') %}
+{% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
+{% set canManageSettings = currentUser.can('shortLinkManager:manageSettings') %}
+{% set canClearCache = currentUser.can('shortLinkManager:clearCache') %}
+{% set canClearAnalytics = currentUser.can('shortLinkManager:clearAnalytics') %}
 
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set settings = plugin.settings %}
 {% set storageMethod = settings.cacheStorageMethod %}
 
-<div style="margin-bottom: 32px;">
-    <h2>{{ shortlinkHelper.fullName }} {{ "Overview"|t('shortlink-manager') }}</h2>
-    <p class="light">{{ "Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</p>
-</div>
+{% set hasNavigation = canViewLinks or (settings.enableAnalytics and canViewAnalytics) or canManageSettings %}
+{% set hasCacheManagement = (settings.enableQrCodeCache or settings.cacheDeviceDetection) and canClearCache %}
+{% set hasAnalyticsManagement = settings.enableAnalytics and canClearAnalytics %}
+{% set hasAnyQuickAction = hasNavigation or hasCacheManagement or hasAnalyticsManagement %}
 
-<div style="margin-bottom: 40px;">
-    <h2>{{ "System Overview"|t('shortlink-manager') }}</h2>
+{% set utilitiesConfig = {
+    plugin: {
+        handle: 'shortlink-manager',
+        name: shortlinkHelper.fullName,
+    },
+    page: {
+        title: 'Overview'|t('shortlink-manager'),
+        description: 'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.'|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+    },
+} %}
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: stretch;">
-        <!-- Links Status Card -->
-        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
-            <!-- Header -->
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
-                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Links Status"|t('shortlink-manager') }}</h4>
-            </div>
+{% block overview %}
+    {# Links Status Card - dynamic sub-boxes based on counts #}
+    {% set linksSubBoxes = [{value: activeLinks, label: 'Active'|t('shortlink-manager')}] %}
+    {% if pendingLinks > 0 or (expiredLinks == 0 and disabledLinks == 0) %}
+        {% set linksSubBoxes = linksSubBoxes|merge([{value: pendingLinks, label: 'Pending'|t('shortlink-manager')}]) %}
+    {% endif %}
+    {% if expiredLinks > 0 or (pendingLinks == 0 and disabledLinks == 0) %}
+        {% set linksSubBoxes = linksSubBoxes|merge([{value: expiredLinks, label: 'Expired'|t('shortlink-manager')}]) %}
+    {% endif %}
+    {% if disabledLinks > 0 and linksSubBoxes|length < 3 %}
+        {% set linksSubBoxes = linksSubBoxes|merge([{value: disabledLinks, label: 'Disabled'|t('shortlink-manager')}]) %}
+    {% endif %}
 
-            <!-- Main Content -->
-            <div style="flex: 1; display: flex; flex-direction: column;">
-                <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 12px;">
-                    {{ totalLinks|number_format }}
-                </div>
-                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Total {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}
-                </div>
+    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+        title: 'Links Status'|t('shortlink-manager'),
+        color: lrPaletteColor('emerald').color,
+        value: totalLinks,
+        description: 'Total {pluginName}'|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+        subBoxes: linksSubBoxes,
+    } only %}
 
-                <!-- Bottom Boxes (max 3, hide zeros by priority: disabled, pending, expired) -->
-                <div style="margin-top: auto;">
-                    {% set visibleBoxes = [] %}
-                    {% set visibleBoxes = visibleBoxes|merge([{value: activeLinks, label: 'Active'|t('shortlink-manager')}]) %}
-                    {% if pendingLinks > 0 or (expiredLinks == 0 and disabledLinks == 0) %}
-                        {% set visibleBoxes = visibleBoxes|merge([{value: pendingLinks, label: 'Pending'|t('shortlink-manager')}]) %}
-                    {% endif %}
-                    {% if expiredLinks > 0 or (pendingLinks == 0 and disabledLinks == 0) %}
-                        {% set visibleBoxes = visibleBoxes|merge([{value: expiredLinks, label: 'Expired'|t('shortlink-manager')}]) %}
-                    {% endif %}
-                    {% if disabledLinks > 0 and visibleBoxes|length < 3 %}
-                        {% set visibleBoxes = visibleBoxes|merge([{value: disabledLinks, label: 'Disabled'|t('shortlink-manager')}]) %}
-                    {% endif %}
+    {# Performance Card #}
+    {% if settings.enableAnalytics %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            title: 'Performance'|t('shortlink-manager'),
+            color: lrPaletteColor('sky').color,
+            value: totalClicks,
+            description: 'Total interactions tracked'|t('shortlink-manager'),
+            subBoxes: [
+                {value: qrScans, label: 'QR Scans'|t('shortlink-manager')},
+                {value: directClicks, label: 'Clicks'|t('shortlink-manager')},
+            ],
+        } only %}
+    {% endif %}
 
-                    <div style="display: grid; grid-template-columns: repeat({{ visibleBoxes|length }}, 1fr); gap: 8px;">
-                        {% for box in visibleBoxes %}
-                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ box.value|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ box.label }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {% if settings.enableAnalytics %}
-        <!-- Performance Card -->
-        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
-            <!-- Header -->
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: #0ea5e9;"></div>
-                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Performance"|t('shortlink-manager') }}</h4>
-            </div>
-
-            <!-- Main Content -->
-            <div style="flex: 1; display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
-                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
-                        {{ totalClicks|number_format }}
-                    </div>
-                </div>
-                <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                    {{ "Total interactions tracked"|t('shortlink-manager') }}
-                </div>
-
-                <!-- Bottom Boxes -->
-                <div style="margin-top: auto;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrScans|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Scans'|t('shortlink-manager') }}</div>
-                        </div>
-                        <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ directClicks|number_format }}</div>
-                            <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Clicks'|t('shortlink-manager') }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    {# Cache Status Card - varies by storage method #}
+    {% if storageMethod == 'redis' %}
+        {% set cacheSubBoxes = [] %}
+        {% if settings.enableQrCodeCache %}
+            {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'QR Codes'|t('shortlink-manager')}]) %}
+        {% endif %}
+        {% if settings.cacheDeviceDetection %}
+            {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'Devices'|t('shortlink-manager')}]) %}
         {% endif %}
 
-        <!-- Cache Status Card -->
-        <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
-            <!-- Header -->
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
-                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">
-                    {{ "Cache Status"|t('shortlink-manager') }} ({{ storageMethod == 'redis' ? 'Redis' : 'File' }})
-                </h4>
-            </div>
+        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            title: 'Cache Status'|t('shortlink-manager') ~ ' (Redis)',
+            color: lrPaletteColor('emerald').color,
+            value: 'Active'|t('shortlink-manager'),
+            subBoxes: cacheSubBoxes,
+        } only %}
+    {% else %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            title: 'Cache Status'|t('shortlink-manager') ~ ' (File)',
+            color: lrPaletteColor('emerald').color,
+            value: qrCacheFiles + deviceCacheFiles,
+            description: 'Total cached entries'|t('shortlink-manager'),
+            subBoxes: [
+                {value: qrCacheFiles, label: 'QR Codes'|t('shortlink-manager')},
+                {value: deviceCacheFiles, label: 'Devices'|t('shortlink-manager')},
+            ],
+        } only %}
+    {% endif %}
+{% endblock %}
 
-            <!-- Main Content -->
-            <div style="flex: 1; display: flex; flex-direction: column;">
-                {% if storageMethod == 'redis' %}
-                    <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
-                        {{ "Active"|t('shortlink-manager') }}
-                    </div>
+{% block quickActions %}
+    {% if hasAnyQuickAction %}
+        {# Navigation Section #}
+        {% if hasNavigation %}
+            {% set navButtons = [] %}
+            {% if canViewLinks %}
+                {% set navButtons = navButtons|merge([{type: 'link', label: 'Manage {pluginName}'|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}), url: url('shortlink-manager/shortlinks')}]) %}
+            {% endif %}
+            {% if settings.enableAnalytics and canViewAnalytics %}
+                {% set navButtons = navButtons|merge([{type: 'link', label: 'View Analytics'|t('shortlink-manager'), url: url('shortlink-manager/analytics')}]) %}
+            {% endif %}
+            {% if canManageSettings %}
+                {% set navButtons = navButtons|merge([{type: 'link', label: 'View Settings'|t('shortlink-manager'), url: url('shortlink-manager/settings')}]) %}
+            {% endif %}
 
-                    <!-- Info Boxes -->
-                    <div style="margin-top: auto;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                            {% if settings.enableQrCodeCache %}
-                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                                <div style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;">✓</div>
-                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('shortlink-manager') }}</div>
-                            </div>
-                            {% endif %}
-                            {% if settings.cacheDeviceDetection %}
-                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                                <div style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;">✓</div>
-                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('shortlink-manager') }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% else %}
-                    <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
-                        <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
-                            {{ (qrCacheFiles + deviceCacheFiles)|number_format }}
-                        </div>
-                    </div>
-                    <div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">
-                        {{ "Total cached entries"|t('shortlink-manager') }}
-                    </div>
-
-                    <!-- Bottom Boxes -->
-                    <div style="margin-top: auto;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                                <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ qrCacheFiles|number_format }}</div>
-                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'QR Codes'|t('shortlink-manager') }}</div>
-                            </div>
-                            <div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px; text-align: center; min-height: 60px; display: flex; flex-direction: column; justify-content: center;">
-                                <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">{{ deviceCacheFiles|number_format }}</div>
-                                <div style="font-size: 11px; color: #4b5563; text-transform: uppercase;">{{ 'Devices'|t('shortlink-manager') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div style="margin-bottom: 40px;">
-    <h2>{{ 'Quick Actions'|t('shortlink-manager') }}</h2>
-
-    <div class="pane">
-        <div style="margin-bottom: 24px;">
-            <h3 style="margin-bottom: 8px;">{{ "Navigation"|t('shortlink-manager') }}</h3>
-            <p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('shortlink-manager') }}</p>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                {% if currentUser.can('shortLinkManager:viewLinks') %}
-                    <a href="{{ url('shortlink-manager/shortlinks') }}" class="btn">
-                        {{ "Manage {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}
-                    </a>
-                {% endif %}
-                {% if settings.enableAnalytics and currentUser.can('shortLinkManager:viewAnalytics') %}
-                    <a href="{{ url('shortlink-manager/analytics') }}" class="btn">
-                        {{ "View Analytics"|t('shortlink-manager') }}
-                    </a>
-                {% endif %}
-                {% if currentUser.can('shortLinkManager:manageSettings') %}
-                    <a href="{{ url('shortlink-manager/settings') }}" class="btn">
-                        {{ "View Settings"|t('shortlink-manager') }}
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-
-        {% if (settings.enableQrCodeCache or settings.cacheDeviceDetection) and currentUser.can('shortLinkManager:clearCache') %}
-        <hr style="margin: 24px 0;">
-
-        <div>
-            <h3 style="margin-bottom: 8px;">{{ "Cache Management"|t('shortlink-manager') }}</h3>
-            <p class="light" style="margin-bottom: 16px;">{{ "Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting."|t('shortlink-manager') }}</p>
-
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                {% if settings.enableQrCodeCache %}
-                    <button type="button" class="btn" id="clear-qr-cache">
-                        {{ "Clear QR Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ qrCacheFiles|number_format }}){% endif %}
-                    </button>
-                {% endif %}
-
-                {% if settings.cacheDeviceDetection %}
-                    <button type="button" class="btn" id="clear-device-cache">
-                        {{ "Clear Device Cache"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ deviceCacheFiles|number_format }}){% endif %}
-                    </button>
-                {% endif %}
-
-                {% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
-                <button type="button" class="btn secondary" id="clear-all-caches">
-                    {{ "Clear All Caches"|t('shortlink-manager') }}{% if storageMethod != 'redis' %} ({{ (qrCacheFiles + deviceCacheFiles)|number_format }}){% endif %}
-                </button>
-                {% endif %}
-            </div>
-        </div>
+            {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+                title: 'Navigation'|t('shortlink-manager'),
+                description: 'Access main plugin sections'|t('shortlink-manager'),
+                buttons: navButtons,
+            } only %}
         {% endif %}
 
-        {% if settings.enableAnalytics and currentUser.can('shortLinkManager:clearAnalytics') %}
-            <hr style="margin: 24px 0;">
+        {# Cache Management Section #}
+        {% if hasCacheManagement %}
+            {% set cacheButtons = [] %}
+            {% if settings.enableQrCodeCache %}
+                {% set cacheButtons = cacheButtons|merge([{
+                    id: 'clear-qr-cache',
+                    label: 'Clear QR Cache'|t('shortlink-manager'),
+                    count: storageMethod != 'redis' ? qrCacheFiles : null,
+                }]) %}
+            {% endif %}
+            {% if settings.cacheDeviceDetection %}
+                {% set cacheButtons = cacheButtons|merge([{
+                    id: 'clear-device-cache',
+                    label: 'Clear Device Cache'|t('shortlink-manager'),
+                    count: storageMethod != 'redis' ? deviceCacheFiles : null,
+                }]) %}
+            {% endif %}
+            {% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
+                {% set cacheButtons = cacheButtons|merge([{
+                    id: 'clear-all-caches',
+                    label: 'Clear All Caches'|t('shortlink-manager'),
+                    class: 'btn secondary',
+                    count: storageMethod != 'redis' ? (qrCacheFiles + deviceCacheFiles) : null,
+                }]) %}
+            {% endif %}
 
-            <div>
-                <h3 style="margin-bottom: 8px;">{{ "Analytics Data Management"|t('shortlink-manager') }}</h3>
-                <p class="light" style="margin-bottom: 16px;">{{ "Permanently delete all analytics tracking data. This action cannot be undone!"|t('shortlink-manager') }}</p>
-
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="button" class="btn secondary" id="clear-all-analytics">
-                        {{ "Clear All Analytics"|t('shortlink-manager') }} ({{ totalClicks|number_format }})
-                    </button>
-                </div>
-            </div>
+            {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+                title: 'Cache Management'|t('shortlink-manager'),
+                description: 'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.'|t('shortlink-manager'),
+                showSeparator: hasNavigation,
+                buttons: cacheButtons,
+            } only %}
         {% endif %}
-    </div>
-</div>
 
+        {# Analytics Management Section #}
+        {% if hasAnalyticsManagement %}
+            {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+                title: 'Analytics Data Management'|t('shortlink-manager'),
+                description: 'Permanently delete all analytics tracking data. This action cannot be undone!'|t('shortlink-manager'),
+                showSeparator: hasNavigation or hasCacheManagement,
+                buttons: [
+                    {id: 'clear-all-analytics', label: 'Clear All Analytics'|t('shortlink-manager'), class: 'btn secondary', count: totalClicks},
+                ],
+            } only %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
 {% js %}
-// Cache clearing handlers
 {% if settings.enableQrCodeCache %}
-$('#clear-qr-cache').on('click', function() {
-    const $btn = $(this);
-    $btn.addClass('loading').prop('disabled', true);
-
-    $.ajax({
-        url: '{{ actionUrl('shortlink-manager/settings/clear-qr-cache')|raw }}',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Craft.cp.displayNotice(response.message);
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                Craft.cp.displayError(response.error || '{{ "Failed to clear QR cache"|t('shortlink-manager')|e('js') }}');
-            }
-        },
-        error: function() {
-            Craft.cp.displayError('{{ "Failed to clear QR cache"|t('shortlink-manager')|e('js') }}');
-        },
-        complete: function() {
-            $btn.removeClass('loading').prop('disabled', false);
-        }
-    });
-});
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'clear-qr-cache',
+    action: actionUrl('shortlink-manager/settings/clear-qr-cache'),
+    errorMessage: 'Failed to clear QR cache'|t('shortlink-manager'),
+} only %}
 {% endif %}
 
 {% if settings.cacheDeviceDetection %}
-$('#clear-device-cache').on('click', function() {
-    const $btn = $(this);
-    $btn.addClass('loading').prop('disabled', true);
-
-    $.ajax({
-        url: '{{ actionUrl('shortlink-manager/settings/clear-device-cache')|raw }}',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Craft.cp.displayNotice(response.message);
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                Craft.cp.displayError(response.error || '{{ "Failed to clear device cache"|t('shortlink-manager')|e('js') }}');
-            }
-        },
-        error: function() {
-            Craft.cp.displayError('{{ "Failed to clear device cache"|t('shortlink-manager')|e('js') }}');
-        },
-        complete: function() {
-            $btn.removeClass('loading').prop('disabled', false);
-        }
-    });
-});
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'clear-device-cache',
+    action: actionUrl('shortlink-manager/settings/clear-device-cache'),
+    errorMessage: 'Failed to clear device cache'|t('shortlink-manager'),
+} only %}
 {% endif %}
 
-$('#clear-all-caches').on('click', function() {
-    if (!confirm('{{ "Are you sure you want to clear all {pluginName} caches?"|t('shortlink-manager', { pluginName: shortlinkHelper.fullName })|e('js') }}')) {
-        return;
-    }
-
-    const $btn = $(this);
-    $btn.addClass('loading').prop('disabled', true);
-
-    $.ajax({
-        url: '{{ actionUrl('shortlink-manager/settings/clear-all-caches')|raw }}',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Craft.cp.displayNotice(response.message);
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                Craft.cp.displayError(response.error || '{{ "Failed to clear caches"|t('shortlink-manager')|e('js') }}');
-            }
-        },
-        error: function() {
-            Craft.cp.displayError('{{ "Failed to clear caches"|t('shortlink-manager')|e('js') }}');
-        },
-        complete: function() {
-            $btn.removeClass('loading').prop('disabled', false);
-        }
-    });
-});
+{% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'clear-all-caches',
+    action: actionUrl('shortlink-manager/settings/clear-all-caches'),
+    confirm: 'Are you sure you want to clear all {pluginName} caches?'|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}),
+    errorMessage: 'Failed to clear caches'|t('shortlink-manager'),
+} only %}
+{% endif %}
 
 {% if settings.enableAnalytics %}
-$('#clear-all-analytics').on('click', function() {
-    if (!confirm('{{ "Are you sure you want to permanently delete ALL analytics data? This action cannot be undone!"|t('shortlink-manager')|e('js') }}')) {
-        return;
-    }
-
-    // Second confirmation for extra safety
-    if (!confirm('{{ "This will delete all click tracking data and reset all click counts. Are you absolutely sure?"|t('shortlink-manager')|e('js') }}')) {
-        return;
-    }
-
-    const $btn = $(this);
-    $btn.addClass('loading').prop('disabled', true);
-
-    $.ajax({
-        url: '{{ actionUrl('shortlink-manager/settings/clear-all-analytics')|raw }}',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Craft.cp.displayNotice(response.message);
-                setTimeout(() => window.location.reload(), 2000);
-            } else {
-                Craft.cp.displayError(response.error || '{{ "Failed to clear analytics"|t('shortlink-manager')|e('js') }}');
-            }
-        },
-        error: function() {
-            Craft.cp.displayError('{{ "Failed to clear analytics"|t('shortlink-manager')|e('js') }}');
-        },
-        complete: function() {
-            $btn.removeClass('loading').prop('disabled', false);
-        }
-    });
-});
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'clear-all-analytics',
+    action: actionUrl('shortlink-manager/settings/clear-all-analytics'),
+    confirm: 'Are you sure you want to permanently delete ALL analytics data? This action cannot be undone!'|t('shortlink-manager'),
+    confirmSecond: 'This will delete all click tracking data and reset all click counts. Are you absolutely sure?'|t('shortlink-manager'),
+    errorMessage: 'Failed to clear analytics'|t('shortlink-manager'),
+    reloadDelay: 2000,
+} only %}
 {% endif %}
 {% endjs %}
-
-{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
+{% endblock %}
