@@ -74,250 +74,30 @@
 {% endblock %}
 
 {% block scripts %}
-<script data-analytics-reinit="true">
-(function() {
-    if (window.lrShortlinkAnalyticsBound) {
-        return;
-    }
-    window.lrShortlinkAnalyticsBound = true;
+{% do view.registerAssetBundle('lindemannrock\\shortlinkmanager\\web\\assets\\analytics\\AnalyticsAsset') %}
 
-document.addEventListener('lr:analyticsInit', function(e) {
-    // Chart colors
-    const chartColors = window.lrChartColors || [
-        '#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c',
-        '#34495e', '#e67e22', '#3498db', '#2ecc71', '#c0392b', '#f1c40f'
-    ];
+{% set shortlinkStrings = {
+    noInteraction: "No interaction data available for the selected filters."|t('shortlink-manager'),
+    noDevice: "No device data available for the selected filters."|t('shortlink-manager'),
+    noBrand: "No device brand data available for the selected filters."|t('shortlink-manager'),
+    noOs: "No OS data available for the selected filters."|t('shortlink-manager'),
+    noBrowser: "No browser data available for the selected filters."|t('shortlink-manager'),
+    noHourly: "No hourly data available for the selected filters."|t('shortlink-manager'),
+    interactionsLabel: "Interactions"|t('shortlink-manager'),
+    peakUsageAt: "Peak usage at"|t('shortlink-manager'),
+} %}
 
-    const config = e.detail && e.detail.config ? e.detail.config : (window.lrAnalyticsConfig || {});
-    const currentRange = config.dateRange || '{{ dateRange }}';
-    const currentSite = config.siteId || '';
-    const chartPrefix = config.prefix || 'analytics';
+{% set shortlinkAnalyticsConfig = {
+    prefix: analyticsConfig.charts.prefix,
+    dateRange: dateRange,
+    siteId: siteId ?? '',
+    csrfName: craft.app.config.general.csrfTokenName,
+    csrfToken: craft.app.request.csrfToken,
+    dataEndpoint: analyticsConfig.charts.dataEndpoint,
+    strings: shortlinkStrings,
+} %}
 
-    function destroyChart(canvasId) {
-        const chartKey = canvasId.replace(/-/g, '_');
-        if (window.lrChartInstances && window.lrChartInstances[chartPrefix] && window.lrChartInstances[chartPrefix][chartKey]) {
-            window.lrChartInstances[chartPrefix][chartKey].destroy();
-            delete window.lrChartInstances[chartPrefix][chartKey];
-        }
-    }
-
-    function resetChartState(canvas) {
-        if (!canvas) return;
-        canvas.style.display = '';
-        const parent = canvas.parentElement || canvas.parentNode;
-        if (!parent) return;
-        parent.querySelectorAll('.zilch').forEach(el => el.remove());
-    }
-
-    function renderEmptyState(canvasId, message) {
-        const ctx = document.getElementById(canvasId);
-        if (!ctx) return;
-        resetChartState(ctx);
-        destroyChart(canvasId);
-        ctx.style.display = 'none';
-        const parent = ctx.parentElement || ctx.parentNode;
-        if (!parent) return;
-        const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'lr-chart-empty zilch';
-        emptyMsg.innerHTML = '<p>' + message + '</p>';
-        parent.appendChild(emptyMsg);
-    }
-
-    // Load all chart data
-    loadAllCharts(currentRange, currentSite);
-
-    function loadAllCharts(dateRange, siteId) {
-        const csrfToken = '{{ craft.app.request.csrfToken }}';
-        const csrfName = '{{ craft.app.config.general.csrfTokenName }}';
-        const endpoint = Craft.getActionUrl('shortlink-manager/analytics/get-data');
-
-        // Daily clicks chart
-        $.ajax({
-            url: endpoint,
-            type: 'POST',
-            dataType: 'json',
-            data: { dateRange: dateRange, siteId: siteId, type: 'clicks', [csrfName]: csrfToken },
-            success: function(response) {
-                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-                    renderClicksChart(response.data);
-                } else {
-                    renderEmptyState('clicks-chart', '{{ "No interaction data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                }
-            }
-        });
-
-        // Device types chart
-        $.ajax({
-            url: endpoint,
-            type: 'POST',
-            dataType: 'json',
-            data: { dateRange: dateRange, siteId: siteId, type: 'devices', [csrfName]: csrfToken },
-            success: function(response) {
-                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-                    renderDeviceChart(response.data);
-                } else {
-                    renderEmptyState('device-chart', '{{ "No device data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                }
-            }
-        });
-
-        // Device brands chart
-        $.ajax({
-            url: endpoint,
-            type: 'POST',
-            dataType: 'json',
-            data: { dateRange: dateRange, siteId: siteId, type: 'device-brands', [csrfName]: csrfToken },
-            success: function(response) {
-                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-                    renderBrandChart(response.data);
-                } else {
-                    renderEmptyState('brand-chart', '{{ "No device brand data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                }
-            }
-        });
-
-        // OS breakdown chart
-        $.ajax({
-            url: endpoint,
-            type: 'POST',
-            dataType: 'json',
-            data: { dateRange: dateRange, siteId: siteId, type: 'os-breakdown', [csrfName]: csrfToken },
-            success: function(response) {
-                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-                    renderOsChart(response.data);
-                } else {
-                    renderEmptyState('os-chart', '{{ "No OS data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                }
-            }
-        });
-
-        // Browser breakdown chart
-        $.ajax({
-            url: endpoint,
-            type: 'POST',
-            dataType: 'json',
-            data: { dateRange: dateRange, siteId: siteId, type: 'browsers', [csrfName]: csrfToken },
-            success: function(response) {
-                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
-                    renderBrowserChart(response.data);
-                } else {
-                    renderEmptyState('browser-chart', '{{ "No browser data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                }
-            }
-        });
-
-        // Hourly analytics chart
-        $.ajax({
-            url: endpoint,
-            type: 'POST',
-            dataType: 'json',
-            data: { dateRange: dateRange, siteId: siteId, type: 'hourly', [csrfName]: csrfToken },
-            success: function(response) {
-                if (response.success && response.data && response.data.data && response.data.data.length > 0) {
-                    var hasHourly = Array.isArray(response.data.data) && response.data.data.some(function(value) {
-                        return Number(value) > 0;
-                    });
-                    if (hasHourly) {
-                        renderHourlyChart(response.data);
-                    } else {
-                        renderEmptyState('hourly-chart', '{{ "No hourly data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                    }
-                } else {
-                    renderEmptyState('hourly-chart', '{{ "No hourly data available for the selected filters."|t('shortlink-manager')|e('js') }}');
-                }
-            }
-        });
-    }
-
-    function renderClicksChart(data) {
-        const ctx = document.getElementById('clicks-chart');
-        if (!ctx) return;
-        resetChartState(ctx);
-        window.lrCreateChart('clicks-chart', 'line', {
-            labels: data.labels,
-            datasets: [{
-                label: '{{ "Interactions"|t('shortlink-manager') }}',
-                data: data.values,
-                borderColor: chartColors[0],
-                backgroundColor: chartColors[0] + '20',
-                tension: 0.1,
-                fill: true
-            }]
-        }, {
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
-            plugins: { legend: { display: false } }
-        });
-    }
-
-    function renderDeviceChart(data) {
-        const ctx = document.getElementById('device-chart');
-        if (!ctx) return;
-        resetChartState(ctx);
-        window.lrCreateChart('device-chart', 'doughnut', {
-            labels: data.labels,
-            datasets: [{ data: data.values, backgroundColor: chartColors.slice(0, 6) }]
-        }, {
-            plugins: { legend: { position: 'bottom' } }
-        });
-    }
-
-    function renderBrandChart(data) {
-        const ctx = document.getElementById('brand-chart');
-        if (!ctx) return;
-        resetChartState(ctx);
-        ctx.parentElement.style.minHeight = '300px';
-
-        window.lrCreateChart('brand-chart', 'bar', {
-            labels: data.labels,
-            datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.values, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
-        }, {
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
-            plugins: { legend: { display: false } }
-        });
-    }
-
-    function renderOsChart(data) {
-        const ctx = document.getElementById('os-chart');
-        if (!ctx) return;
-        resetChartState(ctx);
-        window.lrCreateChart('os-chart', 'doughnut', {
-            labels: data.labels,
-            datasets: [{ data: data.values, backgroundColor: chartColors }]
-        }, {
-            plugins: { legend: { position: 'bottom' } }
-        });
-    }
-
-    function renderBrowserChart(data) {
-        const ctx = document.getElementById('browser-chart');
-        if (!ctx) return;
-        resetChartState(ctx);
-        window.lrCreateChart('browser-chart', 'doughnut', {
-            labels: data.labels,
-            datasets: [{ data: data.values, backgroundColor: chartColors }]
-        }, {
-            plugins: { legend: { position: 'bottom' } }
-        });
-    }
-
-    function renderHourlyChart(data) {
-        const ctx = document.getElementById('hourly-chart');
-        if (!ctx) return;
-        resetChartState(ctx);
-        ctx.parentElement.style.minHeight = '300px';
-
-        window.lrCreateChart('hourly-chart', 'bar', {
-            labels: Array.from({length: 24}, (_, i) => i + ':00'),
-            datasets: [{ label: '{{ "Interactions"|t('shortlink-manager') }}', data: data.data, backgroundColor: chartColors[0], borderColor: chartColors[0], borderWidth: 1 }]
-        }, {
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
-            plugins: { legend: { display: false } }
-        });
-
-        // Show peak hour
-        $('#peak-hour-info').html('{{ "Peak usage at"|t('shortlink-manager') }} <strong>' + data.peakHourFormatted + '</strong>');
-    }
-});
-})();
-</script>
+{% js %}
+window.lrShortlinkAnalyticsInit({{ shortlinkAnalyticsConfig|json_encode|raw }});
+{% endjs %}
 {% endblock %}

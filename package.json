@@ -1,0 +1,11 @@
+{
+  "name": "shortlink-manager",
+  "version": "1.0.0",
+  "description": "ShortLink Manager plugin for Craft CMS",
+  "scripts": {
+    "minify": "npm run minify:analytics",
+    "minify:analytics": "terser src/web/assets/analytics/analytics.js -o src/web/assets/analytics/analytics.min.js -c -m"
+  },
+  "author": "LindemannRock",
+  "license": "UNLICENSED"
+}
