@@ -118,9 +118,7 @@ document.addEventListener('lr:analyticsInit', function(e) {
         const parent = ctx.parentElement || ctx.parentNode;
         if (!parent) return;
         const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'zilch';
-        emptyMsg.style.padding = '48px 24px';
-        emptyMsg.style.textAlign = 'center';
+        emptyMsg.className = 'lr-chart-empty zilch';
         emptyMsg.innerHTML = '<p>' + message + '</p>';
         parent.appendChild(emptyMsg);
     }

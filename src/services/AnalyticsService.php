@@ -876,6 +876,10 @@ class AnalyticsService extends Component
      */
     public function getClicksData(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
+        $bounds = DateRangeHelper::getBounds($dateRange);
+        $startDate = $bounds['start'] ?? null;
+        $endDate = $bounds['end'] ?? null;
+
         $query = (new Query())
             ->select(['DATE(dateCreated) as date', 'COUNT(*) as clicks'])
             ->from('{{%shortlinkmanager_analytics}}')
@@ -894,9 +898,51 @@ class AnalyticsService extends Component
 
         $results = $query->all();
 
+        if (empty($results)) {
+            return [
+                'labels' => [],
+                'values' => [],
+            ];
+        }
+
+        $tz = new \DateTimeZone(Craft::$app->getTimeZone());
+
+        if (!$startDate) {
+            $startDate = new \DateTime($results[0]['date'], new \DateTimeZone('UTC'));
+        }
+        $startDate->setTimezone($tz)->setTime(0, 0, 0);
+
+        $endDateIsExclusive = $endDate !== null;
+        if (!$endDate) {
+            $endDate = new \DateTime('now', new \DateTimeZone('UTC'));
+        }
+        $endDate->setTimezone($tz)->setTime(0, 0, 0);
+
+        $rangeEnd = clone $endDate;
+        if ($endDateIsExclusive) {
+            $rangeEnd->modify('-1 day');
+        }
+
+        $resultsByDate = [];
+        foreach ($results as $row) {
+            $rowDateObj = new \DateTime($row['date'], new \DateTimeZone('UTC'));
+            $rowDateObj->setTimezone($tz);
+            $resultsByDate[$rowDateObj->format('Y-m-d')] = (int)$row['clicks'];
+        }
+
+        $labels = [];
+        $values = [];
+        $date = clone $startDate;
+        while ($date <= $rangeEnd) {
+            $dateStr = $date->format('Y-m-d');
+            $labels[] = $dateStr;
+            $values[] = $resultsByDate[$dateStr] ?? 0;
+            $date->modify('+1 day');
+        }
+
         return [
-            'labels' => array_column($results, 'date'),
-            'values' => array_map('intval', array_column($results, 'clicks')),
+            'labels' => $labels,
+            'values' => $values,
         ];
     }
 

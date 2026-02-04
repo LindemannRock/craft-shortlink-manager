@@ -52,8 +52,9 @@
                 } only %}
 
                 {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                    value: analytics.averageClicksPerDay,
-                    description: 'Avg. Clicks/Day'|t('shortlink-manager'),
+                    value: analytics.averageClicksPerDay|number_format(2),
+                    valueIsFormatted: true,
+                    description: 'Avg. Interactions/Day'|t('shortlink-manager'),
                     align: 'center',
                 } only %}
             </div>
@@ -64,11 +65,11 @@
                 <div class="lr-chart-container">
                     <h3>{{ "Device Breakdown"|t('shortlink-manager') }}</h3>
                     {% if analytics.deviceBreakdown|length %}
-                        <div style="height: 250px;">
+                        <div class="lr-chart-height-250 lr-chart-center">
                             <canvas id="link-device-chart"></canvas>
                         </div>
                     {% else %}
-                        <p class="light" style="text-align: center; padding: 40px 0;">{{ "Device information not available"|t('shortlink-manager') }}</p>
+                        <div class="lr-chart-empty">{{ "Device information not available"|t('shortlink-manager') }}</div>
                     {% endif %}
                 </div>
 
@@ -76,11 +77,11 @@
                 <div class="lr-chart-container">
                     <h3>{{ "Browser Usage"|t('shortlink-manager') }}</h3>
                     {% if analytics.browserBreakdown|length %}
-                        <div style="height: 250px;">
+                        <div class="lr-chart-height-250">
                             <canvas id="link-browser-chart"></canvas>
                         </div>
                     {% else %}
-                        <p class="light" style="text-align: center; padding: 40px 0;">{{ "Browser information not available"|t('shortlink-manager') }}</p>
+                        <div class="lr-chart-empty">{{ "Browser information not available"|t('shortlink-manager') }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -90,18 +91,18 @@
                 <div class="lr-chart-container">
                     <h3>{{ "Operating System"|t('shortlink-manager') }}</h3>
                     {% if analytics.osBreakdown|length %}
-                        <div style="height: 250px;">
+                        <div class="lr-chart-height-250 lr-chart-center">
                             <canvas id="link-os-chart"></canvas>
                         </div>
                     {% else %}
-                        <p class="light" style="text-align: center; padding: 40px 0;">{{ "OS information not available"|t('shortlink-manager') }}</p>
+                        <div class="lr-chart-empty">{{ "OS information not available"|t('shortlink-manager') }}</div>
                     {% endif %}
                 </div>
             </div>
 
             {# Latest Interactions #}
             {% if analytics.recentClicks|length %}
-                <div class="lr-chart-container" style="margin-top: 24px;">
+                <div class="lr-chart-container lr-mt-24">
                     <h3>{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h3>
                     <div class="lr-table-scroll">
                         <table class="data fullwidth">
@@ -189,6 +190,11 @@
     window.lrShortlinkPanelChartsBound = true;
 
 document.addEventListener('lr:panelChartsReady', function() {
+    initShortlinkCharts();
+});
+
+function initShortlinkCharts() {
+    if (typeof Chart === 'undefined') return;
     var chartColors = window.lrChartColors || ['#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
 
     // Device chart
@@ -234,7 +240,13 @@ document.addEventListener('lr:panelChartsReady', function() {
             plugins: { legend: { position: 'bottom' } }
         });
     }
-});
+}
+
+if (document.readyState !== 'loading') {
+    initShortlinkCharts();
+} else {
+    document.addEventListener('DOMContentLoaded', initShortlinkCharts, { once: true });
+}
 })();
 </script>
 {% endif %}

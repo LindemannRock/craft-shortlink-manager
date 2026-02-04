@@ -26,7 +26,7 @@
     } only %}
 </div>
 
-<h2 style="margin: 30px 0 20px;">{{ "Traffic Overview"|t('shortlink-manager') }}</h2>
+<h2 class="lr-section-heading">{{ "Traffic Overview"|t('shortlink-manager') }}</h2>
 
 <div class="lr-analytics-charts">
     <div class="lr-chart-container full-width">
@@ -35,7 +35,7 @@
     </div>
 </div>
 
-<h2 style="margin: 30px 0 20px;">{{ "Top {pluginName} (Top 20)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
+<h2 class="lr-section-heading">{{ "Top {pluginName} (Top 20)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}) }}</h2>
 
 <div class="lr-analytics-charts">
     <div class="lr-chart-container full-width">
@@ -78,7 +78,7 @@
                         {% endif %}
                     {% else %}
                         <tr>
-                            <td colspan="5" class="thin light">{{ "No data for selected period"|t('shortlink-manager') }}</td>
+                            <td colspan="5" class="thin light lr-text-center">{{ "No data for selected period"|t('shortlink-manager') }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -87,7 +87,7 @@
     </div>
 </div>
 
-<h2 style="margin: 30px 0 20px;">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
+<h2 class="lr-section-heading">{{ "Interactions (Last 20)"|t('shortlink-manager') }}</h2>
 
 <div class="lr-analytics-charts">
     <div class="lr-chart-container full-width">
@@ -158,7 +158,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
+                            <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light lr-text-center">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

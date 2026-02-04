@@ -3,7 +3,7 @@
 {% set settings = craft.app.plugins.getPlugin('shortlink-manager').settings %}
 
 {% if settings.enableGeoDetection %}
-    <h2 style="margin: 0 0 20px;">{{ "Geographic Distribution"|t('shortlink-manager') }}</h2>
+    <h2 class="lr-section-heading">{{ "Geographic Distribution"|t('shortlink-manager') }}</h2>
 
     <div class="lr-analytics-charts two-columns">
         <div class="lr-chart-container">
@@ -29,7 +29,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="3" style="text-align: center; color: #999;">
+                                <td colspan="3" class="light lr-text-center">
                                     {{ "No country data available"|t('shortlink-manager') }}
                                 </td>
                             </tr>
@@ -64,7 +64,7 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #999;">
+                                <td colspan="4" class="light lr-text-center">
                                     {{ "No city data available"|t('shortlink-manager') }}
                                 </td>
                             </tr>
@@ -75,8 +75,8 @@
         </div>
     </div>
 {% else %}
-    <div class="pane" style="text-align: center; padding: 60px 20px;">
-        <p class="light">{{ "Geographic detection is disabled."|t('shortlink-manager') }}</p>
+    <div class="pane lr-analytics-empty">
+        <p>{{ "Geographic detection is disabled."|t('shortlink-manager') }}</p>
         <p><a href="{{ url('shortlink-manager/settings/analytics') }}" class="btn">{{ "Enable in Settings"|t('shortlink-manager') }}</a></p>
     </div>
 {% endif %}
