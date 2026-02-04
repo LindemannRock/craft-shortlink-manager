@@ -123,8 +123,8 @@
                             <tbody>
                                 {% for click in analytics.recentClicks %}
                                     <tr>
-                                        <td>{{ click.dateCreated|date('short') }}</td>
-                                        <td>{{ click.dateCreated|time('short') }}</td>
+                                        <td>{{ click.dateCreated|lrDate('short') }}</td>
+                                        <td>{{ click.dateCreated|lrTime('short') }}</td>
                                         <td>
                                             {% if click.siteId %}
                                                 {% set site = craft.app.sites.getSiteById(click.siteId) %}
