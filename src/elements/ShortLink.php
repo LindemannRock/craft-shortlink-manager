@@ -498,6 +498,8 @@ class ShortLink extends Element
 
     /**
      * Load content for the current site
+     *
+     * @since 5.0.0
      */
     public function loadContent(): void
     {
@@ -739,6 +741,8 @@ class ShortLink extends Element
      *
      * Uses the site's base URL for the shortlink. To use a custom short domain,
      * create a dedicated site in Craft with that domain as its base URL.
+     *
+     * @since 5.0.0
      */
     public function getUrl(): string
     {
@@ -752,6 +756,7 @@ class ShortLink extends Element
      * Get the linked element
      *
      * @return \craft\base\ElementInterface|null
+     * @since 5.0.0
      */
     public function getLinkedElement(): ?\craft\base\ElementInterface
     {
@@ -767,6 +772,7 @@ class ShortLink extends Element
      * Get the author user element
      *
      * @return User|null
+     * @since 5.0.0
      */
     public function getAuthor(): ?User
     {
@@ -780,6 +786,7 @@ class ShortLink extends Element
      * Check if the shortlink is expired
      *
      * @return bool
+     * @since 5.0.0
      */
     public function isExpired(): bool
     {
@@ -795,6 +802,7 @@ class ShortLink extends Element
      *
      * @param array $filters
      * @return array
+     * @since 5.0.0
      */
     public function getAnalytics(array $filters = []): array
     {
@@ -810,6 +818,7 @@ class ShortLink extends Element
      *
      * @param array $options
      * @return string
+     * @since 5.0.0
      */
     public function getQrCodeDataUri(array $options = []): string
     {
@@ -845,6 +854,7 @@ class ShortLink extends Element
      *
      * @param array $options
      * @return string
+     * @since 5.0.0
      */
     public function getQrCode(array $options = []): string
     {
@@ -880,6 +890,7 @@ class ShortLink extends Element
      *
      * @param array $options Optional parameters to override defaults
      * @return string QR code URL (site URL with code)
+     * @since 5.0.0
      */
     public function getQrCodeUrl(array $options = []): string
     {
@@ -910,6 +921,7 @@ class ShortLink extends Element
      *
      * @param array $options Optional parameters to override defaults
      * @return string QR code page URL
+     * @since 5.1.0
      */
     public function getQrCodeDisplayUrl(array $options = []): string
     {
@@ -1432,6 +1444,7 @@ class ShortLink extends Element
      *
      * @param string $eventType Event type to track (redirect or qr_scan)
      * @return \Twig\Markup|null
+     * @since 5.1.0
      */
     public function renderSeomaticTracking(string $eventType = 'redirect'): ?\Twig\Markup
     {

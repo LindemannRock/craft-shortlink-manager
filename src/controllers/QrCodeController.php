@@ -45,6 +45,7 @@ class QrCodeController extends Controller
      * @param string|null $code Short link code from URL route
      * @return Response
      * @throws NotFoundHttpException
+     * @since 5.0.0
      */
     public function actionGenerate(?string $code = null): Response
     {
@@ -201,6 +202,7 @@ class QrCodeController extends Controller
      * @param string $code
      * @return Response
      * @throws NotFoundHttpException
+     * @since 5.0.0
      */
     public function actionDisplay(string $code): Response
     {

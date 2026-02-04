@@ -19,6 +19,7 @@ use lindemannrock\shortlinkmanager\elements\ShortLink;
  * @method ShortLink[]|array all($db = null)
  * @method ShortLink|array|null one($db = null)
  * @method ShortLink|array|null nth(int $n, ?Connection $db = null)
+ * @since 5.0.0
  */
 class ShortLinkQuery extends ElementQuery
 {
@@ -68,6 +69,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param string|string[]|null $value
      * @return static
+     * @since 5.0.0
      */
     public function slug(mixed $value): static
     {
@@ -80,6 +82,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param string|string[]|null $value
      * @return static
+     * @since 5.0.0
      */
     public function linkType(mixed $value): static
     {
@@ -92,6 +95,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param string|string[]|null $value
      * @return static
+     * @since 5.0.0
      */
     public function shortLinkType(mixed $value): static
     {
@@ -104,6 +108,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param int|int[]|null $value
      * @return static
+     * @since 5.0.0
      */
     public function elementId(mixed $value): static
     {
@@ -121,6 +126,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param bool|null $value
      * @return static
+     * @since 5.0.0
      */
     public function expired(?bool $value = true): static
     {
@@ -133,6 +139,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param int|int[]|null $value
      * @return static
+     * @since 5.0.0
      */
     public function httpCode(mixed $value): static
     {
@@ -145,6 +152,7 @@ class ShortLinkQuery extends ElementQuery
      *
      * @param bool|null $value
      * @return static
+     * @since 5.0.0
      */
     public function trackAnalytics(?bool $value = true): static
     {

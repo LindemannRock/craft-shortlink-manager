@@ -389,6 +389,7 @@ class ShortLinkManager extends Plugin
      * Get sites where ShortLink Manager is enabled
      *
      * @return array
+     * @since 5.0.0
      */
     public function getEnabledSites(): array
     {

@@ -52,6 +52,7 @@ class QrCodeService extends Component
      * @param string $url
      * @param array $options
      * @return string
+     * @since 5.0.0
      */
     public function generateQrCode(string $url, array $options = []): string
     {
@@ -97,6 +98,7 @@ class QrCodeService extends Component
      * @param string $url
      * @param array $options
      * @return string
+     * @since 5.0.0
      */
     public function generateQrCodeDataUrl(string $url, array $options = []): string
     {

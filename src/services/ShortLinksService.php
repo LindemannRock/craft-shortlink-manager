@@ -45,6 +45,7 @@ class ShortLinksService extends Component
      *
      * @param array $options
      * @return ShortLink|null
+     * @since 5.0.0
      */
     public function createShortLink(array $options): ?ShortLink
     {
@@ -114,6 +115,7 @@ class ShortLinksService extends Component
      * @param int $id
      * @param int|null $siteId
      * @return ShortLink|null
+     * @since 5.0.0
      */
     public function getById(int $id, ?int $siteId = null): ?ShortLink
     {
@@ -129,6 +131,7 @@ class ShortLinksService extends Component
      * @param string $slug
      * @param int|null $siteId
      * @return ShortLink|null
+     * @since 5.0.0
      */
     public function getBySlug(string $slug, ?int $siteId = null): ?ShortLink
     {
@@ -149,6 +152,7 @@ class ShortLinksService extends Component
      * @param string $code
      * @param int|null $siteId
      * @return ShortLink|null
+     * @since 5.0.0
      */
     public function getByCode(string $code, ?int $siteId = null): ?ShortLink
     {
@@ -161,6 +165,7 @@ class ShortLinksService extends Component
      * @param ElementInterface $element
      * @param int|null $siteId
      * @return ShortLink|null
+     * @since 5.0.0
      */
     public function getByElement(ElementInterface $element, ?int $siteId = null): ?ShortLink
     {
@@ -178,6 +183,7 @@ class ShortLinksService extends Component
      *
      * @param array $criteria
      * @return array
+     * @since 5.0.0
      */
     public function getAll(array $criteria = []): array
     {
@@ -218,6 +224,7 @@ class ShortLinksService extends Component
      * @param ShortLink $element
      * @param bool $runValidation
      * @return bool
+     * @since 5.0.0
      */
     public function saveShortLink(ShortLink $element, bool $runValidation = true): bool
     {
@@ -256,6 +263,7 @@ class ShortLinksService extends Component
      *
      * @param int $id
      * @return bool
+     * @since 5.0.0
      */
     public function deleteShortLink(int $id): bool
     {
@@ -281,6 +289,7 @@ class ShortLinksService extends Component
      *
      * @param int $length
      * @return string
+     * @since 5.0.0
      */
     public function generateUniqueSlug(int $length = 8): string
     {
@@ -306,6 +315,7 @@ class ShortLinksService extends Component
      *
      * @param int $length
      * @return string
+     * @since 5.0.0
      */
     public function generateUniqueCode(int $length = 8): string
     {
@@ -318,6 +328,7 @@ class ShortLinksService extends Component
      * @param string $slug
      * @param int|null $excludeId
      * @return bool
+     * @since 5.0.0
      */
     public function validateSlug(string $slug, ?int $excludeId = null): bool
     {
@@ -344,6 +355,7 @@ class ShortLinksService extends Component
      * @param string $code
      * @param int|null $excludeId
      * @return bool
+     * @since 5.0.0
      */
     public function validateCode(string $code, ?int $excludeId = null): bool
     {
@@ -355,6 +367,7 @@ class ShortLinksService extends Component
      *
      * @param string $slug
      * @return bool
+     * @since 5.0.0
      */
     public function isReservedSlug(string $slug): bool
     {
@@ -367,6 +380,7 @@ class ShortLinksService extends Component
      *
      * @param string $code
      * @return bool
+     * @since 5.0.0
      */
     public function isReservedCode(string $code): bool
     {
@@ -378,6 +392,7 @@ class ShortLinksService extends Component
      *
      * @param ShortLink $shortLink
      * @return void
+     * @since 5.0.0
      */
     public function incrementHits(ShortLink $shortLink): void
     {
@@ -402,6 +417,7 @@ class ShortLinksService extends Component
      *
      * @param ElementInterface $element
      * @return void
+     * @since 5.0.0
      */
     public function onSaveElement(ElementInterface $element): void
     {
@@ -423,6 +439,7 @@ class ShortLinksService extends Component
      *
      * @param ElementInterface $element
      * @return void
+     * @since 5.0.0
      */
     public function onDeleteElement(ElementInterface $element): void
     {
@@ -444,6 +461,7 @@ class ShortLinksService extends Component
      * @param int $id
      * @param string|null $slug
      * @return void
+     * @since 5.0.0
      */
     public function invalidateShortLinkCache(int $id, ?string $slug = null): void
     {
@@ -465,6 +483,7 @@ class ShortLinksService extends Component
      * Invalidate ALL caches (used by utilities/clear cache)
      *
      * @return void
+     * @since 5.0.0
      */
     public function invalidateCaches(): void
     {

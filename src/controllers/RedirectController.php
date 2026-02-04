@@ -45,6 +45,7 @@ class RedirectController extends Controller
      *
      * @param string|null $code
      * @return Response
+     * @since 5.0.0
      */
     public function actionIndex(?string $code = null): Response
     {

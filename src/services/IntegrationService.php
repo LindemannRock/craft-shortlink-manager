@@ -99,6 +99,7 @@ class IntegrationService extends Component
      * @param string $eventType Event type (e.g., 'redirect', 'qr_scan')
      * @param array $data Event data
      * @return array Results from each integration ['handle' => bool]
+     * @since 5.1.0
      */
     public function pushEvent(string $eventType, array $data): array
     {
@@ -137,6 +138,7 @@ class IntegrationService extends Component
      *
      * @param string $handle
      * @return IntegrationInterface|null
+     * @since 5.1.0
      */
     public function getIntegration(string $handle): ?IntegrationInterface
     {
@@ -151,6 +153,7 @@ class IntegrationService extends Component
      * Get all registered integrations
      *
      * @return IntegrationInterface[]
+     * @since 5.1.0
      */
     public function getAllIntegrations(): array
     {
@@ -165,6 +168,7 @@ class IntegrationService extends Component
      * Get list of available integration handles
      *
      * @return array
+     * @since 5.1.0
      */
     public function getAvailableIntegrations(): array
     {
@@ -186,6 +190,7 @@ class IntegrationService extends Component
      * Get list of enabled integration handles
      *
      * @return array
+     * @since 5.1.0
      */
     public function getEnabledIntegrations(): array
     {
@@ -207,6 +212,7 @@ class IntegrationService extends Component
      * Get status of all integrations
      *
      * @return array
+     * @since 5.1.0
      */
     public function getAllIntegrationStatuses(): array
     {
@@ -226,6 +232,7 @@ class IntegrationService extends Component
      * Check if any integrations are enabled
      *
      * @return bool
+     * @since 5.1.0
      */
     public function hasEnabledIntegrations(): bool
     {
@@ -237,6 +244,7 @@ class IntegrationService extends Component
      *
      * @param string $handle
      * @return array Test results
+     * @since 5.1.0
      */
     public function testIntegration(string $handle): array
     {
@@ -302,6 +310,7 @@ class IntegrationService extends Component
      * @param \lindemannrock\shortlinkmanager\elements\ShortLink $link
      * @param string $eventType Event type: 'qr_scan' or 'redirect'
      * @return \Twig\Markup|null HTML script tag or null if SEOmatic is not enabled
+     * @since 5.1.0
      */
     public function renderSeomaticTracking($link, string $eventType = 'redirect'): ?\Twig\Markup
     {

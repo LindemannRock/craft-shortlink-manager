@@ -45,6 +45,7 @@ class RedirectManagerIntegration extends BaseIntegration
      * Check if Redirect Manager plugin is available
      *
      * @return bool
+     * @since 5.1.0
      */
     public function isAvailable(): bool
     {
@@ -61,6 +62,7 @@ class RedirectManagerIntegration extends BaseIntegration
      * @param string $eventType Event type (not applicable)
      * @param array $data Event data (not applicable)
      * @return bool Always returns true (no-op)
+     * @since 5.1.0
      */
     public function pushEvent(string $eventType, array $data): bool
     {
@@ -76,6 +78,7 @@ class RedirectManagerIntegration extends BaseIntegration
      * Get Redirect Manager integration status
      *
      * @return array
+     * @since 5.1.0
      */
     public function getStatus(): array
     {
@@ -103,6 +106,7 @@ class RedirectManagerIntegration extends BaseIntegration
      * @param string $eventType
      * @param array $data
      * @return bool Always returns true
+     * @since 5.1.0
      */
     public function validateEventData(string $eventType, array $data): bool
     {

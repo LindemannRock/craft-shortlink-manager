@@ -19,6 +19,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * Short Link Type for Link Field
+ *
+ * @since 5.0.0
  */
 class ShortLinkType extends BaseElementLinkType
 {

@@ -38,6 +38,7 @@ class ShortlinksController extends Controller
      * List all links (element index)
      *
      * @return Response
+     * @since 5.0.0
      */
     public function actionIndex(): Response
     {
@@ -81,6 +82,7 @@ class ShortlinksController extends Controller
      * @param int|null $shortLinkId
      * @param ShortLink|null $shortLink
      * @return Response
+     * @since 5.0.0
      */
     public function actionEdit(?int $shortLinkId = null, ?ShortLink $shortLink = null): Response
     {
@@ -146,6 +148,7 @@ class ShortlinksController extends Controller
      * Save a link
      *
      * @return Response|null
+     * @since 5.0.0
      */
     public function actionSave(): ?Response
     {
@@ -313,6 +316,7 @@ class ShortlinksController extends Controller
      * Delete a link
      *
      * @return Response
+     * @since 5.0.0
      */
     public function actionDelete(): Response
     {
@@ -344,6 +348,7 @@ class ShortlinksController extends Controller
      * Generate a unique code/slug
      *
      * @return Response
+     * @since 5.0.0
      */
     public function actionGenerateCode(): Response
     {

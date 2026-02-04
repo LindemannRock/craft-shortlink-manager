@@ -48,6 +48,7 @@ class AnalyticsService extends Component
      * @param Request $request
      * @param string $source Source of the click (qr, direct, etc.)
      * @return void
+     * @since 5.0.0
      */
     public function trackClick(ShortLink $shortLink, Request $request, string $source = 'direct'): void
     {
@@ -128,6 +129,7 @@ class AnalyticsService extends Component
      * @param int $shortLinkId
      * @param array $filters
      * @return array
+     * @since 5.0.0
      */
     public function getClickStats(int $shortLinkId, array $filters = []): array
     {
@@ -225,6 +227,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', ?int $siteId = null): array
     {
@@ -272,6 +275,7 @@ class AnalyticsService extends Component
      *
      * @param int $shortLinkId
      * @return array
+     * @since 5.0.0
      */
     public function getDeviceBreakdown(int $shortLinkId): array
     {
@@ -290,6 +294,7 @@ class AnalyticsService extends Component
      *
      * @param int $shortLinkId
      * @return array
+     * @since 5.0.0
      */
     public function getGeoBreakdown(int $shortLinkId): array
     {
@@ -309,6 +314,7 @@ class AnalyticsService extends Component
      *
      * @param int $shortLinkId
      * @return array
+     * @since 5.0.0
      */
     public function getReferrerBreakdown(int $shortLinkId): array
     {
@@ -327,6 +333,7 @@ class AnalyticsService extends Component
      * Clean up old analytics
      *
      * @return int Number of deleted records
+     * @since 5.0.0
      */
     public function cleanupOldAnalytics(): int
     {
@@ -355,6 +362,7 @@ class AnalyticsService extends Component
      * @param int|null $shortLinkId
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $shortLinkId = null, ?int $siteId = null): array
     {
@@ -425,6 +433,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param string $column
      * @return void
+     * @since 5.0.0
      */
     public function applyDateRangeFilter(Query $query, string $dateRange, string $column = 'dateCreated'): void
     {
@@ -437,6 +446,7 @@ class AnalyticsService extends Component
      * @param int $shortLinkId
      * @param string $dateRange
      * @return array
+     * @since 5.0.0
      */
     public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days'): array
     {
@@ -571,6 +581,7 @@ class AnalyticsService extends Component
      * @param int $limit
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, ?int $siteId = null): array
     {
@@ -634,6 +645,7 @@ class AnalyticsService extends Component
      * @param int $limit
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10, ?int $siteId = null): array
     {
@@ -675,6 +687,7 @@ class AnalyticsService extends Component
      * @param int $limit
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15, ?int $siteId = null): array
     {
@@ -715,6 +728,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
@@ -751,6 +765,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getOsBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
@@ -793,6 +808,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
@@ -836,6 +852,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
@@ -873,6 +890,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getClicksData(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
@@ -953,6 +971,7 @@ class AnalyticsService extends Component
      * @param string $dateRange
      * @param int|null $siteId
      * @return array
+     * @since 5.0.0
      */
     public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
@@ -996,6 +1015,7 @@ class AnalyticsService extends Component
      *
      * @param string $ip
      * @return array|null
+     * @since 5.0.0
      */
     public function getLocationFromIp(string $ip): ?array
     {
@@ -1315,6 +1335,7 @@ class AnalyticsService extends Component
      * @param string $format Export format (only 'csv' supported)
      * @param int|null $siteId Optional site ID to filter by
      * @return string CSV content
+     * @since 5.0.0
      */
     public function exportAnalytics(?int $shortLinkId, string $dateRange, string $format, ?int $siteId = null): string
     {
