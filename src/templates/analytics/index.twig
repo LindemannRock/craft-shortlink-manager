@@ -8,6 +8,7 @@
 
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set settings = plugin.settings %}
+{% set pluginHandle = pluginHandle ?? plugin.id %}
 
 {# Define tabs - Geographic only if geo detection enabled #}
 {% set tabsConfig = {
@@ -23,7 +24,7 @@
 
 {% set analyticsConfig = {
     plugin: {
-        handle: 'shortlink-manager',
+        handle: pluginHandle ?? 'shortlink-manager',
         name: shortlinkHelper.fullName,
     },
     page: {
@@ -73,18 +74,56 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-document.addEventListener('lr:analyticsInit', function() {
+<script data-analytics-reinit="true">
+(function() {
+    if (window.lrShortlinkAnalyticsBound) {
+        return;
+    }
+    window.lrShortlinkAnalyticsBound = true;
+
+document.addEventListener('lr:analyticsInit', function(e) {
     // Chart colors
     const chartColors = window.lrChartColors || [
         '#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c',
         '#34495e', '#e67e22', '#3498db', '#2ecc71', '#c0392b', '#f1c40f'
     ];
 
-    // Get current parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentRange = urlParams.get('dateRange') || '{{ dateRange }}';
-    const currentSite = urlParams.get('siteId') || '';
+    const config = e.detail && e.detail.config ? e.detail.config : (window.lrAnalyticsConfig || {});
+    const currentRange = config.dateRange || '{{ dateRange }}';
+    const currentSite = config.siteId || '';
+    const chartPrefix = config.prefix || 'analytics';
+
+    function destroyChart(canvasId) {
+        const chartKey = canvasId.replace(/-/g, '_');
+        if (window.lrChartInstances && window.lrChartInstances[chartPrefix] && window.lrChartInstances[chartPrefix][chartKey]) {
+            window.lrChartInstances[chartPrefix][chartKey].destroy();
+            delete window.lrChartInstances[chartPrefix][chartKey];
+        }
+    }
+
+    function resetChartState(canvas) {
+        if (!canvas) return;
+        canvas.style.display = '';
+        const parent = canvas.parentElement || canvas.parentNode;
+        if (!parent) return;
+        parent.querySelectorAll('.zilch').forEach(el => el.remove());
+    }
+
+    function renderEmptyState(canvasId, message) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        resetChartState(ctx);
+        destroyChart(canvasId);
+        ctx.style.display = 'none';
+        const parent = ctx.parentElement || ctx.parentNode;
+        if (!parent) return;
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'zilch';
+        emptyMsg.style.padding = '48px 24px';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.innerHTML = '<p>' + message + '</p>';
+        parent.appendChild(emptyMsg);
+    }
 
     // Load all chart data
     loadAllCharts(currentRange, currentSite);
@@ -101,8 +140,10 @@ document.addEventListener('lr:analyticsInit', function() {
             dataType: 'json',
             data: { dateRange: dateRange, siteId: siteId, type: 'clicks', [csrfName]: csrfToken },
             success: function(response) {
-                if (response.success && response.data) {
+                if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
                     renderClicksChart(response.data);
+                } else {
+                    renderEmptyState('clicks-chart', '{{ "No interaction data available for the selected filters."|t('shortlink-manager')|e('js') }}');
                 }
             }
         });
@@ -116,6 +157,8 @@ document.addEventListener('lr:analyticsInit', function() {
             success: function(response) {
                 if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
                     renderDeviceChart(response.data);
+                } else {
+                    renderEmptyState('device-chart', '{{ "No device data available for the selected filters."|t('shortlink-manager')|e('js') }}');
                 }
             }
         });
@@ -129,6 +172,8 @@ document.addEventListener('lr:analyticsInit', function() {
             success: function(response) {
                 if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
                     renderBrandChart(response.data);
+                } else {
+                    renderEmptyState('brand-chart', '{{ "No device brand data available for the selected filters."|t('shortlink-manager')|e('js') }}');
                 }
             }
         });
@@ -142,6 +187,8 @@ document.addEventListener('lr:analyticsInit', function() {
             success: function(response) {
                 if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
                     renderOsChart(response.data);
+                } else {
+                    renderEmptyState('os-chart', '{{ "No OS data available for the selected filters."|t('shortlink-manager')|e('js') }}');
                 }
             }
         });
@@ -155,6 +202,8 @@ document.addEventListener('lr:analyticsInit', function() {
             success: function(response) {
                 if (response.success && response.data && response.data.labels && response.data.labels.length > 0) {
                     renderBrowserChart(response.data);
+                } else {
+                    renderEmptyState('browser-chart', '{{ "No browser data available for the selected filters."|t('shortlink-manager')|e('js') }}');
                 }
             }
         });
@@ -166,14 +215,26 @@ document.addEventListener('lr:analyticsInit', function() {
             dataType: 'json',
             data: { dateRange: dateRange, siteId: siteId, type: 'hourly', [csrfName]: csrfToken },
             success: function(response) {
-                if (response.success && response.data) {
-                    renderHourlyChart(response.data);
+                if (response.success && response.data && response.data.data && response.data.data.length > 0) {
+                    var hasHourly = Array.isArray(response.data.data) && response.data.data.some(function(value) {
+                        return Number(value) > 0;
+                    });
+                    if (hasHourly) {
+                        renderHourlyChart(response.data);
+                    } else {
+                        renderEmptyState('hourly-chart', '{{ "No hourly data available for the selected filters."|t('shortlink-manager')|e('js') }}');
+                    }
+                } else {
+                    renderEmptyState('hourly-chart', '{{ "No hourly data available for the selected filters."|t('shortlink-manager')|e('js') }}');
                 }
             }
         });
     }
 
     function renderClicksChart(data) {
+        const ctx = document.getElementById('clicks-chart');
+        if (!ctx) return;
+        resetChartState(ctx);
         window.lrCreateChart('clicks-chart', 'line', {
             labels: data.labels,
             datasets: [{
@@ -191,6 +252,9 @@ document.addEventListener('lr:analyticsInit', function() {
     }
 
     function renderDeviceChart(data) {
+        const ctx = document.getElementById('device-chart');
+        if (!ctx) return;
+        resetChartState(ctx);
         window.lrCreateChart('device-chart', 'doughnut', {
             labels: data.labels,
             datasets: [{ data: data.values, backgroundColor: chartColors.slice(0, 6) }]
@@ -202,6 +266,7 @@ document.addEventListener('lr:analyticsInit', function() {
     function renderBrandChart(data) {
         const ctx = document.getElementById('brand-chart');
         if (!ctx) return;
+        resetChartState(ctx);
         ctx.parentElement.style.minHeight = '300px';
 
         window.lrCreateChart('brand-chart', 'bar', {
@@ -214,6 +279,9 @@ document.addEventListener('lr:analyticsInit', function() {
     }
 
     function renderOsChart(data) {
+        const ctx = document.getElementById('os-chart');
+        if (!ctx) return;
+        resetChartState(ctx);
         window.lrCreateChart('os-chart', 'doughnut', {
             labels: data.labels,
             datasets: [{ data: data.values, backgroundColor: chartColors }]
@@ -223,6 +291,9 @@ document.addEventListener('lr:analyticsInit', function() {
     }
 
     function renderBrowserChart(data) {
+        const ctx = document.getElementById('browser-chart');
+        if (!ctx) return;
+        resetChartState(ctx);
         window.lrCreateChart('browser-chart', 'doughnut', {
             labels: data.labels,
             datasets: [{ data: data.values, backgroundColor: chartColors }]
@@ -234,6 +305,7 @@ document.addEventListener('lr:analyticsInit', function() {
     function renderHourlyChart(data) {
         const ctx = document.getElementById('hourly-chart');
         if (!ctx) return;
+        resetChartState(ctx);
         ctx.parentElement.style.minHeight = '300px';
 
         window.lrCreateChart('hourly-chart', 'bar', {
@@ -248,5 +320,6 @@ document.addEventListener('lr:analyticsInit', function() {
         $('#peak-hour-info').html('{{ "Peak usage at"|t('shortlink-manager') }} <strong>' + data.peakHourFormatted + '</strong>');
     }
 });
+})();
 </script>
 {% endblock %}

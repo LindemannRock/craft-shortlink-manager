@@ -460,6 +460,7 @@ class ShortLinkManager extends Plugin
 
             // Analytics routes
             'shortlink-manager/analytics' => 'shortlink-manager/analytics/index',
+            'shortlink-manager/analytics/export' => 'shortlink-manager/analytics/export',
 
             // Settings routes
             'shortlink-manager/settings' => 'shortlink-manager/settings/index',

@@ -7,16 +7,16 @@
  # - shortLink: The shortlink record
  #}
 
-{# Get date range from URL #}
-{% set dateRange = craft.app.request.getQueryParam('range') ?? lrDefaultDateRange() %}
-
 {# Get analytics data for this shortlink #}
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set settings = plugin.settings %}
+{% set pluginHandle = pluginHandle ?? plugin.id %}
+{% set dateRange = craft.app.request.getQueryParam('range') ?? lrDefaultDateRange(pluginHandle) %}
 {% set analytics = plugin.analytics.getLinkAnalytics(shortLink.id, dateRange) %}
 
 {% embed 'lindemannrock-base/_partials/analytics-panel' with {
     config: {
+        pluginHandle: pluginHandle ?? 'shortlink-manager',
         dateRange: {
             enabled: true,
             current: dateRange,
@@ -182,6 +182,12 @@
 {# Chart initialization - uses lrCreateChart from AnalyticsAsset #}
 {% if analytics.totalClicks > 0 %}
 <script>
+(function() {
+    if (window.lrShortlinkPanelChartsBound) {
+        return;
+    }
+    window.lrShortlinkPanelChartsBound = true;
+
 document.addEventListener('lr:panelChartsReady', function() {
     var chartColors = window.lrChartColors || ['#0d78f2', '#27ae60', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
 
@@ -229,5 +235,6 @@ document.addEventListener('lr:panelChartsReady', function() {
         });
     }
 });
+})();
 </script>
 {% endif %}

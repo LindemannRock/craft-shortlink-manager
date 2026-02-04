@@ -546,14 +546,22 @@ class AnalyticsService extends Component
      */
     private function _getDaysCount(string $dateRange): int
     {
-        return match ($dateRange) {
-            'today' => 1,
-            'yesterday' => 1,
-            'last7days' => 7,
-            'last30days' => 30,
-            'last90days' => 90,
-            default => 30,
-        };
+        $bounds = DateRangeHelper::getBounds($dateRange);
+        $start = $bounds['start'] ?? null;
+        $end = $bounds['end'] ?? null;
+
+        if (!$start && !$end) {
+            return 36500;
+        }
+
+        $end = $end ?? new \DateTime('now', new \DateTimeZone('UTC'));
+
+        if (!$start) {
+            return 30;
+        }
+
+        $days = (int)$start->diff($end)->format('%a');
+        return max(1, $days);
     }
 
     /**

@@ -65,6 +65,7 @@ class AnalyticsController extends Controller
             'siteId' => $siteId,
             'sites' => $sites,
             'settings' => $settings,
+            'pluginHandle' => ShortLinkManager::$plugin->id,
         ]);
     }
 
@@ -235,7 +236,7 @@ class AnalyticsController extends Controller
 
         // Build filename parts
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
-        $filenameParts = ['analytics', $dateRangeLabel];
+        $filenameParts = ['analytics'];
 
         // Add link code to filename if specific link
         if ($linkId) {
@@ -244,7 +245,7 @@ class AnalyticsController extends Controller
                 ->one();
             if ($shortLink) {
                 $cleanCode = preg_replace('/[^a-zA-Z0-9-_]/', '', $shortLink->code);
-                array_unshift($filenameParts, $cleanCode);
+                $filenameParts[] = $cleanCode;
             }
         }
 
@@ -255,6 +256,8 @@ class AnalyticsController extends Controller
                 $filenameParts[] = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', str_replace(' ', '-', $site->name)));
             }
         }
+
+        $filenameParts[] = $dateRangeLabel;
 
         // Build headers for CSV/Excel
         $headers = [
