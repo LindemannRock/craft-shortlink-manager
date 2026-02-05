@@ -1,5 +1,27 @@
 # Changelog
 
+## [5.11.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.10.0...v5.11.0) (2026-02-05)
+
+
+### Features
+
+* **analytics:** enhance analytics functionality and UI ([f46f049](https://github.com/LindemannRock/craft-shortlink-manager/commit/f46f0498f78b95f91bae1d353d4d7c087649abec))
+* **settings:** add passQueryParams option for query parameter handling ([d13589d](https://github.com/LindemannRock/craft-shortlink-manager/commit/d13589d15c5436c0f174bfea67cd6b36bdac975c))
+
+
+### Bug Fixes
+
+* **AnalyticsController, QrCodeController, SettingsController:** enforce permissions for analytics and cache actions ([2530b4b](https://github.com/LindemannRock/craft-shortlink-manager/commit/2530b4b9b0e994a364f017c5d5c5e3afab2c8c0c))
+* **RedirectController:** handle malformed URLs and protocol-relative links ([12e0d58](https://github.com/LindemannRock/craft-shortlink-manager/commit/12e0d586b3707b06b6bc645ae7da22cde0fbfeef))
+* **ShortLinkManager:** update [@since](https://github.com/since) annotation for getCpSections method to 5.11.0 ([3731baf](https://github.com/LindemannRock/craft-shortlink-manager/commit/3731baf369ba5d93050c5f642d436129dbe16143))
+
+
+### Miscellaneous Chores
+
+* **dependencies:** Remove matomo/device-detector from composer.json ([e22887f](https://github.com/LindemannRock/craft-shortlink-manager/commit/e22887fc299ccdb03b2790e801b97baaee989e7a))
+* update package-lock.json and package.json for dependency management ([c3bc52d](https://github.com/LindemannRock/craft-shortlink-manager/commit/c3bc52d117cb0566c93788cc670d106616b4a54b))
+* update package.json to include author and company information ([0c0d2da](https://github.com/LindemannRock/craft-shortlink-manager/commit/0c0d2da50c875247c1157df2cf2ab84711bb7e6c))
+
 ## [5.10.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.9.0...v5.10.0) (2026-01-26)
 
 
