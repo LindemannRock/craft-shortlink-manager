@@ -113,15 +113,6 @@ class ShortLinkManager extends Plugin
         // Schedule analytics cleanup if retention is enabled
         $this->scheduleAnalyticsCleanup();
 
-        // Register translations
-        Craft::$app->i18n->translations['shortlink-manager'] = [
-            'class' => \craft\i18n\PhpMessageSource::class,
-            'sourceLanguage' => 'en',
-            'basePath' => __DIR__ . '/translations',
-            'forceTranslation' => true,
-            'allowOverrides' => true,
-        ];
-
         // Register variables
         Event::on(
             CraftVariable::class,
