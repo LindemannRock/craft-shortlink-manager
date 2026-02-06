@@ -10,15 +10,15 @@
         window.dataLayer = window.dataLayer || [];
 
         (function() {
-            var eventPrefix = '{{ craft.app.plugins.getPlugin('shortlink-manager').settings.seomaticEventPrefix ?? 'shortlink_manager' }}';
-            var eventType = '{{ eventType }}';
+            var eventPrefix = '{{ (craft.app.plugins.getPlugin('shortlink-manager').settings.seomaticEventPrefix ?? 'shortlink_manager')|e('js') }}';
+            var eventType = '{{ eventType|e('js') }}';
 
             var eventData = {
                 event: eventPrefix + '_' + eventType,
                 shortlink: {
-                    code: '{{ shortLink.code }}',
-                    title: '{{ shortLink.title }}',
-                    source: '{{ craft.app.request.getParam('src', 'direct') }}',
+                    code: '{{ shortLink.code|e('js') }}',
+                    title: '{{ shortLink.title|e('js') }}',
+                    source: '{{ craft.app.request.getParam('src', 'direct')|e('js') }}',
                     click_type: eventType
                 }
             };

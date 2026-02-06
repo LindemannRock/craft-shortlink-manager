@@ -226,13 +226,13 @@ class AnalyticsService extends Component
      *
      * @param int $limit
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', ?int $siteId = null): array
+    public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
-        $contentSiteId = $siteId ?: Craft::$app->getSites()->getPrimarySite()->id;
+        $contentSiteId = is_int($siteId) ? $siteId : Craft::$app->getSites()->getPrimarySite()->id;
 
         $query = (new Query())
             ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'c.siteId', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
@@ -361,11 +361,11 @@ class AnalyticsService extends Component
      *
      * @param string $dateRange
      * @param int|null $shortLinkId
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $shortLinkId = null, ?int $siteId = null): array
+    public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $shortLinkId = null, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}');
@@ -446,14 +446,20 @@ class AnalyticsService extends Component
      *
      * @param int $shortLinkId
      * @param string $dateRange
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days'): array
+    public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId]);
+
+        // Filter by site(s) if specified
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
+        }
 
         // Apply date range filter
         $this->applyDateRangeFilter($query, $dateRange);
@@ -509,7 +515,7 @@ class AnalyticsService extends Component
 
         // Get recent clicks for this link
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
-        $recentClicks = (clone $query)
+        $recentClicksQuery = (new Query())
             ->select([
                 'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referer', 'a.metadata',
                 'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
@@ -524,8 +530,15 @@ class AnalyticsService extends Component
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
             ->where(['a.linkId' => $shortLinkId])
             ->orderBy(['a.dateCreated' => SORT_DESC])
-            ->limit(20)
-            ->all();
+            ->limit(20);
+
+        if ($siteId) {
+            $recentClicksQuery->andWhere(['a.siteId' => $siteId]);
+        }
+
+        $this->applyDateRangeFilter($recentClicksQuery, $dateRange, 'a.dateCreated');
+
+        $recentClicks = $recentClicksQuery->all();
 
         // Convert dates from UTC to user's timezone
         foreach ($recentClicks as &$click) {
@@ -535,8 +548,6 @@ class AnalyticsService extends Component
                 $click['dateCreated'] = $utcDate;
             }
         }
-
-        $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
 
         return [
             'totalClicks' => $totalClicks,
@@ -580,11 +591,11 @@ class AnalyticsService extends Component
      *
      * @param string $dateRange
      * @param int $limit
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, ?int $siteId = null): array
+    public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, int|array|null $siteId = null): array
     {
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
@@ -644,11 +655,11 @@ class AnalyticsService extends Component
      * @param int|null $shortLinkId
      * @param string $dateRange
      * @param int $limit
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10, ?int $siteId = null): array
+    public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->select(['country', 'COUNT(*) as clicks'])
@@ -686,11 +697,11 @@ class AnalyticsService extends Component
      * @param int|null $shortLinkId
      * @param string $dateRange
      * @param int $limit
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15, ?int $siteId = null): array
+    public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->select(['city', 'country', 'COUNT(*) as clicks'])
@@ -727,11 +738,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->select(['deviceBrand', 'COUNT(*) as clicks'])
@@ -764,11 +775,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getOsBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getOsBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->select(['osName', 'COUNT(*) as clicks'])
@@ -807,11 +818,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->select(['browser', 'COUNT(*) as clicks'])
@@ -851,11 +862,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         $query = (new Query())
             ->select(['deviceType', 'COUNT(*) as clicks'])
@@ -889,11 +900,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getClicksData(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getClicksData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         $bounds = DateRangeHelper::getBounds($dateRange);
         $startDate = $bounds['start'] ?? null;
@@ -971,11 +982,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId
      * @param string $dateRange
-     * @param int|null $siteId
+     * @param int|int[]|null $siteId
      * @return array
      * @since 5.0.0
      */
-    public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         $localHour = DateFormatHelper::localHourExpression('dateCreated');
         $query = (new Query())
@@ -1208,11 +1219,11 @@ class AnalyticsService extends Component
      *
      * @param int|null $shortLinkId Optional link ID to filter by
      * @param string $dateRange Date range to filter
-     * @param int|null $siteId Optional site ID to filter by
+     * @param int|int[]|null $siteId Optional site ID to filter by
      * @return array Array of formatted export data
      * @since 5.5.0
      */
-    public function getExportData(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
+    public function getExportData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())

@@ -48,17 +48,16 @@ class AnalyticsController extends Controller
         $dateRange = $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $siteId = $request->getQueryParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
+        $resolvedSiteId = $this->_resolveSiteId($siteId);
 
         // Get settings
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Get analytics summary
-        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $siteId);
+        // Get analytics summary (scoped to user's allowed sites)
+        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $resolvedSiteId);
 
-        // Get enabled sites for site selector (respects enabledSites setting)
-        $enabledSiteIds = $settings->getEnabledSiteIds();
-        $allSites = Craft::$app->getSites()->getAllSites();
-        $sites = array_filter($allSites, fn($site) => in_array($site->id, $enabledSiteIds));
+        // Get enabled sites for site selector (respects enabledSites + user permissions)
+        $sites = ShortLinkManager::$plugin->getEnabledSites();
 
         return $this->renderTemplate('shortlink-manager/analytics/index', [
             'analyticsData' => $analyticsData,
@@ -88,37 +87,38 @@ class AnalyticsController extends Controller
         $linkId = $request->getBodyParam('linkId');
         $siteId = $request->getBodyParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
+        $resolvedSiteId = $this->_resolveSiteId($siteId);
 
         $data = [];
 
         try {
             switch ($type) {
                 case 'summary':
-                    $data = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, $linkId, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, $linkId, $resolvedSiteId);
                     break;
 
                 case 'clicks':
-                    $data = ShortLinkManager::$plugin->analytics->getClicksData($linkId, $dateRange, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getClicksData($linkId, $dateRange, $resolvedSiteId);
                     break;
 
                 case 'devices':
-                    $data = ShortLinkManager::$plugin->analytics->getDeviceTypeBreakdown($linkId, $dateRange, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getDeviceTypeBreakdown($linkId, $dateRange, $resolvedSiteId);
                     break;
 
                 case 'device-brands':
-                    $data = ShortLinkManager::$plugin->analytics->getDeviceBrandBreakdown($linkId, $dateRange, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getDeviceBrandBreakdown($linkId, $dateRange, $resolvedSiteId);
                     break;
 
                 case 'os-breakdown':
-                    $data = ShortLinkManager::$plugin->analytics->getOsBreakdown($linkId, $dateRange, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getOsBreakdown($linkId, $dateRange, $resolvedSiteId);
                     break;
 
                 case 'browsers':
-                    $data = ShortLinkManager::$plugin->analytics->getBrowserBreakdown($linkId, $dateRange, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getBrowserBreakdown($linkId, $dateRange, $resolvedSiteId);
                     break;
 
                 case 'hourly':
-                    $data = ShortLinkManager::$plugin->analytics->getHourlyAnalytics($linkId, $dateRange, $siteId);
+                    $data = ShortLinkManager::$plugin->analytics->getHourlyAnalytics($linkId, $dateRange, $resolvedSiteId);
                     break;
 
                 default:
@@ -133,69 +133,12 @@ class AnalyticsController extends Controller
                 'data' => $data,
             ]);
         } catch (\Exception $e) {
+            $this->logError($e->getMessage());
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    /**
-     * Get link analytics data via AJAX
-     *
-     * @return Response
-     * @since 5.0.0
-     */
-    public function actionGetLinkAnalytics(): Response
-    {
-        $this->requireLogin();
-        $this->requirePermission('shortLinkManager:viewAnalytics');
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $linkId = Craft::$app->getRequest()->getBodyParam('linkId');
-        $range = Craft::$app->getRequest()->getBodyParam('range', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
-
-        if (!$linkId) {
-            return $this->asJson([
-                'success' => false,
-                'error' => 'Link ID is required',
-            ]);
-        }
-
-        try {
-            // Get the short link
-            $shortLink = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-                ->id($linkId)
-                ->status(null)
-                ->one();
-
-            if (!$shortLink) {
-                return $this->asJson([
-                    'success' => false,
-                    'error' => 'Short link not found',
-                ]);
-            }
-
-            // Set the range parameter in the request so the template can access it
-            $_GET['range'] = $range;
-            Craft::$app->getRequest()->setQueryParams(array_merge(Craft::$app->getRequest()->getQueryParams(), ['range' => $range]));
-
-            // Render only the content part for AJAX
-            $html = Craft::$app->getView()->renderTemplate('shortlink-manager/shortlinks/_partials/analytics-content', [
-                'shortLink' => $shortLink,
-                'dateRange' => $range,
-            ]);
-
-            return $this->asJson([
-                'success' => true,
-                'html' => $html,
-            ]);
-        } catch (\Exception $e) {
-            $this->logError('Failed to get link analytics data', ['error' => $e->getMessage()]);
-            return $this->asJson([
-                'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
             ]);
         }
     }
@@ -219,12 +162,13 @@ class AnalyticsController extends Controller
         $linkId = $request->getQueryParam('linkId');
         $siteId = $request->getQueryParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
+        $resolvedSiteId = $this->_resolveSiteId($siteId);
 
-        // Get export data
+        // Get export data (scoped to user's allowed sites)
         $exportData = ShortLinkManager::$plugin->analytics->getExportData(
             $linkId ? (int)$linkId : null,
             $dateRange,
-            $siteId
+            $resolvedSiteId
         );
 
         // Check for empty data
@@ -305,5 +249,40 @@ class AnalyticsController extends Controller
             ]),
             default => ExportHelper::toCsv($exportData, $headers, $filename, $dateColumns),
         };
+    }
+
+    /**
+     * Get site IDs the current user is allowed to view analytics for
+     *
+     * Returns the intersection of plugin-enabled sites and user-editable sites.
+     *
+     * @return int[]
+     */
+    private function _getAllowedSiteIds(): array
+    {
+        return array_map(
+            fn($site) => $site->id,
+            ShortLinkManager::$plugin->getEnabledSites()
+        );
+    }
+
+    /**
+     * Resolve site ID parameter for analytics queries
+     *
+     * If a specific site ID is provided and the user has access, returns that int.
+     * Otherwise returns the array of all allowed site IDs to scope the query.
+     *
+     * @param int|null $siteId
+     * @return int|int[]
+     */
+    private function _resolveSiteId(?int $siteId): int|array
+    {
+        $allowedSiteIds = $this->_getAllowedSiteIds();
+
+        if ($siteId !== null && in_array($siteId, $allowedSiteIds)) {
+            return $siteId;
+        }
+
+        return $allowedSiteIds;
     }
 }

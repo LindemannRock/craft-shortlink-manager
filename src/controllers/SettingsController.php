@@ -300,9 +300,12 @@ class SettingsController extends Controller
                 'message' => Craft::t('shortlink-manager', 'Analytics cleanup job has been queued. It will run in the background.'),
             ]);
         } catch (\Exception $e) {
+            $this->logError($e->getMessage());
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
             ]);
         }
     }
@@ -362,9 +365,12 @@ class SettingsController extends Controller
                 'message' => $message,
             ]);
         } catch (\Exception $e) {
+            $this->logError($e->getMessage());
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
             ]);
         }
     }
@@ -424,9 +430,12 @@ class SettingsController extends Controller
                 'message' => $message,
             ]);
         } catch (\Exception $e) {
+            $this->logError($e->getMessage());
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
             ]);
         }
     }
@@ -506,9 +515,12 @@ class SettingsController extends Controller
                 'message' => $message,
             ]);
         } catch (\Exception $e) {
+            $this->logError($e->getMessage());
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
             ]);
         }
     }
@@ -546,9 +558,12 @@ class SettingsController extends Controller
                 'message' => Craft::t('shortlink-manager', 'Deleted {count} analytics records and reset all click counts.', ['count' => $count]),
             ]);
         } catch (\Exception $e) {
+            $this->logError($e->getMessage());
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
             ]);
         }
     }

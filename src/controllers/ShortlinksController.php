@@ -60,17 +60,27 @@ class ShortlinksController extends Controller
         $siteHandle = $this->request->getParam('site');
         $currentSite = $siteHandle
             ? Craft::$app->getSites()->getSiteByHandle($siteHandle)
-            : Craft::$app->getSites()->getCurrentSite();
+            : null;
 
-        // If current site is not enabled, redirect to first enabled site
-        if (!$settings->isSiteEnabled($currentSite->id)) {
-            $enabledSiteIds = $settings->getEnabledSiteIds();
-            if (!empty($enabledSiteIds)) {
-                $firstEnabledSite = Craft::$app->getSites()->getSiteById($enabledSiteIds[0]);
-                if ($firstEnabledSite) {
-                    return $this->redirect('shortlink-manager?site=' . $firstEnabledSite->handle);
-                }
+        // Fallback to current site if handle is invalid
+        if (!$currentSite) {
+            $currentSite = Craft::$app->getSites()->getCurrentSite();
+        }
+
+        // If current site is not enabled or user can't edit it, redirect to first accessible site
+        $enabledSites = ShortLinkManager::$plugin->getEnabledSites();
+        $enabledSiteIds = array_map(fn($s) => $s->id, $enabledSites);
+
+        if (!in_array($currentSite->id, $enabledSiteIds)) {
+            $firstSite = reset($enabledSites);
+            if ($firstSite) {
+                return $this->redirect('shortlink-manager?site=' . $firstSite->handle);
             }
+        }
+
+        // Enforce site edit permission (multi-site only)
+        if (Craft::$app->getIsMultiSite()) {
+            $this->requirePermission('editSite:' . $currentSite->uid);
         }
 
         return $this->renderTemplate('shortlink-manager/shortlinks/index');
@@ -92,12 +102,17 @@ class ShortlinksController extends Controller
             if (!$shortLink) {
                 // Get site from request or use current site
                 $siteHandle = $this->request->getParam('site');
-                $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
+                $site = ($siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : null) ?? Craft::$app->getSites()->getCurrentSite();
 
                 // Check if ShortLink Manager is enabled for this site
                 $settings = ShortLinkManager::getInstance()->getSettings();
                 if (!$settings->isSiteEnabled($site->id)) {
                     throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
+                }
+
+                // Enforce site edit permission (multi-site only)
+                if (Craft::$app->getIsMultiSite()) {
+                    $this->requirePermission('editSite:' . $site->uid);
                 }
 
                 $shortLink = ShortLink::find()
@@ -118,12 +133,17 @@ class ShortlinksController extends Controller
             if (!$shortLink) {
                 // Get site from request or use current site
                 $siteHandle = $this->request->getParam('site');
-                $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
+                $site = ($siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : null) ?? Craft::$app->getSites()->getCurrentSite();
 
                 // Check if ShortLink Manager is enabled for this site
                 $settings = ShortLinkManager::getInstance()->getSettings();
                 if (!$settings->isSiteEnabled($site->id)) {
                     throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
+                }
+
+                // Enforce site edit permission (multi-site only)
+                if (Craft::$app->getIsMultiSite()) {
+                    $this->requirePermission('editSite:' . $site->uid);
                 }
 
                 $shortLink = new ShortLink();
@@ -155,12 +175,30 @@ class ShortlinksController extends Controller
         $this->requirePostRequest();
 
         $shortLinkId = $this->request->getBodyParam('linkId');
+        $siteId = (int)($this->request->getBodyParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id);
+
+        // Validate site exists
+        $site = Craft::$app->getSites()->getSiteById($siteId);
+        if (!$site) {
+            throw new \yii\web\BadRequestHttpException('Invalid site ID.');
+        }
+
+        // Validate site is enabled for this plugin
+        $settings = ShortLinkManager::$plugin->getSettings();
+        if (!$settings->isSiteEnabled($siteId)) {
+            throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
+        }
+
+        // Enforce site edit permission (multi-site only)
+        if (Craft::$app->getIsMultiSite()) {
+            $this->requirePermission('editSite:' . $site->uid);
+        }
 
         if ($shortLinkId) {
             $this->requirePermission('shortLinkManager:editLinks');
             $shortLink = ShortLink::find()
                 ->id($shortLinkId)
-                ->siteId('*')
+                ->siteId($siteId)
                 ->status(null)
                 ->one();
 
@@ -170,6 +208,7 @@ class ShortlinksController extends Controller
         } else {
             $this->requirePermission('shortLinkManager:createLinks');
             $shortLink = new ShortLink();
+            $shortLink->siteId = $siteId;
         }
 
         // Populate from request
@@ -177,8 +216,6 @@ class ShortlinksController extends Controller
         $shortLink->code = $this->request->getBodyParam('code');
 
         // Note: slug will be auto-generated from code in beforeValidate()
-
-        $shortLink->siteId = $this->request->getBodyParam('siteId') ?: Craft::$app->getSites()->getCurrentSite()->id;
         $shortLink->httpCode = $this->request->getBodyParam('httpCode') ?: 301;
 
         // Use setEnabledForSite for per-site enabling (elements_sites.enabled)
@@ -292,12 +329,7 @@ class ShortlinksController extends Controller
 
         // Save the link using service (handles slug change redirects)
         if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($shortLink)) {
-            $errors = $shortLink->getErrors();
-            $errorMessage = Craft::t('shortlink-manager', 'Could not save shortlink.');
-            if (!empty($errors)) {
-                $errorMessage .= ' Errors: ' . print_r($errors, true);
-            }
-            $this->setFailFlash($errorMessage);
+            $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save shortlink.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
                 'shortLink' => $shortLink,
@@ -333,6 +365,14 @@ class ShortlinksController extends Controller
 
         if (!$shortLink) {
             throw new \yii\web\NotFoundHttpException('ShortLink not found');
+        }
+
+        // Enforce site edit permission (multi-site only)
+        if (Craft::$app->getIsMultiSite()) {
+            $site = Craft::$app->getSites()->getSiteById($shortLink->siteId);
+            if ($site) {
+                $this->requirePermission('editSite:' . $site->uid);
+            }
         }
 
         if (Craft::$app->elements->deleteElement($shortLink)) {

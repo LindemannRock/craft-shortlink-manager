@@ -292,9 +292,10 @@ class ShortLinksService extends Component
      * @return string
      * @since 5.0.0
      */
-    public function generateUniqueSlug(int $length = 8): string
+    public function generateUniqueSlug(int $length = 8, int $depth = 0): string
     {
         $maxAttempts = 100;
+        $maxDepth = 4;
         $attempt = 0;
 
         while ($attempt < $maxAttempts) {
@@ -307,8 +308,13 @@ class ShortLinksService extends Component
             $attempt++;
         }
 
-        // If we couldn't generate a unique slug, increase length
-        return $this->generateUniqueSlug($length + 1);
+        // If we couldn't generate a unique slug, increase length (with depth limit)
+        if ($depth < $maxDepth) {
+            return $this->generateUniqueSlug($length + 1, $depth + 1);
+        }
+
+        // Final fallback: append timestamp to guarantee uniqueness
+        return StringHelper::randomString($length) . '-' . time();
     }
 
     /**

@@ -58,8 +58,9 @@ class QrCodeController extends Controller
         $linkId = $request->getQueryParam('linkId');
 
         if ($isPreview && $url) {
-            // Preview mode requires login (CP feature only)
+            // Preview mode requires login and edit permission (CP feature only)
             $this->requireLogin();
+            $this->requirePermission('shortLinkManager:editLinks');
 
             // Preview mode - generate QR code for any URL
             $fullUrl = $url;
@@ -185,6 +186,8 @@ class QrCodeController extends Controller
                     '{size}' => $options['size'] ?? $settings->defaultQrSize,
                     '{format}' => $format,
                 ]);
+                // Sanitize filename to prevent header injection
+                $filename = preg_replace('/[^a-zA-Z0-9_\-.]/', '-', $filename);
                 $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '.' . $format . '"');
             }
 

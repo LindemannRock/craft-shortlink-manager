@@ -10,7 +10,7 @@
 			<div class="textwrapper" style="flex-grow: 1;">
 				<input type="text" class="text fullwidth" readonly value="{{ shortLink.getUrl() }}" id="shortlink-url-sidebar" style="border: none; padding-inline: var(--m) var(--s);">
 			</div>
-			<button type="button" class="btn" onclick="navigator.clipboard.writeText('{{ shortLink.getUrl() }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager') }}');" style="border-start-start-radius: 0; border-end-start-radius: 0;">
+			<button type="button" class="btn" onclick="navigator.clipboard.writeText('{{ shortLink.getUrl()|e('js') }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager')|e('js') }}');" style="border-start-start-radius: 0; border-end-start-radius: 0;">
 				{{ "Copy"|t('app') }}
 			</button>
 		</div>

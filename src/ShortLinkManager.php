@@ -386,10 +386,19 @@ class ShortLinkManager extends Plugin
     {
         $settings = $this->getSettings();
         $enabledSiteIds = $settings->getEnabledSiteIds();
+        $editableSiteIds = Craft::$app->getIsMultiSite()
+            ? Craft::$app->getSites()->getEditableSiteIds()
+            : null;
 
-        // Return only enabled sites
-        return array_filter(Craft::$app->getSites()->getAllSites(), function($site) use ($enabledSiteIds) {
-            return in_array($site->id, $enabledSiteIds);
+        // Return only sites that are enabled for this plugin AND editable by the current user
+        return array_filter(Craft::$app->getSites()->getAllSites(), function($site) use ($enabledSiteIds, $editableSiteIds) {
+            if (!in_array($site->id, $enabledSiteIds)) {
+                return false;
+            }
+            if ($editableSiteIds !== null && !in_array($site->id, $editableSiteIds)) {
+                return false;
+            }
+            return true;
         });
     }
 

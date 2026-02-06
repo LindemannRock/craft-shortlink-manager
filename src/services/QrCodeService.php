@@ -58,17 +58,23 @@ class QrCodeService extends Component
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Merge options with defaults
-        $size = $options['size'] ?? $settings->defaultQrSize;
+        // Merge options with defaults and clamp values
+        $size = max(50, min(2000, (int)($options['size'] ?? $settings->defaultQrSize)));
         $color = $options['color'] ?? $settings->defaultQrColor;
         $bgColor = $options['bg'] ?? $options['backgroundColor'] ?? $settings->defaultQrBgColor;
-        $format = $options['format'] ?? $settings->defaultQrFormat;
-        $margin = $options['margin'] ?? $settings->defaultQrMargin;
-        $moduleStyle = $options['moduleStyle'] ?? $settings->qrModuleStyle;
-        $eyeStyle = $options['eyeStyle'] ?? $settings->qrEyeStyle;
+        $format = in_array($options['format'] ?? $settings->defaultQrFormat, ['png', 'svg'], true)
+            ? ($options['format'] ?? $settings->defaultQrFormat)
+            : $settings->defaultQrFormat;
+        $margin = max(0, min(50, (int)($options['margin'] ?? $settings->defaultQrMargin)));
+        $moduleStyle = in_array($options['moduleStyle'] ?? $settings->qrModuleStyle, ['square', 'dots', 'rounded'], true)
+            ? ($options['moduleStyle'] ?? $settings->qrModuleStyle)
+            : $settings->qrModuleStyle;
+        $eyeStyle = in_array($options['eyeStyle'] ?? $settings->qrEyeStyle, ['square', 'circle', 'rounded', 'leaf'], true)
+            ? ($options['eyeStyle'] ?? $settings->qrEyeStyle)
+            : $settings->qrEyeStyle;
         $eyeColor = $options['eyeColor'] ?? $settings->qrEyeColor ?? null;
         $logoId = $options['logo'] ?? null;
-        $logoSize = $options['logoSize'] ?? $settings->qrLogoSize ?? 20;
+        $logoSize = max(5, min(50, (int)($options['logoSize'] ?? $settings->qrLogoSize ?? 20)));
 
         // Create cache key including new style parameters and logo
         $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);

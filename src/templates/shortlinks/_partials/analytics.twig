@@ -12,7 +12,8 @@
 {% set settings = plugin.settings %}
 {% set pluginHandle = pluginHandle ?? plugin.id %}
 {% set dateRange = craft.app.request.getQueryParam('range') ?? lrDefaultDateRange(pluginHandle) %}
-{% set analytics = plugin.analytics.getLinkAnalytics(shortLink.id, dateRange) %}
+{% set allowedSiteIds = plugin.getEnabledSites()|map(s => s.id) %}
+{% set analytics = plugin.analytics.getLinkAnalytics(shortLink.id, dateRange, allowedSiteIds) %}
 
 {% embed 'lindemannrock-base/_partials/analytics-panel' with {
     config: {
