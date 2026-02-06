@@ -181,7 +181,7 @@ class RedirectController extends Controller
 
         return $this->renderTemplate($template, [
             'shortLink' => $shortLink,
-            'destinationUrl' => $destinationUrl,
+            'destinationUrl' => $this->_sanitizeUrl($destinationUrl),
             'source' => $source,
             'deviceInfo' => $deviceInfo,
             'eventType' => $eventType,
@@ -200,12 +200,12 @@ class RedirectController extends Controller
 
         // Redirect to custom expired URL if set
         if ($shortLink->expiredRedirectUrl) {
-            return $this->redirect($shortLink->expiredRedirectUrl, 302);
+            return $this->redirect($this->_sanitizeUrl($shortLink->expiredRedirectUrl), 302);
         }
 
         // Show expired message (use per-shortlink message if set, fall back to global default)
         $messageText = $shortLink->expiredMessage ?: ($settings->expiredMessage ?? 'This link has expired');
-        $message = Craft::t('shortlink-manager', $messageText);
+        $message = $this->_sanitizeMessage(Craft::t('shortlink-manager', $messageText));
 
         // Get custom template path or use default
         $template = $settings->expiredTemplate ?: 'shortlink-manager/expired';
@@ -359,5 +359,46 @@ class RedirectController extends Controller
         }
 
         return $scheme . $auth . $host . $port . $path . $queryString . $fragment;
+    }
+
+    /**
+     * Sanitize a URL to prevent XSS via dangerous schemes.
+     *
+     * Only allows http://, https://, and relative paths (starting with /).
+     * Rejects javascript:, data:, vbscript:, and other dangerous schemes.
+     *
+     * @param string $url
+     * @return string Sanitized URL, or '/' if scheme is disallowed
+     */
+    private function _sanitizeUrl(string $url): string
+    {
+        $url = trim($url);
+
+        // Allow relative URLs
+        if (str_starts_with($url, '/')) {
+            return $url;
+        }
+
+        // Allow http and https
+        if (preg_match('#^https?://#i', $url)) {
+            return $url;
+        }
+
+        // Reject everything else (javascript:, data:, vbscript:, etc.)
+        $this->logWarning('Blocked unsafe URL scheme', ['url' => $url]);
+        return '/';
+    }
+
+    /**
+     * Sanitize a message string for safe template rendering.
+     *
+     * Strips HTML tags to prevent XSS even if user templates render with |raw.
+     *
+     * @param string $message
+     * @return string Plain text message
+     */
+    private function _sanitizeMessage(string $message): string
+    {
+        return strip_tags($message);
     }
 }

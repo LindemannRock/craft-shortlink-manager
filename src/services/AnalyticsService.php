@@ -11,8 +11,8 @@ namespace lindemannrock\shortlinkmanager\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
+use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\GeoHelper;
 use lindemannrock\base\traits\GeoLookupTrait;
@@ -156,11 +156,12 @@ class AnalyticsService extends Component
         $totalClicks = $query->count();
 
         // Get clicks over time
+        $localDate = DateFormatHelper::localDateExpression('dateCreated');
         $clicksByDate = (new Query())
-            ->select(['DATE(dateCreated) as date', 'COUNT(*) as count'])
+            ->select(['date' => $localDate, 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId])
-            ->groupBy('DATE(dateCreated)')
+            ->groupBy($localDate)
             ->orderBy(['date' => SORT_ASC])
             ->all();
 
@@ -898,10 +899,11 @@ class AnalyticsService extends Component
         $startDate = $bounds['start'] ?? null;
         $endDate = $bounds['end'] ?? null;
 
+        $localDate = DateFormatHelper::localDateExpression('dateCreated');
         $query = (new Query())
-            ->select(['DATE(dateCreated) as date', 'COUNT(*) as clicks'])
+            ->select(['date' => $localDate, 'COUNT(*) as clicks'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->groupBy('DATE(dateCreated)')
+            ->groupBy($localDate)
             ->orderBy(['date' => SORT_ASC]);
 
         if ($shortLinkId) {
@@ -975,10 +977,11 @@ class AnalyticsService extends Component
      */
     public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, ?int $siteId = null): array
     {
+        $localHour = DateFormatHelper::localHourExpression('dateCreated');
         $query = (new Query())
-            ->select(['HOUR(dateCreated) as hour', 'COUNT(*) as clicks'])
+            ->select(['hour' => $localHour, 'COUNT(*) as clicks'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->groupBy('hour')
+            ->groupBy($localHour)
             ->orderBy(['hour' => SORT_ASC]);
 
         if ($shortLinkId) {
@@ -1255,14 +1258,19 @@ class AnalyticsService extends Component
         $settings = ShortLinkManager::$plugin->getSettings();
         $geoEnabled = $settings->enableGeoDetection ?? true;
 
+        // Pre-fetch all referenced ShortLinks in one query to avoid N+1
+        $linkIds = array_unique(array_column($results, 'linkId'));
+        $shortLinksMap = [];
+        if (!empty($linkIds)) {
+            foreach (ShortLink::find()->id($linkIds)->status(null)->all() as $link) {
+                $shortLinksMap[$link->id] = $link;
+            }
+        }
+
         // Format data for export
         $exportData = [];
         foreach ($results as $row) {
-            // Get the link
-            $shortLink = ShortLink::find()
-                ->id($row['linkId'])
-                ->status(null)
-                ->one();
+            $shortLink = $shortLinksMap[$row['linkId']] ?? null;
 
             if (!$shortLink) {
                 continue;
@@ -1284,7 +1292,7 @@ class AnalyticsService extends Component
             if (!empty($row['siteId'])) {
                 $site = Craft::$app->getSites()->getSiteById($row['siteId']);
                 $siteName = $site ? $site->name : '';
-                $shortLinkUrl = \craft\helpers\UrlHelper::siteUrl("go/{$shortLink->code}", null, null, $row['siteId']);
+                $shortLinkUrl = \craft\helpers\UrlHelper::siteUrl("{$settings->slugPrefix}/{$shortLink->code}", null, null, $row['siteId']);
             }
 
             // Parse source from metadata JSON
@@ -1325,256 +1333,5 @@ class AnalyticsService extends Component
         }
 
         return $exportData;
-    }
-
-    /**
-     * Export analytics data to CSV
-     *
-     * @param int|null $shortLinkId Optional link ID to filter by
-     * @param string $dateRange Date range to filter
-     * @param string $format Export format (only 'csv' supported)
-     * @param int|null $siteId Optional site ID to filter by
-     * @return string CSV content
-     * @since 5.0.0
-     */
-    public function exportAnalytics(?int $shortLinkId, string $dateRange, string $format, ?int $siteId = null): string
-    {
-        // Use analytics destinationUrl (captured at click time), fallback to current for old records
-        $query = (new Query())
-            ->from('{{%shortlinkmanager_analytics}} a')
-            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
-            ->select([
-                'a.dateCreated',
-                'a.linkId',
-                'a.siteId',
-                'a.deviceType',
-                'a.deviceBrand',
-                'a.deviceModel',
-                'a.osName',
-                'a.osVersion',
-                'a.browser',
-                'a.browserVersion',
-                'a.country',
-                'a.city',
-                'a.language',
-                'a.referer as referrer',
-                'a.ip',
-                'a.userAgent',
-                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
-            ])
-            ->orderBy(['a.dateCreated' => SORT_DESC]);
-
-        // Apply date range filter (use table alias to avoid ambiguity with joined table)
-        $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
-
-        // Filter by link if specified (use table alias)
-        if ($shortLinkId) {
-            $query->andWhere(['a.linkId' => $shortLinkId]);
-        }
-
-        // Filter by site if specified (use table alias)
-        if ($siteId) {
-            $query->andWhere(['a.siteId' => $siteId]);
-        }
-
-        $results = $query->all();
-
-        // Check if there's any data to export
-        if (empty($results)) {
-            throw new \Exception('No data to export for the selected period.');
-        }
-
-        // Check if geo detection is enabled
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $geoEnabled = $settings->enableGeoDetection ?? true;
-
-        // Handle JSON format
-        if ($format === 'json') {
-            return $this->_exportAsJson($results, $geoEnabled);
-        }
-
-        // CSV format - conditionally include geo columns
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $displayName = $settings->getDisplayName();
-
-        if ($geoEnabled) {
-            $csv = "Date,Time,{$displayName} Code,{$displayName} Status,{$displayName} URL,Site,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Country,User City,User Language,User Agent\n";
-        } else {
-            $csv = "Date,Time,{$displayName} Code,{$displayName} Status,{$displayName} URL,Site,Destination URL,Referrer,User Device Type,User Device Brand,User Device Model,User OS,User OS Version,User Browser,User Browser Version,User Language,User Agent\n";
-        }
-
-        foreach ($results as $row) {
-            // Get the link - don't filter by siteId here, just find the element by ID
-            $shortLink = ShortLink::find()
-                ->id($row['linkId'])
-                ->status(null)
-                ->one();
-
-            if (!$shortLink) {
-                continue;
-            }
-
-            // Get the actual status
-            $status = $shortLink->getStatus();
-            $shortLinkCode = $shortLink->code;
-            $shortLinkStatus = match ($status) {
-                ShortLink::STATUS_ENABLED => 'Active',
-                ShortLink::STATUS_DISABLED => 'Disabled',
-                ShortLink::STATUS_PENDING => 'Pending',
-                ShortLink::STATUS_EXPIRED => 'Expired',
-                default => 'Unknown'
-            };
-
-            $shortLinkUrl = '';
-            // Use the destination URL from the row (captured at click time), not the current shortLink
-            $destinationUrl = $row['destinationUrl'] ?? '';
-
-            // Get site name and build the short link URL
-            $siteName = '';
-            if (!empty($row['siteId'])) {
-                $site = Craft::$app->getSites()->getSiteById($row['siteId']);
-                $siteName = $site ? $site->name : '';
-                // Generate the URL for the specific site
-                $shortLinkUrl = \craft\helpers\UrlHelper::siteUrl("go/{$shortLink->code}", null, null, $row['siteId']);
-            }
-
-            $date = \craft\helpers\DateTimeHelper::toDateTime($row['dateCreated']);
-            $dateStr = $date ? $date->format('Y-m-d') : '';
-            $timeStr = $date ? $date->format('H:i:s') : '';
-
-            // Keep the actual referrer URL
-            $referrerDisplay = $row['referrer'] ?? '';
-
-            if ($geoEnabled) {
-                $csv .= sprintf(
-                    '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
-                    $dateStr,
-                    $timeStr,
-                    $shortLinkCode,
-                    $shortLinkStatus,
-                    $shortLinkUrl,
-                    $siteName,
-                    $destinationUrl,
-                    $referrerDisplay,
-                    $row['deviceType'] ?? '',
-                    $row['deviceBrand'] ?? '',
-                    $row['deviceModel'] ?? '',
-                    $row['osName'] ?? '',
-                    $row['osVersion'] ?? '',
-                    $row['browser'] ?? '',
-                    $row['browserVersion'] ?? '',
-                    GeoHelper::getCountryName($row['country'] ?? ''),
-                    $row['city'] ?? '',
-                    $row['language'] ?? '',
-                    $row['userAgent'] ?? ''
-                );
-            } else {
-                $csv .= sprintf(
-                    '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"' . "\n",
-                    $dateStr,
-                    $timeStr,
-                    $shortLinkCode,
-                    $shortLinkStatus,
-                    $shortLinkUrl,
-                    $siteName,
-                    $destinationUrl,
-                    $referrerDisplay,
-                    $row['deviceType'] ?? '',
-                    $row['deviceBrand'] ?? '',
-                    $row['deviceModel'] ?? '',
-                    $row['osName'] ?? '',
-                    $row['osVersion'] ?? '',
-                    $row['browser'] ?? '',
-                    $row['browserVersion'] ?? '',
-                    $row['language'] ?? '',
-                    $row['userAgent'] ?? ''
-                );
-            }
-        }
-
-        return $csv;
-    }
-
-    /**
-     * Export analytics data as JSON
-     *
-     * @param array $results Raw query results
-     * @param bool $geoEnabled Whether geo detection is enabled
-     * @return string JSON string
-     */
-    private function _exportAsJson(array $results, bool $geoEnabled): string
-    {
-        $data = [];
-
-        foreach ($results as $row) {
-            // Get the link
-            $shortLink = ShortLink::find()
-                ->id($row['linkId'])
-                ->status(null)
-                ->one();
-
-            if (!$shortLink) {
-                continue;
-            }
-
-            // Get the actual status
-            $status = $shortLink->getStatus();
-
-            $date = DateTimeHelper::toDateTime($row['dateCreated']);
-
-            // Get site name
-            $siteName = null;
-            if (!empty($row['siteId'])) {
-                $site = Craft::$app->getSites()->getSiteById($row['siteId']);
-                $siteName = $site ? $site->name : null;
-            }
-
-            $item = [
-                'date' => $date ? $date->format('Y-m-d') : null,
-                'time' => $date ? $date->format('H:i:s') : null,
-                'datetime' => $date ? $date->format('c') : null,
-                'shortLink' => [
-                    'id' => $shortLink->id,
-                    'code' => $shortLink->code,
-                    'status' => $status,
-                ],
-                'siteId' => $row['siteId'] ? (int)$row['siteId'] : null,
-                'siteName' => $siteName,
-                // Use the destination URL from the row (captured at click time), not the current shortLink
-                'destinationUrl' => $row['destinationUrl'] ?? null,
-                'referrer' => $row['referrer'] ?? null,
-                'device' => [
-                    'type' => $row['deviceType'] ?? null,
-                    'brand' => $row['deviceBrand'] ?? null,
-                    'model' => $row['deviceModel'] ?? null,
-                ],
-                'os' => [
-                    'name' => $row['osName'] ?? null,
-                    'version' => $row['osVersion'] ?? null,
-                ],
-                'browser' => [
-                    'name' => $row['browser'] ?? null,
-                    'version' => $row['browserVersion'] ?? null,
-                ],
-                'language' => $row['language'] ?? null,
-                'userAgent' => $row['userAgent'] ?? null,
-            ];
-
-            // Add geo data if enabled
-            if ($geoEnabled) {
-                $item['location'] = [
-                    'country' => $row['country'] ?? null,
-                    'city' => $row['city'] ?? null,
-                ];
-            }
-
-            $data[] = $item;
-        }
-
-        return json_encode([
-            'exported' => date('c'),
-            'count' => count($data),
-            'data' => $data,
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }

@@ -79,6 +79,7 @@ class AnalyticsController extends Controller
     public function actionGetData(): Response
     {
         $this->requirePermission('shortLinkManager:viewAnalytics');
+        $this->requirePostRequest();
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
@@ -149,10 +150,11 @@ class AnalyticsController extends Controller
     {
         $this->requireLogin();
         $this->requirePermission('shortLinkManager:viewAnalytics');
+        $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $linkId = Craft::$app->getRequest()->getParam('linkId');
-        $range = Craft::$app->getRequest()->getParam('range', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
+        $linkId = Craft::$app->getRequest()->getBodyParam('linkId');
+        $range = Craft::$app->getRequest()->getBodyParam('range', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
 
         if (!$linkId) {
             return $this->asJson([

@@ -632,61 +632,6 @@ class Settings extends Model
     }
 
     /**
-     * Get smart default for qrPrefix that avoids conflicts
-     * @phpstan-ignore-next-line - Method reserved for future use
-     */
-    private function getSmartQrPrefixDefault(): string
-    {
-        $preferredDefaults = ['qr', 'sqr', 'q', 's-qr'];
-        $conflictingPrefixes = [];
-
-        // Check against Smart Links if installed
-        $smartLinksInstalled = PluginHelper::isPluginInstalled('smart-links');
-        $this->logInfo('Smart Links check', ['installed' => $smartLinksInstalled]);
-
-        if ($smartLinksInstalled) {
-            try {
-                $smartLinksPlugin = PluginHelper::getPlugin('smart-links');
-                $this->logInfo('Smart Links plugin', ['found' => $smartLinksPlugin ? 'yes' : 'no']);
-
-                if ($smartLinksPlugin) {
-                    $smartLinksSettings = $smartLinksPlugin->getSettings();
-                    $conflictingPrefixes[] = $smartLinksSettings->slugPrefix ?? 'go';
-                    $conflictingPrefixes[] = $smartLinksSettings->qrPrefix ?? 'qr';
-
-                    $this->logInfo('Checking Smart Links conflicts', [
-                        'slugPrefix' => $smartLinksSettings->slugPrefix ?? 'go',
-                        'qrPrefix' => $smartLinksSettings->qrPrefix ?? 'qr',
-                        'conflictingPrefixes' => $conflictingPrefixes,
-                    ]);
-                }
-            } catch (\Exception $e) {
-                $this->logWarning('Could not check smart-links', ['error' => $e->getMessage()]);
-            }
-        } else {
-            $this->logInfo('Smart Links not installed, no conflicts to check');
-        }
-
-        // Check against own slugPrefix
-        $conflictingPrefixes[] = $this->slugPrefix;
-
-        // Find first non-conflicting prefix
-        foreach ($preferredDefaults as $prefix) {
-            if (!in_array($prefix, $conflictingPrefixes)) {
-                $this->logInfo('Selected QR prefix', [
-                    'selected' => $prefix,
-                    'conflictingPrefixes' => $conflictingPrefixes,
-                ]);
-                return $prefix;
-            }
-        }
-
-        // Fallback to nested pattern
-        $fallback = $this->slugPrefix . '/qr';
-        $this->logInfo('Using fallback nested QR prefix', ['prefix' => $fallback]);
-        return $fallback;
-    }
-
     /**
      * Check if a site is enabled for ShortLink Manager
      *

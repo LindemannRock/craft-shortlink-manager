@@ -18,6 +18,7 @@ use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use yii\db\Expression;
 
 /**
  * ShortLinks Service
@@ -400,7 +401,7 @@ class ShortLinksService extends Component
         Craft::$app->db->createCommand()
             ->update(
                 '{{%shortlinkmanager}}',
-                ['hits' => $shortLink->hits + 1],
+                ['hits' => new Expression('[[hits]] + 1')],
                 ['id' => $shortLink->id]
             )
             ->execute();

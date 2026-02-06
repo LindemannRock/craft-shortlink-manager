@@ -115,7 +115,7 @@
         <p class="message">
             {{ 'Please wait, redirecting you now...'|t('shortlink-manager') }}
         </p>
-        <a href="{{ destinationUrl }}" class="fallback-link" id="manual-link">
+        <a href="{{ destinationUrl|e('html_attr') }}" class="fallback-link" id="manual-link">
             {{ 'Click here if not redirected'|t('shortlink-manager') }}
         </a>
     </div>
@@ -127,7 +127,8 @@
             var eventType = {{ eventType|json_encode|raw }};
             var shortlinkCode = {{ shortLink.code|json_encode|raw }};
 
-            // Get debug mode from URL parameter
+            {% if craft.app.config.general.devMode %}
+            // Get debug mode from URL parameter (only available in devMode)
             var urlParams = new URLSearchParams(window.location.search);
             var debugMode = urlParams.get('debug') === '1';
 
@@ -165,6 +166,7 @@
 
                 return; // Don't redirect in debug mode
             }
+            {% endif %}
 
             // Wait 100ms for GTM dataLayer to process, then redirect
             setTimeout(function() {

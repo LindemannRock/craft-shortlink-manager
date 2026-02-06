@@ -20,6 +20,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\db\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\records\ShortLinkContentRecord;
@@ -1421,8 +1422,8 @@ class ShortLink extends Element
                 return Html::encode($url);
 
             case 'postDate':
-                return $this->postDate ? Html::tag('span', $this->postDate->format('M j, Y'), [
-                    'title' => $this->postDate->format('D, M j, Y g:i A'),
+                return $this->postDate ? Html::tag('span', DateFormatHelper::formatDate($this->postDate, 'medium'), [
+                    'title' => DateFormatHelper::formatDatetime($this->postDate, 'long'),
                 ]) : '—';
 
             case 'dateExpired':
@@ -1430,8 +1431,8 @@ class ShortLink extends Element
                     return '—';
                 }
                 $isPast = $this->dateExpired < new \DateTime();
-                return Html::tag('span', $this->dateExpired->format('M j, Y'), [
-                    'title' => $this->dateExpired->format('D, M j, Y g:i A'),
+                return Html::tag('span', DateFormatHelper::formatDate($this->dateExpired, 'medium'), [
+                    'title' => DateFormatHelper::formatDatetime($this->dateExpired, 'long'),
                     'class' => $isPast ? 'error' : '',
                 ]);
         }

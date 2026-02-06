@@ -42,6 +42,7 @@ class SettingsController extends Controller
      */
     public function actionIndex(): Response
     {
+        $this->requirePermission('shortLinkManager:manageSettings');
         return $this->redirect('shortlink-manager/settings/general');
     }
 
@@ -253,10 +254,11 @@ class SettingsController extends Controller
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save settings.'));
 
             // Get the section to re-render the correct template
-            $section = $this->request->getBodyParam('section', 'general');
-            $template = "shortlink-manager/settings/{$section}";
+            $section = $this->_validSettingsSection(
+                $this->request->getBodyParam('section', 'general'),
+            );
 
-            return $this->renderTemplate($template, [
+            return $this->renderTemplate("shortlink-manager/settings/{$section}", [
                 'settings' => $settings,
             ]);
         }
@@ -287,13 +289,7 @@ class SettingsController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        // Check admin permissions
-        if (!Craft::$app->getUser()->getIsAdmin()) {
-            return $this->asJson([
-                'success' => false,
-                'error' => Craft::t('shortlink-manager', 'Only administrators can clean up analytics data.'),
-            ]);
-        }
+        $this->requirePermission('shortLinkManager:clearAnalytics');
 
         try {
             // Queue the cleanup job
@@ -555,5 +551,15 @@ class SettingsController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Validate settings section against allowlist to prevent path traversal.
+     */
+    private function _validSettingsSection(string $section): string
+    {
+        $allowed = ['general', 'behavior', 'qr-code', 'analytics', 'integrations', 'interface', 'cache'];
+
+        return in_array($section, $allowed, true) ? $section : 'general';
     }
 }
