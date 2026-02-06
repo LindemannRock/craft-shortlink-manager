@@ -42,11 +42,9 @@
 
         {# SEOmatic Integration #}
         {% set seomaticStatus = integrationStatuses.seomatic ?? null %}
-        {% set seomaticPlugin = craft.app.plugins.getPlugin('seomatic') %}
-        {% set seomaticInstalled = craft.app.plugins.isPluginInstalled('seomatic') %}
-        {% set seomaticEnabled = craft.app.plugins.isPluginEnabled('seomatic') %}
-        {% set seomaticAvailable = seomaticInstalled and seomaticEnabled %}
-        {% set seomaticPluginName = seomaticPlugin ? (seomaticPlugin.name ?? 'SEOmatic') : 'SEOmatic' %}
+        {% set seomaticInstalled = lrPluginInstalled('seomatic') %}
+        {% set seomaticAvailable = lrPluginEnabled('seomatic') %}
+        {% set seomaticPluginName = lrPluginName('seomatic', 'SEOmatic') %}
         {% set seomaticIntegrationEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
 
         {# SEOmatic Integration Card #}
@@ -140,8 +138,6 @@
                             {% endfor %}
                         </div>
 
-                        {# Hidden for now - Other tracking scripts (Facebook, LinkedIn, HubSpot, Pinterest, Fathom, Matomo, Plausible)
-                           receive events via GTM, not directly from {{ shortlinkHelper.fullName }}, so we don't display them here #}
                     {% else %}
                         <div style="background: #fff9e6; border-left: 3px solid #f59e0b; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
                             <p style="margin: 0; font-size: 13px;">
@@ -266,10 +262,6 @@
                                     <strong>' ~ "Use GTM to forward to other platforms"|t('shortlink-manager') ~ '</strong><br>
                                     <span class="light">' ~ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</span>
                                 </li>
-                                <li style="margin-bottom: 6px;">
-                                    <strong>' ~ "Other scripts are detected for reference only"|t('shortlink-manager') ~ '</strong><br>
-                                    <span class="light">' ~ "Fathom, Matomo, and Plausible are shown above but do not receive events directly from {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</span>
-                                </li>
                                 <li>
                                     <span class="light">' ~ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') ~ '</span>
                                 </li>
@@ -285,11 +277,9 @@
         {# End SEOmatic Integration Card #}
 
         {# Redirect Manager Integration #}
-        {% set rmPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
-        {% set rmInstalled = craft.app.plugins.isPluginInstalled('redirect-manager') %}
-        {% set rmEnabled = craft.app.plugins.isPluginEnabled('redirect-manager') %}
-        {% set rmAvailable = rmInstalled and rmEnabled %}
-        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? rmPlugin.name ?? 'Redirect Manager') : 'Redirect Manager' %}
+        {% set rmInstalled = lrPluginInstalled('redirect-manager') %}
+        {% set rmAvailable = lrPluginEnabled('redirect-manager') %}
+        {% set rmPluginName = lrPluginName('redirect-manager', 'Redirect Manager') %}
         {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
         {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change'] %}
 

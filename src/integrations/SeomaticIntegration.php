@@ -282,111 +282,9 @@ class SeomaticIntegration extends BaseIntegration
                         continue;
                     }
 
-                    // Check Google Tag Manager
-                    $gtmScript = $scriptService->get('googleTagManager');
-                    if ($gtmScript && $gtmScript->include) {
-                        $gtmId = $gtmScript->vars['googleTagManagerId']['value'] ??
-                                $gtmScript->vars['googleTagManagerContainerId']['value'] ??
-                                null;
-
-                        if (is_string($gtmId)) {
-                            if (strpos($gtmId, '$') !== false) {
-                                $gtmId = App::env($gtmId);
-                            }
-                            $gtmId = trim($gtmId);
-                        }
-
-                        if (!empty($gtmId)) {
-                            if (!isset($scriptsFound['googleTagManager'])) {
-                                $scriptsFound['googleTagManager'] = [
-                                    'active' => true,
-                                    'name' => 'Google Tag Manager',
-                                    'sites' => [],
-                                ];
-                            }
-                            $scriptsFound['googleTagManager']['sites'][] = [
-                                'handle' => $site->handle,
-                                'name' => $site->name,
-                                'id' => $gtmId,
-                            ];
-                        }
-                    }
-
-                    // Check Google Analytics (gtag.js)
-                    $gtagScript = $scriptService->get('gtag');
-                    if ($gtagScript && $gtagScript->include) {
-                        $measurementId = $gtagScript->vars['googleAnalyticsId']['value'] ?? null;
-
-                        if (is_string($measurementId)) {
-                            if (strpos($measurementId, '$') !== false) {
-                                $measurementId = App::env($measurementId);
-                            }
-                            $measurementId = trim($measurementId);
-                        }
-
-                        if (!empty($measurementId)) {
-                            if (!isset($scriptsFound['gtag'])) {
-                                $scriptsFound['gtag'] = [
-                                    'active' => true,
-                                    'name' => 'Google Analytics 4',
-                                    'sites' => [],
-                                ];
-                            }
-                            $scriptsFound['gtag']['sites'][] = [
-                                'handle' => $site->handle,
-                                'name' => $site->name,
-                                'id' => $measurementId,
-                            ];
-                        }
-                    }
-
-                    // Check Facebook Pixel
-                    $fbScript = $scriptService->get('facebookPixel');
-                    if ($fbScript && $fbScript->include) {
-                        $fbId = $fbScript->vars['facebookPixelId']['value'] ?? null;
-
-                        if (!empty($fbId)) {
-                            if (!isset($scriptsFound['facebookPixel'])) {
-                                $scriptsFound['facebookPixel'] = [
-                                    'active' => true,
-                                    'name' => 'Facebook Pixel',
-                                    'sites' => [],
-                                ];
-                            }
-                            $scriptsFound['facebookPixel']['sites'][] = [
-                                'handle' => $site->handle,
-                                'name' => $site->name,
-                                'id' => $fbId,
-                            ];
-                        }
-                    }
-
-                    // Check LinkedIn Insight
-                    $linkedInScript = $scriptService->get('linkedInInsight');
-                    if ($linkedInScript && $linkedInScript->include) {
-                        $partnerId = $linkedInScript->vars['dataPartnerId']['value'] ?? null;
-
-                        if (is_string($partnerId)) {
-                            if (strpos($partnerId, '$') !== false) {
-                                $partnerId = App::env($partnerId);
-                            }
-                            $partnerId = trim($partnerId);
-                        }
-
-                        if (!empty($partnerId)) {
-                            if (!isset($scriptsFound['linkedInInsight'])) {
-                                $scriptsFound['linkedInInsight'] = [
-                                    'active' => true,
-                                    'name' => 'LinkedIn Insight Tag',
-                                    'sites' => [],
-                                ];
-                            }
-                            $scriptsFound['linkedInInsight']['sites'][] = [
-                                'handle' => $site->handle,
-                                'name' => $site->name,
-                                'id' => $partnerId,
-                            ];
-                        }
+                    // Check all known tracking scripts for this site
+                    foreach ($this->_getScriptDefinitions() as $def) {
+                        $this->_checkScript($scriptService, $site, $def, $scriptsFound);
                     }
                 }
 
@@ -447,5 +345,76 @@ class SeomaticIntegration extends BaseIntegration
     {
         $scripts = $this->getAvailableScripts();
         return isset($scripts['gtag']) && $scripts['gtag']['active'];
+    }
+
+    /**
+     * Get tracking script definitions
+     *
+     * Each definition maps a SEOmatic script handle to:
+     * - key: The key used in the scriptsFound array
+     * - name: Display name for the script
+     * - idKeys: Ordered list of var keys to check for the script's ID value
+     *
+     * @return array<array{handle: string, key: string, name: string, idKeys: string[]}>
+     */
+    private function _getScriptDefinitions(): array
+    {
+        return [
+            ['handle' => 'googleTagManager', 'key' => 'googleTagManager', 'name' => 'Google Tag Manager', 'idKeys' => ['googleTagManagerId', 'googleTagManagerContainerId']],
+            ['handle' => 'gtag', 'key' => 'gtag', 'name' => 'Google Analytics 4', 'idKeys' => ['googleAnalyticsId']],
+        ];
+    }
+
+    /**
+     * Check a single SEOmatic tracking script and add to results if configured
+     *
+     * @param mixed $scriptService SEOmatic script service
+     * @param \craft\models\Site $site Current site being checked
+     * @param array{handle: string, key: string, name: string, idKeys: string[]} $def Script definition
+     * @param array &$scriptsFound Accumulated results (modified by reference)
+     */
+    private function _checkScript(mixed $scriptService, \craft\models\Site $site, array $def, array &$scriptsFound): void
+    {
+        $script = $scriptService->get($def['handle']);
+        if (!$script || !$script->include) {
+            return;
+        }
+
+        // Try each ID key in order until we find a value
+        $id = null;
+        foreach ($def['idKeys'] as $idKey) {
+            $id = $script->vars[$idKey]['value'] ?? null;
+            if ($id !== null) {
+                break;
+            }
+        }
+
+        // Resolve environment variables
+        if (is_string($id)) {
+            if (str_contains($id, '$')) {
+                $id = App::env($id);
+            }
+            if (is_string($id)) {
+                $id = trim($id);
+            }
+        }
+
+        if (empty($id)) {
+            return;
+        }
+
+        $key = $def['key'];
+        if (!isset($scriptsFound[$key])) {
+            $scriptsFound[$key] = [
+                'active' => true,
+                'name' => $def['name'],
+                'sites' => [],
+            ];
+        }
+        $scriptsFound[$key]['sites'][] = [
+            'handle' => $site->handle,
+            'name' => $site->name,
+            'id' => $id,
+        ];
     }
 }
