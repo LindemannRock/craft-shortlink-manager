@@ -51,45 +51,52 @@ class ShortLinkManagerUtility extends Utility
     {
         $settings = ShortLinkManager::$plugin->getSettings();
         $pluginName = $settings->getFullName();
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
-        // Get system stats (count all shortlinks including all statuses, excluding trashed)
-        $totalLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-            ->status(null)
-            ->count();
+        // Get system stats only if user can view links
+        $totalLinks = 0;
+        $activeLinks = 0;
+        $pendingLinks = 0;
+        $expiredLinks = 0;
+        $disabledLinks = 0;
 
-        // Get active links count (enabled for current site)
-        $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
-        $activeLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-            ->siteId($currentSiteId)
-            ->status('enabled')
-            ->count();
+        if ($currentUser && $currentUser->can('shortLinkManager:viewLinks')) {
+            $allowedSiteIds = array_map(fn($s) => $s->id, ShortLinkManager::$plugin->getEnabledSites());
 
-        // Get pending links count
-        $pendingLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-            ->siteId($currentSiteId)
-            ->status('pending')
-            ->count();
+            $totalLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->siteId($allowedSiteIds)
+                ->status(null)
+                ->count();
 
-        // Get expired links count
-        $expiredLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-            ->siteId($currentSiteId)
-            ->status('expired')
-            ->count();
+            $activeLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->siteId($allowedSiteIds)
+                ->status('enabled')
+                ->count();
 
-        // Get disabled links count
-        $disabledLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
-            ->siteId($currentSiteId)
-            ->status('disabled')
-            ->count();
+            $pendingLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->siteId($allowedSiteIds)
+                ->status('pending')
+                ->count();
 
-        // Get analytics data
-        $analyticsData = [];
+            $expiredLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->siteId($allowedSiteIds)
+                ->status('expired')
+                ->count();
+
+            $disabledLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
+                ->siteId($allowedSiteIds)
+                ->status('disabled')
+                ->count();
+        }
+
+        // Get analytics data only if user can view analytics
         $totalClicks = 0;
         $qrScans = 0;
         $directClicks = 0;
 
-        if ($settings->enableAnalytics) {
-            $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary('last7days');
+        if ($settings->enableAnalytics && $currentUser && $currentUser->can('shortLinkManager:viewAnalytics')) {
+            $allowedSiteIds = array_map(fn($s) => $s->id, ShortLinkManager::$plugin->getEnabledSites());
+            $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary('last7days', null, $allowedSiteIds);
             $totalClicks = $analyticsData['totalClicks'] ?? 0;
 
             // Count QR scans vs direct clicks from recent clicks
@@ -108,12 +115,11 @@ class ShortLinkManagerUtility extends Utility
             }
         }
 
-        // Get cache counts (only for file storage)
+        // Get cache counts only if user can clear cache
         $qrCacheFiles = 0;
         $deviceCacheFiles = 0;
 
-        // Only count files when using file storage (Redis counts are not displayed)
-        if ($settings->cacheStorageMethod === 'file') {
+        if ($currentUser && $currentUser->can('shortLinkManager:clearCache') && $settings->cacheStorageMethod === 'file') {
             if ($settings->enableQrCodeCache) {
                 $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
                 if (is_dir($qrPath)) {

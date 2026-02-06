@@ -441,15 +441,17 @@ class Settings extends Model
     }
 
     /**
-     * Set default QR logo ID from asset field (handles array input)
+     * Set default QR logo ID from asset field (handles array/string input)
      *
-     * @param int|array|null $value
+     * @param int|array|string|null $value
      * @since 5.0.0
      */
-    public function setDefaultQrLogoId(int|array|null $value): void
+    public function setDefaultQrLogoId(int|array|string|null $value): void
     {
         if (is_array($value)) {
             $this->defaultQrLogoId = !empty($value) ? (int) reset($value) : null;
+        } elseif (is_string($value)) {
+            $this->defaultQrLogoId = $value !== '' ? (int) $value : null;
         } else {
             $this->defaultQrLogoId = $value !== null ? (int) $value : null;
         }

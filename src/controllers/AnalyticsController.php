@@ -164,6 +164,10 @@ class AnalyticsController extends Controller
         $siteId = $siteId ? (int)$siteId : null;
         $resolvedSiteId = $this->_resolveSiteId($siteId);
 
+        if (!ExportHelper::isFormatEnabled($format, ShortLinkManager::$plugin->id)) {
+            throw new \yii\web\BadRequestHttpException("Export format '{$format}' is not enabled.");
+        }
+
         // Get export data (scoped to user's allowed sites)
         $exportData = ShortLinkManager::$plugin->analytics->getExportData(
             $linkId ? (int)$linkId : null,

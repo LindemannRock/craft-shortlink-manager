@@ -28,28 +28,30 @@
 } %}
 
 {% block overview %}
-    {# Links Status Card - dynamic sub-boxes based on counts #}
-    {% set linksSubBoxes = [{value: activeLinks, label: 'Active'|t('shortlink-manager')}] %}
-    {% if pendingLinks > 0 or (expiredLinks == 0 and disabledLinks == 0) %}
-        {% set linksSubBoxes = linksSubBoxes|merge([{value: pendingLinks, label: 'Pending'|t('shortlink-manager')}]) %}
-    {% endif %}
-    {% if expiredLinks > 0 or (pendingLinks == 0 and disabledLinks == 0) %}
-        {% set linksSubBoxes = linksSubBoxes|merge([{value: expiredLinks, label: 'Expired'|t('shortlink-manager')}]) %}
-    {% endif %}
-    {% if disabledLinks > 0 and linksSubBoxes|length < 3 %}
-        {% set linksSubBoxes = linksSubBoxes|merge([{value: disabledLinks, label: 'Disabled'|t('shortlink-manager')}]) %}
+    {# Links Status Card - only show if user can view links #}
+    {% if canViewLinks %}
+        {% set linksSubBoxes = [{value: activeLinks, label: 'Active'|t('shortlink-manager')}] %}
+        {% if pendingLinks > 0 or (expiredLinks == 0 and disabledLinks == 0) %}
+            {% set linksSubBoxes = linksSubBoxes|merge([{value: pendingLinks, label: 'Pending'|t('shortlink-manager')}]) %}
+        {% endif %}
+        {% if expiredLinks > 0 or (pendingLinks == 0 and disabledLinks == 0) %}
+            {% set linksSubBoxes = linksSubBoxes|merge([{value: expiredLinks, label: 'Expired'|t('shortlink-manager')}]) %}
+        {% endif %}
+        {% if disabledLinks > 0 and linksSubBoxes|length < 3 %}
+            {% set linksSubBoxes = linksSubBoxes|merge([{value: disabledLinks, label: 'Disabled'|t('shortlink-manager')}]) %}
+        {% endif %}
+
+        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            title: 'Links Status'|t('shortlink-manager'),
+            color: lrPaletteColor('emerald').color,
+            value: totalLinks,
+            description: 'Total {pluginName}'|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+            subBoxes: linksSubBoxes,
+        } only %}
     {% endif %}
 
-    {% include 'lindemannrock-base/_components/cards/unified-card' with {
-        title: 'Links Status'|t('shortlink-manager'),
-        color: lrPaletteColor('emerald').color,
-        value: totalLinks,
-        description: 'Total {pluginName}'|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
-        subBoxes: linksSubBoxes,
-    } only %}
-
-    {# Performance Card #}
-    {% if settings.enableAnalytics %}
+    {# Performance Card - only show if user can view analytics #}
+    {% if settings.enableAnalytics and canViewAnalytics %}
         {% include 'lindemannrock-base/_components/cards/unified-card' with {
             title: 'Performance'|t('shortlink-manager'),
             color: lrPaletteColor('sky').color,
@@ -62,33 +64,35 @@
         } only %}
     {% endif %}
 
-    {# Cache Status Card - varies by storage method #}
-    {% if storageMethod == 'redis' %}
-        {% set cacheSubBoxes = [] %}
-        {% if settings.enableQrCodeCache %}
-            {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'QR Codes'|t('shortlink-manager')}]) %}
-        {% endif %}
-        {% if settings.cacheDeviceDetection %}
-            {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'Devices'|t('shortlink-manager')}]) %}
-        {% endif %}
+    {# Cache Status Card - only show if user can manage cache #}
+    {% if canClearCache %}
+        {% if storageMethod == 'redis' %}
+            {% set cacheSubBoxes = [] %}
+            {% if settings.enableQrCodeCache %}
+                {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'QR Codes'|t('shortlink-manager')}]) %}
+            {% endif %}
+            {% if settings.cacheDeviceDetection %}
+                {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'Devices'|t('shortlink-manager')}]) %}
+            {% endif %}
 
-        {% include 'lindemannrock-base/_components/cards/unified-card' with {
-            title: 'Cache Status'|t('shortlink-manager') ~ ' (Redis)',
-            color: lrPaletteColor('emerald').color,
-            value: 'Active'|t('shortlink-manager'),
-            subBoxes: cacheSubBoxes,
-        } only %}
-    {% else %}
-        {% include 'lindemannrock-base/_components/cards/unified-card' with {
-            title: 'Cache Status'|t('shortlink-manager') ~ ' (File)',
-            color: lrPaletteColor('emerald').color,
-            value: qrCacheFiles + deviceCacheFiles,
-            description: 'Total cached entries'|t('shortlink-manager'),
-            subBoxes: [
-                {value: qrCacheFiles, label: 'QR Codes'|t('shortlink-manager')},
-                {value: deviceCacheFiles, label: 'Devices'|t('shortlink-manager')},
-            ],
-        } only %}
+            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                title: 'Cache Status'|t('shortlink-manager') ~ ' (Redis)',
+                color: lrPaletteColor('emerald').color,
+                value: 'Active'|t('shortlink-manager'),
+                subBoxes: cacheSubBoxes,
+            } only %}
+        {% else %}
+            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                title: 'Cache Status'|t('shortlink-manager') ~ ' (File)',
+                color: lrPaletteColor('emerald').color,
+                value: qrCacheFiles + deviceCacheFiles,
+                description: 'Total cached entries'|t('shortlink-manager'),
+                subBoxes: [
+                    {value: qrCacheFiles, label: 'QR Codes'|t('shortlink-manager')},
+                    {value: deviceCacheFiles, label: 'Devices'|t('shortlink-manager')},
+                ],
+            } only %}
+        {% endif %}
     {% endif %}
 {% endblock %}
 

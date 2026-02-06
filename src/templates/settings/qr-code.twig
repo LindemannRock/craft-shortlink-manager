@@ -490,48 +490,6 @@ document.querySelector('form').addEventListener('submit', function(e) {
     }
 });
 
-// Update required status of logo field when toggle changes
-(function() {
-    const enableToggle = document.getElementById('enableQrLogo');
-    const logoField = document.getElementById('defaultQrLogoId-field');
-
-    if (enableToggle && logoField) {
-        // Get the label
-        const label = logoField.querySelector('label');
-
-        // Function to update required status
-        function updateRequiredStatus() {
-            if (enableToggle.checked || enableToggle.classList.contains('on')) {
-                label.classList.add('required');
-            } else {
-                label.classList.remove('required');
-            }
-        }
-
-        // Initial state
-        updateRequiredStatus();
-
-        // Watch for changes
-        const lightswitch = enableToggle.closest('.lightswitch');
-        if (lightswitch) {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                        updateRequiredStatus();
-                    }
-                });
-            });
-
-            observer.observe(lightswitch, {
-                attributes: true,
-                attributeFilter: ['class']
-            });
-        }
-
-        enableToggle.addEventListener('change', updateRequiredStatus);
-    }
-})();
-
 // QR Code Live Preview functionality
 (function() {
     let previewTimeout = null;

@@ -62,12 +62,19 @@ class QrCodeController extends Controller
             $this->requireLogin();
             $this->requirePermission('shortLinkManager:editLinks');
 
+            // Validate URL scheme (prevent javascript:, data:, etc.)
+            $scheme = parse_url($url, PHP_URL_SCHEME);
+            if (!in_array(strtolower($scheme ?? ''), ['http', 'https'], true)) {
+                throw new \yii\web\BadRequestHttpException('Only http and https URLs are allowed.');
+            }
+
             // Preview mode - generate QR code for any URL
             $fullUrl = $url;
             $shortLink = null;
         } elseif ($linkId) {
-            // CP mode - get by link ID (requires login)
+            // CP mode - get by link ID (requires login + edit permission)
             $this->requireLogin();
+            $this->requirePermission('shortLinkManager:editLinks');
 
             $shortLink = ShortLink::find()
                 ->id($linkId)
@@ -100,10 +107,15 @@ class QrCodeController extends Controller
                 throw new NotFoundHttpException('Short link not found.');
             }
 
+            // Check if plugin is enabled for this site
+            if (!$settings->isSiteEnabled($shortLink->siteId)) {
+                $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+                return $this->redirect($redirectUrl);
+            }
+
             // Check if QR codes are enabled for this shortlink
             if (!$shortLink->qrCodeEnabled) {
                 // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
-                $settings = ShortLinkManager::$plugin->getSettings();
                 $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
                 return $this->redirect($redirectUrl);
             }
@@ -139,12 +151,29 @@ class QrCodeController extends Controller
             }
         } else {
             // Preview mode - just use query params
+            $logoId = $request->getQueryParam('logo');
+
+            // Validate logo belongs to the allowed volume and user has access
+            if ($logoId) {
+                $logoAsset = \craft\elements\Asset::find()->id($logoId)->one();
+                $allowedVolumeUids = array_filter([
+                    $settings->qrLogoVolumeUid,
+                ]);
+                $volumeUid = $logoAsset?->getVolume()->uid;
+                if (!$logoAsset
+                    || ($allowedVolumeUids && !in_array($volumeUid, $allowedVolumeUids, true))
+                    || !Craft::$app->getUser()->checkPermission('viewAssets:' . $volumeUid)
+                ) {
+                    $logoId = null;
+                }
+            }
+
             $options = [
                 'size' => $request->getQueryParam('size'),
                 'color' => $request->getQueryParam('color'),
                 'bg' => $request->getQueryParam('bg'),
                 'format' => $request->getQueryParam('format'),
-                'logo' => $request->getQueryParam('logo'),
+                'logo' => $logoId,
                 'eyeColor' => $request->getQueryParam('eyeColor'),
             ];
         }
@@ -167,8 +196,10 @@ class QrCodeController extends Controller
         try {
             $qrCode = ShortLinkManager::$plugin->qrCode->generateQrCode($fullUrl, $options);
 
-            // Determine content type
-            $format = $options['format'] ?? ShortLinkManager::$plugin->getSettings()->defaultQrFormat;
+            // Determine content type (validate format to known values)
+            $format = in_array($options['format'] ?? '', ['png', 'svg'], true)
+                ? $options['format']
+                : ShortLinkManager::$plugin->getSettings()->defaultQrFormat;
             $contentType = $format === 'svg' ? 'image/svg+xml' : 'image/png';
 
             // Return response
@@ -178,8 +209,7 @@ class QrCodeController extends Controller
             $response->headers->set('Cache-Control', 'public, max-age=86400');
 
             // Handle download request
-            if ($request->getQueryParam('download') && $shortLink) {
-                $settings = ShortLinkManager::$plugin->getSettings();
+            if ($request->getQueryParam('download') && $shortLink && $settings->enableQrDownload) {
                 $filename = strtr($settings->qrDownloadFilename ?? '{slug}-qr-{size}', [
                     '{slug}' => $shortLink->slug,
                     '{code}' => $shortLink->code,
@@ -222,6 +252,12 @@ class QrCodeController extends Controller
         // Check if link is trashed
         if ($shortLink->trashed) {
             throw new NotFoundHttpException('Short link not found.');
+        }
+
+        // Check if plugin is enabled for this site
+        if (!$settings->isSiteEnabled($shortLink->siteId)) {
+            $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+            return $this->redirect($redirectUrl);
         }
 
         // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
