@@ -71,21 +71,22 @@ class AnalyticsService extends Component
             $ip = $this->_anonymizeIp($ip);
         }
 
-        // Step 2: Get geo location (uses anonymized or full IP)
-        if ($settings->enableGeoDetection && $ip) {
-            $this->getGeoData($record, $ip);
-        }
-
-        // Step 3: Hash IP with salt for storage
+        // Step 2: Hash IP with salt for storage
         if ($ip) {
             try {
                 $record->ip = $this->_hashIpWithSalt($ip);
             } catch (\Exception $e) {
                 $this->logError('Failed to hash IP address', ['error' => $e->getMessage()]);
-                $record->ip = null;  // Continue without IP
+                $record->ip = null;
+                $ip = null; // Prevent geo lookup with raw IP
             }
         } else {
             $record->ip = null;
+        }
+
+        // Step 3: Get geo location (uses anonymized or full IP, skipped if hash failed)
+        if ($settings->enableGeoDetection && $ip) {
+            $this->getGeoData($record, $ip);
         }
 
         // Get user agent

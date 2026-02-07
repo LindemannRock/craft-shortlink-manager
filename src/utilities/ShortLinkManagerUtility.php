@@ -51,7 +51,7 @@ class ShortLinkManagerUtility extends Utility
     {
         $settings = ShortLinkManager::$plugin->getSettings();
         $pluginName = $settings->getFullName();
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $user = Craft::$app->getUser();
 
         // Get system stats only if user can view links
         $totalLinks = 0;
@@ -60,7 +60,7 @@ class ShortLinkManagerUtility extends Utility
         $expiredLinks = 0;
         $disabledLinks = 0;
 
-        if ($currentUser && $currentUser->can('shortLinkManager:viewLinks')) {
+        if ($user->getIdentity() && $user->checkPermission('shortLinkManager:viewLinks')) {
             $allowedSiteIds = array_map(fn($s) => $s->id, ShortLinkManager::$plugin->getEnabledSites());
 
             $totalLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()
@@ -94,7 +94,7 @@ class ShortLinkManagerUtility extends Utility
         $qrScans = 0;
         $directClicks = 0;
 
-        if ($settings->enableAnalytics && $currentUser && $currentUser->can('shortLinkManager:viewAnalytics')) {
+        if ($settings->enableAnalytics && $user->getIdentity() && $user->checkPermission('shortLinkManager:viewAnalytics')) {
             $allowedSiteIds = array_map(fn($s) => $s->id, ShortLinkManager::$plugin->getEnabledSites());
             $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary('last7days', null, $allowedSiteIds);
             $totalClicks = $analyticsData['totalClicks'] ?? 0;
@@ -119,7 +119,7 @@ class ShortLinkManagerUtility extends Utility
         $qrCacheFiles = 0;
         $deviceCacheFiles = 0;
 
-        if ($currentUser && $currentUser->can('shortLinkManager:clearCache') && $settings->cacheStorageMethod === 'file') {
+        if ($user->getIdentity() && $user->checkPermission('shortLinkManager:clearCache') && $settings->cacheStorageMethod === 'file') {
             if ($settings->enableQrCodeCache) {
                 $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
                 if (is_dir($qrPath)) {
