@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.12.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.11.0...v5.12.0) (2026-02-07)
+
+
+### Features
+
+* **analytics:** add export format validation and enhance QR code generation permissions ([2289632](https://github.com/LindemannRock/craft-shortlink-manager/commit/22896325e3f738351136c49b2f36ddbfca99b834))
+* **analytics:** enhance analytics data handling and sanitization ([d605cd6](https://github.com/LindemannRock/craft-shortlink-manager/commit/d605cd6efafcd2de50a1403d62d5b69f38a4ecb1))
+* **analytics:** Enhance analytics functionality with user permissions and site filtering ([e1ca55b](https://github.com/LindemannRock/craft-shortlink-manager/commit/e1ca55b7e0388f8e9d582983729944bfe42f443c))
+
 ## [5.11.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.10.0...v5.11.0) (2026-02-05)
 
 
