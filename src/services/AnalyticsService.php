@@ -11,6 +11,7 @@ namespace lindemannrock\shortlinkmanager\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use craft\helpers\App;
 use craft\helpers\Db;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
@@ -1081,8 +1082,8 @@ class AnalyticsService extends Component
     private function getDefaultLocation(): ?array
     {
         $settings = ShortLinkManager::$plugin->getSettings();
-        $defaultCountry = $settings->defaultCountry ?: (getenv('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
-        $defaultCity = $settings->defaultCity ?: (getenv('SHORTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
+        $defaultCountry = $settings->defaultCountry ?: (App::env('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
+        $defaultCity = $settings->defaultCity ?: (App::env('SHORTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
 
         // Predefined locations for common cities worldwide
         $locations = [

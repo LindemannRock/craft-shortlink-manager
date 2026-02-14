@@ -84,6 +84,12 @@ class AnalyticsController extends Controller
         $request = Craft::$app->getRequest();
         $dateRange = $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $type = $request->getBodyParam('type', 'summary');
+
+        $validTypes = ['summary', 'clicks', 'devices', 'device-brands', 'os-breakdown', 'browsers', 'hourly'];
+        if (!in_array($type, $validTypes, true)) {
+            throw new \yii\web\BadRequestHttpException('Invalid data type.');
+        }
+
         $linkId = $request->getBodyParam('linkId');
         $siteId = $request->getBodyParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
@@ -120,12 +126,6 @@ class AnalyticsController extends Controller
                 case 'hourly':
                     $data = ShortLinkManager::$plugin->analytics->getHourlyAnalytics($linkId, $dateRange, $resolvedSiteId);
                     break;
-
-                default:
-                    return $this->asJson([
-                        'success' => false,
-                        'error' => 'Invalid data type requested',
-                    ]);
             }
 
             return $this->asJson([
