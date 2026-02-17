@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -85,7 +86,7 @@ class AnalyticsController extends Controller
         $dateRange = $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $type = $request->getBodyParam('type', 'summary');
 
-        $validTypes = ['summary', 'clicks', 'devices', 'device-brands', 'os-breakdown', 'browsers', 'hourly'];
+        $validTypes = ['summary', 'clicks', 'devices', 'device-brands', 'os-breakdown', 'browsers', 'hourly', 'top-countries', 'top-cities', 'recent-clicks'];
         if (!in_array($type, $validTypes, true)) {
             throw new \yii\web\BadRequestHttpException('Invalid data type.');
         }
@@ -126,6 +127,20 @@ class AnalyticsController extends Controller
                 case 'hourly':
                     $data = ShortLinkManager::$plugin->analytics->getHourlyAnalytics($linkId, $dateRange, $resolvedSiteId);
                     break;
+
+                case 'top-countries':
+                    $data = ShortLinkManager::$plugin->analytics->getTopCountries(null, $dateRange, 10, $resolvedSiteId);
+                    break;
+
+                case 'top-cities':
+                    $data = ShortLinkManager::$plugin->analytics->getTopCities(null, $dateRange, 15, $resolvedSiteId);
+                    break;
+
+                case 'recent-clicks':
+                    $data = $this->_formatRecentClicks(
+                        ShortLinkManager::$plugin->analytics->getAllRecentClicks($dateRange, 20, $resolvedSiteId)
+                    );
+                    break;
             }
 
             return $this->asJson([
@@ -153,14 +168,15 @@ class AnalyticsController extends Controller
      */
     public function actionExport(): Response
     {
+        $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:exportAnalytics');
 
         $request = Craft::$app->getRequest();
         // Accept both 'range' and 'dateRange' parameter names
-        $dateRange = $request->getQueryParam('range') ?? $request->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
-        $format = $request->getQueryParam('format', 'csv');
-        $linkId = $request->getQueryParam('linkId');
-        $siteId = $request->getQueryParam('siteId');
+        $dateRange = $request->getBodyParam('range') ?? $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
+        $format = $request->getBodyParam('format', 'csv');
+        $linkId = $request->getBodyParam('linkId');
+        $siteId = $request->getBodyParam('siteId');
         $siteId = $siteId ? (int)$siteId : null;
         $resolvedSiteId = $this->_resolveSiteId($siteId);
 
@@ -288,5 +304,61 @@ class AnalyticsController extends Controller
         }
 
         return $allowedSiteIds;
+    }
+
+    /**
+     * Format recent clicks for AJAX response
+     *
+     * Converts DateTime objects to formatted strings and resolves site names
+     * so the JS layer receives ready-to-render data.
+     *
+     * @param array $clicks
+     * @return array
+     */
+    private function _formatRecentClicks(array $clicks): array
+    {
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $geoEnabled = $settings->enableGeoDetection ?? true;
+
+        $formatted = [];
+        foreach ($clicks as $click) {
+            $date = $click['dateCreated'] ?? null;
+
+            $row = [
+                'dateFormatted' => $date instanceof \DateTime
+                    ? DateFormatHelper::formatDate($date, 'short', true, false)
+                    : null,
+                'timeFormatted' => $date instanceof \DateTime
+                    ? DateFormatHelper::formatTime($date, 'short', null, false)
+                    : null,
+                'linkId' => $click['linkId'] ?? null,
+                'linkCode' => $click['linkCode'] ?? null,
+                'siteName' => $click['siteName'] ?? '-',
+                'source' => $click['source'] ?? 'direct',
+                'destinationUrl' => $click['destinationUrl'] ?? null,
+                'deviceType' => $click['deviceType'] ?? null,
+                'browser' => $click['browser'] ?? null,
+                'osName' => $click['osName'] ?? null,
+            ];
+
+            if ($geoEnabled) {
+                $city = $click['city'] ?? null;
+                $country = $click['country'] ?? null;
+                if ($city && $country) {
+                    $row['location'] = $city . ', ' . $country;
+                } elseif ($country) {
+                    $row['location'] = $country;
+                } else {
+                    $row['location'] = null;
+                }
+            }
+
+            $formatted[] = $row;
+        }
+
+        return [
+            'clicks' => $formatted,
+            'geoEnabled' => $geoEnabled,
+        ];
     }
 }

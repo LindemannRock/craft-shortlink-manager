@@ -154,7 +154,7 @@ class AnalyticsQueryInsightsService
         $uniqueClicks = (int) (clone $query)->select('COUNT(DISTINCT ip)')->scalar();
 
         // Calculate average clicks per day
-        $daysCount = $this->getDaysCount($dateRange);
+        $daysCount = DateRangeHelper::getDaysCount($dateRange);
         $averageClicksPerDay = $daysCount > 0 ? round($totalClicks / $daysCount, 2) : 0;
 
         // Get device breakdown

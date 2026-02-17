@@ -273,9 +273,6 @@ class AnalyticsService extends Component
             'linksUsed' => $shortLinksWithClicks,
             'linksUsedPercentage' => $shortLinksUsedPercentage,
             'topLinks' => $this->getTopLinks(20, $dateRange, $siteId),
-            'topCountries' => $this->getTopCountries(null, $dateRange, 10, $siteId),
-            'topCities' => $this->getTopCities(null, $dateRange, 15, $siteId),
-            'recentClicks' => $this->getAllRecentClicks($dateRange, 20, $siteId),
         ];
     }
 
