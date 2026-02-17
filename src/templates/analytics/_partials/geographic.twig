@@ -1,4 +1,4 @@
-{# Geographic Tab - Countries and Cities #}
+{# Geographic Tab - Countries and Cities (loaded via AJAX) #}
 
 {% set settings = craft.app.plugins.getPlugin('shortlink-manager').settings %}
 
@@ -17,23 +17,12 @@
                             <th>{{ "Percentage"|t('shortlink-manager') }}</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% set topCountries = analyticsData.topCountries ?? [] %}
-                        {% if topCountries|length > 0 %}
-                            {% for country in topCountries %}
-                                <tr>
-                                    <td>{{ country.name }}</td>
-                                    <td>{{ country.clicks|number }}</td>
-                                    <td>{{ country.percentage }}%</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="3" class="light lr-text-center">
-                                    {{ "No country data available"|t('shortlink-manager') }}
-                                </td>
-                            </tr>
-                        {% endif %}
+                    <tbody id="top-countries-body">
+                        <tr>
+                            <td colspan="3" class="light lr-text-center">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -51,24 +40,12 @@
                             <th>{{ "Percentage"|t('shortlink-manager') }}</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% set topCities = analyticsData.topCities ?? [] %}
-                        {% if topCities|length > 0 %}
-                            {% for city in topCities %}
-                                <tr>
-                                    <td>{{ city.city }}</td>
-                                    <td>{{ city.countryName }}</td>
-                                    <td>{{ city.clicks|number }}</td>
-                                    <td>{{ city.percentage }}%</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="4" class="light lr-text-center">
-                                    {{ "No city data available"|t('shortlink-manager') }}
-                                </td>
-                            </tr>
-                        {% endif %}
+                    <tbody id="top-cities-body">
+                        <tr>
+                            <td colspan="4" class="light lr-text-center">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

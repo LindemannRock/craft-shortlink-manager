@@ -83,8 +83,15 @@
     noOs: "No OS data available for the selected filters."|t('shortlink-manager'),
     noBrowser: "No browser data available for the selected filters."|t('shortlink-manager'),
     noHourly: "No hourly data available for the selected filters."|t('shortlink-manager'),
+    noCountry: "No country data available"|t('shortlink-manager'),
+    noCity: "No city data available"|t('shortlink-manager'),
+    noRecentClicks: "No interactions recorded yet"|t('shortlink-manager'),
     interactionsLabel: "Interactions"|t('shortlink-manager'),
     peakUsageAt: "Peak usage at"|t('shortlink-manager'),
+    sourceQr: "QR"|t('shortlink-manager'),
+    sourceDirect: "Direct"|t('shortlink-manager'),
+    shortlinksEditUrl: cpUrl('shortlink-manager/shortlinks'),
+    geoEnabled: settings.enableGeoDetection ?? false,
 } %}
 
 {% set shortlinkAnalyticsConfig = {

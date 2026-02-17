@@ -109,58 +109,12 @@
                         {% endif %}
                     </tr>
                 </thead>
-                <tbody>
-                    {% for click in analyticsData.recentClicks ?? [] %}
-                        <tr>
-                            <td>{{ click.dateCreated|lrDate('short') }}</td>
-                            <td>{{ click.dateCreated|lrTime('short') }}</td>
-                            <td>
-                                <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ click.linkId) }}"><code>{{ click.linkCode }}</code></a>
-                            </td>
-                            <td>
-                                {% if click.siteId %}
-                                    {% set site = craft.app.sites.getSiteById(click.siteId) %}
-                                    {{ site ? site.name : '—' }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if click.source == 'qr' %}
-                                    {{ "QR"|t('shortlink-manager') }}
-                                {% else %}
-                                    {{ "Direct"|t('shortlink-manager') }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if click.destinationUrl %}
-                                    <span title="{{ click.destinationUrl }}">
-                                        {{ click.destinationUrl|length > 30 ? click.destinationUrl|slice(0, 30) ~ '...' : click.destinationUrl }}
-                                    </span>
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            <td>{{ click.deviceType ? click.deviceType|capitalize : '—' }}</td>
-                            <td>{{ click.browser ?? '—' }}</td>
-                            <td>{{ click.osName ?? '—' }}</td>
-                            {% if craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection %}
-                                <td>
-                                    {% if click.city and click.country %}
-                                        {{ click.city }}, {{ click.country }}
-                                    {% elseif click.country %}
-                                        {{ click.country }}
-                                    {% else %}
-                                        —
-                                    {% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light lr-text-center">{{ "No interactions recorded yet"|t('shortlink-manager') }}</td>
-                        </tr>
-                    {% endfor %}
+                <tbody id="recent-clicks-body">
+                    <tr>
+                        <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light lr-text-center">
+                            <div class="spinner"></div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
