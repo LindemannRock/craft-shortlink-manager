@@ -306,8 +306,8 @@
                 var sourceLabel = c.source === 'qr' ? (strings.sourceQr || 'QR') : (strings.sourceDirect || 'Direct');
 
                 html += '<tr>';
-                html += '<td>' + esc(c.dateFormatted || '\u2014') + '</td>';
-                html += '<td>' + esc(c.timeFormatted || '\u2014') + '</td>';
+                html += '<td style="white-space:nowrap">' + esc(c.dateFormatted || '\u2014') + '</td>';
+                html += '<td style="white-space:nowrap">' + esc(c.timeFormatted || '\u2014') + '</td>';
                 html += '<td>';
                 if (c.linkId && editUrl) {
                     html += '<a href="' + esc(editUrl + '/' + c.linkId) + '"><code>' + esc(c.linkCode || '') + '</code></a>';
@@ -328,7 +328,7 @@
                 html += '<td>' + esc(c.browser || '\u2014') + '</td>';
                 html += '<td>' + esc(c.osName || '\u2014') + '</td>';
                 if (geoEnabled) {
-                    html += '<td>' + esc(c.location || '\u2014') + '</td>';
+                    html += '<td style="white-space:nowrap">' + esc(c.location || '\u2014') + '</td>';
                 }
                 html += '</tr>';
             }
