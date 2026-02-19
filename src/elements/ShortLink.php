@@ -118,6 +118,12 @@ class ShortLink extends Element
     public ?bool $passQueryParams = null;
 
     /**
+     * @var bool|null Direct HTTP redirect without template render (null = use global setting)
+     * @since 5.12.0
+     */
+    public ?bool $directRedirect = null;
+
+    /**
      * @var int Total hits/clicks
      */
     public int $hits = 0;
@@ -558,6 +564,7 @@ class ShortLink extends Element
             'httpCode',
             'trackAnalytics',
             'passQueryParams',
+            'directRedirect',
             'qrCodeEnabled',
             'qrCodeSize',
             'qrCodeColor',
@@ -589,6 +596,7 @@ class ShortLink extends Element
             'httpCode' => 301,
             'trackAnalytics' => true,
             'passQueryParams' => null,
+            'directRedirect' => null,
             'hits' => 0,
             'qrCodeEnabled' => true,
             'qrCodeSize' => 256,
@@ -622,6 +630,7 @@ class ShortLink extends Element
             'httpCode',
             'trackAnalytics',
             'passQueryParams',
+            'directRedirect',
             'qrCodeEnabled',
             'qrCodeSize',
             'qrCodeColor',
@@ -1033,7 +1042,7 @@ class ShortLink extends Element
         }];
 
         $rules[] = [['httpCode'], 'in', 'range' => [301, 302, 307, 308]];
-        $rules[] = [['trackAnalytics', 'passQueryParams', 'qrCodeEnabled'], 'boolean'];
+        $rules[] = [['trackAnalytics', 'passQueryParams', 'directRedirect', 'qrCodeEnabled'], 'boolean'];
         $rules[] = [['qrCodeSize'], 'integer', 'min' => 100, 'max' => 1000];
         $rules[] = [['qrCodeColor', 'qrCodeBgColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i'];
         $rules[] = [['qrCodeEyeColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i', 'when' => function($model) {
@@ -1266,6 +1275,7 @@ class ShortLink extends Element
             $record->httpCode = $this->httpCode;
             $record->trackAnalytics = $this->trackAnalytics;
             $record->passQueryParams = $this->passQueryParams;
+            $record->directRedirect = $this->directRedirect;
             $record->hits = $this->hits;
             $record->qrCodeEnabled = $this->qrCodeEnabled;
             $record->qrCodeSize = $this->qrCodeSize;

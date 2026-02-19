@@ -171,9 +171,15 @@ class RedirectController extends Controller
         // Increment hit counter
         ShortLinkManager::$plugin->shortLinks->incrementHits($shortLink);
 
+        // Check if direct redirect is enabled (per-link override or global setting)
+        $shouldDirectRedirect = $shortLink->directRedirect ?? $settings->directRedirect;
+
+        if ($shouldDirectRedirect) {
+            return $this->redirect($this->_sanitizeUrl($destinationUrl), $shortLink->httpCode ?? 301);
+        }
+
         // Render redirect template instead of direct redirect
         // This allows for SEOmatic client-side tracking before redirect
-        $settings = ShortLinkManager::$plugin->getSettings();
         $template = $settings->redirectTemplate ?: 'shortlink-manager/redirect';
 
         // Determine event type for template

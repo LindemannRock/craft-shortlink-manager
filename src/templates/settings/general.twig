@@ -192,6 +192,12 @@
                 "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
 
+        {% if settings.directRedirect %}
+            <p class="light" style="margin-top: -10px; margin-bottom: 14px;">
+                {{ "Note: This template is not used when Direct Redirect is enabled (Settings → Behavior). Links using direct redirect skip the template entirely."|t('shortlink-manager') }}
+            </p>
+        {% endif %}
+
 		{{ forms.textField({
             label: "Expired Template"|t('shortlink-manager'),
             instructions: "Template path in your templates/ folder. Leave empty to use the default path."|t('shortlink-manager'),

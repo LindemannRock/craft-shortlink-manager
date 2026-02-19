@@ -28,6 +28,7 @@ use craft\db\ActiveRecord;
  * @property int $httpCode
  * @property bool $trackAnalytics
  * @property bool|null $passQueryParams
+ * @property bool|null $directRedirect
  * @property int $hits
  * @property bool $qrCodeEnabled
  * @property int $qrCodeSize

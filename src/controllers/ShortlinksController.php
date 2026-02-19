@@ -303,6 +303,12 @@ class ShortlinksController extends Controller
             $shortLink->passQueryParams = (bool) $passQueryParams;
         }
 
+        // Handle directRedirect - only set if explicitly provided (preserves existing value for API callers)
+        $directRedirect = $this->request->getBodyParam('directRedirect');
+        if ($directRedirect !== null) {
+            $shortLink->directRedirect = (bool) $directRedirect;
+        }
+
         // QR Code settings
         $shortLink->qrCodeEnabled = (bool) $this->request->getBodyParam('qrCodeEnabled', true);
         $shortLink->qrCodeSize = (int) $this->request->getBodyParam('qrCodeSize', 256);

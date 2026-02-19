@@ -276,6 +276,16 @@
             }) }}
         {% endif %}
 
+        {% if plugin.settings.directRedirect %}
+            {{ forms.lightswitchField({
+                label: "Direct Redirect"|t('shortlink-manager'),
+                instructions: "Server-side redirect without rendering a template."|t('shortlink-manager'),
+                id: 'directRedirect',
+                name: 'directRedirect',
+                on: shortLink.directRedirect ?? true,
+            }) }}
+        {% endif %}
+
         {% if plugin.settings.enableAnalytics %}
             {{ forms.lightswitchField({
                 label: "Track Analytics"|t('shortlink-manager'),

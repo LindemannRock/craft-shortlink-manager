@@ -22,12 +22,12 @@
 <fieldset>
 	<legend class="h6">{{ "{pluginName} Status"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
 	<div class="meta">
+		{% set status = shortLink.getStatus() %}
 		<div class="field">
 			<div class="heading">
 				<label>{{ "Status"|t('app') }}</label>
 			</div>
 			<div class="input">
-				{% set status = shortLink.getStatus() %}
 				{% if status == 'enabled' %}
 					<span class="status live"></span>
 					<span>{{ 'Enabled'|t('app') }}</span>
@@ -44,13 +44,64 @@
 			</div>
 		</div>
 
-		{% if plugin.settings.enableAnalytics %}
+		{% if status != 'disabled' %}
+			{% if plugin.settings.passQueryParams %}
+				<div class="field">
+					<div class="heading">
+						<label>{{ "Query Params"|t('shortlink-manager') }}</label>
+					</div>
+					<div class="input">
+						{% if shortLink.passQueryParams ?? true %}
+							<span class="status live"></span>
+							<span>{{ 'Enabled'|t('app') }}</span>
+						{% else %}
+							<span class="status disabled"></span>
+							<span>{{ 'Disabled'|t('app') }}</span>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+
+			{% if plugin.settings.directRedirect %}
+				<div class="field">
+					<div class="heading">
+						<label>{{ "Direct Redirect"|t('shortlink-manager') }}</label>
+					</div>
+					<div class="input">
+						{% if shortLink.directRedirect ?? true %}
+							<span class="status live"></span>
+							<span>{{ 'Enabled'|t('app') }}</span>
+						{% else %}
+							<span class="status disabled"></span>
+							<span>{{ 'Disabled'|t('app') }}</span>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+
+			{% if plugin.settings.enableAnalytics %}
+				<div class="field">
+					<div class="heading">
+						<label>{{ "Analytics"|t('shortlink-manager') }}</label>
+					</div>
+					<div class="input">
+						{% if shortLink.trackAnalytics %}
+							<span class="status live"></span>
+							<span>{{ 'Enabled'|t('app') }}</span>
+						{% else %}
+							<span class="status disabled"></span>
+							<span>{{ 'Disabled'|t('app') }}</span>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+
 			<div class="field">
 				<div class="heading">
-					<label>{{ "Analytics"|t('shortlink-manager') }}</label>
+					<label>{{ "QR Code"|t('shortlink-manager') }}</label>
 				</div>
 				<div class="input">
-					{% if shortLink.trackAnalytics %}
+					{% if shortLink.qrCodeEnabled %}
 						<span class="status live"></span>
 						<span>{{ 'Enabled'|t('app') }}</span>
 					{% else %}
@@ -60,21 +111,6 @@
 				</div>
 			</div>
 		{% endif %}
-
-		<div class="field">
-			<div class="heading">
-				<label>{{ "QR Code"|t('shortlink-manager') }}</label>
-			</div>
-			<div class="input">
-				{% if shortLink.qrCodeEnabled %}
-					<span class="status live"></span>
-					<span>{{ 'Enabled'|t('app') }}</span>
-				{% else %}
-					<span class="status disabled"></span>
-					<span>{{ 'Disabled'|t('app') }}</span>
-				{% endif %}
-			</div>
-		</div>
 
 		<div class="field">
 			<div class="heading">

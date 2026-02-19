@@ -79,6 +79,17 @@
         {{ "Example: <code>{prefix}/abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: settings.slugPrefix})|raw }}
     </p>
 
+    {{ forms.lightswitchField({
+        label: "Direct Redirect"|t('shortlink-manager'),
+        id: 'directRedirect',
+        name: 'settings[directRedirect]',
+        on: settings.directRedirect,
+        instructions: "Perform a server-side redirect without rendering a template. Analytics and hit counting are unaffected. Disables SEOmatic client-side tracking (GTM/GA events)."|t('shortlink-manager'),
+        disabled: settings.isOverriddenByConfig('directRedirect'),
+        warning: settings.isOverriddenByConfig('directRedirect') ?
+            "This is being overridden by the <code>directRedirect</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+    }) }}
+
 		{{ forms.textField({
         label: "Default 404 Redirect URL"|t('shortlink-manager'),
         id: 'notFoundRedirectUrl',

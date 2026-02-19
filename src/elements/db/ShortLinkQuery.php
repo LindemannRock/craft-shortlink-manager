@@ -224,6 +224,7 @@ class ShortLinkQuery extends ElementQuery
             'shortlinkmanager.httpCode',
             'shortlinkmanager.trackAnalytics',
             'shortlinkmanager.passQueryParams',
+            'shortlinkmanager.directRedirect',
             'shortlinkmanager.hits',
             'shortlinkmanager.qrCodeEnabled',
             'shortlinkmanager.qrCodeSize',

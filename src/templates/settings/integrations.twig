@@ -89,6 +89,15 @@
 
             {% if seomaticAvailable %}
                 <div id="seomatic-settings" class="{{ not seomaticIntegrationEnabled ? 'hidden' }}" style="padding: 20px; border-top: 1px solid #e3e5e8;">
+                    {% if settings.directRedirect %}
+                        {% include 'lindemannrock-base/_components/info-box' with {
+                            type: 'warning',
+                            variant: 'colored',
+                            margin: 'bottom',
+                            message: "Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href=\"{url}\" class=\"go\">Behavior Settings</a>"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, url: url('shortlink-manager/settings/behavior')})
+                        } %}
+                    {% endif %}
+
                     {% if settings.isOverriddenByConfig('enabledIntegrations') %}
                         <p class="warning" style="margin-bottom: 20px;">
                             {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}

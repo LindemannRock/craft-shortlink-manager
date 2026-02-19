@@ -42,6 +42,7 @@ class Install extends Migration
                 'httpCode' => $this->integer()->notNull()->defaultValue(301),
                 'trackAnalytics' => $this->boolean()->notNull()->defaultValue(true),
                 'passQueryParams' => $this->boolean()->null()->comment('Pass query params to destination (null = use global setting)'),
+                'directRedirect' => $this->boolean()->null()->comment('Direct HTTP redirect, skip template (null = use global setting)'),
                 'hits' => $this->integer()->notNull()->defaultValue(0),
                 // QR Code settings (per-link)
                 'qrCodeEnabled' => $this->boolean()->notNull()->defaultValue(true),
@@ -201,6 +202,7 @@ class Install extends Migration
                 // Redirect/Behavior settings
                 'defaultHttpCode' => $this->integer()->notNull()->defaultValue(301),
                 'passQueryParams' => $this->boolean()->notNull()->defaultValue(false)->comment('Pass query params from shortlink URL to destination'),
+                'directRedirect' => $this->boolean()->notNull()->defaultValue(false)->comment('Direct HTTP redirect without template render'),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
                 'expiredMessage' => $this->text()->null(),
                 // Interface settings

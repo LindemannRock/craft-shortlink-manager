@@ -161,6 +161,12 @@ class Settings extends Model
     public bool $passQueryParams = false;
 
     /**
+     * @var bool Perform a direct server-side HTTP redirect without rendering a template
+     * @since 5.12.0
+     */
+    public bool $directRedirect = false;
+
+    /**
      * @var string URL to redirect to when a short link is not found
      */
     public string $notFoundRedirectUrl = '/';
@@ -305,6 +311,7 @@ class Settings extends Model
             'anonymizeIpAddress',
             'cacheDeviceDetection',
             'passQueryParams',
+            'directRedirect',
         ];
     }
 
@@ -401,7 +408,7 @@ class Settings extends Model
             [['slugPrefix'], 'validateSlugPrefix'],
             [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
             [['qrPrefix'], 'validateQrPrefix'],
-            [['enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrLogo', 'enableQrDownload', 'passQueryParams'], 'boolean'],
+            [['enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrLogo', 'enableQrDownload', 'passQueryParams', 'directRedirect'], 'boolean'],
             [['enabledSites', 'enabledIntegrations', 'redirectManagerEvents', 'seomaticTrackingEvents'], 'safe'],
             [['enabledSites'], 'each', 'rule' => ['integer']],
             [['seomaticTrackingEvents'], 'each', 'rule' => ['string']],
