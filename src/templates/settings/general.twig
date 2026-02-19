@@ -174,14 +174,19 @@
 
 		<h2>{{ "Template Settings"|t('shortlink-manager') }}</h2>
 
+		{% include 'lindemannrock-base/_components/info-box' with {
+			type: 'info',
+			message: "These templates must exist in your site's <code>templates/</code> folder. Copy the reference templates from <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/</code> to <code>templates/shortlink-manager/</code> and customize as needed."|t('shortlink-manager')
+		} %}
+
 		{{ forms.textField({
             label: "Redirect Template"|t('shortlink-manager'),
-            instructions: "Path to your Redirect template in your templates/ folder (e.g., shortlink-manager/redirect)"|t('shortlink-manager'),
+            instructions: "Template path in your templates/ folder. Leave empty to use the default path."|t('shortlink-manager'),
             id: 'redirectTemplate',
             name: 'settings[redirectTemplate]',
             value: settings.redirectTemplate ?? '',
             placeholder: 'shortlink-manager/redirect',
-            tip: "Copy reference template from <code>plugins/shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code>"|t('shortlink-manager')|raw,
+            tip: "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code>"|t('shortlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('redirectTemplate'),
             warning: settings.isOverriddenByConfig('redirectTemplate') ?
                 "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -189,12 +194,12 @@
 
 		{{ forms.textField({
             label: "Expired Template"|t('shortlink-manager'),
-            instructions: "Path to your Expired template in your templates/ folder (e.g., shortlink-manager/expired)"|t('shortlink-manager'),
+            instructions: "Template path in your templates/ folder. Leave empty to use the default path."|t('shortlink-manager'),
             id: 'expiredTemplate',
             name: 'settings[expiredTemplate]',
             value: settings.expiredTemplate ?? '',
             placeholder: 'shortlink-manager/expired',
-            tip: "Copy reference template from <code>plugins/shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code>"|t('shortlink-manager')|raw,
+            tip: "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code>"|t('shortlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('expiredTemplate'),
             warning: settings.isOverriddenByConfig('expiredTemplate') ?
                 "This is being overridden by the <code>expiredTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -202,12 +207,12 @@
 
 		{{ forms.textField({
             label: "QR Code Template"|t('shortlink-manager'),
-            instructions: "Path to your QR Code template in your templates/ folder (e.g., shortlink-manager/qr)"|t('shortlink-manager'),
+            instructions: "Template path in your templates/ folder. Leave empty to use the default path."|t('shortlink-manager'),
             id: 'qrTemplate',
             name: 'settings[qrTemplate]',
             value: settings.qrTemplate ?? '',
             placeholder: 'shortlink-manager/qr',
-            tip: "Copy reference template from <code>plugins/shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code>"|t('shortlink-manager')|raw,
+            tip: "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code>"|t('shortlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('qrTemplate'),
             warning: settings.isOverriddenByConfig('qrTemplate') ?
                 "This is being overridden by the <code>qrTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,

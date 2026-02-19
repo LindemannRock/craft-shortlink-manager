@@ -42,9 +42,13 @@ return [
         'reservedCodes' => ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'],
 
         // Template Settings
-        'redirectTemplate' => null,    // Custom redirect template path (e.g., 'custom/redirect')
-        'expiredTemplate' => null,     // Custom expired page template path (e.g., 'shortlink-manager/expired')
-        'qrTemplate' => null,          // Custom QR code template path (e.g., 'shortlink-manager/qr')
+        // These templates MUST exist in your site's templates/ folder.
+        // Copy from: vendor/lindemannrock/craft-shortlink-manager/src/templates/{name}.twig
+        //       to:  templates/shortlink-manager/{name}.twig
+        // Then customize as needed. Leaving null uses the default path 'shortlink-manager/{name}'.
+        'redirectTemplate' => null,    // Default path: shortlink-manager/redirect
+        'expiredTemplate' => null,     // Default path: shortlink-manager/expired
+        'qrTemplate' => null,          // Default path: shortlink-manager/qr
         'expiredMessage' => 'This link has expired',
 
         // Logging Settings
