@@ -1,5 +1,26 @@
 # Changelog
 
+## [5.13.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.12.0...v5.13.0) (2026-02-20)
+
+
+### Features
+
+* **analytics:** add new analytics types and format recent clicks ([b57d1b8](https://github.com/LindemannRock/craft-shortlink-manager/commit/b57d1b81615bec287f74562aaac5c6818e338354))
+* **shortlink:** add directRedirect setting for server-side redirects ([91eb418](https://github.com/LindemannRock/craft-shortlink-manager/commit/91eb4187e3f6f6f0662139738b4b314e3ad29557))
+* **shortlink:** add site-aware shortlink routes and base URL settings ([34c3c0f](https://github.com/LindemannRock/craft-shortlink-manager/commit/34c3c0fd67d104319131ea63c30f345193706f79))
+
+
+### Bug Fixes
+
+* validate analytics type parameter and replace getenv() ([722d1ea](https://github.com/LindemannRock/craft-shortlink-manager/commit/722d1eade54b9567e181016adef2b5879a66deb0))
+
+
+### Miscellaneous Chores
+
+* **.gitignore:** clean up ignored files and add internal directory ([ec51c42](https://github.com/LindemannRock/craft-shortlink-manager/commit/ec51c422b49f8e4f1f00a53fdea54039dfa329b5))
+* add .gitattributes with export-ignore for Packagist distribution ([fc993cd](https://github.com/LindemannRock/craft-shortlink-manager/commit/fc993cdfc60ddaf773331feb46a1914fce77dcb6))
+* switch to Craft License for commercial release ([0f8f8e5](https://github.com/LindemannRock/craft-shortlink-manager/commit/0f8f8e587071ca55427888c2f79085dd1be2b9cc))
+
 ## [5.12.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.11.0...v5.12.0) (2026-02-07)
 
 
