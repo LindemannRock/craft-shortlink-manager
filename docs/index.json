@@ -1,0 +1,7 @@
+{
+    "plugin": {
+        "name": "ShortLink Manager",
+        "handle": "shortlink-manager",
+        "description": "Advanced shortlink management with QR codes and analytics for Craft CMS."
+    }
+}
