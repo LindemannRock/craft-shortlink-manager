@@ -9,6 +9,7 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
+use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -44,28 +45,34 @@ class RedirectController extends Controller
      * Handle shortlink redirect
      *
      * @param string|null $code
+     * @param string|null $siteHandle
      * @return Response
      * @since 5.0.0
      */
-    public function actionIndex(?string $code = null): Response
+    public function actionIndex(?string $code = null, ?string $siteHandle = null): Response
     {
-        $this->logDebug('Shortlink redirect requested', ['code' => $code]);
+        $this->logDebug('Shortlink redirect requested', ['code' => $code, 'siteHandle' => $siteHandle]);
 
         if (!$code) {
             $this->logWarning('Shortlink code missing');
             return $this->redirectToNotFound();
         }
 
+        $site = $this->resolveSite($siteHandle);
+        if (!$site) {
+            $this->logWarning('Invalid site handle for shortlink request', ['code' => $code, 'siteHandle' => $siteHandle]);
+            return $this->redirectToNotFound();
+        }
+
         // Check if ShortLink Manager is enabled for the current site
-        $currentSite = Craft::$app->getSites()->getCurrentSite();
         $settings = ShortLinkManager::$plugin->getSettings();
-        if (!$settings->isSiteEnabled($currentSite->id)) {
-            $this->logInfo('ShortLink Manager disabled for this site', ['siteId' => $currentSite->id, 'code' => $code]);
+        if (!$settings->isSiteEnabled($site->id)) {
+            $this->logInfo('ShortLink Manager disabled for this site', ['siteId' => $site->id, 'code' => $code]);
             return $this->redirectToNotFound();
         }
 
         // Get the shortlink
-        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code);
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
         if (!$shortLink) {
             $this->logWarning('Shortlink not found', ['code' => $code]);
@@ -192,6 +199,18 @@ class RedirectController extends Controller
             'deviceInfo' => $deviceInfo,
             'eventType' => $eventType,
         ]);
+    }
+
+    /**
+     * Resolve request site from route handle (if provided), otherwise use current site.
+     */
+    private function resolveSite(?string $siteHandle): ?Site
+    {
+        if ($siteHandle) {
+            return Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        }
+
+        return Craft::$app->getSites()->getCurrentSite();
     }
 
     /**

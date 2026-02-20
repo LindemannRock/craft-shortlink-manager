@@ -18,7 +18,6 @@ use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
-use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -749,8 +748,8 @@ class ShortLink extends Element
     /**
      * Get the shortlink URL
      *
-     * Uses the site's base URL for the shortlink. To use a custom short domain,
-     * create a dedicated site in Craft with that domain as its base URL.
+     * Uses configured shortlink base URL overrides when set, otherwise falls back
+     * to the element site's base URL.
      *
      * @since 5.0.0
      */
@@ -759,7 +758,7 @@ class ShortLink extends Element
         $settings = ShortLinkManager::$plugin->getSettings();
         $slugPrefix = $settings->slugPrefix;
 
-        return UrlHelper::siteUrl($slugPrefix . '/' . $this->slug, null, null, $this->siteId);
+        return $settings->buildPublicUrl($slugPrefix . '/' . $this->slug, $this->siteId);
     }
 
     /**
@@ -923,7 +922,7 @@ class ShortLink extends Element
         // Get the QR prefix from settings
         $qrPrefix = $settings->qrPrefix ?? 'qr';
 
-        return \craft\helpers\UrlHelper::siteUrl("{$qrPrefix}/{$this->code}", $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$this->code}", $this->siteId, $params);
     }
 
     /**
@@ -952,7 +951,7 @@ class ShortLink extends Element
         // Get the QR prefix from settings
         $qrPrefix = $settings->qrPrefix ?? 'qr';
 
-        return \craft\helpers\UrlHelper::siteUrl("{$qrPrefix}/{$this->code}/view", $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$this->code}/view", $this->siteId, $params);
     }
 
     /**

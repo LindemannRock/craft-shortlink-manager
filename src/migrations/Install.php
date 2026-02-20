@@ -161,6 +161,8 @@ class Install extends Migration
                 // Site settings
                 'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // URL settings
+                'shortlinkBaseUrl' => $this->string(500)->null()->comment('Optional absolute base URL override for generated shortlinks'),
+                'shortlinkBaseUrlPattern' => $this->string(500)->null()->comment('Optional absolute pattern with site tokens ({siteHandle}, {siteId}, {siteUid})'),
                 'slugPrefix' => $this->string(50)->notNull()->defaultValue('s'),
                 'qrPrefix' => $this->string(50)->notNull()->defaultValue('s/qr')->comment('URL prefix for QR code pages (e.g., "s/qr" or "qr")'),
                 'codeLength' => $this->integer()->notNull()->defaultValue(8),

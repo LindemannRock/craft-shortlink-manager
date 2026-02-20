@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\helpers\App;
+use craft\helpers\UrlHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\traits\SettingsConfigTrait;
 use lindemannrock\base\traits\SettingsDisplayNameTrait;
@@ -49,6 +50,19 @@ class Settings extends Model
      * @var string URL prefix for generated short links (e.g., /s/abc123)
      */
     public string $slugPrefix = 's';
+
+    /**
+     * @var string|null Optional absolute base URL for generated short links and QR URLs
+     * (e.g., https://short.example.com). Empty = use site base URL.
+     */
+    public ?string $shortlinkBaseUrl = null;
+
+    /**
+     * @var string|null Optional absolute base URL pattern with site tokens.
+     * Supported tokens: {siteHandle}, {siteId}, {siteUid}
+     * Example: https://short.example.com/{siteHandle}
+     */
+    public ?string $shortlinkBaseUrlPattern = null;
 
     /**
      * @var int Length of generated short codes
@@ -366,8 +380,12 @@ class Settings extends Model
                 'class' => EnvAttributeParserBehavior::class,
                 'attributes' => [
                     'notFoundRedirectUrl',
-                    'expiredMessage',
                     'ipHashSalt',
+                    'shortlinkBaseUrl',
+                    'shortlinkBaseUrlPattern',
+                    'redirectTemplate',
+                    'expiredTemplate',
+                    'qrTemplate',
                 ],
             ],
         ];
@@ -404,6 +422,9 @@ class Settings extends Model
             [['pluginName', 'slugPrefix', 'qrPrefix'], 'required'],
             [['pluginName'], 'string', 'max' => 255],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
+            [['shortlinkBaseUrl', 'shortlinkBaseUrlPattern'], 'string', 'max' => 500],
+            [['shortlinkBaseUrl'], 'url', 'defaultScheme' => 'https', 'skipOnEmpty' => true],
+            [['shortlinkBaseUrlPattern'], 'validateShortlinkBaseUrlPattern'],
             [['slugPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, and underscores are allowed.')],
             [['slugPrefix'], 'validateSlugPrefix'],
             [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
@@ -414,7 +435,7 @@ class Settings extends Model
             [['seomaticTrackingEvents'], 'each', 'rule' => ['string']],
             [['seomaticEventPrefix'], 'string', 'max' => 50],
             [['seomaticEventPrefix'], 'match', 'pattern' => '/^[a-z0-9\_]+$/', 'message' => Craft::t('shortlink-manager', 'Only lowercase letters, numbers, and underscores are allowed.')],
-            [['redirectTemplate', 'qrTemplate'], 'string', 'max' => 500],
+            [['redirectTemplate', 'expiredTemplate', 'qrTemplate'], 'string', 'max' => 500],
             [['codeLength', 'defaultQrSize', 'qrCodeCacheDuration', 'defaultQrMargin', 'qrLogoSize', 'defaultHttpCode', 'analyticsRetention', 'itemsPerPage'], 'integer'],
             [['itemsPerPage'], 'integer', 'min' => 10, 'max' => 500],
             [['codeLength'], 'integer', 'min' => 4, 'max' => 32],
@@ -641,6 +662,76 @@ class Settings extends Model
     }
 
     /**
+     * Validate shortlink base URL pattern format.
+     *
+     * @since 5.13.0
+     */
+    public function validateShortlinkBaseUrlPattern(string $attribute, mixed $params, mixed $validator): void
+    {
+        $pattern = trim((string) App::parseEnv($this->$attribute));
+        if ($pattern === '') {
+            return;
+        }
+
+        if (!preg_match('/^https?:\/\//i', $pattern)) {
+            $this->addError($attribute, Craft::t('shortlink-manager', 'Shortlink base URL pattern must start with http:// or https://'));
+            return;
+        }
+
+        if (strpos($pattern, '{') !== false && !preg_match('/\{siteHandle\}|\{siteId\}|\{siteUid\}/', $pattern)) {
+            $this->addError($attribute, Craft::t('shortlink-manager', 'Unsupported token in shortlink base URL pattern. Supported tokens: {siteHandle}, {siteId}, {siteUid}.'));
+        }
+    }
+
+    /**
+     * Build a public shortlink URL with optional base URL overrides.
+     *
+     * @param string $path Relative path (without leading slash preferred)
+     * @param int|null $siteId Site ID for token expansion and site fallback URLs
+     * @param array $params Query parameters
+     * @return string
+     * @since 5.13.0
+     */
+    public function buildPublicUrl(string $path, ?int $siteId = null, array $params = []): string
+    {
+        $relativePath = ltrim($path, '/');
+        $siteId = $siteId ?: Craft::$app->getSites()->getCurrentSite()->id;
+
+        $pattern = trim((string) App::parseEnv($this->shortlinkBaseUrlPattern ?? ''));
+        if ($pattern !== '') {
+            $base = $this->expandShortlinkBasePattern($pattern, $siteId);
+            if ($base !== '') {
+                return UrlHelper::urlWithParams(rtrim($base, '/') . '/' . $relativePath, $params);
+            }
+        }
+
+        $baseUrl = trim((string) App::parseEnv($this->shortlinkBaseUrl ?? ''));
+        if ($baseUrl !== '') {
+            return UrlHelper::urlWithParams(rtrim($baseUrl, '/') . '/' . $relativePath, $params);
+        }
+
+        return UrlHelper::siteUrl($relativePath, $params, null, $siteId);
+    }
+
+    /**
+     * Expand supported site tokens in shortlink base pattern.
+     *
+     * @since 5.13.0
+     */
+    private function expandShortlinkBasePattern(string $pattern, int $siteId): string
+    {
+        $site = Craft::$app->getSites()->getSiteById($siteId);
+        if (!$site) {
+            return $pattern;
+        }
+
+        return strtr($pattern, [
+            '{siteHandle}' => $site->handle,
+            '{siteId}' => (string) $site->id,
+            '{siteUid}' => $site->uid,
+        ]);
+    }
+
     /**
      * Check if a site is enabled for ShortLink Manager
      *
@@ -688,6 +779,8 @@ class Settings extends Model
             'pluginName' => Craft::t('shortlink-manager', 'Plugin Name'),
             'enabledSites' => Craft::t('shortlink-manager', 'Enabled Sites'),
             'slugPrefix' => Craft::t('shortlink-manager', 'Slug Prefix'),
+            'shortlinkBaseUrl' => Craft::t('shortlink-manager', 'Shortlink Base URL'),
+            'shortlinkBaseUrlPattern' => Craft::t('shortlink-manager', 'Shortlink Base URL Pattern'),
             'codeLength' => Craft::t('shortlink-manager', 'Code Length'),
             'reservedCodes' => Craft::t('shortlink-manager', 'Reserved Codes'),
             'defaultQrSize' => Craft::t('shortlink-manager', 'Default QR Code Size'),

@@ -37,6 +37,8 @@ return [
 
         // URL Settings
         'slugPrefix' => 's',           // URL prefix for shortlinks (e.g., 's' creates /s/ABC123)
+        'shortlinkBaseUrl' => null,    // Optional absolute base URL override for generated shortlinks (e.g., 'https://short.example.com')
+        'shortlinkBaseUrlPattern' => null, // Optional absolute pattern with tokens {siteHandle}, {siteId}, {siteUid} (e.g., 'https://short.example.com/{siteHandle}')
         'qrPrefix' => 's/qr',          // URL prefix for QR code pages (e.g., 's/qr' or 'qr')
         'codeLength' => 8,             // Length of generated shortlink codes
         'reservedCodes' => ['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings'],

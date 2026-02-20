@@ -90,12 +90,14 @@
             "This is being overridden by the <code>directRedirect</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
     }) }}
 
-		{{ forms.textField({
+		{{ forms.autosuggestField({
         label: "Default 404 Redirect URL"|t('shortlink-manager'),
         id: 'notFoundRedirectUrl',
         name: 'settings[notFoundRedirectUrl]',
         value: settings.notFoundRedirectUrl,
         instructions: "Where to redirect when a {pluginName} is not found"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+        suggestEnvVars: true,
+        tip: 'This can begin with an environment variable. <a href="https://craftcms.com/docs/5.x/configure.html#env" target="_blank" rel="noopener">Learn more</a>'|t('base')|raw,
         disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),
         warning: settings.isOverriddenByConfig('notFoundRedirectUrl') ?
             "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,

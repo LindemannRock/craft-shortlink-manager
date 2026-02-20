@@ -488,6 +488,13 @@ class ShortLinkManager extends Plugin
         $settings = $this->getSettings();
         $slugPrefix = $settings->slugPrefix;
         $qrPrefix = $settings->qrPrefix ?? 'qr';
+        $siteHandles = array_map(
+            static fn($site) => preg_quote($site->handle, '/'),
+            Craft::$app->getSites()->getAllSites()
+        );
+        $siteHandlePattern = !empty($siteHandles)
+            ? implode('|', $siteHandles)
+            : '[a-zA-Z0-9\-\_]+';
 
         return [
             // Shortlink redirect route
@@ -495,6 +502,10 @@ class ShortLinkManager extends Plugin
             // QR Code routes - supports both standalone ('qr') and nested ('s/qr') patterns
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
+            // Site-aware shortlink routes (for shortlinkBaseUrlPattern like /{siteHandle}/...)
+            '<siteHandle:' . $siteHandlePattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/index',
+            '<siteHandle:' . $siteHandlePattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
+            '<siteHandle:' . $siteHandlePattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
         ];
     }
 

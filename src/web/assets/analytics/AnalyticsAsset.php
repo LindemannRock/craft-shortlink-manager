@@ -17,7 +17,7 @@ use craft\web\AssetBundle;
  * Provides ShortLink Manager analytics wiring for cp-analytics pages.
  * Uses minified versions in production mode.
  *
- * @since 5.29.0
+ * @since 5.11.0
  */
 class AnalyticsAsset extends AssetBundle
 {

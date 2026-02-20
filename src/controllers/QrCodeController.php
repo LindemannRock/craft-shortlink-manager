@@ -9,6 +9,7 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
+use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -43,11 +44,12 @@ class QrCodeController extends Controller
      * Generate QR code for short link
      *
      * @param string|null $code Short link code from URL route
+     * @param string|null $siteHandle Site handle from route (for site-aware short domains)
      * @return Response
      * @throws NotFoundHttpException
      * @since 5.0.0
      */
-    public function actionGenerate(?string $code = null): Response
+    public function actionGenerate(?string $code = null, ?string $siteHandle = null): Response
     {
         $request = Craft::$app->request;
         $settings = ShortLinkManager::$plugin->getSettings();
@@ -96,7 +98,11 @@ class QrCodeController extends Controller
             $fullUrl = $url . $separator . 'src=qr';
         } elseif ($code) {
             // Frontend mode - get by code from URL route
-            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code);
+            $site = $this->resolveSite($siteHandle);
+            if (!$site) {
+                throw new NotFoundHttpException('Site not found.');
+            }
+            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
             if (!$shortLink) {
                 throw new NotFoundHttpException('Short link not found.');
@@ -233,14 +239,19 @@ class QrCodeController extends Controller
      * Display QR code page for short link
      *
      * @param string $code
+     * @param string|null $siteHandle
      * @return Response
      * @throws NotFoundHttpException
      * @since 5.0.0
      */
-    public function actionDisplay(string $code): Response
+    public function actionDisplay(string $code, ?string $siteHandle = null): Response
     {
         // Get the short link
-        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code);
+        $site = $this->resolveSite($siteHandle);
+        if (!$site) {
+            throw new NotFoundHttpException('Site not found.');
+        }
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
         if (!$shortLink) {
             throw new NotFoundHttpException('Short link not found.');
@@ -293,5 +304,17 @@ class QrCodeController extends Controller
 
             throw new NotFoundHttpException('Failed to render QR code page.');
         }
+    }
+
+    /**
+     * Resolve request site from route handle (if provided), otherwise use current site.
+     */
+    private function resolveSite(?string $siteHandle): ?Site
+    {
+        if ($siteHandle) {
+            return Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        }
+
+        return Craft::$app->getSites()->getCurrentSite();
     }
 }
