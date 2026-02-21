@@ -176,7 +176,7 @@ class ShortLinkManager extends Plugin
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
             function(RegisterUserPermissionsEvent $event) {
                 $event->permissions[] = [
-                    'heading' => Craft::t('shortlink-manager', 'ShortLink Manager'),
+                    'heading' => $this->getSettings()->getFullName(),
                     'permissions' => $this->getPluginPermissions(),
                 ];
             }
@@ -344,7 +344,7 @@ class ShortLinkManager extends Plugin
                 'key' => 'shortlinks',
                 'label' => Craft::t('shortlink-manager', 'Links'),
                 'url' => 'shortlink-manager',
-                'permissionsAll' => ['shortLinkManager:viewLinks'],
+                'permissionsAll' => ['shortLinkManager:manageLinks'],
             ];
         }
 
@@ -400,6 +400,14 @@ class ShortLinkManager extends Plugin
             }
             return true;
         });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setSettings(array|Model $settings): void
+    {
+        // No-op: settings come from loadFromDatabase() in createSettingsModel()
     }
 
     /**
@@ -522,9 +530,6 @@ class ShortLinkManager extends Plugin
             'shortLinkManager:manageLinks' => [
                 'label' => Craft::t('shortlink-manager', 'Manage {plural}', ['plural' => $plural]),
                 'nested' => [
-                    'shortLinkManager:viewLinks' => [
-                        'label' => Craft::t('shortlink-manager', 'View {plural}', ['plural' => $plural]),
-                    ],
                     'shortLinkManager:createLinks' => [
                         'label' => Craft::t('shortlink-manager', 'Create {plural}', ['plural' => $plural]),
                     ],

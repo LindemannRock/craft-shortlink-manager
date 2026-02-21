@@ -60,7 +60,7 @@ class ShortLinkManagerUtility extends Utility
         $expiredLinks = 0;
         $disabledLinks = 0;
 
-        if ($user->getIdentity() && $user->checkPermission('shortLinkManager:viewLinks')) {
+        if ($user->getIdentity() && $user->checkPermission('shortLinkManager:manageLinks')) {
             $allowedSiteIds = array_map(fn($s) => $s->id, ShortLinkManager::$plugin->getEnabledSites());
 
             $totalLinks = \lindemannrock\shortlinkmanager\elements\ShortLink::find()

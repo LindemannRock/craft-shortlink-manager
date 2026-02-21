@@ -666,7 +666,7 @@ class ShortLink extends Element
      */
     public function canView(User $user): bool
     {
-        return $user->can('shortLinkManager:viewLinks');
+        return $user->can('shortLinkManager:manageLinks');
     }
 
     /**

@@ -45,15 +45,15 @@ class ShortlinksController extends Controller
         $user = Craft::$app->getUser();
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // If user doesn't have viewLinks permission, redirect to first accessible section
-        if (!$user->checkPermission('shortLinkManager:viewLinks')) {
+        // If user doesn't have manageLinks permission, redirect to first accessible section
+        if (!$user->checkPermission('shortLinkManager:manageLinks')) {
             $sections = ShortLinkManager::$plugin->getCpSections($settings, false, true);
             $route = CpNavHelper::firstAccessibleRoute($user, $settings, $sections);
             if ($route) {
                 return $this->redirect($route);
             }
             // No access at all
-            $this->requirePermission('shortLinkManager:viewLinks');
+            $this->requirePermission('shortLinkManager:manageLinks');
         }
 
         // Get current site from request or Craft's current site
