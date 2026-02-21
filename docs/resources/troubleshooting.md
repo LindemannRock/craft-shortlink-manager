@@ -139,7 +139,7 @@ To enable SEOmatic tracking:
 - Set `directRedirect` to `false` globally, or
 - Set the per-link `directRedirect` to `false` (overrides the global setting)
 
-See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](integrations.md).
+See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../developers/integrations.md).
 
 ## Redirect Manager Integration Not Creating Redirects
 

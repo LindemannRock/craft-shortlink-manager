@@ -124,6 +124,7 @@ Properties available on a `ShortLink` element in Twig:
 | Property | Type | Description |
 |----------|------|-------------|
 | `id` | `int` | Element ID |
+| `authorId` | `int\|null` | Author user ID |
 | `code` | `string` | The short code (as entered) |
 | `slug` | `string` | The URL slug (sanitized code) |
 | `linkType` | `string` | `'code'` or `'vanity'` |
@@ -146,6 +147,7 @@ Properties available on a `ShortLink` element in Twig:
 | `qrCodeBgColor` | `string\|null` | QR background color |
 | `qrCodeEyeColor` | `string\|null` | QR eye color |
 | `qrCodeFormat` | `string\|null` | QR format override |
+| `qrLogoId` | `int\|null` | QR logo asset ID (overrides default) |
 | `status` | `string` | Current status |
 | `url` | `string` | The full short link URL |
 

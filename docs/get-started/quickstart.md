@@ -33,7 +33,15 @@ The QR code is displayed in the sidebar — scan it with your phone to verify it
 Go to **ShortLink Manager → Analytics**. Your test click should appear in the dashboard with device type, referrer, and timestamp.
 
 > [!TIP]
-> For unique visitor tracking, generate an IP hash salt: `php craft shortlink-manager/security/generate-salt`
+> For unique visitor tracking, generate an IP hash salt:
+
+```bash title="PHP"
+php craft shortlink-manager/security/generate-salt
+```
+
+```bash title="DDEV"
+ddev craft shortlink-manager/security/generate-salt
+```
 
 ## What's Next
 

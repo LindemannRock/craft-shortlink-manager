@@ -8,8 +8,7 @@ ShortLink Manager registers granular permissions that can be assigned to user gr
 
 | Permission | Description |
 |------------|-------------|
-| **`shortLinkManager:manageLinks`** | Parent — access the short links section |
-| └─ `shortLinkManager:viewLinks` | View the short links element index |
+| **`shortLinkManager:manageLinks`** | Parent — view short links and access the CP section |
 | └─ `shortLinkManager:createLinks` | Create new short links |
 | └─ `shortLinkManager:editLinks` | Edit existing short links |
 | └─ `shortLinkManager:deleteLinks` | Delete short links |
@@ -71,11 +70,11 @@ $this->requirePermission('shortLinkManager:editLinks');
 
 Craft's nested permissions are a UI convenience — the parent permission does not automatically grant child permissions at runtime.
 
-- **`manageLinks`** is the access/view permission — grants visibility of the short links section in the CP subnav
+- **`manageLinks`** grants CP subnav visibility and the ability to view short links. It is checked by `canView()` on the element and by the CP nav (`permissionsAll`)
 - **Write permissions** (`createLinks`, `editLinks`, `deleteLinks`) are nested under `manageLinks` and control specific write operations
 
-To give a user **read-only** access to short links, grant `manageLinks` + `viewLinks`.
+To give a user **read-only** access to short links, grant only `manageLinks` (without any nested write permissions).
 
-To give a user **full access**, grant `manageLinks`, `viewLinks`, `createLinks`, `editLinks`, and `deleteLinks`.
+To give a user **full access**, grant `manageLinks`, `createLinks`, `editLinks`, and `deleteLinks`.
 
 The same pattern applies to analytics: `viewAnalytics` grants access to the analytics dashboard, while `exportAnalytics` and `clearAnalytics` are optional write operations.

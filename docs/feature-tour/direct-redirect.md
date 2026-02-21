@@ -1,6 +1,4 @@
-# Direct Redirect
-
-@since(5.12.0)
+# Direct Redirect @since(5.12.0)
 
 By default, ShortLink Manager renders a redirect template before issuing the final HTTP redirect. The template fires SEOmatic tracking events and gives any GTM/GA JavaScript a chance to run before the browser navigates away.
 

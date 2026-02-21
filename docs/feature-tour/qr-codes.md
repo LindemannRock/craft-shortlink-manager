@@ -64,7 +64,7 @@ QR codes are available at two URL patterns:
 | `/{qrPrefix}/{code}` | Raw QR image (PNG or SVG) returned directly |
 | `/{qrPrefix}/{code}/view` | Frontend template page showing the QR code |
 
-With default settings (`qrPrefix = 's/qr'`):
+With default settings (`qrPrefix` is empty, auto-suggested as `{slugPrefix}/qr` → `s/qr`):
 - Image: `https://example.com/s/qr/abc123`
 - Display page: `https://example.com/s/qr/abc123/view`
 
@@ -109,6 +109,7 @@ The `ShortLink` element provides methods for embedding QR codes in your Twig tem
 | `getQrCodeDataUri(options)` | `string` | Base64 data URI for inline embedding |
 | `getQrCodeUrl(options)` | `string` | URL to the raw QR image |
 | `getQrCodeDisplayUrl(options)` @since(5.1.0) | `string` | URL to the QR display page |
+| `getQrCode(options)` | `string` | Raw QR code binary data (for programmatic use, not direct `<img>` embedding) |
 
 ## Caching
 

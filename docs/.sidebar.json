@@ -38,6 +38,7 @@
         "children": [
             "developers/permissions",
             "developers/console-commands",
+            "developers/events",
             "developers/template-variables",
             "developers/twig-globals",
             "developers/integrations",

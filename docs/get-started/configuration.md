@@ -40,8 +40,8 @@ Settings are grouped below by their functional area, matching the CP settings pa
 |---------|------|---------|-------------|
 | `slugPrefix` | `string` | `'s'` | URL prefix for generated short links (e.g., `'s'` creates `/s/abc123`) |
 | `shortlinkBaseUrl` | `string\|null` | `null` | Optional absolute base URL for generated shortlink and QR URLs (e.g., `https://short.example.com`). Supports env vars. Leave empty to use each site's base URL. |
-| `shortlinkBaseUrlPattern` | `string\|null` | `null` | Optional absolute URL pattern for multisite short domains. Supports site tokens: `{siteHandle}`, `{siteId}`, `{siteUid}`. Example: `https://short.example.com/{siteHandle}`. Takes priority over `shortlinkBaseUrl`. Supports env vars. |
-| `qrPrefix` | `string` | `'s/qr'` | URL prefix for QR code pages. Supports standalone (`'qr'`) or nested (`'s/qr'`) patterns |
+| `shortlinkBaseUrlPattern` @since(5.13.0) | `string\|null` | `null` | Optional absolute URL pattern for multisite short domains. Supports site tokens: `{siteHandle}`, `{siteId}`, `{siteUid}`. Example: `https://short.example.com/{siteHandle}`. Takes priority over `shortlinkBaseUrl`. Supports env vars. |
+| `qrPrefix` | `string` | `''` | URL prefix for QR code pages. When empty, the CP auto-suggests `{slugPrefix}/qr` (e.g., `s/qr`). Supports standalone (`'qr'`) or nested (`'s/qr'`) patterns |
 | `codeLength` | `int` | `8` | Length of generated short codes (min: 4, max: 32) |
 | `reservedCodes` | `array` | `['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings']` | Codes that cannot be used for short links |
 

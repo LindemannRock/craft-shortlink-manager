@@ -104,7 +104,7 @@ return [
 | Provider | Free Tier | HTTPS |
 |----------|-----------|-------|
 | `ip-api.com` | Yes (45 req/min) | Paid only |
-| `ipapi.co` | Yes (1,000 req/day) | Paid only |
+| `ipapi.co` | Yes (1,000 req/day) | Yes |
 | `ipinfo.io` | Yes (50,000 req/month) | Yes |
 
 > [!TIP]

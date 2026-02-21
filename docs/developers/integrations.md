@@ -1,6 +1,4 @@
-# Integrations
-
-@since(5.1.0)
+# Integrations @since(5.1.0)
 
 ShortLink Manager integrates with Redirect Manager and SEOmatic to automate link maintenance and enable client-side analytics tracking.
 
