@@ -1,7 +1,7 @@
 {% extends 'lindemannrock-base/_layouts/cp-utilities' %}
 
 {# Permission checks #}
-{% set canViewLinks = currentUser.can('shortLinkManager:viewLinks') %}
+{% set canViewLinks = currentUser.can('shortLinkManager:manageLinks') %}
 {% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
 {% set canManageSettings = currentUser.can('shortLinkManager:manageSettings') %}
 {% set canClearCache = currentUser.can('shortLinkManager:clearCache') %}
