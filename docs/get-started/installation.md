@@ -23,6 +23,18 @@ composer require lindemannrock/craft-shortlink-manager && php craft plugin/insta
 ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin/install shortlink-manager
 ```
 
+3. **Optional** — Install [Logging Library](https://github.com/LindemannRock/craft-logging-library) for log viewing:
+
+```bash title="Composer"
+php craft plugin/install logging-library
+```
+
+```bash title="DDEV"
+ddev craft plugin/install logging-library
+```
+
+Or via the Control Panel: **Settings → Plugins → Logging Library → Install**
+
 ## Post-Install Setup
 
 After installing, complete these steps to get ShortLink Manager working:
