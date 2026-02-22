@@ -25,11 +25,13 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     use LoggingTrait;
     /**
      * @var string Link type (code or vanity)
+     * @since 5.0.0
      */
     public string $linkType = 'code';
 
     /**
      * @var int Default HTTP code
+     * @since 5.0.0
      */
     public int $defaultHttpCode = 301;
 

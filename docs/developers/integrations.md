@@ -15,7 +15,7 @@ When the Redirect Manager integration is enabled, ShortLink Manager can automati
 return [
     '*' => [
         'enabledIntegrations' => ['redirect-manager'],
-        'redirectManagerEvents' => ['slug-change'], // also: 'expire', 'delete'
+        'redirectManagerEvents' => ['slug-change'],
     ],
 ];
 ```
@@ -27,8 +27,6 @@ Or manage from the CP: **ShortLink Manager → Settings → Integrations**.
 | Event | When a redirect is created |
 |-------|---------------------------|
 | `slug-change` | When a short link's code/slug is changed |
-| `expire` | When a short link's expiry date passes |
-| `delete` | When a short link is deleted |
 
 ### Fallback Lookup
 

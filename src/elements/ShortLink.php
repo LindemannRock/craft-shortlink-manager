@@ -43,76 +43,91 @@ class ShortLink extends Element
 
     /**
      * @var string|null Code (user-facing short code)
+     * @since 5.0.0
      */
     public ?string $code = null;
 
     /**
      * @var string|null Slug (sanitized version of code, used in URLs)
+     * @since 5.0.0
      */
     public ?string $slug = null;
 
     /**
      * @var string Link type: 'code' (auto-generated) or 'vanity' (custom)
+     * @since 5.0.0
      */
     public string $linkType = 'code';
 
     /**
      * @var string ShortLink type: 'auto' (field-managed) or 'manual' (standalone)
+     * @since 5.0.0
      */
     public string $shortLinkType = 'manual';
 
     /**
      * @var string|null Destination URL (translatable per site)
+     * @since 5.0.0
      */
     public ?string $destinationUrl = null;
 
     /**
      * @var string|null Expired redirect URL (translatable per site)
+     * @since 5.0.0
      */
     public ?string $expiredRedirectUrl = null;
 
     /**
      * @var string|null Expired message (translatable per site)
+     * @since 5.0.0
      */
     public ?string $expiredMessage = null;
 
     /**
      * @var int|null Linked element ID
+     * @since 5.0.0
      */
     public ?int $elementId = null;
 
     /**
      * @var string|null Linked element type
+     * @since 5.0.0
      */
     public ?string $elementType = null;
 
     /**
      * @var \DateTime|null Expiry date
+     * @since 5.0.0
      */
     public ?\DateTime $dateExpired = null;
 
     /**
      * @var int|null Author ID
+     * @since 5.0.0
      */
     public ?int $authorId = null;
 
     /**
      * @var \DateTime|null Post date
+     * @since 5.0.0
      */
     public ?\DateTime $postDate = null;
 
     /**
      * @var int HTTP redirect code (301, 302, 307, 308)
+     * @since 5.0.0
      */
     public int $httpCode = 301;
 
     /**
      * @var bool Track analytics
+     * @since 5.0.0
      */
     public bool $trackAnalytics = true;
 
     /**
      * @var bool|null Pass query params to destination (null = use global setting)
+     * @since 5.0.0
      */
     public ?bool $passQueryParams = null;
 
@@ -124,41 +139,49 @@ class ShortLink extends Element
 
     /**
      * @var int Total hits/clicks
+     * @since 5.0.0
      */
     public int $hits = 0;
 
     /**
      * @var bool QR code enabled
+     * @since 5.0.0
      */
     public bool $qrCodeEnabled = true;
 
     /**
      * @var int QR code size
+     * @since 5.0.0
      */
     public int $qrCodeSize = 256;
 
     /**
      * @var string|null QR code color
+     * @since 5.0.0
      */
     public ?string $qrCodeColor = null;
 
     /**
      * @var string|null QR code background color
+     * @since 5.0.0
      */
     public ?string $qrCodeBgColor = null;
 
     /**
      * @var string|null QR code eye color
+     * @since 5.0.0
      */
     public ?string $qrCodeEyeColor = null;
 
     /**
      * @var string|null QR code format override
+     * @since 5.0.0
      */
     public ?string $qrCodeFormat = null;
 
     /**
      * @var int|null QR code logo asset ID (overrides default)
+     * @since 5.0.0
      */
     public ?int $qrLogoId = null;
 
@@ -291,11 +314,13 @@ class ShortLink extends Element
 
     /**
      * @var string Status expired
+     * @since 5.0.0
      */
     public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var string Status pending
+     * @since 5.0.0
      */
     public const STATUS_PENDING = 'pending';
 

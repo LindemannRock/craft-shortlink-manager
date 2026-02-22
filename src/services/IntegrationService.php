@@ -32,7 +32,7 @@ class IntegrationService extends Component
     private bool $initialized = false;
 
     /**
-     * Initialize all available integrations
+     * @inheritdoc
      */
     public function init(): void
     {

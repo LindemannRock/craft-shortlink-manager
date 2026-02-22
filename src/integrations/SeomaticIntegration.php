@@ -35,7 +35,7 @@ class SeomaticIntegration extends BaseIntegration
     private bool $listenersRegistered = false;
 
     /**
-     * Constructor
+     * @since 5.1.0
      */
     public function __construct()
     {

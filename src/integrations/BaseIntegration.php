@@ -204,7 +204,18 @@ abstract class BaseIntegration implements IntegrationInterface
 
     // Abstract methods that must be implemented by child classes
 
+    /**
+     * @inheritdoc
+     */
     abstract public function isAvailable(): bool;
+
+    /**
+     * @inheritdoc
+     */
     abstract public function pushEvent(string $eventType, array $data): bool;
+
+    /**
+     * @inheritdoc
+     */
     abstract public function getStatus(): array;
 }

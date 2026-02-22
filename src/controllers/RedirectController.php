@@ -318,7 +318,6 @@ class RedirectController extends Controller
      *
      * @param string $destinationUrl The original destination URL
      * @return string The destination URL with merged query parameters
-     * @since 5.11.0
      */
     private function mergeQueryParams(string $destinationUrl): string
     {

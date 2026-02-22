@@ -66,21 +66,25 @@ class ShortLinkManager extends Plugin
 
     /**
      * @var ShortLinkManager|null Singleton plugin instance
+     * @since 5.0.0
      */
     public static ?ShortLinkManager $plugin = null;
 
     /**
      * @var string Plugin schema version for migrations
+     * @since 5.0.0
      */
     public string $schemaVersion = '1.0.0';
 
     /**
      * @var bool Whether the plugin exposes a control panel settings page
+     * @since 5.0.0
      */
     public bool $hasCpSettings = true;
 
     /**
      * @var bool Whether the plugin registers a control panel section
+     * @since 5.0.0
      */
     public bool $hasCpSection = true;
 

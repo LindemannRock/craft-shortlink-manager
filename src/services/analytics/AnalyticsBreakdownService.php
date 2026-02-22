@@ -21,7 +21,7 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  *
  * @author    LindemannRock
  * @package   ShortLinkManager
- * @since     5.0.0
+ * @since     5.7.0
  */
 class AnalyticsBreakdownService
 {
@@ -33,7 +33,7 @@ class AnalyticsBreakdownService
      *
      * @param int $shortLinkId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getDeviceBreakdown(int $shortLinkId): array
     {
@@ -54,7 +54,7 @@ class AnalyticsBreakdownService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -92,7 +92,7 @@ class AnalyticsBreakdownService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -129,7 +129,7 @@ class AnalyticsBreakdownService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -173,7 +173,7 @@ class AnalyticsBreakdownService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getOsBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -214,7 +214,7 @@ class AnalyticsBreakdownService
      *
      * @param int $shortLinkId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getGeoBreakdown(int $shortLinkId): array
     {
@@ -234,7 +234,7 @@ class AnalyticsBreakdownService
      *
      * @param int $shortLinkId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getReferrerBreakdown(int $shortLinkId): array
     {
@@ -257,7 +257,7 @@ class AnalyticsBreakdownService
      * @param int $limit
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10, int|array|null $siteId = null): array
     {
@@ -299,7 +299,7 @@ class AnalyticsBreakdownService
      * @param int $limit
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15, int|array|null $siteId = null): array
     {
@@ -338,7 +338,7 @@ class AnalyticsBreakdownService
      *
      * @param string $ip
      * @return array|null
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getLocationFromIp(string $ip): ?array
     {

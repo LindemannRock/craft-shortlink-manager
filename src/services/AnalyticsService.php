@@ -28,7 +28,7 @@ use yii\web\Request;
  *
  * @author    LindemannRock
  * @package   ShortLinkManager
- * @since     5.0.0
+ * @since     5.7.0
  */
 class AnalyticsService extends Component
 {
@@ -59,7 +59,7 @@ class AnalyticsService extends Component
     // =========================================================================
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function trackClick(ShortLink $shortLink, Request $request, string $source = 'direct'): void
     {
@@ -71,7 +71,7 @@ class AnalyticsService extends Component
     // =========================================================================
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getClickStats(int $shortLinkId, array $filters = []): array
     {
@@ -79,7 +79,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
@@ -87,7 +87,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, int|array|null $siteId = null): array
     {
@@ -95,7 +95,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
@@ -103,7 +103,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getClicksData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -111,7 +111,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -123,7 +123,7 @@ class AnalyticsService extends Component
     // =========================================================================
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getDeviceBreakdown(int $shortLinkId): array
     {
@@ -131,7 +131,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -139,7 +139,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -147,7 +147,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -155,7 +155,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getOsBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -163,7 +163,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getGeoBreakdown(int $shortLinkId): array
     {
@@ -171,7 +171,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getReferrerBreakdown(int $shortLinkId): array
     {
@@ -179,7 +179,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10, int|array|null $siteId = null): array
     {
@@ -187,7 +187,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15, int|array|null $siteId = null): array
     {
@@ -195,7 +195,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getLocationFromIp(string $ip): ?array
     {
@@ -215,7 +215,7 @@ class AnalyticsService extends Component
      * @param int|null $shortLinkId
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $shortLinkId = null, int|array|null $siteId = null): array
     {
@@ -277,7 +277,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.5.0
+     * @since 5.7.0
      */
     public function getExportData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -285,7 +285,7 @@ class AnalyticsService extends Component
     }
 
     /**
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function cleanupOldAnalytics(): int
     {
@@ -302,7 +302,7 @@ class AnalyticsService extends Component
      * @param Query $query
      * @param string $dateRange
      * @param string $column
-     * @since 5.0.0
+     * @since 5.7.0
      */
     public function applyDateRangeFilter(Query $query, string $dateRange, string $column = 'dateCreated'): void
     {

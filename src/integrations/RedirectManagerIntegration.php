@@ -33,7 +33,7 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 class RedirectManagerIntegration extends BaseIntegration
 {
     /**
-     * @inheritdoc
+     * @since 5.1.0
      */
     public function __construct()
     {

@@ -73,7 +73,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `defaultHttpCode` | `int` | `301` | Default HTTP status code for redirects. Options: `301`, `302`, `307`, `308` |
-| `passQueryParams` | `bool` | `false` | Pass query parameters from the shortlink URL to the destination URL. Can be overridden per link (null = use global) |
+| `passQueryParams` @since(5.11.0) | `bool` | `false` | Pass query parameters from the shortlink URL to the destination URL. Can be overridden per link (null = use global) |
 | `directRedirect` @since(5.12.0) | `bool` | `false` | Perform a direct server-side HTTP redirect without rendering a template. Analytics and hit counting are unaffected. Disables SEOmatic client-side tracking (GTM/GA events). Can be overridden per link (null = use global). |
 | `notFoundRedirectUrl` | `string` | `'/'` | Where to redirect when a short link is not found or disabled. Supports env vars |
 
@@ -92,7 +92,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `ipHashSalt` | `string\|null` | `null` | Secret salt for IP hashing. Reads from `SHORTLINK_MANAGER_IP_SALT` env var if not set in config |
 | `enableGeoDetection` | `bool` | `false` | Enable geolocation lookup from IP addresses for analytics |
 | `geoProvider` | `string` | `'ip-api.com'` | Geo IP lookup provider. Options: `'ip-api.com'`, `'ipapi.co'`, `'ipinfo.io'` |
-| `geoApiKey` | `string\|null` | `null` | API key for paid geo provider tiers |
+| `geoApiKey` @since(5.9.0) | `string\|null` | `null` | API key for paid geo provider tiers |
 | `defaultCountry` | `string\|null` | `null` | Default country code for local dev when IP is private (e.g., `'US'`). Reads from `SHORTLINK_MANAGER_DEFAULT_COUNTRY` env var |
 | `defaultCity` | `string\|null` | `null` | Default city for local dev when IP is private. Reads from `SHORTLINK_MANAGER_DEFAULT_CITY` env var |
 
@@ -116,7 +116,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `defaultQrLogoId` | `int\|null` | `null` | Default QR logo asset ID |
 | `qrLogoSize` | `int` | `20` | Logo size as a percentage of the QR code (10–30) |
 | `enableQrDownload` | `bool` | `true` | Allow QR code downloads |
-| `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{code}`, `{size}`, `{format}` |
+| `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{slug}`, `{code}`, `{size}`, `{format}` |
 
 ---
 
@@ -126,7 +126,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 |---------|------|---------|-------------|
 | `enableQrCodeCache` | `bool` | `true` | Cache generated QR codes |
 | `qrCodeCacheDuration` | `int` | `86400` | QR code cache duration in seconds (default: 24 hours) |
-| `cacheStorageMethod` | `string` | `'file'` | Cache storage method. Options: `'file'` (single server), `'redis'` (load-balanced/multi-server) |
+| `cacheStorageMethod` @since(5.3.0) | `string` | `'file'` | Cache storage method. Options: `'file'` (single server), `'redis'` (load-balanced/multi-server) |
 | `cacheDeviceDetection` | `bool` | `true` | Cache device detection results |
 | `deviceDetectionCacheDuration` | `int` | `3600` | Device detection cache duration in seconds (default: 1 hour) |
 
@@ -161,7 +161,7 @@ Several settings read from environment variables automatically, with no config f
 | `SHORTLINK_MANAGER_IP_SALT` | `ipHashSalt` | Auto-loaded if `ipHashSalt` is not set in config |
 | `SHORTLINK_MANAGER_DEFAULT_COUNTRY` | `defaultCountry` | Auto-loaded if `defaultCountry` is not set in config |
 | `SHORTLINK_MANAGER_DEFAULT_CITY` | `defaultCity` | Auto-loaded if `defaultCity` is not set in config |
-| `SHORTLINK_MANAGER_GEO_API_KEY` | `geoApiKey` | Pass via `App::env()` in config |
+| `SHORTLINK_MANAGER_GEO_API_KEY` | `geoApiKey` | **Not** auto-loaded — pass via `App::env('SHORTLINK_MANAGER_GEO_API_KEY')` in your config file |
 
 The `shortlinkBaseUrl`, `shortlinkBaseUrlPattern`, `notFoundRedirectUrl`, `redirectTemplate`, `expiredTemplate`, and `qrTemplate` settings also support Craft's env var syntax (`$ENV_VAR`) when set via the CP autosuggest fields, or via `App::env()` in the config file.
 

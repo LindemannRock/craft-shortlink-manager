@@ -28,36 +28,43 @@ class ShortLinkQuery extends ElementQuery
 
     /**
      * @var string|string[]|null The slug(s) that the resulting short links must have.
+     * @since 5.0.0
      */
     public mixed $slug = null;
 
     /**
      * @var string|string[]|null The link type(s) that the resulting short links must have ('code' or 'vanity').
+     * @since 5.0.0
      */
     public mixed $linkType = null;
 
     /**
      * @var string|string[]|null The shortlink type(s) that the resulting short links must have ('auto' or 'manual').
+     * @since 5.0.0
      */
     public mixed $shortLinkType = null;
 
     /**
      * @var int|int[]|null The element ID(s) that the resulting short links must be linked to.
+     * @since 5.0.0
      */
     public mixed $elementId = null;
 
     /**
      * @var bool|null Whether the resulting short links must be expired.
+     * @since 5.0.0
      */
     public ?bool $expired = null;
 
     /**
      * @var int|int[]|null The HTTP code(s) that the resulting short links must have.
+     * @since 5.0.0
      */
     public mixed $httpCode = null;
 
     /**
      * @var bool|null Whether the resulting short links must have analytics tracking enabled.
+     * @since 5.0.0
      */
     public ?bool $trackAnalytics = null;
 

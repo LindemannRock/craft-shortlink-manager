@@ -29,7 +29,16 @@ class ShortLinksService extends Component
 {
     use LoggingTrait;
 
+    /**
+     * @var string Cache key prefix for individual shortlink lookups
+     * @since 5.0.0
+     */
     public const CACHE_KEY = 'shortlinkmanager_link_';
+
+    /**
+     * @var string Cache tag used to tag all shortlink caches
+     * @since 5.0.0
+     */
     public const CACHE_TAG = 'shortlinkmanager';
 
     /**
