@@ -12,7 +12,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 
 This is a commercial plugin licensed under the [Craft License](https://craftcms.github.io/license/). It will be available on the [Craft Plugin Store](https://plugins.craftcms.com) soon. See [LICENSE.md](LICENSE.md) for details.
 
-## Pre-Release
+## ⚠️ Pre-Release
 
 This plugin is in active development and not yet available on the Craft Plugin Store. Features and APIs may change before the initial public release.
 
