@@ -25,7 +25,7 @@ ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin
 
 3. **Optional** — Install [Logging Library](https://github.com/LindemannRock/craft-logging-library) for log viewing:
 
-```bash title="Composer"
+```bash title="PHP"
 php craft plugin/install logging-library
 ```
 

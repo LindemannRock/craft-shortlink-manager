@@ -44,11 +44,11 @@ Go to **ShortLink Manager → Analytics** to see the analytics dashboard. The da
 - **Top Countries** — Requires geolocation
 - **Top Referrers** — Most common referring pages
 
-Date range options: Last 7 days, Last 30 days, Last 90 days, This year, Custom range.
+Date range options: Today, Yesterday, Last 7 days, Last 30 days, Last 90 days, This month, Last month, This year, Last year, All time.
 
-### Exporting Analytics @since(5.5.0)
+### Exporting Analytics @since(5.0.0)
 
-Analytics can be exported to CSV or JSON from the export button (requires `shortLinkManager:exportAnalytics` permission).
+Analytics can be exported to CSV, Excel, or JSON from the export button (requires `shortLinkManager:exportAnalytics` permission).
 
 ## Unique Visitor Tracking
 

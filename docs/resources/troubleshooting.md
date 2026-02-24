@@ -63,7 +63,7 @@ Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFA
 
 ## QR Code Shows as Broken Image
 
-1. **Is the QR prefix configured correctly?** The QR URL pattern is `/{qrPrefix}/{code}`. The default is `s/qr`, giving URLs like `/s/qr/abc123`. Check the `qrPrefix` setting.
+1. **Is the QR prefix configured correctly?** The QR URL pattern is `/{qrPrefix}/{code}`. The default is an empty string (no prefix), but a common configuration is `s/qr`, giving URLs like `/s/qr/abc123`. Check the `qrPrefix` setting.
 
 2. **Is the route registered?** Clear caches and reload after changing `qrPrefix`.
 
@@ -121,7 +121,7 @@ This produces site-specific URLs (`https://short.ly/en/s/abc123`, `https://short
 > [!TIP]
 > Rule of thumb: Single-site or headless with one site → `shortlinkBaseUrl`. Multisite → `shortlinkBaseUrlPattern` with `{siteHandle}`.
 
-See [Custom Short Domains](../feature-tour/custom-domains.md) for full configuration details.
+See [Custom Domain](../feature-tour/custom-domain.md) for full configuration details.
 
 ## `shortlinkBaseUrlPattern` Validation Error
 
@@ -147,7 +147,7 @@ See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../
 
 2. **Is Redirect Manager installed?** The integration only activates if Redirect Manager is installed and enabled.
 
-3. **Are the trigger events configured?** Check `redirectManagerEvents`. The default is `['slug-change']`. Also available: `'expire'`, `'delete'`.
+3. **Are the trigger events configured?** Check `redirectManagerEvents`. The default is `['slug-change']`, which creates a redirect when a short link's code is changed. This is currently the only supported event.
 
 ## `debug` Log Level Not Working
 

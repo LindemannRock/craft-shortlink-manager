@@ -17,13 +17,13 @@ ShortLink Manager creates short, memorable URLs that redirect visitors to any de
 
 - **[Analytics](analytics.md)** — Click tracking with device detection (desktop, tablet, mobile), geolocation (country, city), referrer, and unique visitor counting via IP hashing. Dashboard widgets for at-a-glance stats.
 
-- **[Custom Short Domains](custom-domains.md)** — Serve all short links from a dedicated domain (e.g., `https://short.example.com`) or per-site patterns for multisite setups.
+- **[Custom Domain](custom-domain.md)** — Serve all short links from a dedicated domain (e.g., `https://short.example.com`) with site-aware URL patterns for multisite setups.
 
 - **[Direct Redirect](direct-redirect.md)** — Bypass the redirect template for maximum performance. Can be set globally or overridden per link. Analytics still work.
 
 - **[ShortLink Field](shortlink-field.md)** — A custom field type that attaches a short link directly to any element. The destination URL syncs automatically when the element URL changes.
 
-- **[Integrations](../developers/integrations.md)** — Redirect Manager keeps old short codes alive when codes change. SEOmatic emits GTM/GA tracking events before the browser navigates away.
+- **[Integrations](integrations.md)** — SEOmatic pushes GTM/GA4 data layer events on redirect and QR scan. Redirect Manager auto-creates 301s when slugs change. Craft Link Field lets editors pick short links in any Link field.
 
 ## Dashboard Widgets
 

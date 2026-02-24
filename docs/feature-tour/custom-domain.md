@@ -1,10 +1,10 @@
-# Custom Short Domains
+# Custom Domain
 
-By default, ShortLink Manager generates short link URLs using each site's base URL. You can override this with a dedicated short domain — either a single domain for all sites, or per-site domains for multisite setups.
+By default, ShortLink Manager generates short link URLs using each site's base URL. You can override this with a dedicated custom domain. Configuration differs depending on whether you have a single site or a multisite setup.
 
-## Single Short Domain
+## Single-Site URLs
 
-Use `shortlinkBaseUrl` to serve all short links from one domain:
+Use `shortlinkBaseUrl` to serve all short links from your custom domain:
 
 ```php
 // config/shortlink-manager.php
@@ -31,9 +31,9 @@ https://short.example.com/s/qr/abc123
 
 This overrides the site's own base URL when generating shortlink URLs, but does **not** require a separate Craft site. Your existing Craft site handles the routing — `shortlinkBaseUrl` only changes what URL is displayed and encoded in QR codes.
 
-## Multisite Per-Site Domains
+## Multisite Site-Aware URLs
 
-For a Craft multisite where each site needs its own short domain, use `shortlinkBaseUrlPattern` with a site token:
+For a Craft multisite where each site needs its own URL path segment, use `shortlinkBaseUrlPattern` with a site token:
 
 ```php
 // config/shortlink-manager.php
@@ -78,7 +78,7 @@ When a `{siteHandle}` token is present in `shortlinkBaseUrlPattern`, ShortLink M
 
 The site-aware routes allow the redirect controller to resolve which Craft site to look up the short link in, based on the `{siteHandle}` in the URL path.
 
-## How URLs Are Built @since(5.13.0)
+## How URLs Are Built
 
 The `Settings::buildPublicUrl()` method resolves the correct base URL in this order:
 
@@ -111,7 +111,7 @@ use craft\helpers\App;
 
 return [
     '*' => [
-        // Use a single short domain in production
+        // Use a custom domain in production
         'shortlinkBaseUrl' => App::env('SHORTLINK_BASE_URL'),
     ],
 

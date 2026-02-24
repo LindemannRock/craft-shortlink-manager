@@ -2,7 +2,7 @@
 
 ShortLink Manager provides the following global variables in your Twig templates.
 
-## `shortlinkHelper`
+## `shortlinkHelper` @since(5.0.0)
 
 *Provided by `lindemannrock/base`*
 
@@ -13,6 +13,8 @@ ShortLink Manager provides the following global variables in your Twig templates
 | `shortlinkHelper.fullName` | Full plugin name (as configured) |
 | `shortlinkHelper.lowerDisplayName` | Lowercase display name (singular) |
 | `shortlinkHelper.pluralLowerDisplayName` | Lowercase plural display name |
+| `shortlinkHelper.cacheBasePath` @since(5.5.0) | Base cache path (e.g., `storage/runtime/shortlink-manager/cache/`) |
+| `shortlinkHelper.cachePath` @since(5.5.0) | Cache path for a specific type — use as a method: `shortlinkHelper.cachePath('qr')` |
 
 ### Examples
 
@@ -22,7 +24,6 @@ ShortLink Manager provides the following global variables in your Twig templates
 {{ shortlinkHelper.fullName }}
 {{ shortlinkHelper.lowerDisplayName }}
 {{ shortlinkHelper.pluralLowerDisplayName }}
+{{ shortlinkHelper.cacheBasePath }}
+{{ shortlinkHelper.cachePath('qr') }}
 ```
-
----
-

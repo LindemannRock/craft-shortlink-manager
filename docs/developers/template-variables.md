@@ -4,7 +4,7 @@ ShortLink Manager provides a Twig variable at `craft.shortLinkManager` with meth
 
 ## Querying Short Links
 
-### `shortLinks(criteria)`
+### `shortLinks(criteria)` @since(5.0.0)
 
 Get a `ShortLinkQuery` for querying short links. Supports all standard Craft element query params plus ShortLink-specific filters.
 
@@ -29,11 +29,11 @@ Get a `ShortLinkQuery` for querying short links. Supports all standard Craft ele
 
 **Returns:** `ShortLinkQuery` — chainable query object. Call `.one()`, `.all()`, `.count()`, etc.
 
-See [ShortLink Queries](../getting-elements/shortlink-queries.md) for all available query parameters.
+See [Element Queries](element-queries.md) for all available query parameters.
 
 ---
 
-### `getAll(criteria)`
+### `getAll(criteria)` @since(5.0.0)
 
 Get all short links matching the given criteria.
 
@@ -58,7 +58,7 @@ Get all short links matching the given criteria.
 
 ## Getting or Creating Short Links
 
-### `get(options)`
+### `get(options)` @since(5.0.0)
 
 Get an existing short link, or create one if it does not exist. The behavior depends on which key is present in `options`:
 
@@ -97,7 +97,7 @@ Get an existing short link, or create one if it does not exist. The behavior dep
 
 ---
 
-### `create(options)`
+### `create(options)` @since(5.0.0)
 
 Create a new short link.
 
@@ -141,7 +141,7 @@ Create a new short link.
 
 ## Analytics
 
-### `getAnalytics(linkId, filters)`
+### `getAnalytics(linkId, filters)` @since(5.0.0)
 
 Get click statistics for a specific short link.
 

@@ -16,19 +16,13 @@
         "children": [
             "feature-tour/overview",
             "feature-tour/shortlinks",
+            "feature-tour/custom-domain",
             "feature-tour/qr-codes",
             "feature-tour/analytics",
-            "feature-tour/custom-domains",
             "feature-tour/direct-redirect",
-            "feature-tour/shortlink-field"
-        ]
-    },
-    {
-        "title": "Getting Elements",
-        "collapsable": true,
-        "open": true,
-        "children": [
-            "getting-elements/shortlink-queries"
+            "feature-tour/shortlink-field",
+            "feature-tour/dashboard-widgets",
+            "feature-tour/integrations"
         ]
     },
     {
@@ -36,6 +30,7 @@
         "collapsable": true,
         "open": false,
         "children": [
+            "developers/element-queries",
             "developers/permissions",
             "developers/console-commands",
             "developers/events",

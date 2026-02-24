@@ -65,9 +65,9 @@ You can also query by element directly from `ShortLink::find()`:
 }).one() %}
 ```
 
-## Link Field Integration
+## Craft Link Field
 
-ShortLink Manager also registers a **ShortLink** type for Craft's native Link field (`craft\fields\Link`). This allows Link fields to reference short link elements directly — useful for building link lists or navigation that mixes external URLs with short links.
+ShortLink Manager also registers as a link type in Craft's native Link field (Craft CMS 5.3+). See [Integrations](integrations.md) for details.
 
 ## Sidebar Panel
 

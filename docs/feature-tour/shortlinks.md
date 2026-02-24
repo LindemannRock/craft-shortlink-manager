@@ -70,7 +70,7 @@ When a custom short domain is set:
 https://short.example.com/s/abc123XY
 ```
 
-The `slugPrefix` can be any alphanumeric string (e.g., `go`, `l`, `link`). See [Custom Short Domains](custom-domains.md) for domain configuration.
+The `slugPrefix` can be any alphanumeric string (e.g., `go`, `l`, `link`). See [Custom Domain](custom-domain.md) for domain configuration.
 
 ## Code Uniqueness
 
