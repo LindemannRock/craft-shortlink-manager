@@ -26,7 +26,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Query Pass-Through** — Forward query parameters from shortlink to destination
 - **Integrations** — SEOmatic (GTM/GA4 events), Redirect Manager (auto-301 on slug change)
 - **ShortLink Field** — Custom field type for attaching shortlinks to entries
-- **Multi-Site** — Per-site destination URLs, optional custom short domain
+- **Multi-Site** — Per-site destination URLs, optional custom domain
 - **Dashboard Widgets** — Analytics Summary and Top Links widgets
 
 ## Requirements
