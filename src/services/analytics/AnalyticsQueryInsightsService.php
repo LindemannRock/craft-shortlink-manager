@@ -34,7 +34,6 @@ class AnalyticsQueryInsightsService
      * @param int $shortLinkId
      * @param array $filters
      * @return array
-     * @since 5.7.0
      */
     public function getClickStats(int $shortLinkId, array $filters = []): array
     {
@@ -133,7 +132,6 @@ class AnalyticsQueryInsightsService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.7.0
      */
     public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
@@ -252,7 +250,6 @@ class AnalyticsQueryInsightsService
      * @param int $limit
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.7.0
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, int|array|null $siteId = null): array
     {
@@ -315,7 +312,6 @@ class AnalyticsQueryInsightsService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.7.0
      */
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
@@ -365,7 +361,6 @@ class AnalyticsQueryInsightsService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.7.0
      */
     public function getClicksData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -447,7 +442,6 @@ class AnalyticsQueryInsightsService
      * @param string $dateRange
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.7.0
      */
     public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {

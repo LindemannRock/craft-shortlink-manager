@@ -21,7 +21,6 @@ interface IntegrationInterface
      * Check if the integration's plugin/service is available
      *
      * @return bool
-     * @since 5.1.0
      */
     public function isAvailable(): bool;
 
@@ -29,7 +28,6 @@ interface IntegrationInterface
      * Check if the integration is enabled in settings
      *
      * @return bool
-     * @since 5.1.0
      */
     public function isEnabled(): bool;
 
@@ -37,7 +35,6 @@ interface IntegrationInterface
      * Get the integration name
      *
      * @return string
-     * @since 5.1.0
      */
     public function getName(): string;
 
@@ -45,7 +42,6 @@ interface IntegrationInterface
      * Get the integration handle (unique identifier)
      *
      * @return string
-     * @since 5.1.0
      */
     public function getHandle(): string;
 
@@ -55,7 +51,6 @@ interface IntegrationInterface
      * @param string $eventType Event type (e.g., 'redirect', 'qr_scan')
      * @param array $data Event data
      * @return bool Success status
-     * @since 5.1.0
      */
     public function pushEvent(string $eventType, array $data): bool;
 
@@ -63,7 +58,6 @@ interface IntegrationInterface
      * Get configuration details about the integration
      *
      * @return array Status, active scripts, configuration info
-     * @since 5.1.0
      */
     public function getStatus(): array;
 
@@ -73,7 +67,6 @@ interface IntegrationInterface
      * @param string $eventType
      * @param array $data
      * @return bool
-     * @since 5.1.0
      */
     public function validateEventData(string $eventType, array $data): bool;
 }

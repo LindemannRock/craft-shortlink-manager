@@ -30,9 +30,6 @@ class AnalyticsExportService
     use AnalyticsQueryTrait;
     use LoggingTrait;
 
-    /**
-     * @since 5.7.0
-     */
     public function __construct()
     {
         $this->setLoggingHandle('shortlink-manager');
@@ -47,7 +44,6 @@ class AnalyticsExportService
      * @param string $dateRange Date range to filter
      * @param int|int[]|null $siteId Optional site ID to filter by
      * @return array Array of formatted export data
-     * @since 5.7.0
      */
     public function getExportData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
@@ -176,7 +172,6 @@ class AnalyticsExportService
      * Clean up old analytics
      *
      * @return int Number of deleted records
-     * @since 5.7.0
      */
     public function cleanupOldAnalytics(): int
     {

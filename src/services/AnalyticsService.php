@@ -58,9 +58,6 @@ class AnalyticsService extends Component
     // TRACKING
     // =========================================================================
 
-    /**
-     * @since 5.7.0
-     */
     public function trackClick(ShortLink $shortLink, Request $request, string $source = 'direct'): void
     {
         $this->_tracking->trackClick($shortLink, $request, $source);
@@ -70,49 +67,31 @@ class AnalyticsService extends Component
     // QUERY INSIGHTS
     // =========================================================================
 
-    /**
-     * @since 5.7.0
-     */
     public function getClickStats(int $shortLinkId, array $filters = []): array
     {
         return $this->_queryInsights->getClickStats($shortLinkId, $filters);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getLinkAnalytics(int $shortLinkId, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
         return $this->_queryInsights->getLinkAnalytics($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, int|array|null $siteId = null): array
     {
         return $this->_queryInsights->getAllRecentClicks($dateRange, $limit, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
         return $this->_queryInsights->getTopLinks($limit, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getClicksData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_queryInsights->getClicksData($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getHourlyAnalytics(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_queryInsights->getHourlyAnalytics($shortLinkId, $dateRange, $siteId);
@@ -122,81 +101,51 @@ class AnalyticsService extends Component
     // BREAKDOWNS
     // =========================================================================
 
-    /**
-     * @since 5.7.0
-     */
     public function getDeviceBreakdown(int $shortLinkId): array
     {
         return $this->_breakdown->getDeviceBreakdown($shortLinkId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getDeviceTypeBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getDeviceTypeBreakdown($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getDeviceBrandBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getDeviceBrandBreakdown($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getBrowserBreakdown($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getOsBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getOsBreakdown($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getGeoBreakdown(int $shortLinkId): array
     {
         return $this->_breakdown->getGeoBreakdown($shortLinkId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getReferrerBreakdown(int $shortLinkId): array
     {
         return $this->_breakdown->getReferrerBreakdown($shortLinkId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getTopCountries(?int $shortLinkId, string $dateRange, int $limit = 10, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getTopCountries($shortLinkId, $dateRange, $limit, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getTopCities(?int $shortLinkId, string $dateRange, int $limit = 15, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getTopCities($shortLinkId, $dateRange, $limit, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getLocationFromIp(string $ip): ?array
     {
         return $this->_breakdown->getLocationFromIp($ip);
@@ -215,7 +164,6 @@ class AnalyticsService extends Component
      * @param int|null $shortLinkId
      * @param int|int[]|null $siteId
      * @return array
-     * @since 5.7.0
      */
     public function getAnalyticsSummary(string $dateRange = 'last7days', ?int $shortLinkId = null, int|array|null $siteId = null): array
     {
@@ -276,17 +224,11 @@ class AnalyticsService extends Component
         ];
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function getExportData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_export->getExportData($shortLinkId, $dateRange, $siteId);
     }
 
-    /**
-     * @since 5.7.0
-     */
     public function cleanupOldAnalytics(): int
     {
         return $this->_export->cleanupOldAnalytics();
@@ -302,7 +244,6 @@ class AnalyticsService extends Component
      * @param Query $query
      * @param string $dateRange
      * @param string $column
-     * @since 5.7.0
      */
     public function applyDateRangeFilter(Query $query, string $dateRange, string $column = 'dateCreated'): void
     {

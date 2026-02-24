@@ -21,13 +21,11 @@ class TopLinksWidget extends Widget
 {
     /**
      * @var string Date range for analytics
-     * @since 5.0.0
      */
     public string $dateRange = 'last7days';
 
     /**
      * @var int Number of links to show
-     * @since 5.0.0
      */
     public int $limit = 5;
 

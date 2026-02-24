@@ -21,7 +21,6 @@ class AnalyticsSummaryWidget extends Widget
 {
     /**
      * @var string Date range for analytics
-     * @since 5.0.0
      */
     public string $dateRange = 'last7days';
 

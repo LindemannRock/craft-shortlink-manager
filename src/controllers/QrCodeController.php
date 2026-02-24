@@ -47,7 +47,6 @@ class QrCodeController extends Controller
      * @param string|null $siteHandle Site handle from route (for site-aware short domains)
      * @return Response
      * @throws NotFoundHttpException
-     * @since 5.0.0
      */
     public function actionGenerate(?string $code = null, ?string $siteHandle = null): Response
     {
@@ -242,7 +241,6 @@ class QrCodeController extends Controller
      * @param string|null $siteHandle
      * @return Response
      * @throws NotFoundHttpException
-     * @since 5.0.0
      */
     public function actionDisplay(string $code, ?string $siteHandle = null): Response
     {

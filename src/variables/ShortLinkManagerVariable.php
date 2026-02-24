@@ -27,7 +27,6 @@ class ShortLinkManagerVariable
      *
      * @param array $criteria
      * @return ShortLinkQuery
-     * @since 5.0.0
      */
     public function shortLinks(array $criteria = []): ShortLinkQuery
     {
@@ -45,7 +44,6 @@ class ShortLinkManagerVariable
      *
      * @param array $options
      * @return ShortLink|null
-     * @since 5.0.0
      */
     public function get(array $options = []): ?ShortLink
     {
@@ -85,7 +83,6 @@ class ShortLinkManagerVariable
      *
      * @param array $options
      * @return ShortLink|null
-     * @since 5.0.0
      */
     public function create(array $options = []): ?ShortLink
     {
@@ -98,7 +95,6 @@ class ShortLinkManagerVariable
      * @param int $linkId
      * @param array $filters
      * @return array
-     * @since 5.0.0
      */
     public function getAnalytics(int $linkId, array $filters = []): array
     {
@@ -110,7 +106,6 @@ class ShortLinkManagerVariable
      *
      * @param array $criteria
      * @return array
-     * @since 5.0.0
      */
     public function getAll(array $criteria = []): array
     {

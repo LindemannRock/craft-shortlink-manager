@@ -29,9 +29,6 @@ class AnalyticsTrackingService
     use LoggingTrait;
     use GeoLookupTrait;
 
-    /**
-     * @since 5.7.0
-     */
     public function __construct()
     {
         $this->setLoggingHandle('shortlink-manager');
@@ -43,7 +40,6 @@ class AnalyticsTrackingService
      * @param ShortLink $shortLink
      * @param Request $request
      * @param string $source Source of the click (qr, direct, etc.)
-     * @since 5.7.0
      */
     public function trackClick(ShortLink $shortLink, Request $request, string $source = 'direct'): void
     {

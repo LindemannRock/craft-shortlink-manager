@@ -34,9 +34,6 @@ class SeomaticIntegration extends BaseIntegration
      */
     private bool $listenersRegistered = false;
 
-    /**
-     * @since 5.1.0
-     */
     public function __construct()
     {
         $this->handle = 'seomatic';
@@ -50,7 +47,6 @@ class SeomaticIntegration extends BaseIntegration
      * Check if SEOmatic plugin is available
      *
      * @return bool
-     * @since 5.1.0
      */
     public function isAvailable(): bool
     {
@@ -63,7 +59,6 @@ class SeomaticIntegration extends BaseIntegration
      * @param string $eventType
      * @param array $data
      * @return bool
-     * @since 5.1.0
      */
     public function pushEvent(string $eventType, array $data): bool
     {
@@ -240,7 +235,6 @@ class SeomaticIntegration extends BaseIntegration
      * Checks ALL sites for tracking scripts
      *
      * @return array
-     * @since 5.1.0
      */
     public function getStatus(): array
     {
@@ -315,7 +309,6 @@ class SeomaticIntegration extends BaseIntegration
      * Get list of available tracking scripts
      *
      * @return array
-     * @since 5.1.0
      */
     public function getAvailableScripts(): array
     {
@@ -327,7 +320,6 @@ class SeomaticIntegration extends BaseIntegration
      * Check if GTM is active
      *
      * @return bool
-     * @since 5.1.0
      */
     public function hasGoogleTagManager(): bool
     {
@@ -339,7 +331,6 @@ class SeomaticIntegration extends BaseIntegration
      * Check if Google Analytics is active
      *
      * @return bool
-     * @since 5.1.0
      */
     public function hasGoogleAnalytics(): bool
     {
