@@ -28,7 +28,7 @@
         name: 'linkType',
         value: shortLink.linkType ?? 'code',
         options: {
-            'code': ('Auto-generated Code (e.g., ' ~ codeExample ~ ')')|t('shortlink-manager'),
+            'code': 'Auto-generated Code (e.g., {codeExample})'|t('shortlink-manager', {codeExample: codeExample}),
             'vanity': 'Custom Vanity URL (memorable, e.g., pricing)'|t('shortlink-manager'),
         },
     }) }}
@@ -264,10 +264,10 @@
     <div class="input">
         <div class="select">
             <select id="httpCode" name="httpCode" required>
-                <option value="301" {% if (shortLink.httpCode ?? 301) == 301 %}selected{% endif %}>301 - Moved Permanently</option>
-                <option value="302" {% if (shortLink.httpCode ?? 301) == 302 %}selected{% endif %}>302 - Found (Temporary)</option>
-                <option value="307" {% if (shortLink.httpCode ?? 301) == 307 %}selected{% endif %}>307 - Temporary Redirect</option>
-                <option value="308" {% if (shortLink.httpCode ?? 301) == 308 %}selected{% endif %}>308 - Permanent Redirect</option>
+                <option value="301" {% if (shortLink.httpCode ?? 301) == 301 %}selected{% endif %}>{{ '301 - Moved Permanently'|t('shortlink-manager') }}</option>
+                <option value="302" {% if (shortLink.httpCode ?? 301) == 302 %}selected{% endif %}>{{ '302 - Found (Temporary)'|t('shortlink-manager') }}</option>
+                <option value="307" {% if (shortLink.httpCode ?? 301) == 307 %}selected{% endif %}>{{ '307 - Temporary Redirect'|t('shortlink-manager') }}</option>
+                <option value="308" {% if (shortLink.httpCode ?? 301) == 308 %}selected{% endif %}>{{ '308 - Permanent Redirect'|t('shortlink-manager') }}</option>
             </select>
         </div>
     </div>

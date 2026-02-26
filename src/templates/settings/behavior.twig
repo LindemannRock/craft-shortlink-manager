@@ -60,7 +60,7 @@
         <span class="icon" aria-hidden="true"></span>
         <span class="visually-hidden">Tip:</span>
         <span id="httpCodeTipText">{{ "Most common: Use <strong>301</strong> for permanent {pluginName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName})|raw }}
-            <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">Learn more</a>
+            <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>
         </span>
     </p>
 
@@ -97,7 +97,6 @@
         value: settings.notFoundRedirectUrl,
         instructions: "Where to redirect when a {pluginName} is not found"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
         suggestEnvVars: true,
-        tip: 'This can begin with an environment variable. <a href="https://craftcms.com/docs/5.x/configure.html#env" target="_blank" rel="noopener">Learn more</a>'|t('base')|raw,
         disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),
         warning: settings.isOverriddenByConfig('notFoundRedirectUrl') ?
             "This is being overridden by the <code>notFoundRedirectUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -124,16 +123,16 @@ function updateHttpCodeTip() {
 
     switch(code) {
         case 301:
-            tip = '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index. <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">Learn more</a>';
+            tip = {{ "<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
             break;
         case 302:
-            tip = '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL. <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">Learn more</a>';
+            tip = {{ "<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
             break;
         case 307:
-            tip = '<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won\'t change (POST stays POST). <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">Learn more</a>';
+            tip = {{ "<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
             break;
         case 308:
-            tip = '<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won\'t change (POST stays POST). <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">Learn more</a>';
+            tip = {{ "<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
             break;
     }
 

@@ -85,7 +85,7 @@
         {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
 
         {% set slugTip = rmActive
-            ? "Changing will break existing URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"
+            ? "Changing will break existing URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"|t('shortlink-manager', {rmPluginName: rmPluginName})
             : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, singularName: shortlinkHelper.lowerDisplayName})
         %}
 
@@ -98,7 +98,7 @@
             errors: settings.getErrors('slugPrefix'),
             placeholder: 's',
             required: true,
-            tip: slugTip|t('shortlink-manager'),
+            tip: slugTip,
             disabled: settings.isOverriddenByConfig('slugPrefix'),
             warning: settings.isOverriddenByConfig('slugPrefix') ?
                 "This is being overridden by the <code>slugPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -113,7 +113,6 @@
             errors: settings.getErrors('shortlinkBaseUrl'),
             placeholder: 'https://short.example.com',
             suggestEnvVars: true,
-            tip: 'This can begin with an environment variable. <a href="https://craftcms.com/docs/5.x/configure.html#env" target="_blank" rel="noopener">Learn more</a>'|t('base')|raw,
             disabled: settings.isOverriddenByConfig('shortlinkBaseUrl'),
             warning: settings.isOverriddenByConfig('shortlinkBaseUrl') ?
                 "This is being overridden by the <code>shortlinkBaseUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -128,7 +127,6 @@
             errors: settings.getErrors('shortlinkBaseUrlPattern'),
             placeholder: 'https://short.example.com/{siteHandle}',
             suggestEnvVars: true,
-            tip: 'This can begin with an environment variable. <a href="https://craftcms.com/docs/5.x/configure.html#env" target="_blank" rel="noopener">Learn more</a>'|t('base')|raw,
             disabled: settings.isOverriddenByConfig('shortlinkBaseUrlPattern'),
             warning: settings.isOverriddenByConfig('shortlinkBaseUrlPattern') ?
                 "This is being overridden by the <code>shortlinkBaseUrlPattern</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -143,8 +141,8 @@
         {% endif %}
 
         {% set qrTip = rmActive
-            ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in " ~ rmPluginName ~ ": Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard). Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."
-            : "Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns. Checked for conflicts with Smart Links."
+            ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard). Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."|t('shortlink-manager', {rmPluginName: rmPluginName})
+            : "Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns. Checked for conflicts with Smart Links."|t('shortlink-manager')
         %}
 
 		{# Calculate smart default for qrPrefix if empty #}
@@ -186,7 +184,7 @@
             errors: settings.getErrors('qrPrefix'),
             required: true,
             placeholder: settings.slugPrefix ~ '/qr',
-            tip: qrTip|t('shortlink-manager'),
+            tip: qrTip,
             disabled: settings.isOverriddenByConfig('qrPrefix'),
             warning: settings.isOverriddenByConfig('qrPrefix') ?
                 "This is being overridden by the <code>qrPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -225,16 +223,18 @@
             value: settings.redirectTemplate ?? '',
             placeholder: 'shortlink-manager/redirect',
             suggestEnvVars: true,
-            tip: "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code><br>This can begin with an environment variable. <a href=\"https://craftcms.com/docs/5.x/configure.html#env\" target=\"_blank\" rel=\"noopener\">Learn more</a>"|t('shortlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('redirectTemplate'),
             warning: settings.isOverriddenByConfig('redirectTemplate') ?
                 "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
-
+        <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
+            {{ "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code>"|t('shortlink-manager')|raw }}
+        </p>
         {% if settings.directRedirect %}
-            <p class="light" style="margin-top: -10px; margin-bottom: 14px;">
-                {{ "Note: This template is not used when Direct Redirect is enabled (Settings → Behavior). Links using direct redirect skip the template entirely."|t('shortlink-manager') }}
-            </p>
+            {% include 'lindemannrock-base/_components/info-box' with {
+                type: 'warning',
+                message: "Note: This template is not used when Direct Redirect is enabled (Settings → Behavior). Links using direct redirect skip the template entirely."|t('shortlink-manager')
+            } %}
         {% endif %}
 
 		{{ forms.autosuggestField({
@@ -245,11 +245,13 @@
             value: settings.expiredTemplate ?? '',
             placeholder: 'shortlink-manager/expired',
             suggestEnvVars: true,
-            tip: "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code><br>This can begin with an environment variable. <a href=\"https://craftcms.com/docs/5.x/configure.html#env\" target=\"_blank\" rel=\"noopener\">Learn more</a>"|t('shortlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('expiredTemplate'),
             warning: settings.isOverriddenByConfig('expiredTemplate') ?
                 "This is being overridden by the <code>expiredTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
+        <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
+            {{ "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code>"|t('shortlink-manager')|raw }}
+        </p>
 
 		{{ forms.autosuggestField({
             label: "QR Code Template"|t('shortlink-manager'),
@@ -259,11 +261,13 @@
             value: settings.qrTemplate ?? '',
             placeholder: 'shortlink-manager/qr',
             suggestEnvVars: true,
-            tip: "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code><br>This can begin with an environment variable. <a href=\"https://craftcms.com/docs/5.x/configure.html#env\" target=\"_blank\" rel=\"noopener\">Learn more</a>"|t('shortlink-manager')|raw,
             disabled: settings.isOverriddenByConfig('qrTemplate'),
             warning: settings.isOverriddenByConfig('qrTemplate') ?
                 "This is being overridden by the <code>qrTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
+        <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
+            {{ "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code>"|t('shortlink-manager')|raw }}
+        </p>
 
 		{{ forms.textareaField({
             label: "Default Expired Message"|t('shortlink-manager'),

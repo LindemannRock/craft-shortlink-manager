@@ -92,13 +92,10 @@
                 "This is being overridden by the <code>anonymizeIpAddress</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
 
-        <div class="field">
-            <p class="light">
-                <strong>Privacy Levels:</strong><br>
-                • <strong>Disabled</strong> (default): Full IP hashed with salt (accurate unique visitors)<br>
-                • <strong>Enabled</strong>: Subnet masked + hashed with salt (maximum privacy, less accurate)
-            </p>
-        </div>
+        {% include 'lindemannrock-base/_components/info-box' with {
+            type: 'info',
+            message: '<strong>' ~ "Privacy Levels:"|t('shortlink-manager') ~ '</strong><br>• <strong>' ~ "Disabled"|t('shortlink-manager') ~ '</strong> ' ~ "(default): Full IP hashed with salt (accurate unique visitors)"|t('shortlink-manager') ~ '<br>• <strong>' ~ "Enabled"|t('shortlink-manager') ~ '</strong>: ' ~ "Subnet masked + hashed with salt (maximum privacy, less accurate)"|t('shortlink-manager')
+        } %}
 
         <hr>
 
