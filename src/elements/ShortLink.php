@@ -752,9 +752,11 @@ class ShortLink extends Element
     public function getUrl(): string
     {
         $settings = ShortLinkManager::$plugin->getSettings();
-        $slugPrefix = $settings->slugPrefix;
+        $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
+        $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
+        $slug = ltrim((string) $this->slug, '/');
 
-        return $settings->buildPublicUrl($slugPrefix . '/' . $this->slug, $this->siteId);
+        return $settings->buildPublicUrl($slugPrefix . '/' . $slug, $this->siteId);
     }
 
     /**
@@ -909,9 +911,11 @@ class ShortLink extends Element
         $params = array_filter($params, fn($value) => $value !== null);
 
         // Get the QR prefix from settings
-        $qrPrefix = $settings->qrPrefix ?? 'qr';
+        $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
+        $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
+        $code = ltrim((string) $this->code, '/');
 
-        return $settings->buildPublicUrl("{$qrPrefix}/{$this->code}", $this->siteId, $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$code}", $this->siteId, $params);
     }
 
     /**
@@ -938,9 +942,11 @@ class ShortLink extends Element
         $params = array_filter($params, fn($value) => $value !== null);
 
         // Get the QR prefix from settings
-        $qrPrefix = $settings->qrPrefix ?? 'qr';
+        $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
+        $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
+        $code = ltrim((string) $this->code, '/');
 
-        return $settings->buildPublicUrl("{$qrPrefix}/{$this->code}/view", $this->siteId, $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$code}/view", $this->siteId, $params);
     }
 
     /**

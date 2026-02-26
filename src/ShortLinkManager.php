@@ -493,8 +493,10 @@ class ShortLinkManager extends Plugin
     private function getSiteUrlRules(): array
     {
         $settings = $this->getSettings();
-        $slugPrefix = $settings->slugPrefix;
-        $qrPrefix = $settings->qrPrefix ?? 'qr';
+        $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
+        $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
+        $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
+        $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
         $siteHandles = array_map(
             static fn($site) => preg_quote($site->handle, '/'),
             Craft::$app->getSites()->getAllSites()

@@ -44,7 +44,7 @@
 			</div>
 		</div>
 
-		{% if status != 'disabled' %}
+		{% if status not in ['disabled', 'expired'] %}
 			{% if plugin.settings.passQueryParams %}
 				<div class="field">
 					<div class="heading">
@@ -135,8 +135,8 @@
 	</div>
 </fieldset>
 
-{# QR Code Details - Only shown if enabled #}
-{% if shortLink.qrCodeEnabled %}
+{# QR Code Details - Only shown if shortlink is active and QR is enabled #}
+{% if shortLink.qrCodeEnabled and status not in ['disabled', 'expired'] %}
 	<fieldset>
 		<legend class="h6">{{ "{pluginName} QR Code"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
 		<div class="meta">
@@ -146,7 +146,7 @@
 				</div>
 				<div class="input" style="text-align: center;">
 					<a href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
-						<img src="{{ shortLink.getQrCodeUrl({ size: 150 }) }}" alt="QR Code Preview" style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ shortLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
+						<img src="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, size: 150 }) }}" alt="QR Code Preview" style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ shortLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
 					</a>
 				</div>
 			</div>

@@ -316,7 +316,7 @@
                     <div class="input" style="text-align: center;">
                         <a href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
                             <img id="qr-preview"
-                                 src="{{ shortLink.getQrCodeUrl({ size: 150 }) }}"
+                                 src="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, size: 150 }) }}"
                                  alt="QR Code Preview"
                                  style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ shortLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
                         </a>
