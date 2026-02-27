@@ -241,14 +241,17 @@ class SettingsController extends Controller
             }
         }
 
-        // Validate (includes conflict checking via validateSlugPrefix and validateQrPrefix)
-        if (!$settings->validate()) {
+        // Validate only fields belonging to the current settings section.
+        $section = $this->_validSettingsSection(
+            $this->request->getBodyParam('section', 'general'),
+        );
+        $attributesToValidate = $this->_validationAttributesForSection($section);
+        $attributesToValidate = array_values(array_filter(
+            $attributesToValidate,
+            fn(string $attribute): bool => !$settings->isOverriddenByConfig($attribute),
+        ));
+        if (!$settings->validate($attributesToValidate)) {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save settings.'));
-
-            // Get the section to re-render the correct template
-            $section = $this->_validSettingsSection(
-                $this->request->getBodyParam('section', 'general'),
-            );
 
             return $this->renderTemplate("shortlink-manager/settings/{$section}", [
                 'settings' => $settings,
@@ -256,7 +259,7 @@ class SettingsController extends Controller
         }
 
         // Save settings to database
-        if ($settings->saveToDatabase()) {
+        if ($settings->saveToDatabase($attributesToValidate)) {
             // Update the plugin's cached settings (CRITICAL - forces Craft to refresh)
             $plugin->setSettings($settings->getAttributes());
 
@@ -566,5 +569,75 @@ class SettingsController extends Controller
         $allowed = ['general', 'behavior', 'qr-code', 'analytics', 'integrations', 'interface', 'cache'];
 
         return in_array($section, $allowed, true) ? $section : 'general';
+    }
+
+    /**
+     * Get validation attributes for a settings section.
+     */
+    private function _validationAttributesForSection(string $section): array
+    {
+        return match ($section) {
+            'general' => [
+                'pluginName',
+                'enabledSites',
+                'slugPrefix',
+                'qrPrefix',
+                'shortlinkBaseUrl',
+                'shortlinkBaseUrlPattern',
+                'redirectTemplate',
+                'expiredTemplate',
+                'qrTemplate',
+                'logLevel',
+            ],
+            'behavior' => [
+                'notFoundRedirectUrl',
+                'expiredMessage',
+                'defaultHttpCode',
+                'passQueryParams',
+                'directRedirect',
+            ],
+            'qr-code' => [
+                'defaultQrSize',
+                'defaultQrFormat',
+                'defaultQrColor',
+                'defaultQrBgColor',
+                'defaultQrMargin',
+                'qrModuleStyle',
+                'qrEyeStyle',
+                'qrEyeColor',
+                'enableQrLogo',
+                'qrLogoVolumeUid',
+                'defaultQrLogoId',
+                'qrLogoSize',
+                'defaultQrErrorCorrection',
+                'enableQrDownload',
+                'qrDownloadFilename',
+            ],
+            'analytics' => [
+                'enableAnalytics',
+                'enableGeoDetection',
+                'geoProvider',
+                'geoApiKey',
+                'anonymizeIpAddress',
+                'analyticsRetention',
+                'ipHashSalt',
+            ],
+            'integrations' => [
+                'enabledIntegrations',
+                'seomaticTrackingEvents',
+                'seomaticEventPrefix',
+                'redirectManagerEvents',
+            ],
+            'interface' => [
+                'codeLength',
+                'itemsPerPage',
+                'reservedCodes',
+            ],
+            'cache' => [
+                'cacheStorageMethod',
+                'qrCodeCacheDuration',
+            ],
+            default => [],
+        };
     }
 }

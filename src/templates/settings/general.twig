@@ -23,10 +23,6 @@
 {% endblock %}
 
 {% block content %}
-	{% include 'lindemannrock-base/_components/ip-salt-error' with {
-		pluginHandle: 'shortlink-manager',
-		envVarName: 'SHORTLINK_MANAGER_IP_SALT'
-	} %}
 
 	{% set smartLinksPlugin = craft.app.plugins.getPlugin('smart-links') %}
 	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smart-links') %}
@@ -89,7 +85,7 @@
             : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, singularName: shortlinkHelper.lowerDisplayName})
         %}
 
-		{{ forms.textField({
+        {{ forms.textField({
             label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
             instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
             id: 'slugPrefix',
@@ -103,42 +99,6 @@
             warning: settings.isOverriddenByConfig('slugPrefix') ?
                 "This is being overridden by the <code>slugPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
-
-        {{ forms.autosuggestField({
-            label: "Shortlink Base URL"|t('shortlink-manager'),
-            instructions: "Optional absolute URL used for generated shortlinks and QR URLs. Leave empty to use each site's base URL."|t('shortlink-manager'),
-            id: 'shortlinkBaseUrl',
-            name: 'settings[shortlinkBaseUrl]',
-            value: settings.shortlinkBaseUrl ?? '',
-            errors: settings.getErrors('shortlinkBaseUrl'),
-            placeholder: 'https://short.example.com',
-            suggestEnvVars: true,
-            disabled: settings.isOverriddenByConfig('shortlinkBaseUrl'),
-            warning: settings.isOverriddenByConfig('shortlinkBaseUrl') ?
-                "This is being overridden by the <code>shortlinkBaseUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: "Shortlink Base URL Pattern"|t('shortlink-manager'),
-            instructions: "Optional absolute URL pattern for multisite short domains. Supported tokens: {siteHandle}, {siteId}, {siteUid}."|t('shortlink-manager'),
-            id: 'shortlinkBaseUrlPattern',
-            name: 'settings[shortlinkBaseUrlPattern]',
-            value: settings.shortlinkBaseUrlPattern ?? '',
-            errors: settings.getErrors('shortlinkBaseUrlPattern'),
-            placeholder: 'https://short.example.com/{siteHandle}',
-            suggestEnvVars: true,
-            disabled: settings.isOverriddenByConfig('shortlinkBaseUrlPattern'),
-            warning: settings.isOverriddenByConfig('shortlinkBaseUrlPattern') ?
-                "This is being overridden by the <code>shortlinkBaseUrlPattern</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
-        }) }}
-
-        {% set hasMultipleSites = craft.app.sites.getAllSites()|length > 1 %}
-        {% if hasMultipleSites and (settings.shortlinkBaseUrl ?? '') is not empty and (settings.shortlinkBaseUrlPattern ?? '') is empty %}
-            {% include 'lindemannrock-base/_components/info-box' with {
-                type: 'warning',
-                message: "Multisite detected: when <code>Shortlink Base URL</code> is set without <code>Shortlink Base URL Pattern</code>, generated URLs may resolve to only one site. Set a pattern like <code>https://short.example.com/{siteHandle}</code> to preserve site-specific routing."|t('shortlink-manager')|raw
-            } %}
-        {% endif %}
 
         {% set qrTip = rmActive
             ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard). Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."|t('shortlink-manager', {rmPluginName: rmPluginName})
@@ -190,6 +150,42 @@
                 "This is being overridden by the <code>qrPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
 
+        {{ forms.autosuggestField({
+            label: "Shortlink Base URL"|t('shortlink-manager'),
+            instructions: "Optional absolute URL used for generated shortlinks and QR URLs. Leave empty to use each site's base URL."|t('shortlink-manager'),
+            id: 'shortlinkBaseUrl',
+            name: 'settings[shortlinkBaseUrl]',
+            value: settings.shortlinkBaseUrl ?? '',
+            errors: settings.getErrors('shortlinkBaseUrl'),
+            placeholder: 'https://short.example.com',
+            suggestEnvVars: true,
+            disabled: settings.isOverriddenByConfig('shortlinkBaseUrl'),
+            warning: settings.isOverriddenByConfig('shortlinkBaseUrl') ?
+                "This is being overridden by the <code>shortlinkBaseUrl</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: "Shortlink Base URL Pattern"|t('shortlink-manager'),
+            instructions: "Optional absolute URL pattern for multisite short domains. Supported tokens: {siteHandle}, {siteId}, {siteUid}."|t('shortlink-manager'),
+            id: 'shortlinkBaseUrlPattern',
+            name: 'settings[shortlinkBaseUrlPattern]',
+            value: settings.shortlinkBaseUrlPattern ?? '',
+            errors: settings.getErrors('shortlinkBaseUrlPattern'),
+            placeholder: 'https://short.example.com/{siteHandle}',
+            suggestEnvVars: true,
+            disabled: settings.isOverriddenByConfig('shortlinkBaseUrlPattern'),
+            warning: settings.isOverriddenByConfig('shortlinkBaseUrlPattern') ?
+                "This is being overridden by the <code>shortlinkBaseUrlPattern</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        }) }}
+
+        {% set hasMultipleSites = craft.app.sites.getAllSites()|length > 1 %}
+        {% if hasMultipleSites and (settings.shortlinkBaseUrl ?? '') is not empty and (settings.shortlinkBaseUrlPattern ?? '') is empty %}
+            {% include 'lindemannrock-base/_components/info-box' with {
+                type: 'warning',
+                message: "Multisite detected: when <code>Shortlink Base URL</code> is set without <code>Shortlink Base URL Pattern</code>, generated URLs may resolve to only one site. Set a pattern like <code>https://short.example.com/{siteHandle}</code> to preserve site-specific routing."|t('shortlink-manager')|raw
+            } %}
+        {% endif %}
+
 		{{ forms.textField({
         label: "Code Length"|t('shortlink-manager'),
         instructions: "Length of generated shortlink codes (min: 4, max: 32)"|t('shortlink-manager'),
@@ -226,6 +222,7 @@
             disabled: settings.isOverriddenByConfig('redirectTemplate'),
             warning: settings.isOverriddenByConfig('redirectTemplate') ?
                 "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            errors: settings.getErrors('redirectTemplate')
         }) }}
         <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
             {{ "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code>"|t('shortlink-manager')|raw }}
@@ -248,6 +245,7 @@
             disabled: settings.isOverriddenByConfig('expiredTemplate'),
             warning: settings.isOverriddenByConfig('expiredTemplate') ?
                 "This is being overridden by the <code>expiredTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            errors: settings.getErrors('expiredTemplate')
         }) }}
         <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
             {{ "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code>"|t('shortlink-manager')|raw }}
@@ -264,6 +262,7 @@
             disabled: settings.isOverriddenByConfig('qrTemplate'),
             warning: settings.isOverriddenByConfig('qrTemplate') ?
                 "This is being overridden by the <code>qrTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            errors: settings.getErrors('qrTemplate')
         }) }}
         <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
             {{ "Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code>"|t('shortlink-manager')|raw }}

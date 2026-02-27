@@ -17,6 +17,9 @@ use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\traits\SettingsConfigTrait;
 use lindemannrock\base\traits\SettingsDisplayNameTrait;
 use lindemannrock\base\traits\SettingsPersistenceTrait;
+use lindemannrock\base\validators\RoutePrefixValidator;
+use lindemannrock\base\validators\TemplatePathValidator;
+use lindemannrock\base\validators\UrlOrPathValidator;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 
 /**
@@ -432,6 +435,7 @@ class Settings extends Model
             [['slugPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, and underscores are allowed.')],
             [['slugPrefix'], 'validateSlugPrefix'],
             [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
+            [['qrPrefix'], RoutePrefixValidator::class, 'translationCategory' => 'shortlink-manager'],
             [['qrPrefix'], 'validateQrPrefix'],
             [['enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrLogo', 'enableQrDownload', 'passQueryParams', 'directRedirect'], 'boolean'],
             [['enabledSites', 'enabledIntegrations', 'redirectManagerEvents', 'seomaticTrackingEvents'], 'safe'],
@@ -440,10 +444,12 @@ class Settings extends Model
             [['seomaticEventPrefix'], 'string', 'max' => 50],
             [['seomaticEventPrefix'], 'match', 'pattern' => '/^[a-z0-9\_]+$/', 'message' => Craft::t('shortlink-manager', 'Only lowercase letters, numbers, and underscores are allowed.')],
             [['redirectTemplate', 'expiredTemplate', 'qrTemplate'], 'string', 'max' => 500],
-            [['codeLength', 'defaultQrSize', 'qrCodeCacheDuration', 'defaultQrMargin', 'qrLogoSize', 'defaultHttpCode', 'analyticsRetention', 'itemsPerPage'], 'integer'],
+            [['redirectTemplate', 'expiredTemplate', 'qrTemplate'], TemplatePathValidator::class, 'translationCategory' => 'shortlink-manager', 'checkTemplateExists' => true],
+            [['codeLength', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'defaultQrMargin', 'qrLogoSize', 'defaultHttpCode', 'analyticsRetention', 'itemsPerPage'], 'integer'],
             [['itemsPerPage'], 'integer', 'min' => 10, 'max' => 500],
             [['codeLength'], 'integer', 'min' => 4, 'max' => 32],
             [['defaultQrSize'], 'integer', 'min' => 100, 'max' => 1000],
+            [['qrCodeCacheDuration', 'deviceDetectionCacheDuration'], 'integer', 'min' => 60, 'max' => 604800],
             [['defaultQrMargin'], 'integer', 'min' => 0, 'max' => 10],
             [['qrLogoSize'], 'integer', 'min' => 10, 'max' => 30],
             [['analyticsRetention'], 'integer', 'min' => 0, 'max' => 3650],
@@ -459,12 +465,14 @@ class Settings extends Model
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
             [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'leaf']],
             [['qrDownloadFilename'], 'string'],
+            [['qrDownloadFilename'], 'validateQrDownloadFilename'],
             [['qrLogoVolumeUid'], 'string'],
             [['defaultQrLogoId'], 'integer'],
             [['defaultQrLogoId'], 'required', 'when' => function($model) {
                 return $model->enableQrLogo;
             }, 'message' => Craft::t('shortlink-manager', 'Default logo is required when logo overlay is enabled.')],
             [['notFoundRedirectUrl', 'expiredMessage'], 'string'],
+            [['notFoundRedirectUrl'], UrlOrPathValidator::class, 'translationCategory' => 'shortlink-manager'],
             [['ipHashSalt'], 'string', 'min' => 32, 'message' => Craft::t('shortlink-manager', 'Salt must be at least 32 characters'), 'skipOnEmpty' => true],
             [['reservedCodes'], 'each', 'rule' => ['string']],
             [['logLevel'], 'in', 'range' => ['debug', 'info', 'warning', 'error']],
@@ -539,9 +547,9 @@ class Settings extends Model
         $conflicts = [];
 
         // Check against Smart Links if installed
-        if (PluginHelper::isPluginInstalled('smart-links')) {
+        if (PluginHelper::isPluginInstalled('smartlink-manager')) {
             try {
-                $smartLinksPlugin = PluginHelper::getPlugin('smart-links');
+                $smartLinksPlugin = PluginHelper::getPlugin('smartlink-manager');
                 if ($smartLinksPlugin) {
                     $smartLinksSettings = $smartLinksPlugin->getSettings();
                     $smartLinksPluginName = $smartLinksSettings->pluginName ?? 'Smart Links';
@@ -561,7 +569,7 @@ class Settings extends Model
                     }
                 }
             } catch (\Exception $e) {
-                // Silently continue if we can't check smart-links
+                // Silently continue if we can't check smart link plugin
             }
         }
 
@@ -580,7 +588,7 @@ class Settings extends Model
      */
     public function validateQrPrefix($attribute, $params, $validator)
     {
-        $qrPrefix = $this->$attribute;
+        $qrPrefix = trim((string) $this->$attribute, '/');
 
         if (empty($qrPrefix)) {
             return;
@@ -613,9 +621,9 @@ class Settings extends Model
         }
 
         // Check against Smart Links if installed
-        if (PluginHelper::isPluginInstalled('smart-links')) {
+        if (PluginHelper::isPluginInstalled('smartlink-manager')) {
             try {
-                $smartLinksPlugin = PluginHelper::getPlugin('smart-links');
+                $smartLinksPlugin = PluginHelper::getPlugin('smartlink-manager');
                 if ($smartLinksPlugin) {
                     $smartLinksSettings = $smartLinksPlugin->getSettings();
                     $smartLinksPluginName = $smartLinksSettings->pluginName ?? 'Smart Links';
@@ -635,7 +643,7 @@ class Settings extends Model
                     }
                 }
             } catch (\Exception $e) {
-                // Silently continue if we can't check smart-links
+                // Silently continue if we can't check smart link plugin
             }
         }
 
@@ -657,6 +665,52 @@ class Settings extends Model
         $suggestions = ['sqr', 'q', 's-qr', 's/qr'];
 
         return $suggestions;
+    }
+
+    /**
+     * Validate QR download filename pattern.
+     *
+     * Allowed tokens: {code}, {size}, {format}
+     * Allowed characters outside tokens: letters, numbers, dash, underscore, dot
+     * Spaces are not allowed.
+     */
+    public function validateQrDownloadFilename(string $attribute, mixed $params, mixed $validator): void
+    {
+        $pattern = (string)($this->$attribute ?? '');
+        if ($pattern === '') {
+            return;
+        }
+
+        if (preg_match('/\s/', $pattern) === 1) {
+            $this->addError($attribute, Craft::t('shortlink-manager', 'Download filename pattern cannot contain spaces.'));
+            return;
+        }
+
+        preg_match_all('/\{[^}]+\}/', $pattern, $matches);
+        $tokens = $matches[0];
+        $allowedTokens = ['{code}', '{size}', '{format}'];
+
+        foreach ($tokens as $token) {
+            if (!in_array($token, $allowedTokens, true)) {
+                $this->addError(
+                    $attribute,
+                    Craft::t(
+                        'shortlink-manager',
+                        'Unsupported token "{token}". Allowed tokens: {allowed}.',
+                        ['token' => $token, 'allowed' => implode(', ', $allowedTokens)]
+                    )
+                );
+                return;
+            }
+        }
+
+        $staticPart = preg_replace('/\{[^}]+\}/', '', $pattern) ?? '';
+        if ($staticPart !== '' && preg_match('/^[A-Za-z0-9._-]+$/', $staticPart) !== 1) {
+            $this->addError(
+                $attribute,
+                Craft::t('shortlink-manager', 'Download filename pattern contains invalid characters. Use only letters, numbers, dash (-), underscore (_), dot (.), and supported tokens.')
+            );
+        }
     }
 
     /**

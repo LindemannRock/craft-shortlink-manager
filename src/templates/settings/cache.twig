@@ -22,11 +22,6 @@
 
 {% block content %}
 
-	{% include 'lindemannrock-base/_components/ip-salt-error' with {
-		pluginHandle: 'shortlink-manager',
-		envVarName: 'SHORTLINK_MANAGER_IP_SALT'
-	} %}
-
 	<form method="post" accept-charset="UTF-8">
 		{{ actionInput('shortlink-manager/settings/save') }}
 		{{ csrfInput() }}
@@ -100,6 +95,7 @@
 	            min: 60,
 	            max: 604800,
 	            tip: 'Min: 60 (1 minute), Max: 604800 (7 days)'|t('shortlink-manager'),
+	            errors: settings.getErrors('qrCodeCacheDuration'),
 	            disabled: settings.isOverriddenByConfig('qrCodeCacheDuration'),
 	            warning: settings.isOverriddenByConfig('qrCodeCacheDuration') ?
 	                "This is being overridden by the <code>qrCodeCacheDuration</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -134,6 +130,7 @@
 	                min: 60,
 	                max: 604800,
 	                tip: 'Min: 60 (1 minute), Max: 604800 (7 days)'|t('shortlink-manager'),
+	                errors: settings.getErrors('deviceDetectionCacheDuration'),
 	                disabled: settings.isOverriddenByConfig('deviceDetectionCacheDuration'),
 	                warning: settings.isOverriddenByConfig('deviceDetectionCacheDuration') ?
 	                    "This is being overridden by the <code>deviceDetectionCacheDuration</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,

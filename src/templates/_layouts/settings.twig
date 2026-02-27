@@ -5,6 +5,10 @@
 {% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
 {% set selectedSubnavItem = 'settings' %}
 
+{% set errorSummary = include('lindemannrock-base/_partials/ip-salt-error', {
+    translationCategory: 'shortlink-manager'
+})|trim %}
+
 {% block sidebar %}
     <nav id="settings-nav">
         <ul>

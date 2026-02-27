@@ -131,30 +131,12 @@
 
 {# Display validation errors summary before content #}
 {% if shortLink is defined and shortLink.hasErrors() %}
-    {% set errorList = [] %}
-    {% for attribute, errors in shortLink.getErrors() %}
-        {% for error in errors %}
-            {% set errorList = errorList|merge([{
-                attribute: attribute,
-                message: error
-            }]) %}
-        {% endfor %}
-    {% endfor %}
-
     {% set errorSummary %}
-        <div class="error-summary" tabindex="-1">
-            <div>
-                <span class="notification-icon" data-icon="alert" aria-label="error" role="img"></span>
-                <h2>{{ 'Found {count, number} {count, plural, =1{error} other{errors}}'|t('app', {count: errorList|length}) }}</h2>
-            </div>
-            <ul class="errors">
-                {% for error in errorList %}
-                    <li>
-                        <a href="#" data-field-error-key="{{ error.attribute }}">{{ error.message }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        {% include 'lindemannrock-base/_partials/error-summary' with {
+            errors: shortLink.getErrors(),
+            linkMode: 'data-key',
+            translationCategory: 'shortlink-manager'
+        } %}
     {% endset %}
 {% endif %}
 
@@ -304,7 +286,11 @@
         }) }}
     </div>
 
-    <fieldset id="qr-settings" class="{{ not (shortLink.qrCodeEnabled ?? true) ? 'hidden' }}">
+    {% set hasQrFieldErrors = shortLink.getErrors('qrCodeSize')
+        or shortLink.getErrors('qrCodeColor')
+        or shortLink.getErrors('qrCodeBgColor')
+        or shortLink.getErrors('qrCodeEyeColor') %}
+    <fieldset id="qr-settings" class="{{ (not (shortLink.qrCodeEnabled ?? true) and not hasQrFieldErrors) ? 'hidden' }}">
         <legend class="h6">{{ "QR Code"|t('shortlink-manager') }}</legend>
 
         <div class="meta">
@@ -332,6 +318,7 @@
                 type: 'number',
                 min: 100,
                 max: 1000,
+                errors: shortLink.getErrors('qrCodeSize'),
                 size: 5,
                 fieldClass: ''
             }) }}
@@ -341,6 +328,7 @@
                 id: 'qrCodeColor',
                 name: 'qrCodeColor',
                 value: shortLink.qrCodeColor ?: plugin.settings.defaultQrColor,
+                errors: shortLink.getErrors('qrCodeColor'),
                 fieldClass: ''
             }) }}
 
@@ -349,6 +337,7 @@
                 id: 'qrCodeBgColor',
                 name: 'qrCodeBgColor',
                 value: shortLink.qrCodeBgColor ?: plugin.settings.defaultQrBgColor,
+                errors: shortLink.getErrors('qrCodeBgColor'),
                 fieldClass: ''
             }) }}
 
@@ -358,6 +347,7 @@
                 id: 'qrCodeEyeColor',
                 name: 'qrCodeEyeColor',
                 value: shortLink.qrCodeEyeColor ?: (plugin.settings.qrEyeColor ?? ''),
+                errors: shortLink.getErrors('qrCodeEyeColor'),
                 fieldClass: ''
             }) }}
 

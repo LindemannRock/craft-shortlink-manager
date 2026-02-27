@@ -23,41 +23,13 @@
 {% endblock %}
 
 {% block content %}
-	{% include 'lindemannrock-base/_components/ip-salt-error' with {
-		pluginHandle: 'shortlink-manager',
-		envVarName: 'SHORTLINK_MANAGER_IP_SALT'
-	} %}
 
 	{% if settings is defined and settings.hasErrors() %}
-		{% set errors = settings.getErrors() %}
-		{% set errorCount = 0 %}
-		{% for fieldErrors in errors %}
-			{% set errorCount = errorCount + fieldErrors|length %}
-		{% endfor %}
-
-		<div class="error-summary" tabindex="-1">
-			<div>
-				<span class="notification-icon" data-icon="alert" aria-label="error" role="img"></span>
-				<h2>
-					{% if errorCount == 1 %}
-						{{ "Found 1 error"|t('app') }}
-					{% else %}
-						{{ "Found {count} errors"|t('app', {count: errorCount}) }}
-					{% endif %}
-				</h2>
-			</div>
-			<ul class="errors">
-				{% for field, fieldErrors in errors %}
-					{% for error in fieldErrors %}
-						<li>
-							<a href="#{{ field }}-field" data-field-error-key="{{ field }}">
-								{{ error }}
-							</a>
-						</li>
-					{% endfor %}
-				{% endfor %}
-			</ul>
-		</div>
+		{% include 'lindemannrock-base/_partials/error-summary' with {
+			errors: settings.getErrors(),
+			linkMode: 'field-id',
+			translationCategory: 'shortlink-manager'
+		} %}
 	{% endif %}
 
 	<div class="qr-preview-floating">
@@ -104,6 +76,7 @@
         type: 'number',
         min: 100,
         max: 1000,
+        errors: settings.getErrors('defaultQrSize'),
         disabled: settings.isOverriddenByConfig('defaultQrSize'),
         warning: settings.isOverriddenByConfig('defaultQrSize') ?
             "This is being overridden by the <code>defaultQrSize</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -129,6 +102,7 @@
         id: 'defaultQrColor',
         name: 'settings[defaultQrColor]',
         value: settings.defaultQrColor,
+        errors: settings.getErrors('defaultQrColor'),
         disabled: settings.isOverriddenByConfig('defaultQrColor'),
         warning: settings.isOverriddenByConfig('defaultQrColor') ?
             "This is being overridden by the <code>defaultQrColor</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -139,6 +113,7 @@
         id: 'defaultQrBgColor',
         name: 'settings[defaultQrBgColor]',
         value: settings.defaultQrBgColor,
+        errors: settings.getErrors('defaultQrBgColor'),
         disabled: settings.isOverriddenByConfig('defaultQrBgColor'),
         warning: settings.isOverriddenByConfig('defaultQrBgColor') ?
             "This is being overridden by the <code>defaultQrBgColor</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -153,6 +128,7 @@
         type: 'number',
         min: 0,
         max: 10,
+        errors: settings.getErrors('defaultQrMargin'),
         disabled: settings.isOverriddenByConfig('defaultQrMargin'),
         warning: settings.isOverriddenByConfig('defaultQrMargin') ?
             "This is being overridden by the <code>defaultQrMargin</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -196,6 +172,7 @@
         id: 'qrEyeColor',
         name: 'settings[qrEyeColor]',
         value: settings.qrEyeColor ?? '',
+        errors: settings.getErrors('qrEyeColor'),
         disabled: settings.isOverriddenByConfig('qrEyeColor'),
         warning: settings.isOverriddenByConfig('qrEyeColor') ?
             "This is being overridden by the <code>qrEyeColor</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -218,7 +195,8 @@
             "Logo overlay only works with PNG format. SVG format does not support logos."|t('shortlink-manager'),
     }) }}
 
-		<div id="logo-settings" class="{{ not settings.enableQrLogo ? 'hidden' }}">
+		{% set hasLogoErrors = settings.getErrors('defaultQrLogoId') or settings.getErrors('qrLogoSize') %}
+		<div id="logo-settings" class="{{ (not settings.enableQrLogo and not hasLogoErrors) ? 'hidden' }}">
 			{% set volumeOptions = [{label: 'All asset volumes'|t('shortlink-manager'), value: ''}] %}
 			{% for volume in craft.app.volumes.getAllVolumes() %}
 				{% set volumeOptions = volumeOptions|merge([{
@@ -265,6 +243,7 @@
             type: 'number',
             min: 10,
             max: 30,
+            errors: settings.getErrors('qrLogoSize'),
             disabled: settings.isOverriddenByConfig('qrLogoSize'),
             warning: settings.isOverriddenByConfig('qrLogoSize') ?
                 "This is being overridden by the <code>qrLogoSize</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -308,7 +287,7 @@
             "This is being overridden by the <code>enableQrDownload</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
     }) }}
 
-		<div id="download-settings" class="{{ not settings.enableQrDownload ? 'hidden' }}">
+		<div id="download-settings" class="{{ (not settings.enableQrDownload and not settings.getErrors('qrDownloadFilename')) ? 'hidden' }}">
 			{{ forms.textField({
             label: "Download Filename Pattern"|t('shortlink-manager'),
             instructions: "Available variables: {code}, {size}, {format}"|t('shortlink-manager'),
@@ -316,6 +295,7 @@
             name: 'settings[qrDownloadFilename]',
             value: settings.qrDownloadFilename,
             placeholder: '{code}-qr-{size}',
+            errors: settings.getErrors('qrDownloadFilename'),
             disabled: settings.isOverriddenByConfig('qrDownloadFilename'),
             warning: settings.isOverriddenByConfig('qrDownloadFilename') ?
                 "This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,

@@ -21,10 +21,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    {% include 'lindemannrock-base/_components/ip-salt-error' with {
-        pluginHandle: 'shortlink-manager',
-        envVarName: 'SHORTLINK_MANAGER_IP_SALT'
-    } %}
 
     <form method="post" accept-charset="UTF-8">
         {{ actionInput('shortlink-manager/settings/save') }}
