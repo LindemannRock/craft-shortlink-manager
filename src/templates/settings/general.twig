@@ -151,8 +151,8 @@
         }) }}
 
         {{ forms.autosuggestField({
-            label: "Shortlink Base URL"|t('shortlink-manager'),
-            instructions: "Optional absolute URL used for generated shortlinks and QR URLs. Leave empty to use each site's base URL."|t('shortlink-manager'),
+            label: "{singularName} Base URL"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
+            instructions: "Custom domain for {singularName} and QR code URLs. Leave empty to use each site's base URL."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
             id: 'shortlinkBaseUrl',
             name: 'settings[shortlinkBaseUrl]',
             value: settings.shortlinkBaseUrl ?? '',
@@ -165,8 +165,8 @@
         }) }}
 
         {{ forms.autosuggestField({
-            label: "Shortlink Base URL Pattern"|t('shortlink-manager'),
-            instructions: "Optional absolute URL pattern for multisite short domains. Supported tokens: {siteHandle}, {siteId}, {siteUid}."|t('shortlink-manager'),
+            label: "{singularName} Base URL Pattern"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
+            instructions: "Custom domain pattern with per-site tokens for multisite setups. Takes precedence over Base URL when both are set. Supported tokens: {siteHandle}, {siteId}, {siteUid}."|t('shortlink-manager'),
             id: 'shortlinkBaseUrlPattern',
             name: 'settings[shortlinkBaseUrlPattern]',
             value: settings.shortlinkBaseUrlPattern ?? '',
@@ -182,13 +182,13 @@
         {% if hasMultipleSites and (settings.shortlinkBaseUrl ?? '') is not empty and (settings.shortlinkBaseUrlPattern ?? '') is empty %}
             {% include 'lindemannrock-base/_components/info-box' with {
                 type: 'warning',
-                message: "Multisite detected: when <code>Shortlink Base URL</code> is set without <code>Shortlink Base URL Pattern</code>, generated URLs may resolve to only one site. Set a pattern like <code>https://short.example.com/{siteHandle}</code> to preserve site-specific routing."|t('shortlink-manager')|raw
+                message: "Multisite detected: when <code>{singularName} Base URL</code> is set without <code>{singularName} Base URL Pattern</code>, generated URLs may resolve to only one site. Set a pattern like <code>https://short.example.com/{siteHandle}</code> to preserve site-specific routing."|t('shortlink-manager', {singularName: shortlinkHelper.displayName, siteHandle: '{siteHandle}'})|raw
             } %}
         {% endif %}
 
 		{{ forms.textField({
         label: "Code Length"|t('shortlink-manager'),
-        instructions: "Length of generated shortlink codes (min: 4, max: 32)"|t('shortlink-manager'),
+        instructions: "Length of generated {singularName} codes (min: 4, max: 32)"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
         id: 'codeLength',
         name: 'settings[codeLength]',
         value: settings.codeLength,
