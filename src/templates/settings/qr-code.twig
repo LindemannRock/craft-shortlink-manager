@@ -141,9 +141,9 @@
         name: 'settings[qrModuleStyle]',
         value: settings.qrModuleStyle,
         options: [
-            {label: 'Square', value: 'square'},
-            {label: 'Rounded', value: 'rounded'},
-            {label: 'Dots', value: 'dots'},
+            {label: 'Square'|t('shortlink-manager'), value: 'square'},
+            {label: 'Rounded'|t('shortlink-manager'), value: 'rounded'},
+            {label: 'Dots'|t('shortlink-manager'), value: 'dots'},
         ],
         disabled: settings.isOverriddenByConfig('qrModuleStyle'),
         warning: settings.isOverriddenByConfig('qrModuleStyle') ?
@@ -157,9 +157,9 @@
         name: 'settings[qrEyeStyle]',
         value: settings.qrEyeStyle,
         options: [
-            {label: 'Square', value: 'square'},
-            {label: 'Rounded', value: 'rounded'},
-            {label: 'Leaf', value: 'leaf'},
+            {label: 'Square'|t('shortlink-manager'), value: 'square'},
+            {label: 'Rounded'|t('shortlink-manager'), value: 'rounded'},
+            {label: 'Leaf'|t('shortlink-manager'), value: 'leaf'},
         ],
         disabled: settings.isOverriddenByConfig('qrEyeStyle'),
         warning: settings.isOverriddenByConfig('qrEyeStyle') ?
@@ -220,7 +220,7 @@
 			{% set logoSources = settings.qrLogoVolumeUid ? ['volume:' ~ settings.qrLogoVolumeUid] : '*' %}
 			{{ forms.elementSelectField({
             label: "Default Logo"|t('shortlink-manager'),
-            instructions: "Default logo to use for QR codes"|t('shortlink-manager'),
+            instructions: "Default logo to use for QR codes (can be overridden per shortlink)"|t('shortlink-manager'),
             id: 'defaultQrLogoId',
             name: 'settings[defaultQrLogoId]',
             elementType: 'craft\\elements\\Asset',
@@ -261,10 +261,10 @@
         name: 'settings[defaultQrErrorCorrection]',
         value: settings.defaultQrErrorCorrection,
         options: [
-            {label: 'Low (~7% correction)', value: 'L'},
-            {label: 'Medium (~15% correction)', value: 'M'},
-            {label: 'Quartile (~25% correction)', value: 'Q'},
-            {label: 'High (~30% correction)', value: 'H'},
+            {label: 'Low (~7% correction)'|t('shortlink-manager'), value: 'L'},
+            {label: 'Medium (~15% correction)'|t('shortlink-manager'), value: 'M'},
+            {label: 'Quartile (~25% correction)'|t('shortlink-manager'), value: 'Q'},
+            {label: 'High (~30% correction)'|t('shortlink-manager'), value: 'H'},
         ],
         disabled: settings.isOverriddenByConfig('defaultQrErrorCorrection'),
         warning: settings.isOverriddenByConfig('defaultQrErrorCorrection') ?
@@ -590,7 +590,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
             previewImg.style.opacity = '1';
             loadingDiv.style.display = 'none';
             errorDiv.style.display = 'block';
-            errorDiv.textContent = 'Failed to generate preview';
+            errorDiv.textContent = {{ "Failed to generate preview"|t('shortlink-manager')|json_encode|raw }};
 
             // Reset generating flag
             isGenerating = false;
