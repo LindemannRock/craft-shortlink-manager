@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.14.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.13.0...v5.14.0) (2026-03-04)
+
+
+### Features
+
+* add complete EN/DE translation ([d215d4d](https://github.com/LindemannRock/craft-shortlink-manager/commit/d215d4ddc385fa26e0f245d70db53c77dade0690))
+
+
+### Bug Fixes
+
+* **jobs:** implement RetryableJobInterface in CleanupAnalyticsJob ([11e4fa9](https://github.com/LindemannRock/craft-shortlink-manager/commit/11e4fa9bdf606d976528f404763f0e8bbadea523))
+* **settings, qr-code:** improve translations and error messages ([f011c59](https://github.com/LindemannRock/craft-shortlink-manager/commit/f011c594cb58252750c095f9885cb6bf91951f8d))
+* **settings, ShortLinkManager, ShortLink:** improve URL handling and validation ([159f2d7](https://github.com/LindemannRock/craft-shortlink-manager/commit/159f2d7db5477f7cfb5827fb402d6f1c5fac3cbf))
+* **settings, validation, templates:** improve settings validation and error handling ([92fac44](https://github.com/LindemannRock/craft-shortlink-manager/commit/92fac44593b2ad23639f6d45ac46eb79c31281cd))
+
 ## [5.13.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.12.0...v5.13.0) (2026-02-20)
 
 
