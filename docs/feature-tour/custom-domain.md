@@ -1,6 +1,6 @@
 # Custom Domain
 
-By default, ShortLink Manager generates short link URLs using each site's base URL. You can override this with a dedicated custom domain. Configuration differs depending on whether you have a single site or a multisite setup.
+By default, ShortLink Manager generates short link URLs using each site's base URL. You can override this with a dedicated custom domain using a single setting: `shortlinkBaseUrl`.
 
 ## Single-Site URLs
 
@@ -33,20 +33,20 @@ This overrides the site's own base URL when generating shortlink URLs, but does 
 
 ## Multisite Site-Aware URLs
 
-For a Craft multisite where each site needs its own URL path segment, use `shortlinkBaseUrlPattern` with a site token:
+For a Craft multisite where each site needs its own URL path segment, use `shortlinkBaseUrl` with a site token:
 
 ```php
 // config/shortlink-manager.php
 return [
     '*' => [
-        'shortlinkBaseUrlPattern' => App::env('SHORTLINK_BASE_URL_PATTERN'),
+        'shortlinkBaseUrl' => App::env('SHORTLINK_BASE_URL'),
     ],
 ];
 ```
 
 ```bash
 # .env
-SHORTLINK_BASE_URL_PATTERN=https://short.example.com/{siteHandle}
+SHORTLINK_BASE_URL=https://short.example.com/{siteHandle}
 ```
 
 **Supported tokens:**
@@ -57,17 +57,14 @@ SHORTLINK_BASE_URL_PATTERN=https://short.example.com/{siteHandle}
 | `{siteId}` | The site's numeric ID |
 | `{siteUid}` | The site's UID |
 
-With the pattern `https://short.example.com/{siteHandle}`, links generate URLs like:
+With `https://short.example.com/{siteHandle}`, links generate URLs like:
 
 - English site: `https://short.example.com/en/s/abc123`
 - German site: `https://short.example.com/de/s/abc123`
 
-> [!NOTE]
-> `shortlinkBaseUrlPattern` takes precedence over `shortlinkBaseUrl` when both are set.
-
 ## Site-Aware Routes
 
-When a `{siteHandle}` token is present in `shortlinkBaseUrlPattern`, ShortLink Manager automatically registers site-aware routes in addition to the standard routes:
+When a `{siteHandle}` token is present in `shortlinkBaseUrl`, ShortLink Manager automatically registers site-aware routes in addition to the standard routes:
 
 | Route | Controller |
 |-------|-----------|
@@ -82,9 +79,8 @@ The site-aware routes allow the redirect controller to resolve which Craft site 
 
 The `Settings::buildPublicUrl()` method resolves the correct base URL in this order:
 
-1. If `shortlinkBaseUrlPattern` is set and non-empty — expand site tokens and use as base
-2. Else if `shortlinkBaseUrl` is set and non-empty — use as base
-3. Else — use `UrlHelper::siteUrl()` with the short link's `siteId`
+1. If `shortlinkBaseUrl` is set and non-empty — expand supported site tokens and use as base
+2. Else — use `UrlHelper::siteUrl()` with the short link's `siteId`
 
 This method is called when generating `ShortLink::getUrl()`, `getQrCodeUrl()`, and `getQrCodeDisplayUrl()`.
 
@@ -101,7 +97,7 @@ If you use a true separate domain (not a subdomain of your main site), ensure:
 
 `shortlinkBaseUrl` must be a valid URL starting with `http://` or `https://`.
 
-`shortlinkBaseUrlPattern` must also start with `http://` or `https://`, and any `{...}` tokens must use one of the supported tokens. Using `{siteName}` or any other unsupported token triggers a validation error.
+If `{...}` tokens are used in `shortlinkBaseUrl`, only `{siteHandle}`, `{siteId}`, and `{siteUid}` are supported. Using `{siteName}` or any other unsupported token triggers a validation error.
 
 ## Multi-Environment Example
 

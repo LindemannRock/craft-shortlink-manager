@@ -38,15 +38,15 @@ Settings are grouped below by their functional area, matching the CP settings pa
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `usePrefix` | `bool` | `true` | Whether short links include `slugPrefix` in generated URLs (`true` => `/s/abc123`, `false` => `/abc123`) |
 | `slugPrefix` | `string` | `'s'` | URL prefix for generated short links (e.g., `'s'` creates `/s/abc123`) |
-| `shortlinkBaseUrl` | `string\|null` | `null` | Optional absolute base URL for generated shortlink and QR URLs (e.g., `https://short.example.com`). Supports env vars. Leave empty to use each site's base URL. |
-| `shortlinkBaseUrlPattern` @since(5.13.0) | `string\|null` | `null` | Optional absolute URL pattern for multisite short domains. Supports site tokens: `{siteHandle}`, `{siteId}`, `{siteUid}`. Example: `https://short.example.com/{siteHandle}`. Takes priority over `shortlinkBaseUrl`. Supports env vars. |
+| `shortlinkBaseUrl` | `string\|null` | `null` | Optional absolute base URL for generated shortlink and QR URLs (e.g., `https://short.example.com`). Supports tokens `{siteHandle}`, `{siteId}`, `{siteUid}` and env vars. Leave empty to use each site's base URL. |
 | `qrPrefix` | `string` | `''` | URL prefix for QR code pages. When empty, the CP auto-suggests `{slugPrefix}/qr` (e.g., `s/qr`). Supports standalone (`'qr'`) or nested (`'s/qr'`) patterns |
 | `codeLength` | `int` | `8` | Length of generated short codes (min: 4, max: 32) |
 | `reservedCodes` | `array` | `['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings']` | Codes that cannot be used for short links |
 
 > [!NOTE]
-> When `shortlinkBaseUrlPattern` is set, it takes priority over `shortlinkBaseUrl`. When using `{siteHandle}` in the pattern, site-aware routes (e.g., `/{siteHandle}/s/{code}`) are registered automatically alongside the standard `s/{code}` routes.
+> If `shortlinkBaseUrl` includes `{siteHandle}`, site-aware routes (e.g., `/{siteHandle}/s/{code}`) are registered automatically alongside the standard `s/{code}` routes.
 
 ---
 
@@ -163,7 +163,7 @@ Several settings read from environment variables automatically, with no config f
 | `SHORTLINK_MANAGER_DEFAULT_CITY` | `defaultCity` | Auto-loaded if `defaultCity` is not set in config |
 | `SHORTLINK_MANAGER_GEO_API_KEY` | `geoApiKey` | **Not** auto-loaded — pass via `App::env('SHORTLINK_MANAGER_GEO_API_KEY')` in your config file |
 
-The `shortlinkBaseUrl`, `shortlinkBaseUrlPattern`, `notFoundRedirectUrl`, `redirectTemplate`, `expiredTemplate`, and `qrTemplate` settings also support Craft's env var syntax (`$ENV_VAR`) when set via the CP autosuggest fields, or via `App::env()` in the config file.
+The `shortlinkBaseUrl`, `notFoundRedirectUrl`, `redirectTemplate`, `expiredTemplate`, and `qrTemplate` settings also support Craft's env var syntax (`$ENV_VAR`) when set via the CP autosuggest fields, or via `App::env()` in the config file.
 
 ```bash
 # .env
@@ -211,7 +211,7 @@ return [
         // 'shortlinkBaseUrl' => App::env('SHORTLINK_BASE_URL'),
 
         // Optional multisite short domains ({siteHandle} is replaced with site handle)
-        // 'shortlinkBaseUrlPattern' => App::env('SHORTLINK_BASE_URL_PATTERN'),
+        // 'shortlinkBaseUrl' => 'https://short.example.com/{siteHandle}',
 
         // Redirect behavior
         'defaultHttpCode' => 301,
@@ -289,22 +289,22 @@ This overrides the base URL used when generating shortlink and QR URLs, without 
 
 ### Multisite Short Domains
 
-For a Craft multisite where each site needs its own short domain, use `shortlinkBaseUrlPattern` with a `{siteHandle}` token:
+For a Craft multisite where each site needs its own short domain, use `shortlinkBaseUrl` with a `{siteHandle}` token:
 
 ```php
 // config/shortlink-manager.php
 return [
     '*' => [
-        'shortlinkBaseUrlPattern' => 'https://short.example.com/{siteHandle}',
+        'shortlinkBaseUrl' => 'https://short.example.com/{siteHandle}',
     ],
 ];
 ```
 
 This generates URLs like `https://short.example.com/en/s/abc123` for the `en` site and `https://short.example.com/de/s/abc123` for the `de` site.
 
-When a `{siteHandle}` pattern is configured, ShortLink Manager registers additional site-aware routes (`/{siteHandle}/s/{code}`) alongside the standard `s/{code}` routes, and the redirect controller resolves the target site from the route handle automatically.
+When a `{siteHandle}` token is configured, ShortLink Manager registers additional site-aware routes (`/{siteHandle}/s/{code}`) alongside the standard `s/{code}` routes, and the redirect controller resolves the target site from the route handle automatically.
 
 Supported tokens: `{siteHandle}`, `{siteId}`, `{siteUid}`.
 
 > [!NOTE]
-> `shortlinkBaseUrlPattern` takes priority over `shortlinkBaseUrl` when both are set.
+> `shortlinkBaseUrl` supports optional tokens `{siteHandle}`, `{siteId}`, and `{siteUid}` for multisite URL generation.

@@ -18,6 +18,8 @@ Common issues and solutions for ShortLink Manager.
 
 6. **Is there a route conflict?** Another plugin or a Craft section may have a route that conflicts with the short link prefix. ShortLink Manager registers its routes at the beginning of the rules array (highest priority), but check `config/routes.php` for conflicts.
 
+7. **Are both ShortLink Manager and SmartLink Manager in root mode on the same host?** If both plugins have URL prefix disabled and share a host, root routes like `/{slug}` can collide. One plugin may capture requests meant for the other and trigger its own `notFoundRedirectUrl`.
+
 ## Short Link Creates a Loop or Doesn't Redirect
 
 If visiting a short link URL doesn't redirect but instead loads a Craft template or error:
@@ -109,27 +111,27 @@ This only changes generated URLs (copy buttons, QR codes, exports). The actual r
 
 If you use `shortlinkBaseUrl` on a multisite install, all sites produce the same URL (e.g., `https://short.ly/s/abc123` for EN, AR, and FR). When a request arrives, Craft resolves the site from the hostname — which maps to only one site. The other sites' versions of that short link are unreachable.
 
-**Fix:** Use `shortlinkBaseUrlPattern` with `{siteHandle}` instead:
+**Fix:** Use `shortlinkBaseUrl` with `{siteHandle}` instead:
 
 ```php
 // config/shortlink-manager.php
-'shortlinkBaseUrlPattern' => 'https://short.ly/{siteHandle}',
+'shortlinkBaseUrl' => 'https://short.ly/{siteHandle}',
 ```
 
 This produces site-specific URLs (`https://short.ly/en/s/abc123`, `https://short.ly/fr/s/abc123`) and registers site-aware routes so the redirect controller resolves the correct site from the URL path.
 
 > [!TIP]
-> Rule of thumb: Single-site or headless with one site → `shortlinkBaseUrl`. Multisite → `shortlinkBaseUrlPattern` with `{siteHandle}`.
+> Rule of thumb: Single-site or headless with one site → `shortlinkBaseUrl`. Multisite → tokenized `shortlinkBaseUrl` with `{siteHandle}`.
 
 See [Custom Domain](../feature-tour/custom-domain.md) for full configuration details.
 
-## `shortlinkBaseUrlPattern` Validation Error
+## `shortlinkBaseUrl` Token Validation Error
 
 ```text
-Unsupported token in shortlink base URL pattern.
+Unsupported token in shortlink base URL.
 ```
 
-Only `{siteHandle}`, `{siteId}`, and `{siteUid}` are supported tokens. Check that your pattern does not use `{siteName}`, `{locale}`, or any other custom tokens.
+Only `{siteHandle}`, `{siteId}`, and `{siteUid}` are supported tokens. Check that your `shortlinkBaseUrl` does not use `{siteName}`, `{locale}`, or any other custom tokens.
 
 ## SEOmatic Tracking Events Not Firing
 

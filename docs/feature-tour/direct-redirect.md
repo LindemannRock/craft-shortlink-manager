@@ -8,14 +8,14 @@ Direct Redirect skips the template entirely and issues an immediate server-side 
 
 **Without Direct Redirect (default):**
 
-1. Browser requests `https://example.com/s/abc123`
+1. Browser requests a short URL (for example `https://example.com/s/abc123`, or `https://example.com/abc123` when prefix is disabled)
 2. ShortLink Manager loads the redirect template (`shortlink-manager/redirect`)
 3. The template renders — fires SEOmatic events, GTM/GA runs
 4. A `<meta http-equiv="refresh">` or JavaScript redirect sends the browser to the destination
 
 **With Direct Redirect:**
 
-1. Browser requests `https://example.com/s/abc123`
+1. Browser requests a short URL (for example `https://example.com/s/abc123`, or `https://example.com/abc123` when prefix is disabled)
 2. ShortLink Manager issues a direct HTTP `301`/`302`/`307`/`308` response
 3. Browser follows the redirect immediately
 
