@@ -116,9 +116,9 @@
                 {% endfor %}
             {% endif %}
 
-            {% set otherSettings = smartLinkEnabledForWarning ? smartLinkPluginForWarning.settings : null %}
-            {% if otherSettings %}
-                {% set smartlinkUrlSource = (otherSettings.smartlinkBaseUrlPattern ?? '') ?: (otherSettings.smartlinkBaseUrl ?? '') %}
+            {% set smartlinkSettingsForWarning = smartLinkEnabledForWarning ? smartLinkPluginForWarning.settings : null %}
+            {% if smartlinkSettingsForWarning %}
+                {% set smartlinkUrlSource = smartlinkSettingsForWarning.smartlinkBaseUrl ?? '' %}
                 {% if smartlinkUrlSource|trim is not empty %}
                     {% if '://' in smartlinkUrlSource %}
                         {% set smartlinkHost = smartlinkUrlSource|replace({'https://': '', 'http://': ''})|split('/')|first|split(':')|first|lower %}

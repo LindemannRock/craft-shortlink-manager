@@ -722,7 +722,13 @@ class Settings extends Model
     public function validateShortlinkBaseUrl(string $attribute, mixed $params, mixed $validator): void
     {
         $baseUrl = trim((string) App::parseEnv($this->$attribute));
+        $this->$attribute = $baseUrl;
         if ($baseUrl === '') {
+            return;
+        }
+
+        if (preg_match('/\s/', $baseUrl) === 1) {
+            $this->addError($attribute, Craft::t('shortlink-manager', 'Shortlink base URL cannot contain spaces.'));
             return;
         }
 
