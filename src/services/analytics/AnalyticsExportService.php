@@ -125,7 +125,11 @@ class AnalyticsExportService
             if (!empty($row['siteId'])) {
                 $site = Craft::$app->getSites()->getSiteById($row['siteId']);
                 $siteName = $site ? $site->name : '';
-                $shortLinkUrl = $settings->buildPublicUrl("{$settings->slugPrefix}/{$shortLink->code}", (int) $row['siteId']);
+                $usePrefix = (bool) ($settings->usePrefix ?? true);
+                $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
+                $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
+                $path = $usePrefix ? "{$slugPrefix}/{$shortLink->code}" : $shortLink->code;
+                $shortLinkUrl = $settings->buildPublicUrl($path, (int) $row['siteId']);
             }
 
             // Parse source from metadata JSON

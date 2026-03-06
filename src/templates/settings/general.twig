@@ -24,8 +24,8 @@
 
 {% block content %}
 
-	{% set smartLinksPlugin = craft.app.plugins.getPlugin('smart-links') %}
-	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smart-links') %}
+	{% set smartLinksPlugin = craft.app.plugins.getPlugin('smartlink-manager') ?? craft.app.plugins.getPlugin('smart-links') %}
+	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smartlink-manager') or craft.app.plugins.isPluginInstalled('smart-links') %}
 
 	<form method="post" accept-charset="UTF-8">
 		<input type="hidden" name="action" value="shortlink-manager/settings/save">
@@ -79,26 +79,134 @@
         {% set rmPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
         {% set rmActive = rmPlugin and craft.app.plugins.isPluginEnabled('redirect-manager') %}
         {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
+        {% set smartLinkPluginForWarning = craft.app.plugins.getPlugin('smartlink-manager') ?? craft.app.plugins.getPlugin('smart-links') %}
+        {% set smartLinkEnabledForWarning = (craft.app.plugins.isPluginEnabled('smartlink-manager') or craft.app.plugins.isPluginEnabled('smart-links')) and smartLinkPluginForWarning %}
+        {% set smartLinkUsePrefix = smartLinkEnabledForWarning ? (smartLinkPluginForWarning.settings.usePrefix ?? true) : true %}
+        {% set smartLinkNameForWarning = smartLinkEnabledForWarning ? (smartLinkPluginForWarning.settings.pluginName ?? smartLinkPluginForWarning.name ?? 'SmartLink Manager') : 'SmartLink Manager' %}
+        {% set currentUsePrefix = settings.usePrefix ?? true %}
+        {% set sameHostCollision = false %}
+        {% set possibleHostCollision = false %}
+
+        {% if (not currentUsePrefix) and (not smartLinkUsePrefix) %}
+            {% set currentHosts = [] %}
+            {% set otherHosts = [] %}
+            {% set currentUnknownHost = false %}
+            {% set otherUnknownHost = false %}
+
+            {% set shortlinkUrlSource = (settings.shortlinkBaseUrlPattern ?? '') ?: (settings.shortlinkBaseUrl ?? '') %}
+            {% if shortlinkUrlSource|trim is not empty %}
+                {% if '://' in shortlinkUrlSource %}
+                    {% set shortlinkHost = shortlinkUrlSource|replace({'https://': '', 'http://': ''})|split('/')|first|split(':')|first|lower %}
+                    {% if shortlinkHost %}
+                        {% set currentHosts = currentHosts|merge([shortlinkHost]) %}
+                    {% endif %}
+                {% else %}
+                    {% set currentUnknownHost = true %}
+                {% endif %}
+            {% else %}
+                {% for site in craft.app.sites.getAllSites() %}
+                    {% if site.baseUrl and '://' in site.baseUrl %}
+                        {% set siteHost = site.baseUrl|replace({'https://': '', 'http://': ''})|split('/')|first|split(':')|first|lower %}
+                        {% if siteHost and siteHost not in currentHosts %}
+                            {% set currentHosts = currentHosts|merge([siteHost]) %}
+                        {% endif %}
+                    {% else %}
+                        {% set currentUnknownHost = true %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% set otherSettings = smartLinkEnabledForWarning ? smartLinkPluginForWarning.settings : null %}
+            {% if otherSettings %}
+                {% set smartlinkUrlSource = (otherSettings.smartlinkBaseUrlPattern ?? '') ?: (otherSettings.smartlinkBaseUrl ?? '') %}
+                {% if smartlinkUrlSource|trim is not empty %}
+                    {% if '://' in smartlinkUrlSource %}
+                        {% set smartlinkHost = smartlinkUrlSource|replace({'https://': '', 'http://': ''})|split('/')|first|split(':')|first|lower %}
+                        {% if smartlinkHost %}
+                            {% set otherHosts = otherHosts|merge([smartlinkHost]) %}
+                        {% endif %}
+                    {% else %}
+                        {% set otherUnknownHost = true %}
+                    {% endif %}
+                {% else %}
+                    {% for site in craft.app.sites.getAllSites() %}
+                        {% if site.baseUrl and '://' in site.baseUrl %}
+                            {% set siteHost = site.baseUrl|replace({'https://': '', 'http://': ''})|split('/')|first|split(':')|first|lower %}
+                            {% if siteHost and siteHost not in otherHosts %}
+                                {% set otherHosts = otherHosts|merge([siteHost]) %}
+                            {% endif %}
+                        {% else %}
+                            {% set otherUnknownHost = true %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+
+            {% for host in currentHosts %}
+                {% if host in otherHosts %}
+                    {% set sameHostCollision = true %}
+                {% endif %}
+            {% endfor %}
+
+            {% if (not sameHostCollision) and (currentUnknownHost or otherUnknownHost) %}
+                {% set possibleHostCollision = true %}
+            {% endif %}
+        {% endif %}
 
         {% set slugTip = rmActive
             ? "Changing will break existing URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"|t('shortlink-manager', {rmPluginName: rmPluginName})
             : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, singularName: shortlinkHelper.lowerDisplayName})
         %}
 
-        {{ forms.textField({
-            label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
-            instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
-            id: 'slugPrefix',
-            name: 'settings[slugPrefix]',
-            value: settings.slugPrefix,
-            errors: settings.getErrors('slugPrefix'),
-            placeholder: 's',
-            required: true,
-            tip: slugTip,
-            disabled: settings.isOverriddenByConfig('slugPrefix'),
-            warning: settings.isOverriddenByConfig('slugPrefix') ?
-                "This is being overridden by the <code>slugPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+        {{ forms.lightswitchField({
+            label: "Use URL Prefix"|t('shortlink-manager'),
+            instructions: "Enable to generate {singularName} URLs as /{prefix}/{code}. Disable to generate root URLs as /{code}."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName, prefix: settings.slugPrefix ?: 's', code: 'abc123'}),
+            id: 'usePrefix',
+            name: 'settings[usePrefix]',
+            on: settings.usePrefix ?? true,
+            toggle: 'slug-prefix-field-wrapper',
+            disabled: settings.isOverriddenByConfig('usePrefix'),
+            warning: settings.isOverriddenByConfig('usePrefix') ?
+                "This is being overridden by the <code>usePrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
+
+        {% if sameHostCollision %}
+            {% include 'lindemannrock-base/_components/info-box' with {
+                type: 'warning',
+                margin: 'both',
+                message: "Both {shortName} and {smartName} are set to root URLs (no prefix) and share at least one host. Redirect routes can collide (e.g., <code>/code</code>), and QR routes can also collide when both plugins use the same QR prefix (e.g., <code>/qr/code</code>)."|t('shortlink-manager', {shortName: shortlinkHelper.fullName, smartName: smartLinkNameForWarning})|raw
+            } %}
+        {% elseif possibleHostCollision %}
+            {% include 'lindemannrock-base/_components/info-box' with {
+                type: 'warning',
+                margin: 'both',
+                message: "Both {shortName} and {smartName} are set to root URLs (no prefix). Host overlap could not be fully resolved from current settings/config, so redirect route collisions are possible. QR routes may also collide if both plugins use the same QR prefix."|t('shortlink-manager', {shortName: shortlinkHelper.fullName, smartName: smartLinkNameForWarning})
+            } %}
+        {% endif %}
+
+        <div id="slug-prefix-field-wrapper" class="{{ not currentUsePrefix ? 'hidden' : '' }}">
+            {{ forms.textField({
+                label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
+                instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+                id: 'slugPrefix',
+                name: 'settings[slugPrefix]',
+                value: settings.slugPrefix,
+                errors: settings.getErrors('slugPrefix'),
+                placeholder: 's',
+                required: true,
+                tip: slugTip,
+                disabled: settings.isOverriddenByConfig('slugPrefix'),
+                warning: settings.isOverriddenByConfig('slugPrefix') ?
+                    "This is being overridden by the <code>slugPrefix</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            }) }}
+        </div>
+
+        {% if not currentUsePrefix %}
+            {% include 'lindemannrock-base/_components/info-box' with {
+                type: 'info',
+                message: "URL Prefix is disabled. {singularName} URLs will be generated as root paths like <code>/abc123</code>."|t('shortlink-manager', {singularName: shortlinkHelper.displayName})|raw
+            } %}
+        {% endif %}
 
         {% set qrTip = rmActive
             ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard). Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."|t('shortlink-manager', {rmPluginName: rmPluginName})
@@ -107,9 +215,13 @@
 
 		{# Calculate smart default for qrPrefix if empty #}
 		{% set qrPrefixValue = settings.qrPrefix %}
-		{% if qrPrefixValue is empty %}
+        {% set nestedDefault = (settings.slugPrefix ?: 's') ~ '/qr' %}
+        {% if not currentUsePrefix %}
+            {% if qrPrefixValue is empty or qrPrefixValue == nestedDefault %}
+                {% set qrPrefixValue = 'qr' %}
+            {% endif %}
+		{% elseif qrPrefixValue is empty %}
 			{# Try nested pattern first (safer and more organized) #}
-			{% set nestedDefault = settings.slugPrefix ~ '/qr' %}
 			{% set smartQrDefault = nestedDefault %}
 
 			{% if smartLinksInstalled and smartLinksPlugin %}
@@ -143,7 +255,7 @@
             value: qrPrefixValue,
             errors: settings.getErrors('qrPrefix'),
             required: true,
-            placeholder: settings.slugPrefix ~ '/qr',
+            placeholder: currentUsePrefix ? nestedDefault : 'qr',
             tip: qrTip,
             disabled: settings.isOverriddenByConfig('qrPrefix'),
             warning: settings.isOverriddenByConfig('qrPrefix') ?

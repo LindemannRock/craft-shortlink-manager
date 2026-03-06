@@ -72,7 +72,8 @@
     }) }}
 
     <p class="light" style="margin-top: -10px; margin-bottom: 24px;">
-        {{ "Example: <code>{prefix}/abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: settings.slugPrefix})|raw }}
+        {% set prefixExample = (settings.usePrefix ?? true) ? ((settings.slugPrefix ?: 's') ~ '/') : '' %}
+        {{ "Example: <code>{prefix}abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: prefixExample})|raw }}
     </p>
 
     {{ forms.lightswitchField({

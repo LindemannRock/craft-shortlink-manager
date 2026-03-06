@@ -752,11 +752,16 @@ class ShortLink extends Element
     public function getUrl(): string
     {
         $settings = ShortLinkManager::$plugin->getSettings();
-        $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
-        $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
         $slug = ltrim((string) $this->slug, '/');
+        $usePrefix = (bool) ($settings->usePrefix ?? true);
 
-        return $settings->buildPublicUrl($slugPrefix . '/' . $slug, $this->siteId);
+        if ($usePrefix) {
+            $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
+            $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
+            return $settings->buildPublicUrl($slugPrefix . '/' . $slug, $this->siteId);
+        }
+
+        return $settings->buildPublicUrl($slug, $this->siteId);
     }
 
     /**

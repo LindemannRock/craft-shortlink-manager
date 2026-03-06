@@ -140,12 +140,16 @@ class ShortLinksService extends Component
      */
     public function getBySlug(string $slug, ?int $siteId = null): ?ShortLink
     {
+        $slug = strtolower(trim($slug));
+
         $query = ShortLink::find()
             ->slug($slug)
             ->status(null); // Include all statuses (enabled, disabled, expired)
 
         if ($siteId) {
             $query->siteId($siteId);
+        } else {
+            $query->siteId('*');
         }
 
         return $query->one();
@@ -569,9 +573,12 @@ class ShortLinksService extends Component
             return;
         }
 
-        $slugPrefix = $settings->slugPrefix;
-        $oldUrl = '/' . $slugPrefix . '/' . $oldSlug;
-        $newUrl = '/' . $slugPrefix . '/' . $shortLink->slug;
+        $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
+        $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
+        $usePrefix = (bool) ($settings->usePrefix ?? true);
+
+        $oldUrl = $usePrefix ? '/' . $slugPrefix . '/' . $oldSlug : '/' . $oldSlug;
+        $newUrl = $usePrefix ? '/' . $slugPrefix . '/' . $shortLink->slug : '/' . $shortLink->slug;
 
         // Check if Redirect Manager integration is available and enabled
         $redirectIntegration = ShortLinkManager::$plugin->integration->getIntegration('redirect-manager');

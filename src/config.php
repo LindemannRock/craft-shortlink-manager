@@ -36,6 +36,7 @@ return [
         'enabledSites' => [],          // Array of site IDs where ShortLink Manager should be enabled (empty = all sites)
 
         // URL Settings
+        'usePrefix' => true,           // Whether shortlinks should include slugPrefix in URLs (true => /s/abc123, false => /abc123)
         'slugPrefix' => 's',           // URL prefix for shortlinks (e.g., 's' creates /s/ABC123)
         'shortlinkBaseUrl' => null,    // Optional absolute base URL override for generated shortlinks (e.g., 'https://short.example.com')
         'shortlinkBaseUrlPattern' => null, // Optional absolute pattern with tokens {siteHandle}, {siteId}, {siteUid} (e.g., 'https://short.example.com/{siteHandle}')

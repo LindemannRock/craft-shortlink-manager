@@ -3,7 +3,7 @@
  * ShortLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2026 LindemannRock
  */
 
 return [
@@ -195,13 +195,19 @@ return [
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Wählen Sie, für welche Websites {pluginName} aktiviert sein soll. Leer lassen, um es für alle Websites zu aktivieren.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>enabledSites</code> in <code>config/shortlink-manager.php</code> überschrieben.',
     'URL Settings' => 'URL-Einstellungen',
+    'Use URL Prefix' => 'URL-Präfix verwenden',
+    'Enable to generate {singularName} URLs as /{prefix}/{code}. Disable to generate root URLs as /{code}.' => 'Aktivieren, um {singularName} URLs als /{prefix}/{code} zu generieren. Deaktivieren, um Root-URLs als /{code} zu generieren.',
     'Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}.' => 'Das Ändern des URL-Präfixes macht alle bestehenden {pluginName} ungültig. Ändern Sie dies nur, bevor Sie Ihren ersten {singularName} erstellen.',
     'Changing will break existing URLs. To migrate, create wildcard redirect in {rmPluginName}: Source \'/old/*\' → Destination \'/new/$1\' (Match Type: Wildcard)' => 'Änderung macht bestehende URLs ungültig. Zur Migration erstellen Sie eine Wildcard-Weiterleitung in {rmPluginName}: Quelle \'/alt/*\' → Ziel \'/neu/$1\' (Match-Typ: Wildcard)',
     'Changing will break existing QR URLs. To migrate, create wildcard redirect in {rmPluginName}: Source \'/old/*\' → Destination \'/new/$1\' (Match Type: Wildcard). Supports standalone (e.g., \'qr\') or nested (e.g., \'s/qr\') patterns.' => 'Änderung macht bestehende QR-URLs ungültig. Zur Migration erstellen Sie eine Wildcard-Weiterleitung in {rmPluginName}: Quelle \'/alt/*\' → Ziel \'/neu/$1\' (Match-Typ: Wildcard). Unterstützt eigenständige (z. B. \'qr\') oder verschachtelte (z. B. \'s/qr\') Muster.',
     'Supports standalone (e.g., \'qr\') or nested (e.g., \'s/qr\') patterns. Checked for conflicts with Smart Links.' => 'Unterstützt eigenständige (z. B. \'qr\') oder verschachtelte (z. B. \'s/qr\') Muster. Wird auf Konflikte mit Smart Links geprüft.',
+    'This is being overridden by the <code>usePrefix</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>usePrefix</code> in <code>config/shortlink-manager.php</code> überschrieben.',
+    'Both {shortName} and {smartName} are set to root URLs (no prefix) and share at least one host. Redirect routes can collide (e.g., <code>/code</code>), and QR routes can also collide when both plugins use the same QR prefix (e.g., <code>/qr/code</code>).' => 'Sowohl {shortName} als auch {smartName} sind auf Root-URLs (ohne Präfix) gesetzt und teilen mindestens einen Host. Weiterleitungs-Routen können kollidieren (z. B. <code>/code</code>), und QR-Routen können ebenfalls kollidieren, wenn beide Plugins dasselbe QR-Präfix verwenden (z. B. <code>/qr/code</code>).',
+    'Both {shortName} and {smartName} are set to root URLs (no prefix). Host overlap could not be fully resolved from current settings/config, so redirect route collisions are possible. QR routes may also collide if both plugins use the same QR prefix.' => 'Sowohl {shortName} als auch {smartName} sind auf Root-URLs (ohne Präfix) gesetzt. Eine Host-Überschneidung konnte aus den aktuellen Einstellungen/Konfigurationswerten nicht vollständig ermittelt werden, daher sind Kollisionen bei Weiterleitungs-Routen möglich. QR-Routen können ebenfalls kollidieren, wenn beide Plugins dasselbe QR-Präfix verwenden.',
     '{singularName} URL Prefix' => '{singularName} URL-Präfix',
     'The URL prefix for {pluginName} (e.g., \'s\' creates /s/abc123)' => 'Das URL-Präfix für {pluginName} (z. B. erzeugt \'s\' /s/abc123)',
     'This is being overridden by the <code>slugPrefix</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>slugPrefix</code> in <code>config/shortlink-manager.php</code> überschrieben.',
+    'URL Prefix is disabled. {singularName} URLs will be generated as root paths like <code>/abc123</code>.' => 'URL-Präfix ist deaktiviert. {singularName} URLs werden als Root-Pfade wie <code>/abc123</code> generiert.',
     'Custom domain for {singularName} and QR code URLs. Leave empty to use each site\'s base URL.' => 'Eigene Domain für {singularName} und QR Code URLs. Leer lassen, um die Basis-URL jeder Website zu verwenden.',
     'This is being overridden by the <code>shortlinkBaseUrl</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>shortlinkBaseUrl</code> in <code>config/shortlink-manager.php</code> überschrieben.',
     'Custom domain pattern with per-site tokens for multisite setups. Takes precedence over Base URL when both are set. Supported tokens: {siteHandle}, {siteId}, {siteUid}.' => 'Eigenes Domain-Muster mit websitespezifischen Token für Multisite-Setups. Hat Vorrang vor der Basis-URL, wenn beide gesetzt sind. Unterstützte Token: {siteHandle}, {siteId}, {siteUid}.',

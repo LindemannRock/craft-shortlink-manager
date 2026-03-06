@@ -493,6 +493,7 @@ class ShortLinkManager extends Plugin
     private function getSiteUrlRules(): array
     {
         $settings = $this->getSettings();
+        $usePrefix = (bool) ($settings->usePrefix ?? true);
         $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');
         $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
         $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
@@ -505,17 +506,25 @@ class ShortLinkManager extends Plugin
             ? implode('|', $siteHandles)
             : '[a-zA-Z0-9\-\_]+';
 
-        return [
-            // Shortlink redirect route
-            $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/index',
+        $rules = [
             // QR Code routes - supports both standalone ('qr') and nested ('s/qr') patterns
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
-            // Site-aware shortlink routes (for shortlinkBaseUrlPattern like /{siteHandle}/...)
-            '<siteHandle:' . $siteHandlePattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/index',
             '<siteHandle:' . $siteHandlePattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
             '<siteHandle:' . $siteHandlePattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
         ];
+
+        // Always keep prefixed routes for backward compatibility.
+        $rules[$slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+        $rules['<siteHandle:' . $siteHandlePattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+
+        // Root routes are enabled when usePrefix is disabled.
+        if (!$usePrefix) {
+            $rules['<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+            $rules['<siteHandle:' . $siteHandlePattern . '>/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+        }
+
+        return $rules;
     }
 
     /**

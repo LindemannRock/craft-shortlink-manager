@@ -55,6 +55,11 @@ class Settings extends Model
     public string $slugPrefix = 's';
 
     /**
+     * @var bool Whether short links should include slugPrefix in public URLs
+     */
+    public bool $usePrefix = true;
+
+    /**
      * @var string|null Optional absolute base URL for generated short links and QR URLs
      * (e.g., https://short.example.com). Empty = use site base URL.
      */
@@ -324,6 +329,7 @@ class Settings extends Model
     protected static function booleanFields(): array
     {
         return [
+            'usePrefix',
             'enableQrCodeCache',
             'enableQrLogo',
             'enableQrDownload',
@@ -429,6 +435,7 @@ class Settings extends Model
             [['pluginName', 'slugPrefix', 'qrPrefix'], 'required'],
             [['pluginName'], 'string', 'max' => 255],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
+            [['usePrefix'], 'boolean'],
             [['shortlinkBaseUrl', 'shortlinkBaseUrlPattern'], 'string', 'max' => 500],
             [['shortlinkBaseUrl'], 'url', 'defaultScheme' => 'https', 'skipOnEmpty' => true],
             [['shortlinkBaseUrlPattern'], 'validateShortlinkBaseUrlPattern'],
@@ -538,6 +545,10 @@ class Settings extends Model
      */
     public function validateSlugPrefix($attribute, $params, $validator)
     {
+        if (!$this->usePrefix) {
+            return;
+        }
+
         $slugPrefix = $this->$attribute;
 
         if (empty($slugPrefix)) {
@@ -599,21 +610,22 @@ class Settings extends Model
         // Parse the prefix (supports both "qr" and "s/qr" patterns)
         $segments = explode('/', $qrPrefix);
         $isNested = count($segments) > 1;
+        $activeSlugPrefix = trim((string) $this->slugPrefix, '/');
 
-        // Check against own slugPrefix
-        if (!$isNested && $qrPrefix === $this->slugPrefix) {
+        // Check against own slugPrefix when prefix mode is enabled
+        if ($this->usePrefix && !$isNested && $qrPrefix === $activeSlugPrefix) {
             $this->addError($attribute, Craft::t('shortlink-manager', 'QR prefix cannot be the same as your URL segment. Try: {segment}/qr, qr, or q', [
-                'segment' => $this->slugPrefix,
+                'segment' => $activeSlugPrefix,
             ]));
             return;
         }
 
-        // Check if nested pattern conflicts with own slugPrefix
-        if ($isNested) {
+        // Check if nested pattern conflicts with own slugPrefix when prefix mode is enabled
+        if ($this->usePrefix && $isNested) {
             $baseSegment = $segments[0];
-            if ($baseSegment !== $this->slugPrefix) {
+            if ($baseSegment !== $activeSlugPrefix) {
                 $this->addError($attribute, Craft::t('shortlink-manager', 'Nested QR prefix must start with your URL segment "{segment}". Use: {segment}/{qr} or use standalone like "qr"', [
-                    'segment' => $this->slugPrefix,
+                    'segment' => $activeSlugPrefix,
                     'qr' => $segments[1] ?? 'qr',
                 ]));
                 return;
@@ -839,6 +851,7 @@ class Settings extends Model
         return [
             'pluginName' => Craft::t('shortlink-manager', 'Plugin Name'),
             'enabledSites' => Craft::t('shortlink-manager', 'Enabled Sites'),
+            'usePrefix' => Craft::t('shortlink-manager', 'Use URL Prefix'),
             'slugPrefix' => Craft::t('shortlink-manager', 'Slug Prefix'),
             'shortlinkBaseUrl' => Craft::t('shortlink-manager', 'Shortlink Base URL'),
             'shortlinkBaseUrlPattern' => Craft::t('shortlink-manager', 'Shortlink Base URL Pattern'),

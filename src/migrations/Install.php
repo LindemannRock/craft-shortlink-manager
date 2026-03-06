@@ -164,6 +164,7 @@ class Install extends Migration
                 'shortlinkBaseUrl' => $this->string(500)->null()->comment('Optional absolute base URL override for generated shortlinks'),
                 'shortlinkBaseUrlPattern' => $this->string(500)->null()->comment('Optional absolute pattern with site tokens ({siteHandle}, {siteId}, {siteUid})'),
                 'slugPrefix' => $this->string(50)->notNull()->defaultValue('s'),
+                'usePrefix' => $this->boolean()->notNull()->defaultValue(true)->comment('Whether shortlinks should include slugPrefix in public URLs'),
                 'qrPrefix' => $this->string(50)->notNull()->defaultValue('s/qr')->comment('URL prefix for QR code pages (e.g., "s/qr" or "qr")'),
                 'codeLength' => $this->integer()->notNull()->defaultValue(8),
                 'customDomain' => $this->string()->null(),
@@ -231,11 +232,21 @@ class Install extends Migration
 
             // Insert default settings row
             $this->insert('{{%shortlinkmanager_settings}}', [
+                'usePrefix' => true,
                 'expiredMessage' => 'This link has expired',
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
                 'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
                 'uid' => StringHelper::UUID(),
             ]);
+        }
+
+        // Backfill support for existing installs without a dedicated migration file
+        if ($this->db->tableExists('{{%shortlinkmanager_settings}}') && !$this->db->columnExists('{{%shortlinkmanager_settings}}', 'usePrefix')) {
+            $this->addColumn(
+                '{{%shortlinkmanager_settings}}',
+                'usePrefix',
+                $this->boolean()->notNull()->defaultValue(true)->after('slugPrefix')
+            );
         }
 
         return true;

@@ -63,18 +63,28 @@ class RedirectController extends Controller
             return $this->redirectToNotFound();
         }
 
-        // Check if ShortLink Manager is enabled for the current site
         $settings = ShortLinkManager::$plugin->getSettings();
-        if (!$settings->isSiteEnabled($site->id)) {
-            $this->logInfo('ShortLink Manager disabled for this site', ['siteId' => $site->id, 'code' => $code]);
-            return $this->redirectToNotFound();
-        }
 
         // Get the shortlink
         $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
+        // Fallback: custom-domain requests can resolve to a different current site
+        // than the shortlink's saved site. Retry across sites before failing.
+        if (!$shortLink) {
+            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        }
+
         if (!$shortLink) {
             $this->logWarning('Shortlink not found', ['code' => $code]);
+            return $this->redirectToNotFound();
+        }
+
+        // Validate against the shortlink's actual site, not the request-resolved site.
+        if (!$settings->isSiteEnabled($shortLink->siteId)) {
+            $this->logInfo('ShortLink Manager disabled for shortlink site', [
+                'siteId' => $shortLink->siteId,
+                'code' => $code,
+            ]);
             return $this->redirectToNotFound();
         }
 

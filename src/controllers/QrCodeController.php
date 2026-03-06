@@ -103,6 +103,12 @@ class QrCodeController extends Controller
             }
             $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
+            // Fallback: on custom domains, current-site resolution can differ from link site.
+            // If a code exists on another enabled site, still allow QR generation.
+            if (!$shortLink) {
+                $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+            }
+
             if (!$shortLink) {
                 throw new NotFoundHttpException('Short link not found.');
             }
@@ -250,6 +256,11 @@ class QrCodeController extends Controller
             throw new NotFoundHttpException('Site not found.');
         }
         $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
+
+        // Fallback: resolve by code across sites if current-site lookup misses.
+        if (!$shortLink) {
+            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        }
 
         if (!$shortLink) {
             throw new NotFoundHttpException('Short link not found.');
