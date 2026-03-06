@@ -584,7 +584,6 @@ class SettingsController extends Controller
                 'slugPrefix',
                 'qrPrefix',
                 'shortlinkBaseUrl',
-                'shortlinkBaseUrlPattern',
                 'redirectTemplate',
                 'expiredTemplate',
                 'qrTemplate',
