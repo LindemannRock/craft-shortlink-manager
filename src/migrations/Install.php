@@ -163,8 +163,8 @@ class Install extends Migration
                 // URL settings
                 'shortlinkBaseUrl' => $this->string(500)->null()->comment('Optional absolute base URL override for generated shortlinks'),
                 'shortlinkBaseUrlPattern' => $this->string(500)->null()->comment('Optional absolute pattern with site tokens ({siteHandle}, {siteId}, {siteUid})'),
-                'slugPrefix' => $this->string(50)->notNull()->defaultValue('s'),
                 'usePrefix' => $this->boolean()->notNull()->defaultValue(true)->comment('Whether shortlinks should include slugPrefix in public URLs'),
+                'slugPrefix' => $this->string(50)->notNull()->defaultValue('s'),
                 'qrPrefix' => $this->string(50)->notNull()->defaultValue('s/qr')->comment('URL prefix for QR code pages (e.g., "s/qr" or "qr")'),
                 'codeLength' => $this->integer()->notNull()->defaultValue(8),
                 'customDomain' => $this->string()->null(),
@@ -245,7 +245,7 @@ class Install extends Migration
             $this->addColumn(
                 '{{%shortlinkmanager_settings}}',
                 'usePrefix',
-                $this->boolean()->notNull()->defaultValue(true)->after('slugPrefix')
+                $this->boolean()->notNull()->defaultValue(true)->after('shortlinkBaseUrlPattern')
             );
         }
 
