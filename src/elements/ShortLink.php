@@ -1085,8 +1085,9 @@ class ShortLink extends Element
             }
         }
 
-        // Generate code for auto-generated links
-        if (!$this->id && $this->linkType === 'code' && empty($this->code)) {
+        // Generate code for auto-generated links.
+        // This must also handle existing links switched from vanity -> code.
+        if ($this->linkType === 'code' && empty($this->code)) {
             $settings = ShortLinkManager::$plugin->getSettings();
             $this->code = $this->generateUniqueSlug($settings->codeLength ?? 8);
         }

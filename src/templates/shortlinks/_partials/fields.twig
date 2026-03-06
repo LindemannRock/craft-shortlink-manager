@@ -8,8 +8,8 @@
 
 {# Link Type Selection (only for manual/standalone links, not auto/field-managed) #}
 {% if shortLink.shortLinkType != 'auto' %}
-    {# Show actual code if editing, otherwise show random example #}
-    {% if shortLink.id and shortLink.code %}
+    {# Show current auto code only for auto-code links; otherwise show a random example #}
+    {% if shortLink.id and shortLink.code and shortLink.linkType == 'code' %}
         {% set codeExample = shortLink.code %}
     {% else %}
         {% set codeLength = craft.app.plugins.getPlugin('shortlink-manager').settings.codeLength ?? 8 %}
@@ -71,7 +71,7 @@
 {% else %}
     {# Auto-generated field #}
     <div id="code-field-auto" class="{{ shortLink.linkType == 'vanity' ? 'hidden' : '' }}">
-        {% if shortLink.id and shortLink.code %}
+        {% if shortLink.id and shortLink.code and shortLink.linkType == 'code' %}
             <div class="field">
                 <div class="heading">
                     <label>{{ "Code"|t('shortlink-manager') }}</label>
