@@ -1,0 +1,157 @@
+{% extends "shortlink-manager/_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{% set title = "Map CSV Columns"|t('shortlink-manager') %}
+{% set fullPageForm = false %}
+{% set selectedSubnavItem = 'import-export' %}
+
+{% set crumbs = [
+    { label: shortlinkHelper.fullName|t('shortlink-manager'), url: url('shortlink-manager') },
+    { label: 'Import/Export'|t('shortlink-manager'), url: url('shortlink-manager/import-export') },
+    { label: 'Map Columns'|t('shortlink-manager') }
+] %}
+
+{% block content %}
+    <h2 style="margin-top: 0px;">{{ "Map CSV Columns"|t('shortlink-manager') }}</h2>
+    <p>{{ "Your CSV has {count} rows. Map each CSV column to a shortlink field."|t('shortlink-manager', {count: rowCount}) }}</p>
+
+    <h3>{{ "Preview of CSV Data"|t('shortlink-manager') }}</h3>
+    <div style="overflow-x: auto; margin-bottom: 30px;">
+        <table class="data fullwidth">
+            <thead>
+                <tr>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr>
+            </thead>
+            <tbody>
+                {% for row in previewRows %}
+                    <tr>{% for cell in row %}<td><code>{{ cell }}</code></td>{% endfor %}</tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if rowCount > 5 %}
+            <p class="light" style="margin-top: 10px;">{{ "Showing first 5 rows. {total} total rows will be imported."|t('shortlink-manager', {total: rowCount}) }}</p>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <h3>{{ "Column Mapping"|t('shortlink-manager') }}</h3>
+    <p>{{ "Map your CSV columns to shortlink fields. Required fields must be mapped."|t('shortlink-manager') }}</p>
+    <p class="light">{{ "Note: export metadata columns like dateCreated and dateUpdated are export-only and will be ignored during import."|t('shortlink-manager') }}</p>
+
+    <form method="post" action="{{ actionUrl('shortlink-manager/import-export/preview') }}" id="mapping-form">
+        {{ csrfInput() }}
+
+        {% set fieldOptions = [
+            {value: '', label: '-- Do not import --'|t('shortlink-manager')},
+            {value: 'code', label: 'Code (required)'|t('shortlink-manager')},
+            {value: 'shortLinkType', label: 'ShortLink Type (manual/auto)'|t('shortlink-manager')},
+            {value: 'destinationUrl', label: 'Destination URL (required for manual)'|t('shortlink-manager')},
+            {value: 'elementId', label: 'Element ID (required for auto)'|t('shortlink-manager')},
+            {value: 'elementType', label: 'Element Type (optional for auto)'|t('shortlink-manager')},
+            {value: 'linkType', label: 'Link Type (code/vanity)'|t('shortlink-manager')},
+            {value: 'httpCode', label: 'HTTP Code'|t('shortlink-manager')},
+            {value: 'enabled', label: 'Enabled (1/0)'|t('shortlink-manager')},
+            {value: 'siteId', label: 'Site ID'|t('shortlink-manager')},
+            {value: 'siteHandle', label: 'Site Handle'|t('shortlink-manager')},
+            {value: 'trackAnalytics', label: 'Track Analytics (1/0)'|t('shortlink-manager')},
+            {value: 'qrCodeEnabled', label: 'QR Enabled (1/0)'|t('shortlink-manager')},
+        ] %}
+
+        <div class="field">
+            <div class="input">
+                <table class="editable fullwidth">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">{{ "CSV Column"|t('shortlink-manager') }}</th>
+                            <th style="width: 40%;">{{ "Maps to Field"|t('shortlink-manager') }}</th>
+                            <th style="width: 30%;">{{ "Sample Data"|t('shortlink-manager') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i, header in headers %}
+                            {% set lowerHeader = header|lower %}
+                            <tr>
+                                <td><strong>{{ header }}</strong></td>
+                                <td>
+                                    <div class="select fullwidth">
+                                        <select name="mapping[{{ i }}]" class="column-mapping">
+                                            {% for option in fieldOptions %}
+                                                {% set isMatch = false %}
+                                                {% if option.value == 'code' and lowerHeader in ['code', 'slug'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'shortLinkType' and lowerHeader in ['shortlinktype', 'shortlink type', 'creationtype'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'destinationUrl' and lowerHeader in ['destinationurl', 'destination', 'url', 'target'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'elementId' and lowerHeader in ['elementid', 'element_id', 'element id', 'entryid', 'entry_id'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'elementType' and lowerHeader in ['elementtype', 'element_type', 'element type'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'linkType' and lowerHeader in ['linktype', 'type'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'httpCode' and lowerHeader in ['httpcode', 'statuscode', 'status'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'enabled' and lowerHeader in ['enabled', 'active'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'siteId' and lowerHeader in ['siteid', 'site_id'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'siteHandle' and lowerHeader in ['sitehandle', 'site_handle', 'site'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'trackAnalytics' and lowerHeader in ['trackanalytics', 'analytics'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrCodeEnabled' and lowerHeader in ['qrcodeenabled', 'qrenabled'] %}{% set isMatch = true %}{% endif %}
+                                                <option value="{{ option.value }}" {% if isMatch %}selected{% endif %}>{{ option.label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                                <td><code class="light">{{ previewRows[0][i] ?? '-' }}</code></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% include 'lindemannrock-base/_components/info-box' with {
+            message: '',
+            type: 'error',
+            variant: 'colored',
+            margin: 'both',
+            boxId: 'mappingErrors',
+            messageId: 'mappingErrorText',
+            hidden: true
+        } only %}
+
+        <div class="buttons">
+            <a href="{{ url('shortlink-manager/import-export') }}" class="btn">{{ "Cancel"|t('shortlink-manager') }}</a>
+            <button type="submit" class="btn submit" id="previewBtn">{{ "Preview Import"|t('shortlink-manager') }}</button>
+        </div>
+    </form>
+
+    {% include 'lindemannrock-base/_components/plugin-credit' %}
+{% endblock %}
+
+{% js %}
+const mappingForm = document.getElementById('mapping-form');
+const mappingErrorDiv = document.getElementById('mappingErrors');
+const mappingErrorText = document.getElementById('mappingErrorText');
+
+mappingForm?.addEventListener('submit', function(e) {
+    const mappings = Array.from(document.querySelectorAll('.column-mapping')).map(m => m.value);
+    const hasCode = mappings.includes('code');
+
+    if (!hasCode) {
+        e.preventDefault();
+        mappingErrorDiv.style.display = 'block';
+        mappingErrorText.innerHTML = '<strong>Required field not mapped: Code</strong>';
+        mappingErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
+
+    const nonEmpty = mappings.filter(v => v !== '');
+    if (nonEmpty.length !== new Set(nonEmpty).size) {
+        e.preventDefault();
+        mappingErrorDiv.style.display = 'block';
+        mappingErrorText.innerHTML = '<strong>Error: You cannot map multiple CSV columns to the same field</strong>';
+        mappingErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
+
+    mappingErrorDiv.style.display = 'none';
+});
+
+document.querySelectorAll('.column-mapping').forEach(select => {
+    select.addEventListener('change', function() {
+        mappingErrorDiv.style.display = 'none';
+    });
+});
+{% endjs %}

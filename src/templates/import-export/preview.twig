@@ -1,0 +1,165 @@
+{% extends "shortlink-manager/_layouts/cp" %}
+{% set title = "Preview Import"|t('shortlink-manager') %}
+{% set fullPageForm = false %}
+{% set selectedSubnavItem = 'import-export' %}
+
+{% set crumbs = [
+    { label: shortlinkHelper.fullName|t('shortlink-manager'), url: url('shortlink-manager') },
+    { label: 'Import/Export'|t('shortlink-manager'), url: url('shortlink-manager/import-export') },
+    { label: 'Preview'|t('shortlink-manager') }
+] %}
+
+{% block content %}
+    <h2 style="margin-top: 0px;">{{ "Import Preview"|t('shortlink-manager') }}</h2>
+
+    <div class="lr-unified-cards cols-4" style="margin: 30px 0;">
+        {% include 'lindemannrock-base/_components/cards/unified-card' with { value: summary.totalRows, description: 'Total Rows'|t('shortlink-manager'), align: 'center' } only %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with { value: summary.validRows, description: 'Valid'|t('shortlink-manager'), palette: 'green', align: 'center' } only %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with { value: summary.duplicates, description: 'Duplicates'|t('shortlink-manager'), palette: 'amber', align: 'center' } only %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with { value: summary.errors, description: 'Errors'|t('shortlink-manager'), palette: 'red', align: 'center' } only %}
+    </div>
+
+    {% if validRows|length %}
+        <hr>
+        <h3>{{ "Valid Shortlinks to Import"|t('shortlink-manager') }} ({{ validRows|length }})</h3>
+        <div style="max-height: 500px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
+            <table class="data fullwidth" style="margin: 0;">
+                <thead style="position: sticky; top: 0; background: #f7f7f7; z-index: 1;">
+                    <tr>
+                        <th>{{ 'Code'|t('shortlink-manager') }}</th>
+                        <th>{{ 'ShortLink Type'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Destination URL'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Element'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Type'|t('shortlink-manager') }}</th>
+                        <th>{{ 'HTTP'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Enabled'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Site'|t('shortlink-manager') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in validRows %}
+                        <tr>
+                            <td><code style="font-size: 11px;">{{ row.code }}</code></td>
+                            <td>{{ row.shortLinkType ?? 'manual' }}</td>
+                            <td><code style="font-size: 11px;">{{ row.destinationUrl }}</code></td>
+                            <td>
+                                {% if row.elementId %}
+                                    <code style="font-size: 11px;">{{ row.elementType ?? 'Element' }} #{{ row.elementId }}</code>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ row.linkType }}</td>
+                            <td>{{ row.httpCode }}</td>
+                            <td>{{ row.enabled ? 'Yes' : 'No' }}</td>
+                            <td>
+                                {% if row.siteId %}
+                                    {% set importSite = craft.app.sites.getSiteById(row.siteId) %}
+                                    {{ importSite ? importSite.name : row.siteId }}
+                                {% else %}
+                                    {{ craft.app.sites.currentSite.name }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% if duplicateRows|length %}
+        <hr>
+        <h3>{{ 'Duplicates (will be skipped)'|t('shortlink-manager') }} ({{ duplicateRows|length }})</h3>
+        <div style="max-height: 300px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
+            <table class="data fullwidth" style="margin: 0;">
+                <thead style="position: sticky; top: 0; background: #fffbf0; z-index: 1;">
+                    <tr>
+                        <th>{{ 'Code'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Destination URL'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Reason'|t('shortlink-manager') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in duplicateRows %}
+                        <tr>
+                            <td><code style="font-size: 11px;">{{ row.code }}</code></td>
+                            <td><code style="font-size: 11px;">{{ row.destinationUrl }}</code></td>
+                            <td>{{ row.reason }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% if errorRows|length %}
+        <hr>
+        <h3>{{ 'Invalid Rows (will be skipped)'|t('shortlink-manager') }} ({{ errorRows|length }})</h3>
+        <div style="max-height: 300px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
+            <table class="data fullwidth" style="margin: 0;">
+                <thead style="position: sticky; top: 0; background: #fef2f2; z-index: 1;">
+                    <tr>
+                        <th>{{ 'Row'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Code'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Destination URL'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Error'|t('shortlink-manager') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in errorRows %}
+                        <tr>
+                            <td>{{ row.rowNumber }}</td>
+                            <td><code style="font-size: 11px;">{{ row.code }}</code></td>
+                            <td><code style="font-size: 11px;">{{ row.destinationUrl }}</code></td>
+                            <td>{{ row.error }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <form method="post" action="{{ actionUrl('shortlink-manager/import-export/import') }}" id="importForm">
+        {{ csrfInput() }}
+        <div style="background: #f7f7f7; padding: 20px; border-radius: 4px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">{{ "Ready to Import"|t('shortlink-manager') }}</h3>
+            <p>
+                {% if summary.validRows > 0 %}
+                    {{ "Click the button below to import {count} valid shortlink(s)."|t('shortlink-manager', {count: summary.validRows}) }}
+                    {% if summary.duplicates > 0 %}
+                        {{ "{duplicates} duplicate(s) will be skipped."|t('shortlink-manager', {duplicates: summary.duplicates}) }}
+                    {% endif %}
+                    {% if summary.errors > 0 %}
+                        {{ "{errors} invalid row(s) will be skipped."|t('shortlink-manager', {errors: summary.errors}) }}
+                    {% endif %}
+                {% else %}
+                    {{ "No valid shortlinks found to import."|t('shortlink-manager') }}
+                {% endif %}
+            </p>
+            <div class="buttons" style="margin-top: 15px;">
+                <a href="{{ url('shortlink-manager/import-export') }}" class="btn secondary">{{ 'Cancel'|t('shortlink-manager') }}</a>
+                {% if summary.validRows > 0 %}
+                    <button type="submit" class="btn submit">{{ 'Import {count} Shortlinks'|t('shortlink-manager', {count: summary.validRows}) }}</button>
+                {% else %}
+                    <button type="button" class="btn disabled" disabled>{{ 'No Valid Shortlinks to Import'|t('shortlink-manager') }}</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    {% include 'lindemannrock-base/_components/plugin-credit' %}
+{% endblock %}
+
+{% js %}
+const importForm = document.getElementById('importForm');
+if (importForm) {
+    importForm.addEventListener('submit', function(e) {
+        const count = {{ summary.validRows }};
+        if (!confirm('Import ' + count + ' shortlink(s)?')) {
+            e.preventDefault();
+        }
+    });
+}
+{% endjs %}

@@ -1,0 +1,169 @@
+{% extends "shortlink-manager/_layouts/cp" %}
+{% set title = "Import/Export"|t('shortlink-manager') %}
+{% set fullPageForm = false %}
+{% set selectedSubnavItem = 'import-export' %}
+
+{% set crumbs = [
+    { label: shortlinkHelper.fullName|t('shortlink-manager'), url: url('shortlink-manager') },
+    { label: 'Import/Export'|t('shortlink-manager'), url: url('shortlink-manager/import-export') }
+] %}
+{% set canImportExport = canImport or canExport %}
+{% set tabs = {} %}
+{% if canImportExport %}
+    {% set tabs = tabs|merge({
+        importExport: {
+            label: 'Import/Export'|t('shortlink-manager'),
+            url: '#import-export',
+        },
+    }) %}
+{% endif %}
+{% if canViewHistory %}
+    {% set tabs = tabs|merge({
+        importHistory: {
+            label: 'Import History'|t('shortlink-manager'),
+            url: '#import-history',
+        },
+    }) %}
+{% endif %}
+{% if not canImportExport and canViewHistory %}
+    {% set selectedTab = 'importHistory' %}
+{% endif %}
+
+{% set maxRows = importLimits.maxRows ?? 4000 %}
+{% set maxBytes = importLimits.maxBytes ?? 5242880 %}
+{% set maxSize = craft.app.formatter.asShortSize(maxBytes, 2) %}
+
+{% block content %}
+    <div id="import-export">
+        <h2 style="margin-top: 0;">{{ "Export Shortlinks"|t('shortlink-manager') }}</h2>
+
+        {% if canExport %}
+            <p>{{ "Download all your current shortlinks as a CSV file for backup or migration to another site."|t('shortlink-manager') }}</p>
+            <form method="post" action="{{ actionUrl('shortlink-manager/import-export/export') }}" style="margin-bottom: 50px;">
+                {{ csrfInput() }}
+                <button type="submit" class="btn secondary">{{ "Export All Shortlinks as CSV"|t('shortlink-manager') }}</button>
+            </form>
+        {% else %}
+            <p class="light">{{ "You do not have permission to export shortlinks."|t('shortlink-manager') }}</p>
+        {% endif %}
+
+        <hr>
+
+        <h2>{{ "Import Shortlinks"|t('shortlink-manager') }}</h2>
+
+        {% set csvFormatTip %}
+            <h4>{{ "CSV Format"|t('shortlink-manager') }}</h4>
+            <p><strong>{{ "Required columns:"|t('shortlink-manager') }}</strong> code</p>
+            <p><strong>{{ "Rules:"|t('shortlink-manager') }}</strong> destinationUrl is required for manual links; elementId is required for field-managed links (shortLinkType=auto).</p>
+            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, qrCodeEnabled</p>
+            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled
+summer-sale,manual,https://example.com/sale,,,vanity,301,1
+promo-entry,auto,,123,craft\elements\Entry,vanity,301,1</pre>
+        {% endset %}
+
+        {% if canImport %}
+            {% include 'lindemannrock-base/_partials/import-csv' with {
+                action: actionUrl('shortlink-manager/import-export/upload'),
+                formId: 'uploadForm',
+                title: 'Import from CSV'|t('shortlink-manager'),
+                description: "Import shortlinks from CSV. You'll map columns and preview before importing."|t('shortlink-manager'),
+                csvFormatTip: csvFormatTip,
+                fileLabel: 'CSV File'|t('shortlink-manager'),
+                fileInstructions: 'Select a CSV file to import shortlinks'|t('shortlink-manager'),
+                delimiterLabel: 'CSV Delimiter'|t('shortlink-manager'),
+                delimiterInstructions: 'Character used to separate values in your CSV (auto-detect is default)'|t('shortlink-manager'),
+                delimiterValue: 'auto',
+                delimiterOptions: {
+                    'auto': 'Auto (detect)'|t('shortlink-manager'),
+                    ',': 'Comma (,)'|t('shortlink-manager'),
+                    ';': 'Semicolon (;)'|t('shortlink-manager'),
+                    "\t": 'Tab'|t('shortlink-manager'),
+                    '|': 'Pipe (|)'|t('shortlink-manager'),
+                },
+                showBackupToggle: false,
+                infoBoxMessage: 'The maximum file size is {size} and the import is limited to {rows} rows per file.'|t('shortlink-manager', {
+                    size: maxSize,
+                    rows: maxRows|number_format
+                }),
+                submitLabel: 'Upload & Map Columns'|t('shortlink-manager'),
+            } %}
+        {% else %}
+            <p class="light">{{ "You do not have permission to import shortlinks."|t('shortlink-manager') }}</p>
+        {% endif %}
+    </div>
+
+    {% if canViewHistory %}
+        <div id="import-history" class="hidden">
+            <h2>{{ 'Import History'|t('shortlink-manager') }}</h2>
+            {% if importHistory|length and currentUser.can('shortLinkManager:clearImportHistory') %}
+                <div style="margin: 0 0 1rem auto;">
+                    <button type="button" class="btn" id="clear-logs-btn">{{ 'Clear history'|t('shortlink-manager') }}</button>
+                </div>
+            {% endif %}
+            {% if importHistory|length %}
+                <table class="data fullwidth">
+                    <thead>
+                        <tr>
+                            <th>{{ 'Date'|t('shortlink-manager') }}</th>
+                            <th>{{ 'Created By'|t('shortlink-manager') }}</th>
+                            <th>{{ 'Filename'|t('shortlink-manager') }}</th>
+                            <th>{{ 'Size'|t('shortlink-manager') }}</th>
+                            <th>{{ 'Imported'|t('shortlink-manager') }}</th>
+                            <th>{{ 'Failed'|t('shortlink-manager') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in importHistory %}
+                            <tr>
+                                <td>{{ item.formattedDate }}</td>
+                                <td>{{ item.user }}</td>
+                                <td>{{ item.filename ?? '-' }}</td>
+                                <td><code style="font-size: 11px;">{{ item.formattedSize }}</code></td>
+                                <td><strong>{{ item.imported|number_format }}</strong></td>
+                                <td>{{ item.failed|number_format }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="light" style="text-align: center; padding: 40px;">{{ 'No import history yet.'|t('shortlink-manager') }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% include 'lindemannrock-base/_components/plugin-credit' %}
+{% endblock %}
+
+{% js %}
+    if (sessionStorage.getItem('showHistoryTab') === 'true') {
+        sessionStorage.removeItem('showHistoryTab');
+        const historyTab = document.querySelector('a[href="#import-history"]');
+        if (historyTab) {
+            historyTab.click();
+        }
+    }
+
+    document.getElementById('clear-logs-btn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!confirm('{{ "Are you sure you want to clear all import logs? This action cannot be undone."|t('shortlink-manager')|e('js') }}')) {
+            return;
+        }
+
+        Craft.sendActionRequest('POST', 'shortlink-manager/import-export/clear-logs')
+            .then(() => {
+                sessionStorage.setItem('showHistoryTab', 'true');
+                window.location.reload(true);
+            })
+            .catch((error) => {
+                Craft.cp.displayError(error.response?.data?.error || '{{ "Failed to clear history."|t('shortlink-manager')|e('js') }}');
+            });
+    });
+
+    document.querySelectorAll('.menubtn').forEach(btn => {
+        if (typeof Craft !== 'undefined' && Craft.MenuBtn) {
+            new Craft.MenuBtn(btn);
+        } else if (typeof Garnish !== 'undefined' && Garnish.MenuBtn) {
+            new Garnish.MenuBtn(btn);
+        }
+    });
+{% endjs %}

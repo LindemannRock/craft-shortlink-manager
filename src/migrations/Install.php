@@ -248,6 +248,33 @@ class Install extends Migration
             );
         }
 
+        // Import history table for CSV imports
+        if (!$this->db->tableExists('{{%shortlinkmanager_import_history}}')) {
+            $this->createTable('{{%shortlinkmanager_import_history}}', [
+                'id' => $this->primaryKey(),
+                'userId' => $this->integer()->null(),
+                'filename' => $this->string()->null(),
+                'filesize' => $this->bigInteger()->null(),
+                'imported' => $this->integer()->notNull()->defaultValue(0),
+                'failed' => $this->integer()->notNull()->defaultValue(0),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+
+            $this->createIndex(null, '{{%shortlinkmanager_import_history}}', 'dateCreated');
+            $this->createIndex(null, '{{%shortlinkmanager_import_history}}', 'userId');
+            $this->addForeignKey(
+                null,
+                '{{%shortlinkmanager_import_history}}',
+                'userId',
+                '{{%users}}',
+                'id',
+                'SET NULL',
+                'CASCADE'
+            );
+        }
+
         return true;
     }
 
@@ -257,6 +284,7 @@ class Install extends Migration
     public function safeDown(): bool
     {
         // Drop tables in reverse order due to foreign key constraints
+        $this->dropTableIfExists('{{%shortlinkmanager_import_history}}');
         $this->dropTableIfExists('{{%shortlinkmanager_analytics}}');
         $this->dropTableIfExists('{{%shortlinkmanager_content}}');
         $this->dropTableIfExists('{{%shortlinkmanager_settings}}');

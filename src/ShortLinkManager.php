@@ -356,6 +356,18 @@ class ShortLinkManager extends Plugin
             'when' => $settings->enableAnalytics,
         ];
 
+        $sections[] = [
+            'key' => 'import-export',
+            'label' => Craft::t('shortlink-manager', 'Import/Export'),
+            'url' => 'shortlink-manager/import-export',
+            'permissionsAny' => [
+                'shortLinkManager:importLinks',
+                'shortLinkManager:exportLinks',
+                'shortLinkManager:viewImportHistory',
+                'shortLinkManager:clearImportHistory',
+            ],
+        ];
+
         if ($includeLogs) {
             $sections[] = [
                 'key' => 'logs',
@@ -470,6 +482,15 @@ class ShortLinkManager extends Plugin
             'shortlink-manager/analytics' => 'shortlink-manager/analytics/index',
             'shortlink-manager/analytics/export' => 'shortlink-manager/analytics/export',
 
+            // Import/Export routes
+            'shortlink-manager/import-export' => 'shortlink-manager/import-export/index',
+            'shortlink-manager/import-export/upload' => 'shortlink-manager/import-export/upload',
+            'shortlink-manager/import-export/map' => 'shortlink-manager/import-export/map',
+            'shortlink-manager/import-export/preview' => 'shortlink-manager/import-export/preview',
+            'shortlink-manager/import-export/import' => 'shortlink-manager/import-export/import',
+            'shortlink-manager/import-export/export' => 'shortlink-manager/import-export/export',
+            'shortlink-manager/import-export/clear-logs' => 'shortlink-manager/import-export/clear-logs',
+
             // Settings routes
             'shortlink-manager/settings' => 'shortlink-manager/settings/index',
             'shortlink-manager/settings/general' => 'shortlink-manager/settings/general',
@@ -559,6 +580,23 @@ class ShortLinkManager extends Plugin
                     ],
                     'shortLinkManager:clearAnalytics' => [
                         'label' => Craft::t('shortlink-manager', 'Clear analytics'),
+                    ],
+                ],
+            ],
+            'shortLinkManager:manageImportExport' => [
+                'label' => Craft::t('shortlink-manager', 'Manage import/export'),
+                'nested' => [
+                    'shortLinkManager:importLinks' => [
+                        'label' => Craft::t('shortlink-manager', 'Import links'),
+                    ],
+                    'shortLinkManager:exportLinks' => [
+                        'label' => Craft::t('shortlink-manager', 'Export links'),
+                    ],
+                    'shortLinkManager:viewImportHistory' => [
+                        'label' => Craft::t('shortlink-manager', 'View import history'),
+                    ],
+                    'shortLinkManager:clearImportHistory' => [
+                        'label' => Craft::t('shortlink-manager', 'Clear import history'),
                     ],
                 ],
             ],
