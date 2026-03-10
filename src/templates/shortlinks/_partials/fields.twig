@@ -190,6 +190,7 @@
             elements: (destinationType == 'entry' and linkedElement) ? [linkedElement] : [],
             required: destinationType == 'entry',
             showSiteMenu: true,
+            translatable: craft.app.sites.getTotalEditableSites() > 1,
             criteria: { status: ['live', 'pending', 'expired'] },
         }) }}
     </div>
@@ -207,6 +208,7 @@
             elements: (destinationType == 'category' and linkedElement) ? [linkedElement] : [],
             required: destinationType == 'category',
             showSiteMenu: true,
+            translatable: craft.app.sites.getTotalEditableSites() > 1,
         }) }}
     </div>
 
@@ -223,6 +225,7 @@
             elements: (destinationType == 'asset' and linkedElement) ? [linkedElement] : [],
             required: destinationType == 'asset',
             showSiteMenu: true,
+            translatable: craft.app.sites.getTotalEditableSites() > 1,
         }) }}
     </div>
 

@@ -54,6 +54,9 @@
             {value: 'siteHandle', label: 'Site Handle'|t('shortlink-manager')},
             {value: 'trackAnalytics', label: 'Track Analytics (1/0)'|t('shortlink-manager')},
             {value: 'qrCodeEnabled', label: 'QR Enabled (1/0)'|t('shortlink-manager')},
+            {value: 'dateExpired', label: 'Date Expired (YYYY-MM-DD HH:MM:SS)'|t('shortlink-manager')},
+            {value: 'dateCreated', label: 'Date Created (YYYY-MM-DD HH:MM:SS)'|t('shortlink-manager')},
+            {value: 'dateUpdated', label: 'Date Updated (YYYY-MM-DD HH:MM:SS)'|t('shortlink-manager')},
         ] %}
 
         <div class="field">
@@ -88,6 +91,9 @@
                                                 {% if option.value == 'siteHandle' and lowerHeader in ['sitehandle', 'site_handle', 'site'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'trackAnalytics' and lowerHeader in ['trackanalytics', 'analytics'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'qrCodeEnabled' and lowerHeader in ['qrcodeenabled', 'qrenabled'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'dateExpired' and lowerHeader in ['dateexpired', 'date_expired', 'expiresat', 'dateexpiredat'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'dateCreated' and lowerHeader in ['datecreated', 'date_created', 'createdat', 'created_at'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'dateUpdated' and lowerHeader in ['dateupdated', 'date_updated', 'updatedat', 'updated_at'] %}{% set isMatch = true %}{% endif %}
                                                 <option value="{{ option.value }}" {% if isMatch %}selected{% endif %}>{{ option.label }}</option>
                                             {% endfor %}
                                         </select>

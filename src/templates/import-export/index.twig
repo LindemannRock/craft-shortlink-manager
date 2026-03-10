@@ -55,10 +55,10 @@
             <h4>{{ "CSV Format"|t('shortlink-manager') }}</h4>
             <p><strong>{{ "Required columns:"|t('shortlink-manager') }}</strong> code</p>
             <p><strong>{{ "Rules:"|t('shortlink-manager') }}</strong> destinationUrl is required for manual links; elementId is required for field-managed links (shortLinkType=auto).</p>
-            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, qrCodeEnabled</p>
-            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled
-summer-sale,manual,https://example.com/sale,,,vanity,301,1
-promo-entry,auto,,123,craft\elements\Entry,vanity,301,1</pre>
+            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, qrCodeEnabled, dateExpired, dateCreated, dateUpdated</p>
+            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled,dateExpired,dateCreated,dateUpdated
+summer-sale,manual,https://example.com/sale,,,vanity,301,1,2026-12-31 23:59:59,2026-03-10 20:00:00,2026-03-10 21:00:00
+promo-entry,auto,,123,craft\elements\Entry,code,301,1,,2026-03-10 20:00:00,2026-03-10 21:00:00</pre>
         {% endset %}
 
         {% if canImport %}

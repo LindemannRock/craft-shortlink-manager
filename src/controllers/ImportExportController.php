@@ -81,7 +81,7 @@ class ImportExportController extends Controller
         $rows = [];
         $headers = [
             'code', 'shortLinkType', 'linkType', 'destinationUrl', 'elementId', 'elementType', 'httpCode', 'enabled', 'siteId', 'siteHandle',
-            'trackAnalytics', 'qrCodeEnabled', 'dateCreated', 'dateUpdated',
+            'trackAnalytics', 'qrCodeEnabled', 'dateExpired', 'dateCreated', 'dateUpdated',
         ];
 
         $shortlinks = ShortLink::find()->site('*')->status(null)->orderBy(['elements.dateCreated' => SORT_DESC])->all();
@@ -100,6 +100,7 @@ class ImportExportController extends Controller
                 'siteHandle' => $site?->handle,
                 'trackAnalytics' => $shortLink->trackAnalytics ? '1' : '0',
                 'qrCodeEnabled' => $shortLink->qrCodeEnabled ? '1' : '0',
+                'dateExpired' => $shortLink->dateExpired?->format('Y-m-d H:i:s'),
                 'dateCreated' => $shortLink->dateCreated?->format('Y-m-d H:i:s'),
                 'dateUpdated' => $shortLink->dateUpdated?->format('Y-m-d H:i:s'),
             ];
@@ -208,12 +209,14 @@ class ImportExportController extends Controller
         $validRows = [];
         $duplicateRows = [];
         $errorRows = [];
+        $defaultSiteId = Craft::$app->getSites()->getCurrentSite()->id;
 
         $existingSlugs = (new \craft\db\Query())
             ->select(['slug'])
             ->from('{{%shortlinkmanager}}')
             ->column();
         $existingLookup = array_fill_keys(array_map('strtolower', $existingSlugs), true);
+        $seenImportRows = [];
 
         $rowNumber = 1;
         foreach ($importData['allRows'] as $row) {
@@ -231,6 +234,9 @@ class ImportExportController extends Controller
                 'siteId' => null,
                 'trackAnalytics' => true,
                 'qrCodeEnabled' => true,
+                'dateExpired' => null,
+                'dateCreated' => null,
+                'dateUpdated' => null,
             ];
 
             foreach ($columnMap as $colIndex => $fieldName) {
@@ -248,6 +254,8 @@ class ImportExportController extends Controller
                     if ($site) {
                         $item['siteId'] = $site->id;
                     }
+                } elseif (in_array($fieldName, ['dateExpired', 'dateCreated', 'dateUpdated'], true)) {
+                    $item[$fieldName] = $this->parseDateOrNull($value);
                 } else {
                     $item[$fieldName] = CsvImportHelper::stripFormulaEscapePrefix($value);
                 }
@@ -265,6 +273,7 @@ class ImportExportController extends Controller
 
             $item['shortLinkType'] = $this->normalizeShortLinkType((string)($item['shortLinkType'] ?? 'manual'));
             $item['linkType'] = in_array((string)$item['linkType'], ['code', 'vanity'], true) ? (string)$item['linkType'] : 'vanity';
+            $resolvedSiteId = (int)($item['siteId'] ?: $defaultSiteId);
 
             if ($item['shortLinkType'] === 'auto') {
                 if (empty($item['elementId'])) {
@@ -339,8 +348,19 @@ class ImportExportController extends Controller
                 continue;
             }
 
+            $importRowKey = strtolower($slug) . '|' . $resolvedSiteId;
+            if (isset($seenImportRows[$importRowKey])) {
+                $duplicateRows[] = [
+                    'code' => $item['code'],
+                    'destinationUrl' => $item['destinationUrl'],
+                    'reason' => 'Duplicate row for same code and site',
+                ];
+                continue;
+            }
+
+            $item['resolvedSiteId'] = $resolvedSiteId;
             $validRows[] = $item;
-            $existingLookup[strtolower($slug)] = true;
+            $seenImportRows[$importRowKey] = true;
         }
 
         $summary = [
@@ -378,9 +398,21 @@ class ImportExportController extends Controller
         $imported = 0;
         $failed = 0;
 
+        /** @var array<string, array<int, array<string, mixed>>> $rowsBySlug */
+        $rowsBySlug = [];
         foreach ($previewData['validRows'] as $row) {
+            $slug = $this->generateSlugFromCode((string)($row['code'] ?? ''));
+            if ($slug === '') {
+                $failed++;
+                continue;
+            }
+            $rowsBySlug[$slug][] = $row;
+        }
+
+        foreach ($rowsBySlug as $slugRows) {
             try {
-                $siteId = (int)($row['siteId'] ?: Craft::$app->getSites()->getCurrentSite()->id);
+                $primaryRow = $slugRows[0];
+                $siteId = (int)($primaryRow['resolvedSiteId'] ?? $primaryRow['siteId'] ?? Craft::$app->getSites()->getCurrentSite()->id);
                 $site = Craft::$app->getSites()->getSiteById($siteId);
                 if (!$site) {
                     $failed++;
@@ -389,16 +421,16 @@ class ImportExportController extends Controller
 
                 $shortLink = new ShortLink();
                 $shortLink->siteId = $siteId;
-                $shortLink->shortLinkType = $this->normalizeShortLinkType((string)($row['shortLinkType'] ?? 'manual'));
-                $shortLink->linkType = $row['linkType'] ?: 'vanity';
-                $shortLink->code = (string)$row['code'];
-                $shortLink->elementId = !empty($row['elementId']) ? (int)$row['elementId'] : null;
-                $shortLink->elementType = $this->normalizeElementType($row['elementType'] ?? null);
-                $shortLink->destinationUrl = (string)($row['destinationUrl'] ?? '');
+                $shortLink->shortLinkType = $this->normalizeShortLinkType((string)($primaryRow['shortLinkType'] ?? 'manual'));
+                $shortLink->linkType = $primaryRow['linkType'] ?: 'vanity';
+                $shortLink->code = (string)$primaryRow['code'];
+                $shortLink->elementId = !empty($primaryRow['elementId']) ? (int)$primaryRow['elementId'] : null;
+                $shortLink->elementType = $this->normalizeElementType($primaryRow['elementType'] ?? null);
+                $shortLink->destinationUrl = (string)($primaryRow['destinationUrl'] ?? '');
 
                 if ($shortLink->shortLinkType === 'auto') {
                     if (!$shortLink->elementId) {
-                        $failed++;
+                        $failed += count($slugRows);
                         continue;
                     }
 
@@ -408,32 +440,80 @@ class ImportExportController extends Controller
                         '*'
                     );
                     if (!$element || !$element->getUrl()) {
-                        $failed++;
+                        $failed += count($slugRows);
                         continue;
                     }
 
                     $shortLink->elementType = get_class($element);
-                    if ($shortLink->destinationUrl === '') {
-                        $shortLink->destinationUrl = (string)$element->getUrl();
-                    }
+                    // Always derive destination from linked element for field-managed links.
+                    $shortLink->destinationUrl = (string)$element->getUrl();
                 } else {
                     $shortLink->elementId = null;
                     $shortLink->elementType = null;
                 }
 
-                $shortLink->httpCode = (int)($row['httpCode'] ?: 301);
-                $shortLink->trackAnalytics = (bool)$row['trackAnalytics'];
-                $shortLink->qrCodeEnabled = (bool)$row['qrCodeEnabled'];
-                $shortLink->setEnabledForSite((bool)$row['enabled']);
+                $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 301);
+                $shortLink->trackAnalytics = (bool)$primaryRow['trackAnalytics'];
+                $shortLink->qrCodeEnabled = (bool)$primaryRow['qrCodeEnabled'];
+                $shortLink->dateExpired = $primaryRow['dateExpired'] instanceof \DateTime ? $primaryRow['dateExpired'] : null;
+                $shortLink->setEnabledForSite((bool)$primaryRow['enabled']);
 
                 if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($shortLink)) {
-                    $failed++;
+                    $failed += count($slugRows);
                     continue;
                 }
 
+                $this->applyImportedElementDates($shortLink->id, $primaryRow['dateCreated'] ?? null, $primaryRow['dateUpdated'] ?? null);
                 $imported++;
+
+                // Apply additional site-specific rows for the same code/slug.
+                foreach (array_slice($slugRows, 1) as $siteRow) {
+                    $siteRowSiteId = (int)($siteRow['resolvedSiteId'] ?? $siteRow['siteId'] ?? 0);
+                    if ($siteRowSiteId <= 0) {
+                        $failed++;
+                        continue;
+                    }
+
+                    $siteVariant = ShortLink::find()
+                        ->id($shortLink->id)
+                        ->siteId($siteRowSiteId)
+                        ->status(null)
+                        ->one();
+
+                    if (!$siteVariant) {
+                        $failed++;
+                        continue;
+                    }
+
+                    $siteVariant->siteId = $siteRowSiteId;
+                    $siteVariant->setEnabledForSite((bool)$siteRow['enabled']);
+
+                    if ($shortLink->shortLinkType === 'auto') {
+                        $siteVariant->elementId = $shortLink->elementId;
+                        $siteVariant->elementType = $shortLink->elementType;
+
+                        $siteElement = Craft::$app->getElements()->getElementById(
+                            (int)$shortLink->elementId,
+                            (string)$shortLink->elementType,
+                            $siteRowSiteId
+                        );
+
+                        $siteVariant->destinationUrl = $siteElement ? (string)($siteElement->getUrl() ?? '') : '';
+                    } else {
+                        $siteVariant->elementId = null;
+                        $siteVariant->elementType = null;
+                        $siteVariant->destinationUrl = (string)($siteRow['destinationUrl'] ?? '');
+                    }
+
+                    if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($siteVariant)) {
+                        $failed++;
+                        continue;
+                    }
+
+                    $imported++;
+                }
             } catch (\Throwable) {
-                $failed++;
+                $failed += count($slugRows);
             }
         }
 
@@ -574,5 +654,37 @@ class ImportExportController extends Controller
         }
 
         return class_exists($trimmed) ? $trimmed : null;
+    }
+
+    private function parseDateOrNull(string $value): ?\DateTime
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        try {
+            return new \DateTime($value);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function applyImportedElementDates(int $elementId, mixed $dateCreated, mixed $dateUpdated): void
+    {
+        if (!($dateCreated instanceof \DateTime) && !($dateUpdated instanceof \DateTime)) {
+            return;
+        }
+
+        $update = [];
+        if ($dateCreated instanceof \DateTime) {
+            $update['dateCreated'] = Db::prepareDateForDb($dateCreated);
+        }
+        if ($dateUpdated instanceof \DateTime) {
+            $update['dateUpdated'] = Db::prepareDateForDb($dateUpdated);
+        }
+
+        Db::update('{{%elements}}', $update, ['id' => $elementId]);
+        Db::update('{{%shortlinkmanager}}', $update, ['id' => $elementId]);
     }
 }

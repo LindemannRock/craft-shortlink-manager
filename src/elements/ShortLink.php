@@ -1319,9 +1319,9 @@ class ShortLink extends Element
                 $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
             }
 
-            // For auto shortlinks (field-managed), sync elementId/elementType to ALL sites
-            // This ensures the linked element is the same across all sites
-            if ($this->shortLinkType === 'auto' && $this->elementId && !$this->propagating) {
+            // For auto shortlinks (field-managed), always sync elementId/elementType to ALL sites.
+            // Import/save flows can run via propagation, and skipping here can leave cross-site URLs stale.
+            if ($this->shortLinkType === 'auto' && $this->elementId) {
                 $this->syncElementToAllSites();
             }
         }
