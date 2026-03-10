@@ -159,11 +159,4 @@ promo-entry,auto,,123,craft\elements\Entry,code,301,1,,2026-03-10 20:00:00,2026-
             });
     });
 
-    document.querySelectorAll('.menubtn').forEach(btn => {
-        if (typeof Craft !== 'undefined' && Craft.MenuBtn) {
-            new Craft.MenuBtn(btn);
-        } else if (typeof Garnish !== 'undefined' && Garnish.MenuBtn) {
-            new Garnish.MenuBtn(btn);
-        }
-    });
 {% endjs %}

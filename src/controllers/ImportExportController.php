@@ -561,7 +561,13 @@ class ImportExportController extends Controller
 
     private function requireAnyImportExportPermission(): void
     {
-        if ($this->canImport() || $this->canExport() || $this->canViewHistory() || $this->canClearHistory()) {
+        if (
+            Craft::$app->getUser()->checkPermission('shortLinkManager:manageImportExport') ||
+            $this->canImport() ||
+            $this->canExport() ||
+            $this->canViewHistory() ||
+            $this->canClearHistory()
+        ) {
             return;
         }
         throw new ForbiddenHttpException('User does not have permission to access import/export.');

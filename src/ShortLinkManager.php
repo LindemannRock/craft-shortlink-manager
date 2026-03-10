@@ -361,6 +361,7 @@ class ShortLinkManager extends Plugin
             'label' => Craft::t('shortlink-manager', 'Import/Export'),
             'url' => 'shortlink-manager/import-export',
             'permissionsAny' => [
+                'shortLinkManager:manageImportExport',
                 'shortLinkManager:importLinks',
                 'shortLinkManager:exportLinks',
                 'shortLinkManager:viewImportHistory',
