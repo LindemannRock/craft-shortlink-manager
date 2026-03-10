@@ -585,14 +585,18 @@ class ImportExportController extends Controller
         Craft::$app->getSession()->remove('shortlink-import');
         Craft::$app->getSession()->remove('shortlink-preview');
 
+        $pluginName = ShortLinkManager::$plugin->getSettings()->getPluralLowerDisplayName();
+
         if ($failed > 0) {
-            Craft::$app->getSession()->setNotice(Craft::t('shortlink-manager', 'Import completed: {imported} imported, {failed} failed.', [
+            Craft::$app->getSession()->setNotice(Craft::t('shortlink-manager', 'Import completed: {imported} {pluginName} imported, {failed} failed.', [
                 'imported' => $imported,
+                'pluginName' => $pluginName,
                 'failed' => $failed,
             ]));
         } else {
-            Craft::$app->getSession()->setNotice(Craft::t('shortlink-manager', 'Import completed: {imported} shortlinks imported.', [
+            Craft::$app->getSession()->setNotice(Craft::t('shortlink-manager', 'Import completed: {imported} {pluginName} imported.', [
                 'imported' => $imported,
+                'pluginName' => $pluginName,
             ]));
         }
 

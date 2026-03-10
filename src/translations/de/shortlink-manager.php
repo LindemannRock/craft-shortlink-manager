@@ -91,6 +91,8 @@ return [
     'Code and Destination URL must be mapped.' => 'Code und Ziel-URL müssen zugeordnet werden.',
     'Import completed: {imported} imported, {failed} failed.' => 'Import abgeschlossen: {imported} importiert, {failed} fehlgeschlagen.',
     'Import completed: {imported} shortlinks imported.' => 'Import abgeschlossen: {imported} Shortlinks importiert.',
+    'Import completed: {imported} {pluginName} imported.' => 'Import abgeschlossen: {imported} {pluginName} importiert.',
+    'Import completed: {imported} {pluginName} imported, {failed} failed.' => 'Import abgeschlossen: {imported} {pluginName} importiert, {failed} fehlgeschlagen.',
     'Failed to clear import history.' => 'Importverlauf konnte nicht geleert werden.',
     'Unknown' => 'Unbekannt',
     'Code must be mapped.' => 'Code muss zugeordnet werden.',

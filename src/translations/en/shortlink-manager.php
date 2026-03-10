@@ -91,6 +91,8 @@ return [
     'Code and Destination URL must be mapped.' => 'Code and Destination URL must be mapped.',
     'Import completed: {imported} imported, {failed} failed.' => 'Import completed: {imported} imported, {failed} failed.',
     'Import completed: {imported} shortlinks imported.' => 'Import completed: {imported} shortlinks imported.',
+    'Import completed: {imported} {pluginName} imported.' => 'Import completed: {imported} {pluginName} imported.',
+    'Import completed: {imported} {pluginName} imported, {failed} failed.' => 'Import completed: {imported} {pluginName} imported, {failed} failed.',
     'Failed to clear import history.' => 'Failed to clear import history.',
     'Unknown' => 'Unknown',
     'Code must be mapped.' => 'Code must be mapped.',
