@@ -331,7 +331,7 @@ class ShortLink extends Element
                 'key' => '*',
                 'label' => Craft::t('shortlink-manager', 'All {pluginName}', ['pluginName' => ShortLinkManager::$plugin->getSettings()->getPluralDisplayName()]),
                 'criteria' => [],
-                'defaultSort' => ['dateCreated', 'desc'],
+                'defaultSort' => ['postDate', 'desc'],
             ],
             [
                 'key' => 'code',
@@ -453,7 +453,7 @@ class ShortLink extends Element
             'destinationUrl',
             'status',
             'hits',
-            'dateCreated',
+            'postDate',
         ];
     }
 

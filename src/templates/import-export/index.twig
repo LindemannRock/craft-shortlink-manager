@@ -55,10 +55,10 @@
             <h4>{{ "CSV Format"|t('shortlink-manager') }}</h4>
             <p><strong>{{ "Required columns:"|t('shortlink-manager') }}</strong> code</p>
             <p><strong>{{ "Rules:"|t('shortlink-manager') }}</strong> destinationUrl is required for manual links; elementId is required for field-managed links (shortLinkType=auto).</p>
-            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, qrCodeEnabled, dateExpired, dateCreated, dateUpdated</p>
-            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled,dateExpired,dateCreated,dateUpdated
-summer-sale,manual,https://example.com/sale,,,vanity,301,1,2026-12-31 23:59:59,2026-03-10 20:00:00,2026-03-10 21:00:00
-promo-entry,auto,,123,craft\elements\Entry,code,301,1,,2026-03-10 20:00:00,2026-03-10 21:00:00</pre>
+            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, qrCodeEnabled, postDate, dateExpired</p>
+            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled,postDate,dateExpired
+summer-sale,manual,https://example.com/sale,,,vanity,301,1,2025-12-01 21:31:00,2026-12-31 23:59:59
+promo-entry,auto,,123,craft\elements\Entry,code,301,1,2025-12-01 21:31:00,</pre>
         {% endset %}
 
         {% if canImport %}
@@ -93,70 +93,28 @@ promo-entry,auto,,123,craft\elements\Entry,code,301,1,,2026-03-10 20:00:00,2026-
     </div>
 
     {% if canViewHistory %}
-        <div id="import-history" class="hidden">
-            <h2>{{ 'Import History'|t('shortlink-manager') }}</h2>
-            {% if importHistory|length and currentUser.can('shortLinkManager:clearImportHistory') %}
-                <div style="margin: 0 0 1rem auto;">
-                    <button type="button" class="btn" id="clear-logs-btn">{{ 'Clear history'|t('shortlink-manager') }}</button>
-                </div>
-            {% endif %}
-            {% if importHistory|length %}
-                <table class="data fullwidth">
-                    <thead>
-                        <tr>
-                            <th>{{ 'Date'|t('shortlink-manager') }}</th>
-                            <th>{{ 'Created By'|t('shortlink-manager') }}</th>
-                            <th>{{ 'Filename'|t('shortlink-manager') }}</th>
-                            <th>{{ 'Size'|t('shortlink-manager') }}</th>
-                            <th>{{ 'Imported'|t('shortlink-manager') }}</th>
-                            <th>{{ 'Failed'|t('shortlink-manager') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in importHistory %}
-                            <tr>
-                                <td>{{ item.formattedDate }}</td>
-                                <td>{{ item.user }}</td>
-                                <td>{{ item.filename ?? '-' }}</td>
-                                <td><code style="font-size: 11px;">{{ item.formattedSize }}</code></td>
-                                <td><strong>{{ item.imported|number_format }}</strong></td>
-                                <td>{{ item.failed|number_format }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="light" style="text-align: center; padding: 40px;">{{ 'No import history yet.'|t('shortlink-manager') }}</p>
-            {% endif %}
-        </div>
+        {% include 'lindemannrock-base/_partials/import-history' with {
+            sectionId: 'import-history',
+            title: 'Import History'|t('shortlink-manager'),
+            importHistory: importHistory,
+            canClearHistory: currentUser.can('shortLinkManager:clearImportHistory'),
+            clearButtonId: 'clear-logs-btn',
+            clearLabel: 'Clear history'|t('shortlink-manager'),
+            emptyMessage: 'No import history yet.'|t('shortlink-manager'),
+            translationCategory: 'shortlink-manager',
+        } only %}
     {% endif %}
 
     {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}
 
 {% js %}
-    if (sessionStorage.getItem('showHistoryTab') === 'true') {
-        sessionStorage.removeItem('showHistoryTab');
-        const historyTab = document.querySelector('a[href="#import-history"]');
-        if (historyTab) {
-            historyTab.click();
-        }
-    }
-
-    document.getElementById('clear-logs-btn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (!confirm('{{ "Are you sure you want to clear all import logs? This action cannot be undone."|t('shortlink-manager')|e('js') }}')) {
-            return;
-        }
-
-        Craft.sendActionRequest('POST', 'shortlink-manager/import-export/clear-logs')
-            .then(() => {
-                sessionStorage.setItem('showHistoryTab', 'true');
-                window.location.reload(true);
-            })
-            .catch((error) => {
-                Craft.cp.displayError(error.response?.data?.error || '{{ "Failed to clear history."|t('shortlink-manager')|e('js') }}');
-            });
-    });
-
+    {% include 'lindemannrock-base/_partials/import-history-js' with {
+        tabStorageKey: 'showHistoryTab',
+        tabSelector: 'a[href="#import-history"]',
+        clearButtonId: 'clear-logs-btn',
+        clearAction: 'shortlink-manager/import-export/clear-logs',
+        confirmMessage: 'Are you sure you want to clear all import logs? This action cannot be undone.'|t('shortlink-manager'),
+        clearErrorMessage: 'Failed to clear history.'|t('shortlink-manager'),
+    } only %}
 {% endjs %}

@@ -81,7 +81,7 @@ class ImportExportController extends Controller
         $rows = [];
         $headers = [
             'code', 'shortLinkType', 'linkType', 'destinationUrl', 'elementId', 'elementType', 'httpCode', 'enabled', 'siteId', 'siteHandle',
-            'trackAnalytics', 'qrCodeEnabled', 'dateExpired', 'dateCreated', 'dateUpdated',
+            'trackAnalytics', 'qrCodeEnabled', 'postDate', 'dateExpired',
         ];
 
         $shortlinks = ShortLink::find()->site('*')->status(null)->orderBy(['elements.dateCreated' => SORT_DESC])->all();
@@ -100,9 +100,8 @@ class ImportExportController extends Controller
                 'siteHandle' => $site?->handle,
                 'trackAnalytics' => $shortLink->trackAnalytics ? '1' : '0',
                 'qrCodeEnabled' => $shortLink->qrCodeEnabled ? '1' : '0',
-                'dateExpired' => $shortLink->dateExpired?->format('Y-m-d H:i:s'),
-                'dateCreated' => $shortLink->dateCreated?->format('Y-m-d H:i:s'),
-                'dateUpdated' => $shortLink->dateUpdated?->format('Y-m-d H:i:s'),
+                'postDate' => $shortLink->postDate,
+                'dateExpired' => $shortLink->dateExpired,
             ];
         }
 
@@ -114,7 +113,7 @@ class ImportExportController extends Controller
         $settings = ShortLinkManager::$plugin->getSettings();
         $filename = ExportHelper::filename($settings, ['export'], 'csv');
 
-        return ExportHelper::toCsv($rows, $headers, $filename, ['dateCreated', 'dateUpdated']);
+        return ExportHelper::toCsv($rows, $headers, $filename, ['postDate', 'dateExpired']);
     }
 
     public function actionUpload(): Response
@@ -234,9 +233,8 @@ class ImportExportController extends Controller
                 'siteId' => null,
                 'trackAnalytics' => true,
                 'qrCodeEnabled' => true,
+                'postDate' => null,
                 'dateExpired' => null,
-                'dateCreated' => null,
-                'dateUpdated' => null,
             ];
 
             foreach ($columnMap as $colIndex => $fieldName) {
@@ -254,7 +252,7 @@ class ImportExportController extends Controller
                     if ($site) {
                         $item['siteId'] = $site->id;
                     }
-                } elseif (in_array($fieldName, ['dateExpired', 'dateCreated', 'dateUpdated'], true)) {
+                } elseif (in_array($fieldName, ['postDate', 'dateExpired'], true)) {
                     $item[$fieldName] = $this->parseDateOrNull($value);
                 } else {
                     $item[$fieldName] = CsvImportHelper::stripFormulaEscapePrefix($value);
@@ -455,6 +453,7 @@ class ImportExportController extends Controller
                 $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 301);
                 $shortLink->trackAnalytics = (bool)$primaryRow['trackAnalytics'];
                 $shortLink->qrCodeEnabled = (bool)$primaryRow['qrCodeEnabled'];
+                $shortLink->postDate = $primaryRow['postDate'] instanceof \DateTime ? $primaryRow['postDate'] : null;
                 $shortLink->dateExpired = $primaryRow['dateExpired'] instanceof \DateTime ? $primaryRow['dateExpired'] : null;
                 $shortLink->setEnabledForSite((bool)$primaryRow['enabled']);
 
@@ -463,7 +462,6 @@ class ImportExportController extends Controller
                     continue;
                 }
 
-                $this->applyImportedElementDates($shortLink->id, $primaryRow['dateCreated'] ?? null, $primaryRow['dateUpdated'] ?? null);
                 $imported++;
 
                 // Apply additional site-specific rows for the same code/slug.
@@ -670,27 +668,18 @@ class ImportExportController extends Controller
         }
 
         try {
-            return new \DateTime($value);
+            // Exported CSV dates are in Craft timezone; normalize to UTC for persistence.
+            $localDate = DateFormatHelper::toCraftTimezone($value, false);
+            if ($localDate === null) {
+                return null;
+            }
+
+            $utcDate = clone $localDate;
+            $utcDate->setTimezone(new \DateTimeZone('UTC'));
+
+            return $utcDate;
         } catch (\Throwable) {
             return null;
         }
-    }
-
-    private function applyImportedElementDates(int $elementId, mixed $dateCreated, mixed $dateUpdated): void
-    {
-        if (!($dateCreated instanceof \DateTime) && !($dateUpdated instanceof \DateTime)) {
-            return;
-        }
-
-        $update = [];
-        if ($dateCreated instanceof \DateTime) {
-            $update['dateCreated'] = Db::prepareDateForDb($dateCreated);
-        }
-        if ($dateUpdated instanceof \DateTime) {
-            $update['dateUpdated'] = Db::prepareDateForDb($dateUpdated);
-        }
-
-        Db::update('{{%elements}}', $update, ['id' => $elementId]);
-        Db::update('{{%shortlinkmanager}}', $update, ['id' => $elementId]);
     }
 }

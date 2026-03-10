@@ -118,6 +118,8 @@ return [
     'Element ID (required for auto)' => 'Element ID (required for auto)',
     'Element Type (optional for auto)' => 'Element Type (optional for auto)',
     'Element' => 'Element',
+    'Post Date (YYYY-MM-DD HH:MM:SS)' => 'Post Date (YYYY-MM-DD HH:MM:SS)',
+    'Note: only columns mapped to a field will be imported.' => 'Note: only columns mapped to a field will be imported.',
     'Note: export metadata columns like dateCreated and dateUpdated are export-only and will be ignored during import.' => 'Note: export metadata columns like dateCreated and dateUpdated are export-only and will be ignored during import.',
     'Valid Shortlinks to Import' => 'Valid Shortlinks to Import',
     'Duplicates (will be skipped)' => 'Duplicates (will be skipped)',
