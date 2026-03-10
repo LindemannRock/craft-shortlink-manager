@@ -739,5 +739,14 @@ return [
     'This is being overridden by the <code>defaultQrErrorCorrection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>defaultQrErrorCorrection</code> in <code>config/shortlink-manager.php</code> überschrieben.',
     'This is being overridden by the <code>enableQrDownload</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>enableQrDownload</code> in <code>config/shortlink-manager.php</code> überschrieben.',
     'This is being overridden by the <code>qrDownloadFilename</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>qrDownloadFilename</code> in <code>config/shortlink-manager.php</code> überschrieben.',
+    'Pass Query Params (1/0)' => 'Query-Parameter übergeben (1/0)',
+    'Direct Redirect (1/0)' => 'Direkte Weiterleitung (1/0)',
+    'QR Size' => 'QR-Größe',
+    'QR Color (#RRGGBB)' => 'QR-Farbe (#RRGGBB)',
+    'QR Background (#RRGGBB)' => 'QR-Hintergrund (#RRGGBB)',
+    'QR Eye Color (#RRGGBB)' => 'QR-Augenfarbe (#RRGGBB)',
+    'QR Format (png/svg)' => 'QR-Format (png/svg)',
+    'QR Logo Asset ID' => 'QR-Logo-Asset-ID',
+    'QR format must be png or svg' => 'QR-Format muss png oder svg sein',
 
 ];

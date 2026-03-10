@@ -55,10 +55,10 @@
             <h4>{{ "CSV Format"|t('shortlink-manager') }}</h4>
             <p><strong>{{ "Required columns:"|t('shortlink-manager') }}</strong> code</p>
             <p><strong>{{ "Rules:"|t('shortlink-manager') }}</strong> destinationUrl is required for manual links; elementId is required for field-managed links (shortLinkType=auto).</p>
-            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, qrCodeEnabled, postDate, dateExpired</p>
-            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled,postDate,dateExpired
-summer-sale,manual,https://example.com/sale,,,vanity,301,1,2025-12-01 21:31:00,2026-12-31 23:59:59
-promo-entry,auto,,123,craft\elements\Entry,code,301,1,2025-12-01 21:31:00,</pre>
+            <p><strong>{{ "Optional columns:"|t('shortlink-manager') }}</strong> shortLinkType, linkType, destinationUrl, elementId, elementType, httpCode, enabled, siteId, siteHandle, trackAnalytics, passQueryParams, directRedirect, qrCodeEnabled, qrCodeSize, qrCodeColor, qrCodeBgColor, qrCodeEyeColor, qrCodeFormat, qrLogoId, postDate, dateExpired</p>
+            <pre style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-size: 12px;">code,shortLinkType,destinationUrl,elementId,elementType,linkType,httpCode,enabled,trackAnalytics,passQueryParams,directRedirect,qrCodeEnabled,qrCodeSize,qrCodeColor,qrCodeBgColor,qrCodeEyeColor,qrCodeFormat,postDate,dateExpired
+summer-sale,manual,https://example.com/sale,,,vanity,301,1,1,0,0,1,512,#FF7300,#FFF700,#0400FF,png,2025-12-01 21:31:00,2026-12-31 23:59:59
+promo-entry,auto,,123,craft\elements\Entry,code,301,1,1,,,1,256,,,,,2025-12-01 21:31:00,</pre>
         {% endset %}
 
         {% if canImport %}

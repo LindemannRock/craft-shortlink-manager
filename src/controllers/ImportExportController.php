@@ -81,7 +81,9 @@ class ImportExportController extends Controller
         $rows = [];
         $headers = [
             'code', 'shortLinkType', 'linkType', 'destinationUrl', 'elementId', 'elementType', 'httpCode', 'enabled', 'siteId', 'siteHandle',
-            'trackAnalytics', 'qrCodeEnabled', 'postDate', 'dateExpired',
+            'trackAnalytics', 'passQueryParams', 'directRedirect',
+            'qrCodeEnabled', 'qrCodeSize', 'qrCodeColor', 'qrCodeBgColor', 'qrCodeEyeColor', 'qrCodeFormat', 'qrLogoId',
+            'postDate', 'dateExpired',
         ];
 
         $shortlinks = ShortLink::find()->site('*')->status(null)->orderBy(['elements.dateCreated' => SORT_DESC])->all();
@@ -99,7 +101,15 @@ class ImportExportController extends Controller
                 'siteId' => $shortLink->siteId,
                 'siteHandle' => $site?->handle,
                 'trackAnalytics' => $shortLink->trackAnalytics ? '1' : '0',
+                'passQueryParams' => $shortLink->passQueryParams === null ? '' : ($shortLink->passQueryParams ? '1' : '0'),
+                'directRedirect' => $shortLink->directRedirect === null ? '' : ($shortLink->directRedirect ? '1' : '0'),
                 'qrCodeEnabled' => $shortLink->qrCodeEnabled ? '1' : '0',
+                'qrCodeSize' => $shortLink->qrCodeSize,
+                'qrCodeColor' => $shortLink->qrCodeColor,
+                'qrCodeBgColor' => $shortLink->qrCodeBgColor,
+                'qrCodeEyeColor' => $shortLink->qrCodeEyeColor,
+                'qrCodeFormat' => $shortLink->qrCodeFormat,
+                'qrLogoId' => $shortLink->qrLogoId,
                 'postDate' => $shortLink->postDate,
                 'dateExpired' => $shortLink->dateExpired,
             ];
@@ -232,7 +242,15 @@ class ImportExportController extends Controller
                 'enabled' => true,
                 'siteId' => null,
                 'trackAnalytics' => true,
+                'passQueryParams' => null,
+                'directRedirect' => null,
                 'qrCodeEnabled' => true,
+                'qrCodeSize' => 256,
+                'qrCodeColor' => null,
+                'qrCodeBgColor' => null,
+                'qrCodeEyeColor' => null,
+                'qrCodeFormat' => null,
+                'qrLogoId' => null,
                 'postDate' => null,
                 'dateExpired' => null,
             ];
@@ -245,7 +263,15 @@ class ImportExportController extends Controller
 
                 if ($fieldName === 'enabled' || $fieldName === 'trackAnalytics' || $fieldName === 'qrCodeEnabled') {
                     $item[$fieldName] = in_array(strtolower($value), ['1', 'true', 'yes', 'enabled'], true);
+                } elseif ($fieldName === 'passQueryParams' || $fieldName === 'directRedirect') {
+                    if ($value === '') {
+                        $item[$fieldName] = null;
+                    } else {
+                        $item[$fieldName] = in_array(strtolower($value), ['1', 'true', 'yes', 'enabled'], true);
+                    }
                 } elseif ($fieldName === 'httpCode' || $fieldName === 'siteId' || $fieldName === 'elementId') {
+                    $item[$fieldName] = $value === '' ? null : (int)$value;
+                } elseif ($fieldName === 'qrCodeSize' || $fieldName === 'qrLogoId') {
                     $item[$fieldName] = $value === '' ? null : (int)$value;
                 } elseif ($fieldName === 'siteHandle') {
                     $site = Craft::$app->getSites()->getSiteByHandle($value);
@@ -257,6 +283,26 @@ class ImportExportController extends Controller
                 } else {
                     $item[$fieldName] = CsvImportHelper::stripFormulaEscapePrefix($value);
                 }
+            }
+
+            if (!empty($item['qrCodeSize'])) {
+                $item['qrCodeSize'] = max(100, min(1000, (int)$item['qrCodeSize']));
+            } else {
+                $item['qrCodeSize'] = 256;
+            }
+
+            $item['qrCodeColor'] = $this->normalizeHexColor($item['qrCodeColor'] ?? null);
+            $item['qrCodeBgColor'] = $this->normalizeHexColor($item['qrCodeBgColor'] ?? null);
+            $item['qrCodeEyeColor'] = $this->normalizeHexColor($item['qrCodeEyeColor'] ?? null);
+
+            if (!in_array((string)($item['qrCodeFormat'] ?? ''), ['', 'png', 'svg'], true)) {
+                $errorRows[] = [
+                    'rowNumber' => $rowNumber,
+                    'code' => $item['code'] ?: '-',
+                    'destinationUrl' => $item['destinationUrl'] ?: '-',
+                    'error' => Craft::t('shortlink-manager', 'QR format must be png or svg'),
+                ];
+                continue;
             }
 
             if ($item['code'] === '') {
@@ -452,7 +498,17 @@ class ImportExportController extends Controller
 
                 $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 301);
                 $shortLink->trackAnalytics = (bool)$primaryRow['trackAnalytics'];
+                $shortLink->passQueryParams = $primaryRow['passQueryParams'] !== null ? (bool)$primaryRow['passQueryParams'] : null;
+                $shortLink->directRedirect = $primaryRow['directRedirect'] !== null ? (bool)$primaryRow['directRedirect'] : null;
                 $shortLink->qrCodeEnabled = (bool)$primaryRow['qrCodeEnabled'];
+                $shortLink->qrCodeSize = max(100, min(1000, (int)($primaryRow['qrCodeSize'] ?: 256)));
+                $shortLink->qrCodeColor = $this->normalizeHexColor($primaryRow['qrCodeColor'] ?? null);
+                $shortLink->qrCodeBgColor = $this->normalizeHexColor($primaryRow['qrCodeBgColor'] ?? null);
+                $shortLink->qrCodeEyeColor = $this->normalizeHexColor($primaryRow['qrCodeEyeColor'] ?? null);
+                $shortLink->qrCodeFormat = in_array((string)($primaryRow['qrCodeFormat'] ?? ''), ['png', 'svg'], true)
+                    ? (string)$primaryRow['qrCodeFormat']
+                    : null;
+                $shortLink->qrLogoId = !empty($primaryRow['qrLogoId']) ? (int)$primaryRow['qrLogoId'] : null;
                 $shortLink->postDate = $primaryRow['postDate'] instanceof \DateTime ? $primaryRow['postDate'] : null;
                 $shortLink->dateExpired = $primaryRow['dateExpired'] instanceof \DateTime ? $primaryRow['dateExpired'] : null;
                 $shortLink->setEnabledForSite((bool)$primaryRow['enabled']);
@@ -681,5 +737,23 @@ class ImportExportController extends Controller
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function normalizeHexColor(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if ($trimmed[0] !== '#') {
+            $trimmed = '#' . $trimmed;
+        }
+
+        return preg_match('/^#[0-9A-F]{6}$/i', $trimmed) ? strtoupper($trimmed) : null;
     }
 }

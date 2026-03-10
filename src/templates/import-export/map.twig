@@ -53,7 +53,15 @@
             {value: 'siteId', label: 'Site ID'|t('shortlink-manager')},
             {value: 'siteHandle', label: 'Site Handle'|t('shortlink-manager')},
             {value: 'trackAnalytics', label: 'Track Analytics (1/0)'|t('shortlink-manager')},
+            {value: 'passQueryParams', label: 'Pass Query Params (1/0)'|t('shortlink-manager')},
+            {value: 'directRedirect', label: 'Direct Redirect (1/0)'|t('shortlink-manager')},
             {value: 'qrCodeEnabled', label: 'QR Enabled (1/0)'|t('shortlink-manager')},
+            {value: 'qrCodeSize', label: 'QR Size'|t('shortlink-manager')},
+            {value: 'qrCodeColor', label: 'QR Color (#RRGGBB)'|t('shortlink-manager')},
+            {value: 'qrCodeBgColor', label: 'QR Background (#RRGGBB)'|t('shortlink-manager')},
+            {value: 'qrCodeEyeColor', label: 'QR Eye Color (#RRGGBB)'|t('shortlink-manager')},
+            {value: 'qrCodeFormat', label: 'QR Format (png/svg)'|t('shortlink-manager')},
+            {value: 'qrLogoId', label: 'QR Logo Asset ID'|t('shortlink-manager')},
             {value: 'postDate', label: 'Post Date (YYYY-MM-DD HH:MM:SS)'|t('shortlink-manager')},
             {value: 'dateExpired', label: 'Date Expired (YYYY-MM-DD HH:MM:SS)'|t('shortlink-manager')},
         ] %}
@@ -89,7 +97,15 @@
                                                 {% if option.value == 'siteId' and lowerHeader in ['siteid', 'site_id'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'siteHandle' and lowerHeader in ['sitehandle', 'site_handle', 'site'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'trackAnalytics' and lowerHeader in ['trackanalytics', 'analytics'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'passQueryParams' and lowerHeader in ['passqueryparams', 'pass_query_params'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'directRedirect' and lowerHeader in ['directredirect', 'direct_redirect'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'qrCodeEnabled' and lowerHeader in ['qrcodeenabled', 'qrenabled'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrCodeSize' and lowerHeader in ['qrcodesize', 'qrsize'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrCodeColor' and lowerHeader in ['qrcodecolor', 'qrcolor'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrCodeBgColor' and lowerHeader in ['qrcodebgcolor', 'qrbgcolor'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrCodeEyeColor' and lowerHeader in ['qrcodeeyecolor', 'qreyecolor'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrCodeFormat' and lowerHeader in ['qrcodeformat', 'qrformat'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'qrLogoId' and lowerHeader in ['qrlogoid', 'qr_logo_id'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'postDate' and lowerHeader in ['postdate', 'post_date', 'post date'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'dateExpired' and lowerHeader in ['dateexpired', 'date_expired', 'expiresat', 'dateexpiredat'] %}{% set isMatch = true %}{% endif %}
                                                 <option value="{{ option.value }}" {% if isMatch %}selected{% endif %}>{{ option.label }}</option>
