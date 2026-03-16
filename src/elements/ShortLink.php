@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\db\Query;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
@@ -21,6 +22,11 @@ use craft\helpers\Html;
 use craft\models\FieldLayout;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\elements\actions\AddTagsAction;
+use lindemannrock\shortlinkmanager\elements\actions\ClearFolderAction;
+use lindemannrock\shortlinkmanager\elements\actions\ClearTagsAction;
+use lindemannrock\shortlinkmanager\elements\actions\RemoveTagsAction;
+use lindemannrock\shortlinkmanager\elements\actions\SetFolderAction;
 use lindemannrock\shortlinkmanager\elements\db\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\records\ShortLinkContentRecord;
 use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
@@ -161,6 +167,16 @@ class ShortLink extends Element
      * @var int|null QR code logo asset ID (overrides default)
      */
     public ?int $qrLogoId = null;
+
+    /**
+     * @var int|null Folder ID (plugin-internal taxonomy)
+     */
+    public ?int $folderId = null;
+
+    /**
+     * @var array<int, string> Tag names (plugin-internal taxonomy)
+     */
+    public array $tagNames = [];
 
     // Static Methods
     // =========================================================================
@@ -326,7 +342,7 @@ class ShortLink extends Element
      */
     protected static function defineSources(?string $context = null): array
     {
-        return [
+        $sources = [
             [
                 'key' => '*',
                 'label' => Craft::t('shortlink-manager', 'All {pluginName}', ['pluginName' => ShortLinkManager::$plugin->getSettings()->getPluralDisplayName()]),
@@ -344,6 +360,68 @@ class ShortLink extends Element
                 'criteria' => ['linkType' => 'vanity'],
             ],
         ];
+
+        $folderRows = (new Query())
+            ->select(['id', 'name'])
+            ->from('{{%shortlinkmanager_folders}}')
+            ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC])
+            ->all();
+
+        if (!empty($folderRows)) {
+            $sources[] = ['heading' => Craft::t('shortlink-manager', 'Folders')];
+            $sources[] = [
+                'key' => 'folder:none',
+                'label' => Craft::t('shortlink-manager', 'No Folder'),
+                'criteria' => ['folderId' => 0],
+            ];
+
+            foreach ($folderRows as $row) {
+                $folderId = (int)($row['id'] ?? 0);
+                $folderName = trim((string)($row['name'] ?? ''));
+                if ($folderId <= 0 || $folderName === '') {
+                    continue;
+                }
+
+                $sources[] = [
+                    'key' => 'folder:' . $folderId,
+                    'label' => $folderName,
+                    'criteria' => ['folderId' => $folderId],
+                ];
+            }
+        }
+
+        $tagRows = (new Query())
+            ->select(['t.slug', 't.name'])
+            ->distinct()
+            ->from('{{%shortlinkmanager_tags}} t')
+            ->innerJoin('{{%shortlinkmanager_shortlink_tags}} st', '[[st.tagId]] = [[t.id]]')
+            ->orderBy(['name' => SORT_ASC])
+            ->all();
+
+        if (!empty($tagRows)) {
+            $sources[] = ['heading' => Craft::t('shortlink-manager', 'Tags')];
+            $sources[] = [
+                'key' => 'tag:none',
+                'label' => Craft::t('shortlink-manager', 'No Tags'),
+                'criteria' => ['tagSlug' => '__none__'],
+            ];
+
+            foreach ($tagRows as $row) {
+                $tagSlug = trim((string)($row['slug'] ?? ''));
+                $tagName = trim((string)($row['name'] ?? ''));
+                if ($tagSlug === '' || $tagName === '') {
+                    continue;
+                }
+
+                $sources[] = [
+                    'key' => 'tag:' . $tagSlug,
+                    'label' => $tagName,
+                    'criteria' => ['tagSlug' => $tagSlug],
+                ];
+            }
+        }
+
+        return $sources;
     }
 
     /**
@@ -355,6 +433,11 @@ class ShortLink extends Element
 
         // Set Status
         $actions[] = SetStatus::class;
+        $actions[] = SetFolderAction::class;
+        $actions[] = ClearFolderAction::class;
+        $actions[] = AddTagsAction::class;
+        $actions[] = RemoveTagsAction::class;
+        $actions[] = ClearTagsAction::class;
 
         // Delete
         $actions[] = Craft::$app->elements->createAction([
@@ -433,6 +516,8 @@ class ShortLink extends Element
             'slug' => ['label' => Craft::t('shortlink-manager', 'Code')],
             'linkType' => ['label' => Craft::t('shortlink-manager', 'Type')],
             'destinationUrl' => ['label' => Craft::t('shortlink-manager', 'Destination')],
+            'folder' => ['label' => Craft::t('shortlink-manager', 'Folder')],
+            'tags' => ['label' => Craft::t('shortlink-manager', 'Tags')],
             'status' => ['label' => Craft::t('app', 'Status')],
             'hits' => ['label' => Craft::t('shortlink-manager', 'Interactions')],
             'postDate' => ['label' => Craft::t('app', 'Post Date')],
@@ -451,6 +536,8 @@ class ShortLink extends Element
             'slug',
             'linkType',
             'destinationUrl',
+            'folder',
+            'tags',
             'status',
             'hits',
             'postDate',
@@ -486,6 +573,11 @@ class ShortLink extends Element
         // Normalize date values
         $this->normalizeDateTime('dateExpired');
         $this->normalizeDateTime('postDate');
+
+        // Load taxonomy values once for existing records.
+        if ($this->id && empty($this->tagNames)) {
+            $this->tagNames = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id);
+        }
     }
 
     /**
@@ -538,6 +630,10 @@ class ShortLink extends Element
     {
         // Load content data for current site
         $this->loadContent();
+
+        if ($this->id && empty($this->tagNames)) {
+            $this->tagNames = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id);
+        }
     }
 
     /**
@@ -569,6 +665,8 @@ class ShortLink extends Element
             'qrCodeEyeColor',
             'qrCodeFormat',
             'qrLogoId',
+            'folderId',
+            'tagNames',
         ];
     }
 
@@ -602,6 +700,8 @@ class ShortLink extends Element
             'qrCodeEyeColor' => null,
             'qrCodeFormat' => null,
             'qrLogoId' => null,
+            'folderId' => null,
+            'tagNames' => [],
         ];
     }
 
@@ -635,6 +735,8 @@ class ShortLink extends Element
             'qrCodeEyeColor',
             'qrCodeFormat',
             'qrLogoId',
+            'folderId',
+            'tagNames',
         ]);
     }
 
@@ -790,6 +892,95 @@ class ShortLink extends Element
             return User::find()->id($this->authorId)->one();
         }
         return null;
+    }
+
+    /**
+     * Virtual attribute used by element index table columns.
+     *
+     * @return string|null
+     */
+    public function getFolder(): ?string
+    {
+        return ShortLinkManager::$plugin->taxonomy->getFolderNameById($this->folderId);
+    }
+
+    /**
+     * Virtual attribute used by element index table columns.
+     *
+     * @return string
+     */
+    public function getTags(): string
+    {
+        return $this->renderTagsBadgeHtml();
+    }
+
+    /**
+     * Render tag badges for index table cells.
+     *
+     * @return string
+     */
+    private function renderTagsBadgeHtml(): string
+    {
+        $tagNames = $this->tagNames;
+        if (empty($tagNames) && $this->id) {
+            $tagNames = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id);
+        }
+        if (empty($tagNames)) {
+            return '—';
+        }
+
+        $badges = [];
+        $view = Craft::$app->getView();
+
+        foreach ($tagNames as $index => $tagName) {
+            if ($index >= 5) {
+                $remaining = count($tagNames) - 5;
+                $badges[] = Html::tag('span', '+' . $remaining, [
+                    'class' => 'status-label gray',
+                    'title' => Craft::t('shortlink-manager', '{count} more tags', ['count' => $remaining]),
+                ]);
+                break;
+            }
+
+            try {
+                $badges[] = $view->renderTemplate('lindemannrock-base/_components/badge', [
+                    'label' => (string)$tagName,
+                    'status' => 'gray',
+                ]);
+            } catch (\Throwable) {
+                $badges[] = Html::tag('span', Html::encode((string)$tagName), [
+                    'class' => 'status-label gray',
+                ]);
+            }
+        }
+
+        return Html::tag('span', implode('', $badges), [
+            'style' => 'display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;',
+        ]);
+    }
+
+    /**
+     * Render folder badge for index table cells.
+     *
+     * @return string
+     */
+    private function renderFolderBadgeHtml(): string
+    {
+        $folderName = ShortLinkManager::$plugin->taxonomy->getFolderNameById($this->folderId);
+        if (!$folderName) {
+            return '—';
+        }
+
+        try {
+            return Craft::$app->getView()->renderTemplate('lindemannrock-base/_components/badge', [
+                'label' => $folderName,
+                'status' => 'blue',
+            ]);
+        } catch (\Throwable) {
+            return Html::tag('span', Html::encode($folderName), [
+                'class' => 'status-label blue',
+            ]);
+        }
     }
 
     /**
@@ -1042,6 +1233,7 @@ class ShortLink extends Element
 
         $rules[] = [['httpCode'], 'in', 'range' => [301, 302, 307, 308]];
         $rules[] = [['trackAnalytics', 'passQueryParams', 'directRedirect', 'qrCodeEnabled'], 'boolean'];
+        $rules[] = [['folderId'], 'integer'];
         $rules[] = [['qrCodeSize'], 'integer', 'min' => 100, 'max' => 1000];
         $rules[] = [['qrCodeColor', 'qrCodeBgColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i'];
         $rules[] = [['qrCodeEyeColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i', 'when' => function($model) {
@@ -1066,6 +1258,7 @@ class ShortLink extends Element
                     $this->slug = $record->slug;
                     $this->linkType = $record->linkType;
                     $this->shortLinkType = $record->shortLinkType;
+                    $this->folderId = $record->folderId ? (int)$record->folderId : null;
                 }
             }
 
@@ -1284,6 +1477,7 @@ class ShortLink extends Element
             $record->qrCodeEyeColor = $this->qrCodeEyeColor;
             $record->qrCodeFormat = $this->qrCodeFormat;
             $record->qrLogoId = $this->qrLogoId;
+            $record->folderId = $this->folderId;
 
             if (!$record->save(false)) {
                 $this->logError('Failed to save ShortLinkRecord', ['errors' => $record->getErrors()]);
@@ -1318,6 +1512,11 @@ class ShortLink extends Element
             if (!$contentRecord->save(false)) {
                 $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
             }
+
+            ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames(
+                (int)$this->id,
+                $this->tagNames
+            );
 
             // For auto shortlinks (field-managed), always sync elementId/elementType to ALL sites.
             // Import/save flows can run via propagation, and skipping here can leave cross-site URLs stale.
@@ -1409,6 +1608,17 @@ class ShortLink extends Element
     /**
      * @inheritdoc
      */
+    public function afterDelete(): void
+    {
+        parent::afterDelete();
+
+        // Shortlink-tag pivots are removed by FK cascade; cleanup orphan tags afterwards.
+        ShortLinkManager::$plugin->taxonomy->cleanupUnusedTags();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getTableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
@@ -1431,6 +1641,12 @@ class ShortLink extends Element
                 }
                 return Html::encode($url);
 
+            case 'folder':
+                return $this->renderFolderBadgeHtml();
+
+            case 'tags':
+                return $this->renderTagsBadgeHtml();
+
             case 'postDate':
                 return $this->postDate ? Html::tag('span', DateFormatHelper::formatDate($this->postDate, 'medium'), [
                     'title' => DateFormatHelper::formatDatetime($this->postDate, 'long'),
@@ -1448,6 +1664,18 @@ class ShortLink extends Element
         }
 
         return (string)$this->$attribute;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function attributeHtml(string $attribute): string
+    {
+        return match ($attribute) {
+            'folder' => $this->renderFolderBadgeHtml(),
+            'tags' => $this->renderTagsBadgeHtml(),
+            default => parent::attributeHtml($attribute),
+        };
     }
 
     /**

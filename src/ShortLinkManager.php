@@ -39,6 +39,7 @@ use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\services\ShortLinksService;
+use lindemannrock\shortlinkmanager\services\TaxonomyService;
 use lindemannrock\shortlinkmanager\utilities\ShortLinkManagerUtility;
 use lindemannrock\shortlinkmanager\variables\ShortLinkManagerVariable;
 use lindemannrock\shortlinkmanager\widgets\AnalyticsSummaryWidget;
@@ -57,6 +58,7 @@ use yii\base\Event;
  * @property-read QrCodeService $qrCode
  * @property-read DeviceDetectionService $deviceDetection
  * @property-read IntegrationService $integration
+ * @property-read TaxonomyService $taxonomy
  * @property-read Settings $settings
  * @method Settings getSettings()
  */
@@ -108,6 +110,7 @@ class ShortLinkManager extends Plugin
             'qrCode' => QrCodeService::class,
             'deviceDetection' => DeviceDetectionService::class,
             'integration' => IntegrationService::class,
+            'taxonomy' => TaxonomyService::class,
         ]);
 
         // Schedule analytics cleanup if retention is enabled
@@ -305,7 +308,6 @@ class ShortLinkManager extends Plugin
 
         if ($item) {
             $item['label'] = $settings->getFullName();
-            $item['icon'] = '@appicons/link-simple.svg';
 
             $sections = $this->getCpSections($settings);
             $item['subnav'] = CpNavHelper::buildSubnav($user, $settings, $sections);
@@ -367,6 +369,13 @@ class ShortLinkManager extends Plugin
                 'shortLinkManager:viewImportHistory',
                 'shortLinkManager:clearImportHistory',
             ],
+        ];
+
+        $sections[] = [
+            'key' => 'taxonomy',
+            'label' => Craft::t('shortlink-manager', 'Folders & Tags'),
+            'url' => 'shortlink-manager/taxonomy',
+            'permissionsAll' => ['shortLinkManager:editLinks'],
         ];
 
         if ($includeLogs) {
@@ -491,6 +500,14 @@ class ShortLinkManager extends Plugin
             'shortlink-manager/import-export/import' => 'shortlink-manager/import-export/import',
             'shortlink-manager/import-export/export' => 'shortlink-manager/import-export/export',
             'shortlink-manager/import-export/clear-logs' => 'shortlink-manager/import-export/clear-logs',
+
+            // Taxonomy routes
+            'shortlink-manager/taxonomy' => 'shortlink-manager/taxonomy/index',
+            'shortlink-manager/taxonomy/folders/new' => 'shortlink-manager/taxonomy/new-folder',
+            'shortlink-manager/taxonomy/folders/<folderId:\d+>' => 'shortlink-manager/taxonomy/edit-folder',
+            'shortlink-manager/taxonomy/save-folder' => 'shortlink-manager/taxonomy/save-folder',
+            'shortlink-manager/taxonomy/delete-folder' => 'shortlink-manager/taxonomy/delete-folder',
+            'shortlink-manager/taxonomy/delete-tag' => 'shortlink-manager/taxonomy/delete-tag',
 
             // Settings routes
             'shortlink-manager/settings' => 'shortlink-manager/settings/index',

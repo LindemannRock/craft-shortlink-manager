@@ -81,6 +81,7 @@ class ImportExportController extends Controller
         $rows = [];
         $headers = [
             'code', 'shortLinkType', 'linkType', 'destinationUrl', 'elementId', 'elementType', 'httpCode', 'enabled', 'siteId', 'siteHandle',
+            'folder', 'tags',
             'trackAnalytics', 'passQueryParams', 'directRedirect',
             'qrCodeEnabled', 'qrCodeSize', 'qrCodeColor', 'qrCodeBgColor', 'qrCodeEyeColor', 'qrCodeFormat', 'qrLogoId',
             'postDate', 'dateExpired',
@@ -100,6 +101,8 @@ class ImportExportController extends Controller
                 'enabled' => $shortLink->getEnabledForSite($shortLink->siteId) ? '1' : '0',
                 'siteId' => $shortLink->siteId,
                 'siteHandle' => $site?->handle,
+                'folder' => ShortLinkManager::$plugin->taxonomy->getFolderNameById($shortLink->folderId) ?? '',
+                'tags' => implode(', ', $shortLink->tagNames),
                 'trackAnalytics' => $shortLink->trackAnalytics ? '1' : '0',
                 'passQueryParams' => $shortLink->passQueryParams === null ? '' : ($shortLink->passQueryParams ? '1' : '0'),
                 'directRedirect' => $shortLink->directRedirect === null ? '' : ($shortLink->directRedirect ? '1' : '0'),
@@ -241,6 +244,8 @@ class ImportExportController extends Controller
                 'httpCode' => 301,
                 'enabled' => true,
                 'siteId' => null,
+                'folder' => '',
+                'tags' => [],
                 'trackAnalytics' => true,
                 'passQueryParams' => null,
                 'directRedirect' => null,
@@ -278,6 +283,10 @@ class ImportExportController extends Controller
                     if ($site) {
                         $item['siteId'] = $site->id;
                     }
+                } elseif ($fieldName === 'folder') {
+                    $item['folder'] = CsvImportHelper::stripFormulaEscapePrefix($value);
+                } elseif ($fieldName === 'tags') {
+                    $item['tags'] = $this->parseTagList($value);
                 } elseif (in_array($fieldName, ['postDate', 'dateExpired'], true)) {
                     $item[$fieldName] = $this->parseDateOrNull($value);
                 } else {
@@ -497,6 +506,8 @@ class ImportExportController extends Controller
                 }
 
                 $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 301);
+                $shortLink->folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName((string)($primaryRow['folder'] ?? '')) ?: null;
+                $shortLink->tagNames = $this->parseTagList($primaryRow['tags'] ?? []);
                 $shortLink->trackAnalytics = (bool)$primaryRow['trackAnalytics'];
                 $shortLink->passQueryParams = $primaryRow['passQueryParams'] !== null ? (bool)$primaryRow['passQueryParams'] : null;
                 $shortLink->directRedirect = $primaryRow['directRedirect'] !== null ? (bool)$primaryRow['directRedirect'] : null;
@@ -541,6 +552,8 @@ class ImportExportController extends Controller
 
                     $siteVariant->siteId = $siteRowSiteId;
                     $siteVariant->setEnabledForSite((bool)$siteRow['enabled']);
+                    $siteVariant->folderId = $shortLink->folderId;
+                    $siteVariant->tagNames = $shortLink->tagNames;
 
                     if ($shortLink->shortLinkType === 'auto') {
                         $siteVariant->elementId = $shortLink->elementId;
@@ -741,6 +754,31 @@ class ImportExportController extends Controller
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<int, string>
+     */
+    private function parseTagList(mixed $value): array
+    {
+        $rawValues = [];
+
+        if (is_array($value)) {
+            $rawValues = $value;
+        } elseif (is_string($value)) {
+            $trimmed = trim(CsvImportHelper::stripFormulaEscapePrefix($value));
+            if ($trimmed !== '') {
+                $rawValues = preg_split('/\s*,\s*/', $trimmed) ?: [];
+            }
+        }
+
+        $normalized = array_map(
+            static fn(mixed $item): string => trim((string)$item),
+            $rawValues
+        );
+
+        return array_values(array_unique(array_filter($normalized, static fn(string $name): bool => $name !== '')));
     }
 
     private function normalizeHexColor(mixed $value): ?string

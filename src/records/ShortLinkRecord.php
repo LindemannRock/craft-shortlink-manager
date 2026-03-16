@@ -37,6 +37,7 @@ use craft\db\ActiveRecord;
  * @property string|null $qrCodeEyeColor
  * @property string|null $qrCodeFormat
  * @property int|null $qrLogoId
+ * @property int|null $folderId
  * @property \DateTime $dateCreated
  * @property \DateTime $dateUpdated
  * @property string $uid

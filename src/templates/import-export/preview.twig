@@ -34,6 +34,8 @@
                         <th>{{ 'HTTP'|t('shortlink-manager') }}</th>
                         <th>{{ 'Enabled'|t('shortlink-manager') }}</th>
                         <th>{{ 'Site'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Folder'|t('shortlink-manager') }}</th>
+                        <th>{{ 'Tags'|t('shortlink-manager') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,6 +60,15 @@
                                     {{ importSite ? importSite.name : row.siteId }}
                                 {% else %}
                                     {{ craft.app.sites.currentSite.name }}
+                                {% endif %}
+                            </td>
+                            <td>{{ row.folder ?: '-' }}</td>
+                            <td>
+                                {% set rowTags = row.tags ?? [] %}
+                                {% if rowTags is iterable and rowTags|length %}
+                                    {{ rowTags|join(', ') }}
+                                {% else %}
+                                    -
                                 {% endif %}
                             </td>
                         </tr>

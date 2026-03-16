@@ -1,0 +1,181 @@
+{% extends 'lindemannrock-base/_layouts/cp-table' %}
+
+{% set currentView = craft.app.request.getParam('view', 'folders') %}
+{% set search = craft.app.request.getParam('search', '') %}
+
+{% set folderItems = folders ?? [] %}
+{% set tagItems = tags ?? [] %}
+{% set tableItems = currentView == 'tags' ? tagItems : folderItems %}
+{% if search %}
+    {% set searchLower = search|lower %}
+    {% set tableItems = tableItems|filter(i =>
+        searchLower in (i.name ?? '')|lower
+        or searchLower in (i.slug ?? '')|lower
+    ) %}
+{% endif %}
+
+{% set tableConfig = {
+    plugin: {
+        handle: 'shortlink-manager',
+        name: shortlinkHelper.fullName,
+    },
+    page: {
+        title: 'Folders & Tags'|t('shortlink-manager'),
+        subnav: 'taxonomy',
+        crumbs: [
+            { label: shortlinkHelper.fullName, url: url('shortlink-manager') },
+            { label: 'Folders & Tags'|t('shortlink-manager') },
+        ],
+    },
+    sidebarMenu: {
+        label: 'Taxonomy'|t('shortlink-manager'),
+        items: {
+            folders: { label: 'Folders'|t('shortlink-manager'), url: url('shortlink-manager/taxonomy', { view: 'folders' }) },
+            tags: { label: 'Tags'|t('shortlink-manager'), url: url('shortlink-manager/taxonomy', { view: 'tags' }) },
+        },
+        selected: currentView,
+    },
+    search: {
+        placeholder: currentView == 'tags' ? 'Search tags...'|t('shortlink-manager') : 'Search folders...'|t('shortlink-manager'),
+        value: search,
+    },
+    table: {
+        columns: currentView == 'tags'
+            ? [
+                { key: 'name', label: 'Name'|t('app') },
+                { key: 'usageCount', label: 'Used by'|t('shortlink-manager'), hideable: true },
+            ]
+            : [
+                { key: 'name', label: 'Name'|t('app') },
+                { key: 'usageCount', label: 'Used by'|t('shortlink-manager'), hideable: true },
+            ],
+        items: tableItems,
+        emptyMessage: currentView == 'tags'
+            ? 'No tags found.'|t('shortlink-manager')
+            : 'No folders found.'|t('shortlink-manager'),
+    },
+    pagination: {
+        page: 1,
+        limit: tableItems|length,
+        totalCount: tableItems|length,
+        itemLabel: {
+            singular: currentView == 'tags' ? 'tag'|t('shortlink-manager') : 'folder'|t('shortlink-manager'),
+            plural: currentView == 'tags' ? 'tags'|t('shortlink-manager') : 'folders'|t('shortlink-manager'),
+        },
+    },
+    rowActions: true,
+    newButton: currentView == 'folders'
+        ? {
+            url: url('shortlink-manager/taxonomy/folders/new'),
+            label: 'New Folder'|t('shortlink-manager'),
+            permission: 'shortLinkManager:editLinks',
+        }
+        : null,
+} %}
+
+{% block tableRow %}
+    <td data-column="name" class="{{ currentView == 'folders' ? 'nowrap' : '' }}">{{ item.name }}</td>
+    <td data-column="usageCount">{{ item.usageCount }}</td>
+{% endblock %}
+
+{% block rowActions %}
+    {% if currentView == 'folders' %}
+        {% include 'lindemannrock-base/_components/row-actions' with {
+            item: item,
+            actions: {
+                type: 'menu',
+                icon: 'settings',
+                title: 'Actions'|t('app'),
+                items: [
+                    {
+                        label: 'Edit'|t('app'),
+                        url: url('shortlink-manager/taxonomy/folders/' ~ item.id),
+                    },
+                    {type: 'divider'},
+                    {
+                        label: 'Delete'|t('app'),
+                        class: 'error',
+                        jsAction: 'delete-folder',
+                        confirm: 'Delete this folder?'|t('shortlink-manager'),
+                        title: item.usageCount > 0 ? 'This also unassigns the folder from linked shortlinks.'|t('shortlink-manager') : null,
+                    },
+                ],
+            },
+        } only %}
+    {% else %}
+        {% include 'lindemannrock-base/_components/row-actions' with {
+            item: item,
+            actions: {
+                type: 'menu',
+                icon: 'settings',
+                title: 'Actions'|t('app'),
+                items: [
+                    {
+                        label: 'Delete'|t('app'),
+                        class: 'error',
+                        jsAction: 'delete-tag',
+                        confirm: 'Delete this tag?'|t('shortlink-manager'),
+                    },
+                ],
+            },
+        } only %}
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    function sendDeleteRequest(endpoint, key, id, successMessage, failureMessage) {
+        const data = {};
+        data[key] = id;
+
+        Craft.sendActionRequest('POST', endpoint, {data})
+            .then(function(response) {
+                if (response.data && response.data.success) {
+                    Craft.cp.displayNotice(Craft.t('shortlink-manager', successMessage));
+                    window.location.reload();
+                    return;
+                }
+                const message = response.data && response.data.message
+                    ? response.data.message
+                    : Craft.t('shortlink-manager', failureMessage);
+                Craft.cp.displayError(message);
+            })
+            .catch(function() {
+                Craft.cp.displayError(Craft.t('shortlink-manager', failureMessage));
+            });
+    }
+
+    document.addEventListener('click', function(e) {
+        const actionEl = e.target.closest('[data-action]');
+        if (!actionEl) {
+            return;
+        }
+
+        const action = actionEl.getAttribute('data-action');
+        if (action !== 'delete-folder' && action !== 'delete-tag') {
+            return;
+        }
+
+        e.preventDefault();
+
+        const row = actionEl.closest('tr');
+        if (!row || !row.dataset || !row.dataset.id) {
+            return;
+        }
+
+        const confirmMsg = actionEl.getAttribute('data-confirm');
+        if (confirmMsg && !confirm(confirmMsg)) {
+            return;
+        }
+
+        if (action === 'delete-folder') {
+            sendDeleteRequest('shortlink-manager/taxonomy/delete-folder', 'folderId', row.dataset.id, 'Folder deleted.', 'Could not delete folder.');
+            return;
+        }
+
+        sendDeleteRequest('shortlink-manager/taxonomy/delete-tag', 'tagId', row.dataset.id, 'Tag deleted.', 'Could not delete tag.');
+    });
+})();
+</script>
+{% endblock %}

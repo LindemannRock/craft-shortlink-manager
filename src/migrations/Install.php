@@ -8,6 +8,7 @@
 
 namespace lindemannrock\shortlinkmanager\migrations;
 
+use Craft;
 use craft\db\Migration;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -34,6 +35,7 @@ class Install extends Migration
                 'slug' => $this->string(100)->notNull(),
                 'linkType' => $this->string(10)->notNull()->defaultValue('code'),
                 'shortLinkType' => $this->string(10)->notNull()->defaultValue('manual'),
+                'folderId' => $this->integer()->null(),
                 'elementId' => $this->integer()->null(),
                 'elementType' => $this->string()->null(),
                 'authorId' => $this->integer()->null(),
@@ -66,6 +68,7 @@ class Install extends Migration
             $this->createIndex(null, '{{%shortlinkmanager}}', 'postDate');
             $this->createIndex(null, '{{%shortlinkmanager}}', 'dateExpired');
             $this->createIndex(null, '{{%shortlinkmanager}}', 'linkType');
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'folderId');
             $this->createIndex(null, '{{%shortlinkmanager}}', 'qrLogoId');
 
             // Add foreign keys
@@ -73,6 +76,54 @@ class Install extends Migration
             $this->addForeignKey(null, '{{%shortlinkmanager}}', 'authorId', '{{%users}}', 'id', 'SET NULL');
             $this->addForeignKey(null, '{{%shortlinkmanager}}', 'elementId', '{{%elements}}', 'id', 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%shortlinkmanager}}', 'qrLogoId', '{{%assets}}', 'id', 'SET NULL', 'CASCADE');
+        }
+
+        // Folder taxonomy table
+        if (!$this->db->tableExists('{{%shortlinkmanager_folders}}')) {
+            $this->createTable('{{%shortlinkmanager_folders}}', [
+                'id' => $this->primaryKey(),
+                'name' => $this->string(255)->notNull(),
+                'slug' => $this->string(255)->notNull(),
+                'parentId' => $this->integer()->null(),
+                'sortOrder' => $this->integer()->notNull()->defaultValue(0),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+            $this->createIndex(null, '{{%shortlinkmanager_folders}}', 'slug', true);
+            $this->createIndex(null, '{{%shortlinkmanager_folders}}', 'parentId');
+            $this->addForeignKey(null, '{{%shortlinkmanager_folders}}', 'parentId', '{{%shortlinkmanager_folders}}', 'id', 'SET NULL', 'CASCADE');
+        }
+
+        // Tag taxonomy table
+        if (!$this->db->tableExists('{{%shortlinkmanager_tags}}')) {
+            $this->createTable('{{%shortlinkmanager_tags}}', [
+                'id' => $this->primaryKey(),
+                'name' => $this->string(255)->notNull(),
+                'slug' => $this->string(255)->notNull(),
+                'color' => $this->string(7)->null(),
+                'sortOrder' => $this->integer()->notNull()->defaultValue(0),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+            $this->createIndex(null, '{{%shortlinkmanager_tags}}', 'slug', true);
+        }
+
+        // Pivot table between shortlinks and tags
+        if (!$this->db->tableExists('{{%shortlinkmanager_shortlink_tags}}')) {
+            $this->createTable('{{%shortlinkmanager_shortlink_tags}}', [
+                'id' => $this->primaryKey(),
+                'shortLinkId' => $this->integer()->notNull(),
+                'tagId' => $this->integer()->notNull(),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+            $this->createIndex(null, '{{%shortlinkmanager_shortlink_tags}}', ['shortLinkId', 'tagId'], true);
+            $this->createIndex(null, '{{%shortlinkmanager_shortlink_tags}}', 'tagId');
+            $this->addForeignKey(null, '{{%shortlinkmanager_shortlink_tags}}', 'shortLinkId', '{{%shortlinkmanager}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager_shortlink_tags}}', 'tagId', '{{%shortlinkmanager_tags}}', 'id', 'CASCADE', 'CASCADE');
         }
 
         // Create the shortlinkmanager_content table for site-specific/translatable data
@@ -248,6 +299,76 @@ class Install extends Migration
             );
         }
 
+        // Backfill folder taxonomy for existing installs
+        if ($this->db->tableExists('{{%shortlinkmanager}}') && !$this->db->columnExists('{{%shortlinkmanager}}', 'folderId')) {
+            $this->addColumn('{{%shortlinkmanager}}', 'folderId', $this->integer()->null()->after('shortLinkType'));
+            $this->createIndex(null, '{{%shortlinkmanager}}', 'folderId');
+        }
+
+        if (!$this->db->tableExists('{{%shortlinkmanager_folders}}')) {
+            $this->createTable('{{%shortlinkmanager_folders}}', [
+                'id' => $this->primaryKey(),
+                'name' => $this->string(255)->notNull(),
+                'slug' => $this->string(255)->notNull(),
+                'parentId' => $this->integer()->null(),
+                'sortOrder' => $this->integer()->notNull()->defaultValue(0),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+            $this->createIndex(null, '{{%shortlinkmanager_folders}}', 'slug', true);
+            $this->createIndex(null, '{{%shortlinkmanager_folders}}', 'parentId');
+            $this->addForeignKey(null, '{{%shortlinkmanager_folders}}', 'parentId', '{{%shortlinkmanager_folders}}', 'id', 'SET NULL', 'CASCADE');
+        }
+
+        if (!$this->db->tableExists('{{%shortlinkmanager_tags}}')) {
+            $this->createTable('{{%shortlinkmanager_tags}}', [
+                'id' => $this->primaryKey(),
+                'name' => $this->string(255)->notNull(),
+                'slug' => $this->string(255)->notNull(),
+                'color' => $this->string(7)->null(),
+                'sortOrder' => $this->integer()->notNull()->defaultValue(0),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+            $this->createIndex(null, '{{%shortlinkmanager_tags}}', 'slug', true);
+        }
+
+        if (!$this->db->tableExists('{{%shortlinkmanager_shortlink_tags}}')) {
+            $this->createTable('{{%shortlinkmanager_shortlink_tags}}', [
+                'id' => $this->primaryKey(),
+                'shortLinkId' => $this->integer()->notNull(),
+                'tagId' => $this->integer()->notNull(),
+                'dateCreated' => $this->dateTime()->notNull(),
+                'dateUpdated' => $this->dateTime()->notNull(),
+                'uid' => $this->uid(),
+            ]);
+            $this->createIndex(null, '{{%shortlinkmanager_shortlink_tags}}', ['shortLinkId', 'tagId'], true);
+            $this->createIndex(null, '{{%shortlinkmanager_shortlink_tags}}', 'tagId');
+            $this->addForeignKey(null, '{{%shortlinkmanager_shortlink_tags}}', 'shortLinkId', '{{%shortlinkmanager}}', 'id', 'CASCADE', 'CASCADE');
+            $this->addForeignKey(null, '{{%shortlinkmanager_shortlink_tags}}', 'tagId', '{{%shortlinkmanager_tags}}', 'id', 'CASCADE', 'CASCADE');
+        }
+
+        if ($this->db->tableExists('{{%shortlinkmanager}}') && $this->db->tableExists('{{%shortlinkmanager_folders}}') && $this->db->columnExists('{{%shortlinkmanager}}', 'folderId')) {
+            $tableSchema = Craft::$app->db->getSchema()->getTableSchema('{{%shortlinkmanager}}');
+            $hasFolderFk = false;
+            if ($tableSchema) {
+                foreach ($tableSchema->foreignKeys as $fk) {
+                    foreach ($fk as $localColumn => $foreignColumn) {
+                        if ($localColumn === 'folderId') {
+                            $hasFolderFk = true;
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            if (!$hasFolderFk) {
+                $this->addForeignKey(null, '{{%shortlinkmanager}}', 'folderId', '{{%shortlinkmanager_folders}}', 'id', 'SET NULL', 'CASCADE');
+            }
+        }
+
         // Import history table for CSV imports
         if (!$this->db->tableExists('{{%shortlinkmanager_import_history}}')) {
             $this->createTable('{{%shortlinkmanager_import_history}}', [
@@ -285,10 +406,13 @@ class Install extends Migration
     {
         // Drop tables in reverse order due to foreign key constraints
         $this->dropTableIfExists('{{%shortlinkmanager_import_history}}');
+        $this->dropTableIfExists('{{%shortlinkmanager_shortlink_tags}}');
         $this->dropTableIfExists('{{%shortlinkmanager_analytics}}');
         $this->dropTableIfExists('{{%shortlinkmanager_content}}');
         $this->dropTableIfExists('{{%shortlinkmanager_settings}}');
         $this->dropTableIfExists('{{%shortlinkmanager}}');
+        $this->dropTableIfExists('{{%shortlinkmanager_tags}}');
+        $this->dropTableIfExists('{{%shortlinkmanager_folders}}');
 
         return true;
     }

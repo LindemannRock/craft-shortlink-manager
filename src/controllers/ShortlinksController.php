@@ -9,6 +9,9 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
+use craft\db\Query;
+use craft\db\Table;
+use craft\helpers\Db;
 use craft\web\Controller;
 use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -159,6 +162,9 @@ class ShortlinksController extends Controller
             'title' => $title,
             'linkId' => $shortLinkId,
             'enabledSites' => ShortLinkManager::getInstance()->getEnabledSites(),
+            'folderOptions' => ShortLinkManager::$plugin->taxonomy->getFolderOptions(),
+            'tagString' => implode(', ', $shortLink->tagNames ?? []),
+            'allTagNames' => ShortLinkManager::$plugin->taxonomy->getAllTagNames(),
         ]);
     }
 
@@ -330,6 +336,40 @@ class ShortlinksController extends Controller
             $shortLink->qrLogoId = $qrLogoId ? (int)$qrLogoId : null;
         }
 
+        // Folder/tags (plugin-internal taxonomy)
+        $folderIdParam = (string)$this->request->getBodyParam('folderId', '');
+        $newFolderName = trim((string)$this->request->getBodyParam('newFolderName', ''));
+        if ($folderIdParam === '__new__') {
+            if ($newFolderName === '') {
+                $shortLink->folderId = null;
+            } else {
+                $folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName($newFolderName);
+                $shortLink->folderId = $folderId > 0 ? $folderId : null;
+            }
+        } elseif ($newFolderName !== '') {
+            $folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName($newFolderName);
+            $shortLink->folderId = $folderId > 0 ? $folderId : null;
+        } else {
+            $folderId = $this->request->getBodyParam('folderId');
+            $shortLink->folderId = $folderId !== null && $folderId !== '' ? (int)$folderId : null;
+        }
+
+        $tagInput = $this->request->getBodyParam('tags', []);
+        $tagValues = [];
+        if (is_array($tagInput)) {
+            array_walk_recursive($tagInput, static function($value) use (&$tagValues): void {
+                if (is_scalar($value)) {
+                    $tagValues[] = (string)$value;
+                }
+            });
+        } elseif (is_string($tagInput) && $tagInput !== '') {
+            $tagValues = explode(',', $tagInput);
+        }
+        $shortLink->tagNames = array_values(array_unique(array_filter(array_map(
+            static fn(string $tag): string => trim($tag),
+            $tagValues
+        ))));
+
         // Save the link using service (handles slug change redirects)
         if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($shortLink)) {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save shortlink.'));
@@ -403,5 +443,227 @@ class ShortlinksController extends Controller
             'success' => true,
             'code' => $code,
         ]);
+    }
+
+    public function actionBulkSetFolder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $ids = $this->normalizeBulkIds($this->request->getBodyParam('ids', []));
+        $folderName = trim((string)$this->request->getBodyParam('folderName', ''));
+
+        if (empty($ids)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'No shortlinks selected.'));
+        }
+
+        if ($folderName === '') {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'Folder name cannot be empty.'));
+        }
+
+        $folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName($folderName);
+        if ($folderId <= 0) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'Could not create folder.'));
+        }
+
+        $affected = Db::update('{{%shortlinkmanager}}', ['folderId' => $folderId], ['id' => $ids]);
+        $this->invalidateBulkElementCaches($ids);
+
+        return $this->asJson([
+            'success' => true,
+            'message' => Craft::t('shortlink-manager', 'Folder updated for {count} shortlinks.', ['count' => $affected]),
+        ]);
+    }
+
+    public function actionBulkClearFolder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $ids = $this->normalizeBulkIds($this->request->getBodyParam('ids', []));
+        if (empty($ids)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'No shortlinks selected.'));
+        }
+
+        $affected = Db::update('{{%shortlinkmanager}}', ['folderId' => null], ['id' => $ids]);
+        $this->invalidateBulkElementCaches($ids);
+
+        return $this->asJson([
+            'success' => true,
+            'message' => Craft::t('shortlink-manager', 'Folder cleared for {count} shortlinks.', ['count' => $affected]),
+        ]);
+    }
+
+    public function actionBulkAddTags(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $ids = $this->normalizeBulkIds($this->request->getBodyParam('ids', []));
+        $inputTags = $this->parseTagList($this->request->getBodyParam('tags', ''));
+
+        if (empty($ids)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'No shortlinks selected.'));
+        }
+
+        if (empty($inputTags)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'Tags cannot be empty.'));
+        }
+
+        foreach ($ids as $id) {
+            $existing = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink($id);
+            $merged = array_values(array_unique(array_merge($existing, $inputTags)));
+            ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames($id, $merged);
+        }
+        $this->invalidateBulkElementCaches($ids);
+
+        return $this->asJson([
+            'success' => true,
+            'message' => Craft::t('shortlink-manager', 'Tags added for {count} shortlinks.', ['count' => count($ids)]),
+        ]);
+    }
+
+    public function actionBulkRemoveTags(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $ids = $this->normalizeBulkIds($this->request->getBodyParam('ids', []));
+        $removeTags = $this->parseTagList($this->request->getBodyParam('tags', ''));
+
+        if (empty($ids)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'No shortlinks selected.'));
+        }
+
+        if (empty($removeTags)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'Tags cannot be empty.'));
+        }
+
+        $removeLookup = array_fill_keys(array_map(static fn(string $tag): string => mb_strtolower($tag), $removeTags), true);
+
+        foreach ($ids as $id) {
+            $existing = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink($id);
+            $filtered = array_values(array_filter($existing, static function(string $tag) use ($removeLookup): bool {
+                return !isset($removeLookup[mb_strtolower($tag)]);
+            }));
+            ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames($id, $filtered);
+        }
+        $this->invalidateBulkElementCaches($ids);
+
+        return $this->asJson([
+            'success' => true,
+            'message' => Craft::t('shortlink-manager', 'Tags removed for {count} shortlinks.', ['count' => count($ids)]),
+        ]);
+    }
+
+    public function actionBulkClearTags(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $ids = $this->normalizeBulkIds($this->request->getBodyParam('ids', []));
+        if (empty($ids)) {
+            return $this->asJsonFailure(Craft::t('shortlink-manager', 'No shortlinks selected.'));
+        }
+
+        foreach ($ids as $id) {
+            ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames($id, []);
+        }
+        $this->invalidateBulkElementCaches($ids);
+
+        return $this->asJson([
+            'success' => true,
+            'message' => Craft::t('shortlink-manager', 'Tags cleared for {count} shortlinks.', ['count' => count($ids)]),
+        ]);
+    }
+
+    /**
+     * @param mixed $idsParam
+     * @return array<int, int>
+     */
+    private function normalizeBulkIds(mixed $idsParam): array
+    {
+        $ids = [];
+        if (is_array($idsParam)) {
+            foreach ($idsParam as $id) {
+                $value = (int)$id;
+                if ($value > 0) {
+                    $ids[] = $value;
+                }
+            }
+        } elseif (is_string($idsParam) && $idsParam !== '') {
+            foreach (explode(',', $idsParam) as $id) {
+                $value = (int)trim($id);
+                if ($value > 0) {
+                    $ids[] = $value;
+                }
+            }
+        }
+
+        $ids = array_values(array_unique($ids));
+        if (empty($ids)) {
+            return [];
+        }
+
+        $query = (new Query())
+            ->select(['id'])
+            ->from('{{%shortlinkmanager}}')
+            ->where(['id' => $ids]);
+
+        return array_map('intval', $query->column());
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<int, string>
+     */
+    private function parseTagList(mixed $value): array
+    {
+        if (is_array($value)) {
+            $values = $value;
+        } elseif (is_string($value)) {
+            $values = preg_split('/\s*,\s*/', trim($value)) ?: [];
+        } else {
+            $values = [];
+        }
+
+        $values = array_map(static fn(mixed $item): string => trim((string)$item), $values);
+
+        return array_values(array_unique(array_filter($values, static fn(string $tag): bool => $tag !== '')));
+    }
+
+    private function asJsonFailure(string $message): Response
+    {
+        Craft::$app->getResponse()->setStatusCode(400);
+        return $this->asJson([
+            'success' => false,
+            'error' => $message,
+        ]);
+    }
+
+    /**
+     * @param array<int, int> $ids
+     */
+    private function invalidateBulkElementCaches(array $ids): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+
+        // Touch element timestamps so CP index views refresh immediately.
+        Db::update(
+            Table::ELEMENTS,
+            ['dateUpdated' => Db::prepareDateForDb(new \DateTime())],
+            ['id' => $ids],
+            [],
+            false
+        );
+
+        Craft::$app->getElements()->invalidateCachesForElementType(ShortLink::class);
     }
 }

@@ -222,6 +222,43 @@
             value: shortLink.dateExpired ?? null,
             showTimeZone: false
         }) }}
+
+        {% set folderFieldOptions = [{label: 'None'|t('app'), value: ''}] %}
+        {% for value, label in (folderOptions ?? {}) %}
+            {% set folderFieldOptions = folderFieldOptions|merge([{label: label, value: value}]) %}
+        {% endfor %}
+        {% set folderFieldOptions = folderFieldOptions|merge([{label: 'Create new folder...'|t('shortlink-manager'), value: '__new__'}]) %}
+
+        {{ forms.selectField({
+            label: "Folder"|t('shortlink-manager'),
+            instructions: "Select a folder for this {singularName}."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+            id: 'folderId',
+            name: 'folderId',
+            value: shortLink.folderId ?? '',
+            options: folderFieldOptions,
+        }) }}
+
+        <input type="hidden" id="newFolderName" name="newFolderName" value="">
+
+        {% set tagOptions = [] %}
+        {% for tagName in (allTagNames ?? []) %}
+            {% set tagOptions = tagOptions|merge([{label: tagName, value: tagName}]) %}
+        {% endfor %}
+        {{ forms.selectizeField({
+            label: "Tags"|t('shortlink-manager'),
+            instructions: "Select existing tags or type to add new ones."|t('shortlink-manager'),
+            id: 'tags',
+            name: 'tags[]',
+            values: shortLink.tagNames ?? [],
+            options: tagOptions,
+            multi: true,
+            selectizeOptions: {
+                create: true,
+                createOnBlur: true,
+                persist: false,
+                placeholder: 'Add tags...'|t('shortlink-manager'),
+            },
+        }) }}
     </div>
 
     {% if shortLink.id %}
@@ -499,6 +536,32 @@
     const httpCodeSelect = document.getElementById('httpCode');
     const httpCodeTipText = document.getElementById('httpCodeTipText');
 
+    // Keep sidebar compact: create-folder uses prompt instead of rendering extra rows.
+    const folderSelect = document.getElementById('folderId');
+    const newFolderInput = document.getElementById('newFolderName');
+    if (folderSelect && newFolderInput) {
+        folderSelect.addEventListener('change', function() {
+            if (folderSelect.value !== '__new__') {
+                if (folderSelect.value !== '') {
+                    newFolderInput.value = '';
+                }
+                return;
+            }
+
+            const folderName = window.prompt('{{ "Enter new folder name"|t('shortlink-manager')|e('js') }}', '');
+            if (folderName && folderName.trim() !== '') {
+                newFolderInput.value = folderName.trim();
+                folderSelect.value = '';
+                if (typeof Craft !== 'undefined' && Craft.cp) {
+                    Craft.cp.displayNotice('{{ "New folder will be created on save."|t('shortlink-manager')|e('js') }}');
+                }
+            } else {
+                newFolderInput.value = '';
+                folderSelect.value = '';
+            }
+        });
+    }
+
     function updateHttpCodeTip() {
         if (!httpCodeSelect || !httpCodeTipText) return;
 
@@ -526,6 +589,30 @@
     if (httpCodeSelect) {
         httpCodeSelect.addEventListener('change', updateHttpCodeTip);
         updateHttpCodeTip(); // Initialize on load
+    }
+
+    // Ensure typed-but-not-committed tag text is added before submit.
+    const tagsSelectEl = document.getElementById('tags');
+    if (tagsSelectEl) {
+        const $tagsSelectEl = $(tagsSelectEl);
+        const tagsSelectize = $tagsSelectEl.data('selectize');
+        const form = tagsSelectEl.closest('form');
+
+        if (tagsSelectize && form) {
+            form.addEventListener('submit', function() {
+                const raw = (tagsSelectize.$control_input && tagsSelectize.$control_input.val()) ? String(tagsSelectize.$control_input.val()) : '';
+                const pending = raw.trim();
+                if (!pending) {
+                    return;
+                }
+
+                if (!tagsSelectize.options[pending]) {
+                    tagsSelectize.addOption({value: pending, text: pending});
+                }
+                tagsSelectize.addItem(pending, true);
+                tagsSelectize.$control_input.val('');
+            });
+        }
     }
 
     // Toggle shortLink type fields

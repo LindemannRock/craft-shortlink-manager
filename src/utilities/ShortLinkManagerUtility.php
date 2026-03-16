@@ -41,7 +41,7 @@ class ShortLinkManagerUtility extends Utility
      */
     public static function icon(): ?string
     {
-        return 'link-simple';
+        return '@lindemannrock/shortlinkmanager/icon-mask.svg';
     }
 
     /**

@@ -52,6 +52,8 @@
             {value: 'enabled', label: 'Enabled (1/0)'|t('shortlink-manager')},
             {value: 'siteId', label: 'Site ID'|t('shortlink-manager')},
             {value: 'siteHandle', label: 'Site Handle'|t('shortlink-manager')},
+            {value: 'folder', label: 'Folder'|t('shortlink-manager')},
+            {value: 'tags', label: 'Tags (comma-separated)'|t('shortlink-manager')},
             {value: 'trackAnalytics', label: 'Track Analytics (1/0)'|t('shortlink-manager')},
             {value: 'passQueryParams', label: 'Pass Query Params (1/0)'|t('shortlink-manager')},
             {value: 'directRedirect', label: 'Direct Redirect (1/0)'|t('shortlink-manager')},
@@ -96,6 +98,8 @@
                                                 {% if option.value == 'enabled' and lowerHeader in ['enabled', 'active'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'siteId' and lowerHeader in ['siteid', 'site_id'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'siteHandle' and lowerHeader in ['sitehandle', 'site_handle', 'site'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'folder' and lowerHeader in ['folder', 'foldername', 'folder_name'] %}{% set isMatch = true %}{% endif %}
+                                                {% if option.value == 'tags' and lowerHeader in ['tags', 'tag', 'taglist', 'tag_list'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'trackAnalytics' and lowerHeader in ['trackanalytics', 'analytics'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'passQueryParams' and lowerHeader in ['passqueryparams', 'pass_query_params'] %}{% set isMatch = true %}{% endif %}
                                                 {% if option.value == 'directRedirect' and lowerHeader in ['directredirect', 'direct_redirect'] %}{% set isMatch = true %}{% endif %}

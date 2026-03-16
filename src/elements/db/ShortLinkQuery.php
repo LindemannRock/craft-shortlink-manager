@@ -61,6 +61,16 @@ class ShortLinkQuery extends ElementQuery
      */
     public ?bool $trackAnalytics = null;
 
+    /**
+     * @var int|int[]|null Folder filter. Use 0 for "No Folder".
+     */
+    public mixed $folderId = null;
+
+    /**
+     * @var string|string[]|null Tag slug filter.
+     */
+    public mixed $tagSlug = null;
+
     // Public Methods
     // =========================================================================
 
@@ -153,6 +163,30 @@ class ShortLinkQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * Sets the [[folderId]] property.
+     *
+     * @param int|int[]|null $value
+     * @return static
+     */
+    public function folderId(mixed $value): static
+    {
+        $this->folderId = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the [[tagSlug]] property.
+     *
+     * @param string|string[]|null $value
+     * @return static
+     */
+    public function tagSlug(mixed $value): static
+    {
+        $this->tagSlug = $value;
+        return $this;
+    }
+
     // Protected Methods
     // =========================================================================
 
@@ -226,6 +260,7 @@ class ShortLinkQuery extends ElementQuery
             'shortlinkmanager.qrCodeEyeColor',
             'shortlinkmanager.qrCodeFormat',
             'shortlinkmanager.qrLogoId',
+            'shortlinkmanager.folderId',
             'shortlinkmanager_content.elementId',
             'shortlinkmanager_content.elementType',
             'shortlinkmanager_content.destinationUrl',
@@ -266,6 +301,34 @@ class ShortLinkQuery extends ElementQuery
 
         if ($this->trackAnalytics !== null) {
             $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.trackAnalytics', (int)$this->trackAnalytics));
+        }
+
+        if ($this->folderId !== null) {
+            if (is_int($this->folderId) && $this->folderId === 0) {
+                $this->subQuery->andWhere(['shortlinkmanager.folderId' => null]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('shortlinkmanager.folderId', $this->folderId));
+            }
+        }
+
+        if ($this->tagSlug) {
+            if (is_string($this->tagSlug) && $this->tagSlug === '__none__') {
+                $this->subQuery->andWhere([
+                    'not exists',
+                    (new Query())
+                        ->from('{{%shortlinkmanager_shortlink_tags}} slt')
+                        ->where('[[slt.shortLinkId]] = [[elements.id]]'),
+                ]);
+            } else {
+                $this->subQuery->andWhere([
+                    'exists',
+                    (new Query())
+                        ->from('{{%shortlinkmanager_shortlink_tags}} slt')
+                        ->innerJoin('{{%shortlinkmanager_tags}} t', '[[t.id]] = [[slt.tagId]]')
+                        ->where('[[slt.shortLinkId]] = [[elements.id]]')
+                        ->andWhere(Db::parseParam('t.slug', $this->tagSlug)),
+                ]);
+            }
         }
 
         if ($this->expired !== null) {
