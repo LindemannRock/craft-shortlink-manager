@@ -1,5 +1,31 @@
 # Changelog
 
+## [5.15.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.14.0...v5.15.0) (2026-03-17)
+
+
+### Features
+
+* add installation experience details for ShortLink Manager ([de549bb](https://github.com/LindemannRock/craft-shortlink-manager/commit/de549bb49d25d19d0e71ae230d5cf3f661598722))
+* **analytics:** add build process for analytics JavaScript assets ([e07abfe](https://github.com/LindemannRock/craft-shortlink-manager/commit/e07abfe663654bf2b9d82fadab26c06861c4e305))
+* **import/export:** add import/export functionality with history tracking ([5efef73](https://github.com/LindemannRock/craft-shortlink-manager/commit/5efef73045b88251128cf947d754271535bb38c0))
+* **import/export:** add new fields for QR code customization and query params ([d240c96](https://github.com/LindemannRock/craft-shortlink-manager/commit/d240c96f6a41956e8ab59be664ff22458fecc26f))
+* **import/export:** add permission check for import/export functionality ([beb937a](https://github.com/LindemannRock/craft-shortlink-manager/commit/beb937a4125810831ce61d21b34d360254647785))
+* **import/export:** enhance import/export functionality with date fields ([0223c1b](https://github.com/LindemannRock/craft-shortlink-manager/commit/0223c1b3c258e9ffd73e2f150ad8425bc1fa96ca))
+* **import/export:** update CSV export and import fields for postDate ([60962a3](https://github.com/LindemannRock/craft-shortlink-manager/commit/60962a36690243fb093c12422ad7bab422178c43))
+* **records:** add Folder, Tag, and ShortLinkTag records ([82f0c62](https://github.com/LindemannRock/craft-shortlink-manager/commit/82f0c622fbd2a72dcc4c95d6679f8f0f213c9e75))
+* **services:** implement TaxonomyService for folder and tag management ([82f0c62](https://github.com/LindemannRock/craft-shortlink-manager/commit/82f0c622fbd2a72dcc4c95d6679f8f0f213c9e75))
+* **settings:** add usePrefix option for shortlink URL generation ([d64b19d](https://github.com/LindemannRock/craft-shortlink-manager/commit/d64b19de727f43cf908073d5f1bf52cbdf412291))
+* **templates:** add folder management UI ([82f0c62](https://github.com/LindemannRock/craft-shortlink-manager/commit/82f0c622fbd2a72dcc4c95d6679f8f0f213c9e75))
+* **templates:** enhance import/export functionality with folders and tags ([82f0c62](https://github.com/LindemannRock/craft-shortlink-manager/commit/82f0c622fbd2a72dcc4c95d6679f8f0f213c9e75))
+
+
+### Bug Fixes
+
+* **migrations:** add slugPrefix and adjust usePrefix column position ([124ec89](https://github.com/LindemannRock/craft-shortlink-manager/commit/124ec89ab85e3027d549ab3e023ab234cb50caea))
+* **settings:** remove redundant submit button from settings forms ([5aac23d](https://github.com/LindemannRock/craft-shortlink-manager/commit/5aac23d5cea8c9309b582947d916db4f9a610582))
+* **settings:** validate shortlink base URL to prevent spaces ([3bcdc85](https://github.com/LindemannRock/craft-shortlink-manager/commit/3bcdc85bad62ec0bbe88305672f15d4a11be69d6))
+* **shortlink:** handle existing links switched from vanity to code ([1f25853](https://github.com/LindemannRock/craft-shortlink-manager/commit/1f25853ca1ce47d48ed09cba2e02681691ebd810))
+
 ## [5.14.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.13.0...v5.14.0) (2026-03-04)
 
 
