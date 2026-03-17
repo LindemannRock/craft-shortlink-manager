@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.1...v5.16.0) (2026-03-17)
+
+
+### Features
+
+* **analytics:** streamline IP handling in trackClick method ([e0ba4b5](https://github.com/LindemannRock/craft-shortlink-manager/commit/e0ba4b54294938db4030004c294f2c0fa5e9e1f5))
+
 ## [5.15.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.0...v5.15.1) (2026-03-17)
 
 
