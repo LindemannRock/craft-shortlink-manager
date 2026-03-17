@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.0...v5.15.1) (2026-03-17)
+
+
+### Bug Fixes
+
+* **analytics:** streamline click tracking and data storage ([1c1313b](https://github.com/LindemannRock/craft-shortlink-manager/commit/1c1313b8bcb3d9990cd26a94916a43f40209e6e1))
+
 ## [5.15.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.14.0...v5.15.0) (2026-03-17)
 
 
