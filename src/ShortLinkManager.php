@@ -99,7 +99,17 @@ class ShortLinkManager extends Plugin
             $this,
             'shortlinkHelper',
             ['shortLinkManager:viewSystemLogs'],
-            ['shortLinkManager:downloadSystemLogs']
+            ['shortLinkManager:downloadSystemLogs'],
+            [
+                'installExperience' => [
+                    'headline' => 'ShortLink Manager',
+                    'body' => 'Create short links, generate QR codes, and track performance from one control panel workspace.',
+                    'ctaLabel' => 'Open ShortLink Manager',
+                    'ctaUrl' => 'shortlink-manager',
+                    'redirectUri' => 'shortlink-manager',
+                    'confettiPreset' => 'surprise',
+                ],
+            ]
         );
         PluginHelper::applyPluginNameFromConfig($this);
 
