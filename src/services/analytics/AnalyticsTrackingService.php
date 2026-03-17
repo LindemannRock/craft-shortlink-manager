@@ -12,6 +12,7 @@ use Craft;
 use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use lindemannrock\base\helpers\AnalyticsIpHelper;
 use lindemannrock\base\traits\GeoLookupTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -54,25 +55,19 @@ class AnalyticsTrackingService
 
         $db = Craft::$app->getDb();
 
-        // Get IP address
-        $ip = $request->getUserIP();
+        $ipState = AnalyticsIpHelper::prepare(
+            $request->getUserIP(),
+            $settings->anonymizeIpAddress,
+            $settings->enableGeoDetection,
+            fn(string $ip): string => $this->hashIpWithSalt($ip),
+        );
 
-        // Step 1: Anonymize IP if enabled (subnet masking BEFORE hashing)
-        if ($settings->anonymizeIpAddress && $ip) {
-            $ip = $this->anonymizeIp($ip);
+        if ($ipState['hashError'] !== null) {
+            $this->logError('Failed to hash IP address', ['error' => $ipState['hashError']->getMessage()]);
         }
 
-        // Step 2: Hash IP with salt for storage
-        $ipHash = null;
-        if ($ip) {
-            try {
-                $ipHash = $this->hashIpWithSalt($ip);
-            } catch (\Exception $e) {
-                $this->logError('Failed to hash IP address', ['error' => $e->getMessage()]);
-                $ipHash = null;
-                $ip = null; // Prevent geo lookup with raw IP
-            }
-        }
+        $ipHash = $ipState['hashedIp'];
+        $geoLookupIp = $ipState['geoLookupIp'];
 
         // Get user agent
         $userAgent = $request->getUserAgent();
@@ -85,14 +80,8 @@ class AnalyticsTrackingService
 
         // Get language from device detection (includes fallback logic)
         $location = null;
-        if ($settings->enableGeoDetection && $ip) {
-            $location = ShortLinkManager::$plugin->analytics->getLocationFromIp($ip);
-            if ($location === null) {
-                $this->logDebug('Geo lookup returned no data for shortlink analytics', [
-                    'linkId' => $shortLink->id,
-                    'siteId' => $shortLink->siteId,
-                ]);
-            }
+        if ($geoLookupIp) {
+            $location = ShortLinkManager::$plugin->analytics->getLocationFromIp($geoLookupIp);
         }
 
         // Store source in metadata (like Smart Links does)
@@ -171,33 +160,6 @@ class AnalyticsTrackingService
         }
 
         return hash('sha256', $ip . $salt);
-    }
-
-    /**
-     * Anonymize IP address (subnet masking)
-     *
-     * Masks IP addresses to reduce precision while maintaining subnet info for geo-location.
-     * IPv4: Masks last octet (192.168.1.123 -> 192.168.1.0)
-     * IPv6: Masks last 80 bits (keeps first 48 bits)
-     *
-     * @param string $ip The IP address to anonymize
-     * @return string Anonymized IP address
-     */
-    private function anonymizeIp(string $ip): string
-    {
-        // IPv4: Mask last octet
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            return preg_replace('/\.\d+$/', '.0', $ip);
-        }
-
-        // IPv6: Mask last 80 bits (keep first 48 bits)
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            $binary = inet_pton($ip);
-            $anonymized = substr($binary, 0, 6) . str_repeat("\0", 10);
-            return inet_ntop($anonymized);
-        }
-
-        return $ip;
     }
 
     /**
