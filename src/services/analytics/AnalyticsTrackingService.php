@@ -8,10 +8,13 @@
 
 namespace lindemannrock\shortlinkmanager\services\analytics;
 
+use Craft;
+use craft\helpers\Db;
+use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use lindemannrock\base\traits\GeoLookupTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
-use lindemannrock\shortlinkmanager\records\AnalyticsRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Request;
 
@@ -49,10 +52,7 @@ class AnalyticsTrackingService
             return;
         }
 
-        $record = new AnalyticsRecord();
-        $record->linkId = $shortLink->id;
-        $record->siteId = $shortLink->siteId;
-        $record->destinationUrl = $shortLink->destinationUrl; // Capture destination at click time
+        $db = Craft::$app->getDb();
 
         // Get IP address
         $ip = $request->getUserIP();
@@ -63,56 +63,88 @@ class AnalyticsTrackingService
         }
 
         // Step 2: Hash IP with salt for storage
+        $ipHash = null;
         if ($ip) {
             try {
-                $record->ip = $this->hashIpWithSalt($ip);
+                $ipHash = $this->hashIpWithSalt($ip);
             } catch (\Exception $e) {
                 $this->logError('Failed to hash IP address', ['error' => $e->getMessage()]);
-                $record->ip = null;
+                $ipHash = null;
                 $ip = null; // Prevent geo lookup with raw IP
             }
-        } else {
-            $record->ip = null;
-        }
-
-        // Step 3: Get geo location (uses anonymized or full IP, skipped if hash failed)
-        if ($settings->enableGeoDetection && $ip) {
-            $this->populateGeoData($record, $ip);
         }
 
         // Get user agent
-        $record->userAgent = $request->getUserAgent();
+        $userAgent = $request->getUserAgent();
 
         // Get referrer
-        $record->referer = $request->getReferrer();
+        $referer = $request->getReferrer();
 
         // Detect device/browser info using Matomo DeviceDetector
-        $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice($record->userAgent);
+        $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice($userAgent);
 
         // Get language from device detection (includes fallback logic)
-        $record->language = $deviceInfo['language'] ?? null;
-
-        // Populate record with device detection data
-        $record->deviceType = $deviceInfo['deviceType'];
-        $record->deviceBrand = $deviceInfo['deviceBrand'];
-        $record->deviceModel = $deviceInfo['deviceModel'];
-        $record->browser = $deviceInfo['browser'];
-        $record->browserVersion = $deviceInfo['browserVersion'];
-        $record->browserEngine = $deviceInfo['browserEngine'];
-        $record->osName = $deviceInfo['osName'];
-        $record->osVersion = $deviceInfo['osVersion'];
-        $record->clientType = $deviceInfo['clientType'];
-        $record->isRobot = $deviceInfo['isRobot'];
-        $record->isMobileApp = $deviceInfo['isMobileApp'];
-        $record->botName = $deviceInfo['botName'];
+        $location = null;
+        if ($settings->enableGeoDetection && $ip) {
+            $location = ShortLinkManager::$plugin->analytics->getLocationFromIp($ip);
+            if ($location === null) {
+                $this->logDebug('Geo lookup returned no data for shortlink analytics', [
+                    'linkId' => $shortLink->id,
+                    'siteId' => $shortLink->siteId,
+                ]);
+            }
+        }
 
         // Store source in metadata (like Smart Links does)
         $metadata = [
             'source' => $source,
         ];
-        $record->metadata = json_encode($metadata);
 
-        $record->save();
+        $data = [
+            'linkId' => $shortLink->id,
+            'siteId' => $shortLink->siteId,
+            'destinationUrl' => $shortLink->destinationUrl,
+            'ip' => $ipHash,
+            'userAgent' => $userAgent,
+            'referer' => $referer,
+            'language' => $deviceInfo['language'] ?? null,
+            'deviceType' => $deviceInfo['deviceType'],
+            'deviceBrand' => $deviceInfo['deviceBrand'],
+            'deviceModel' => $deviceInfo['deviceModel'],
+            'browser' => $deviceInfo['browser'],
+            'browserVersion' => $deviceInfo['browserVersion'],
+            'browserEngine' => $deviceInfo['browserEngine'],
+            'osName' => $deviceInfo['osName'],
+            'osVersion' => $deviceInfo['osVersion'],
+            'clientType' => $deviceInfo['clientType'],
+            'isRobot' => $deviceInfo['isRobot'],
+            'isMobileApp' => $deviceInfo['isMobileApp'],
+            'botName' => $deviceInfo['botName'],
+            'country' => $location['countryCode'] ?? null,
+            'city' => $location['city'] ?? null,
+            'region' => $location['region'] ?? null,
+            'latitude' => $location['lat'] ?? null,
+            'longitude' => $location['lon'] ?? null,
+            'metadata' => Json::encode($metadata),
+            'dateCreated' => Db::prepareDateForDb(new \DateTime()),
+            'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
+            'uid' => StringHelper::UUID(),
+        ];
+
+        try {
+            $db->createCommand()
+                ->insert('{{%shortlinkmanager_analytics}}', $data)
+                ->execute();
+        } catch (\Throwable $e) {
+            $this->logError('Failed to save shortlink analytics', [
+                'linkId' => $shortLink->id,
+                'siteId' => $shortLink->siteId,
+                'error' => $e->getMessage(),
+                'hasGeoData' => $location !== null,
+                'country' => $data['country'],
+                'city' => $data['city'],
+            ]);
+        }
     }
 
     /**
@@ -166,25 +198,6 @@ class AnalyticsTrackingService
         }
 
         return $ip;
-    }
-
-    /**
-     * Populate geo data on analytics record from IP
-     *
-     * @param AnalyticsRecord $record
-     * @param string $ip
-     */
-    private function populateGeoData(AnalyticsRecord $record, string $ip): void
-    {
-        $location = ShortLinkManager::$plugin->analytics->getLocationFromIp($ip);
-
-        if ($location) {
-            $record->country = $location['countryCode'];
-            $record->city = $location['city'];
-            $record->region = $location['region'];
-            $record->latitude = $location['lat'];
-            $record->longitude = $location['lon'];
-        }
     }
 
     /**
