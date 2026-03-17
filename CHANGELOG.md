@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.0...v5.16.1) (2026-03-17)
+
+
+### Miscellaneous Chores
+
+* **workflow:** update permissions in release-please.yml ([44ba030](https://github.com/LindemannRock/craft-shortlink-manager/commit/44ba030fb152f6c52eb67aa00f938ba97d5e2a6d))
+
 ## [5.16.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.1...v5.16.0) (2026-03-17)
 
 
