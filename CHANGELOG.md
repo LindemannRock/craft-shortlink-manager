@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.16.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.1...v5.16.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* **config:** change default HTTP redirect code to 302 ([303b2c2](https://github.com/LindemannRock/craft-shortlink-manager/commit/303b2c2bcf6672dfb9230123dcd6bb7ec03b1d44))
+* **http:** change default HTTP redirect code from 301 to 302 ([ad47d89](https://github.com/LindemannRock/craft-shortlink-manager/commit/ad47d89629d2196666685a7f4eb5c01009a9bf3a))
+
 ## [5.16.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.0...v5.16.1) (2026-03-17)
 
 
