@@ -72,7 +72,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `defaultHttpCode` | `int` | `301` | Default HTTP status code for redirects. Options: `301`, `302`, `307`, `308` |
+| `defaultHttpCode` | `int` | `302` | Default HTTP status code for redirects. Options: `301`, `302`, `307`, `308` |
 | `passQueryParams` @since(5.11.0) | `bool` | `false` | Pass query parameters from the shortlink URL to the destination URL. Can be overridden per link (null = use global) |
 | `directRedirect` @since(5.12.0) | `bool` | `false` | Perform a direct server-side HTTP redirect without rendering a template. Analytics and hit counting are unaffected. Disables SEOmatic client-side tracking (GTM/GA events). Can be overridden per link (null = use global). |
 | `notFoundRedirectUrl` | `string` | `'/'` | Where to redirect when a short link is not found or disabled. Supports env vars |
@@ -214,7 +214,7 @@ return [
         // 'shortlinkBaseUrl' => 'https://short.example.com/{siteHandle}',
 
         // Redirect behavior
-        'defaultHttpCode' => 301,
+        'defaultHttpCode' => 302,
         'passQueryParams' => false,
         'directRedirect' => false,
         'notFoundRedirectUrl' => '/',

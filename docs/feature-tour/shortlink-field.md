@@ -22,7 +22,7 @@ When the entry's URL changes (slug update, section change, draft propagation), S
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `linkType` | `code` | Whether the short code is auto-generated or requires a custom code |
-| `defaultHttpCode` | `301` | Default redirect status for links created via this field |
+| `defaultHttpCode` | `302` | Default redirect status for links created via this field |
 
 ## How Destination URL Sync Works
 
