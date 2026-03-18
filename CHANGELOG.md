@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.2...v5.16.3) (2026-03-18)
+
+
+### Bug Fixes
+
+* **redirect:** change shortlink code to use slug instead of code ([619b622](https://github.com/LindemannRock/craft-shortlink-manager/commit/619b622283f5398d526cc865f42fbe0b08737243))
+
 ## [5.16.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.1...v5.16.2) (2026-03-18)
 
 
