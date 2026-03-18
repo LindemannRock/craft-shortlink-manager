@@ -74,7 +74,7 @@ class ShortLinksService extends Component
         $element->shortLinkType = $options['shortLinkType'] ?? 'manual';
         $element->destinationUrl = $options['url'] ?? $options['destinationUrl'] ?? $element->destinationUrl ?? '';
         $element->siteId = $options['siteId'] ?? $element->siteId ?? Craft::$app->getSites()->currentSite->id;
-        $element->httpCode = $options['httpCode'] ?? $settings->defaultHttpCode ?? 301;
+        $element->httpCode = $options['httpCode'] ?? $settings->defaultHttpCode ?? 302;
         $element->enabled = $options['enabled'] ?? true;
         $element->dateExpired = $options['dateExpired'] ?? $options['expiresAt'] ?? null;
         $element->expiredRedirectUrl = $options['expiredRedirectUrl'] ?? null;

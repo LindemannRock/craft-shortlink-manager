@@ -150,7 +150,7 @@ class ShortlinksController extends Controller
                 $shortLink = new ShortLink();
                 $shortLink->siteId = $site->id;
                 $shortLink->enabled = true;
-                $shortLink->httpCode = ShortLinkManager::$plugin->getSettings()->defaultHttpCode ?? 301;
+                $shortLink->httpCode = ShortLinkManager::$plugin->getSettings()->defaultHttpCode ?? 302;
                 $shortLink->linkType = 'code'; // Default to auto-generated
             }
 
@@ -219,7 +219,8 @@ class ShortlinksController extends Controller
         $shortLink->code = $this->request->getBodyParam('code');
 
         // Note: slug will be auto-generated from code in beforeValidate()
-        $shortLink->httpCode = $this->request->getBodyParam('httpCode') ?: 301;
+        $shortLink->httpCode = $this->request->getBodyParam('httpCode')
+            ?: (ShortLinkManager::$plugin->getSettings()->defaultHttpCode ?? 302);
 
         // Use setEnabledForSite for per-site enabling (elements_sites.enabled)
         $enabled = (bool) $this->request->getBodyParam('enabled', true);

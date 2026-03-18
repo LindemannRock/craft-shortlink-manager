@@ -9,10 +9,12 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
@@ -39,7 +41,7 @@ class RedirectController extends Controller
     /**
      * @inheritdoc
      */
-    protected array|bool|int $allowAnonymous = ['index'];
+    protected array|bool|int $allowAnonymous = ['index', 'go'];
 
     /**
      * Handle shortlink redirect
@@ -64,15 +66,7 @@ class RedirectController extends Controller
         }
 
         $settings = ShortLinkManager::$plugin->getSettings();
-
-        // Get the shortlink
-        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
-
-        // Fallback: custom-domain requests can resolve to a different current site
-        // than the shortlink's saved site. Retry across sites before failing.
-        if (!$shortLink) {
-            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
-        }
+        $shortLink = $this->findShortLink($code, $site);
 
         if (!$shortLink) {
             $this->logWarning('Shortlink not found', ['code' => $code]);
@@ -112,24 +106,7 @@ class RedirectController extends Controller
             return $this->handleExpiredLink($shortLink);
         }
 
-        // Get destination URL
-        $destinationUrl = $shortLink->destinationUrl;
-
-        // If destination is empty, try to get from linked element
-        if (empty($destinationUrl) && $shortLink->elementId) {
-            $this->logDebug('Fetching URL from linked element', [
-                'elementId' => $shortLink->elementId,
-                'elementType' => $shortLink->elementType,
-            ]);
-
-            $element = $shortLink->getLinkedElement();
-            if ($element) {
-                $destinationUrl = $element->getUrl();
-                $this->logDebug('Element URL retrieved', ['url' => $destinationUrl]);
-            } else {
-                $this->logError('Linked element not found', ['elementId' => $shortLink->elementId]);
-            }
-        }
+        $destinationUrl = $this->resolveDestinationUrl($shortLink);
 
         // If still empty, redirect to not found
         if (empty($destinationUrl)) {
@@ -160,54 +137,106 @@ class RedirectController extends Controller
 
         // Get device info for analytics and SEOmatic tracking
         $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice();
-
-        // Track analytics if enabled globally AND for this specific link
-        if ($shortLink->trackAnalytics && ShortLinkManager::$plugin->getSettings()->enableAnalytics) {
-            ShortLinkManager::$plugin->analytics->trackClick(
-                $shortLink,
-                Craft::$app->getRequest(),
-                $source
-            );
-        }
-
-        // Track SEOmatic event if integration is enabled
-        $seomatic = ShortLinkManager::$plugin->integration->getIntegration('seomatic');
-        if ($seomatic && $seomatic->isAvailable() && $seomatic->isEnabled()) {
-            // Determine event type based on source
-            $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
-
-            $this->logInfo("SEOmatic client-side tracking: {$eventType} event for '{$shortLink->code}'", [
-                'event_type' => $eventType,
-                'code' => $shortLink->code,
-                'source' => $source,
-                'destination' => $destinationUrl,
-            ]);
-        }
-
-        // Increment hit counter
-        ShortLinkManager::$plugin->shortLinks->incrementHits($shortLink);
+        $shouldTrack = $shortLink->trackAnalytics && ShortLinkManager::$plugin->getSettings()->enableAnalytics;
 
         // Check if direct redirect is enabled (per-link override or global setting)
         $shouldDirectRedirect = $shortLink->directRedirect ?? $settings->directRedirect;
 
         if ($shouldDirectRedirect) {
-            return $this->redirect($this->_sanitizeUrl($destinationUrl), $shortLink->httpCode ?? 301);
+            return $this->executeRedirect($shortLink, $destinationUrl, $source);
         }
 
-        // Render redirect template instead of direct redirect
-        // This allows for SEOmatic client-side tracking before redirect
         $template = $settings->redirectTemplate ?: 'shortlink-manager/redirect';
-
-        // Determine event type for template
         $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
+        $goSite = Craft::$app->getSites()->getSiteById($shortLink->siteId);
+        $goUrl = UrlHelper::actionUrl('shortlink-manager/redirect/go', [
+            'code' => $shortLink->code,
+            'site' => $goSite?->handle,
+            'src' => $source,
+        ]);
 
-        return $this->renderTemplate($template, [
+        $response = $this->renderTemplate($template, [
             'shortLink' => $shortLink,
-            'destinationUrl' => $this->_sanitizeUrl($destinationUrl),
+            'goUrl' => $goUrl,
             'source' => $source,
             'deviceInfo' => $deviceInfo,
             'eventType' => $eventType,
         ]);
+
+        if ($shouldTrack) {
+            $this->applyNoStoreHeaders($response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Execute the analytics write + final redirect on an uncached action route.
+     */
+    public function actionGo(?string $code = null, ?string $siteHandle = null): Response
+    {
+        $this->logDebug('Shortlink go requested', ['code' => $code, 'siteHandle' => $siteHandle]);
+
+        if (!$code) {
+            $this->logWarning('Shortlink code missing for go action');
+            return $this->redirectToNotFound();
+        }
+
+        $site = $this->resolveSite($siteHandle);
+        if (!$site) {
+            $this->logWarning('Invalid site handle for shortlink go request', ['code' => $code, 'siteHandle' => $siteHandle]);
+            return $this->redirectToNotFound();
+        }
+
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $shortLink = $this->findShortLink($code, $site);
+
+        if (!$shortLink) {
+            $this->logWarning('Shortlink not found for go action', ['code' => $code]);
+            return $this->redirectToNotFound();
+        }
+
+        if (!$settings->isSiteEnabled($shortLink->siteId)) {
+            $this->logInfo('ShortLink Manager disabled for shortlink site', [
+                'siteId' => $shortLink->siteId,
+                'code' => $code,
+            ]);
+            return $this->redirectToNotFound();
+        }
+
+        if ($shortLink->getStatus() === ShortLink::STATUS_DISABLED) {
+            $this->logInfo('Shortlink disabled', ['code' => $code]);
+            return $this->redirectToNotFound();
+        }
+
+        if ($shortLink->getStatus() === ShortLink::STATUS_PENDING) {
+            $this->logInfo('Shortlink pending', ['code' => $code]);
+            return $this->redirectToNotFound();
+        }
+
+        if ($shortLink->isExpired()) {
+            $this->logInfo('Shortlink expired', ['code' => $code]);
+            return $this->handleExpiredLink($shortLink);
+        }
+
+        $destinationUrl = $this->resolveDestinationUrl($shortLink);
+
+        if (empty($destinationUrl)) {
+            $this->logError('No destination URL available for go action', [
+                'slug' => $shortLink->slug,
+                'elementId' => $shortLink->elementId,
+            ]);
+            return $this->redirectToNotFound();
+        }
+
+        $shouldPassQueryParams = $shortLink->passQueryParams ?? $settings->passQueryParams;
+        if ($shouldPassQueryParams) {
+            $destinationUrl = $this->mergeQueryParams($destinationUrl);
+        }
+
+        $source = Craft::$app->getRequest()->getParam('src', 'direct');
+
+        return $this->executeRedirect($shortLink, $destinationUrl, $source);
     }
 
     /**
@@ -219,7 +248,83 @@ class RedirectController extends Controller
             return Craft::$app->getSites()->getSiteByHandle($siteHandle);
         }
 
+        $siteParam = Craft::$app->getRequest()->getParam('site');
+        if ($siteParam) {
+            return Craft::$app->getSites()->getSiteByHandle((string)$siteParam);
+        }
+
         return Craft::$app->getSites()->getCurrentSite();
+    }
+
+    private function findShortLink(string $code, Site $site): ?ShortLink
+    {
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
+
+        if (!$shortLink) {
+            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        }
+
+        return $shortLink;
+    }
+
+    private function resolveDestinationUrl(ShortLink $shortLink): ?string
+    {
+        $destinationUrl = $shortLink->destinationUrl;
+
+        if (empty($destinationUrl) && $shortLink->elementId) {
+            $this->logDebug('Fetching URL from linked element', [
+                'elementId' => $shortLink->elementId,
+                'elementType' => $shortLink->elementType,
+            ]);
+
+            $element = $shortLink->getLinkedElement();
+            if ($element) {
+                $destinationUrl = $element->getUrl();
+                $this->logDebug('Element URL retrieved', ['url' => $destinationUrl]);
+            } else {
+                $this->logError('Linked element not found', ['elementId' => $shortLink->elementId]);
+            }
+        }
+
+        return $destinationUrl;
+    }
+
+    private function executeRedirect(ShortLink $shortLink, string $destinationUrl, string $source): Response
+    {
+        $shouldTrack = $shortLink->trackAnalytics && ShortLinkManager::$plugin->getSettings()->enableAnalytics;
+
+        if ($shouldTrack) {
+            ShortLinkManager::$plugin->analytics->trackClick(
+                $shortLink,
+                Craft::$app->getRequest(),
+                $source
+            );
+        }
+
+        $seomatic = ShortLinkManager::$plugin->integration->getIntegration('seomatic');
+        if ($seomatic && $seomatic->isAvailable() && $seomatic->isEnabled()) {
+            $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
+
+            $this->logInfo("SEOmatic client-side tracking: {$eventType} event for '{$shortLink->code}'", [
+                'event_type' => $eventType,
+                'code' => $shortLink->code,
+                'source' => $source,
+                'destination' => $destinationUrl,
+            ]);
+        }
+
+        ShortLinkManager::$plugin->shortLinks->incrementHits($shortLink);
+
+        $response = $this->redirect(
+            $this->_sanitizeUrl($destinationUrl),
+            $shortLink->httpCode ?? 302
+        );
+
+        if ($shouldTrack) {
+            $this->applyNoStoreHeaders($response);
+        }
+
+        return $response;
     }
 
     /**
@@ -433,5 +538,12 @@ class RedirectController extends Controller
     private function _sanitizeMessage(string $message): string
     {
         return strip_tags($message);
+    }
+
+    private function applyNoStoreHeaders(Response $response): void
+    {
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
     }
 }

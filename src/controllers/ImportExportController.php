@@ -241,7 +241,7 @@ class ImportExportController extends Controller
                 'destinationUrl' => '',
                 'elementId' => null,
                 'elementType' => null,
-                'httpCode' => 301,
+                'httpCode' => 302,
                 'enabled' => true,
                 'siteId' => null,
                 'folder' => '',
@@ -505,7 +505,7 @@ class ImportExportController extends Controller
                     $shortLink->elementType = null;
                 }
 
-                $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 301);
+                $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 302);
                 $shortLink->folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName((string)($primaryRow['folder'] ?? '')) ?: null;
                 $shortLink->tagNames = $this->parseTagList($primaryRow['tags'] ?? []);
                 $shortLink->trackAnalytics = (bool)$primaryRow['trackAnalytics'];

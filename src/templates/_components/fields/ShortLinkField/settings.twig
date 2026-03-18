@@ -25,3 +25,33 @@
         308: '308 - Permanent Redirect'|t('shortlink-manager'),
     },
 }) }}
+
+{% include 'lindemannrock-base/_components/info-box' with {
+    boxId: 'defaultHttpCodeWarningBox',
+    message: '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.'|t('shortlink-manager'),
+    type: 'warning',
+    variant: 'colored',
+    margin: 'top',
+    hidden: field.defaultHttpCode not in [301, 308],
+} %}
+
+{% js %}
+(() => {
+    const defaultHttpCodeSelect = document.getElementById('defaultHttpCode');
+    const defaultHttpCodeWarningBox = document.getElementById('defaultHttpCodeWarningBox');
+
+    function updateDefaultHttpCodeWarning() {
+        if (!defaultHttpCodeSelect || !defaultHttpCodeWarningBox) {
+            return;
+        }
+
+        const code = parseInt(defaultHttpCodeSelect.value, 10);
+        defaultHttpCodeWarningBox.style.display = [301, 308].includes(code) ? '' : 'none';
+    }
+
+    if (defaultHttpCodeSelect) {
+        defaultHttpCodeSelect.addEventListener('change', updateDefaultHttpCodeWarning);
+        updateDefaultHttpCodeWarning();
+    }
+})();
+{% endjs %}

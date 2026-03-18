@@ -115,7 +115,7 @@
         <p class="message">
             {{ 'Please wait, redirecting you now...'|t('shortlink-manager') }}
         </p>
-        <a href="{{ destinationUrl|e('html_attr') }}" class="fallback-link" id="manual-link">
+        <a href="{{ goUrl|e('html_attr') }}" class="fallback-link" id="manual-link">
             {{ 'Click here if not redirected'|t('shortlink-manager') }}
         </a>
     </div>
@@ -123,7 +123,7 @@
     <script>
         (function() {
             // Safely encode values for JS context
-            var destinationUrl = {{ destinationUrl|json_encode|raw }};
+            var goUrl = {{ goUrl|json_encode|raw }};
             var eventType = {{ eventType|json_encode|raw }};
             var shortlinkCode = {{ shortLink.code|json_encode|raw }};
 
@@ -134,7 +134,7 @@
 
             if (debugMode) {
                 console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
-                console.log('🔍 Destination URL:', destinationUrl);
+                console.log('🔍 Go URL:', goUrl);
                 console.log('📊 Event Type:', eventType);
                 console.log('🔗 Shortlink Code:', shortlinkCode);
 
@@ -170,7 +170,7 @@
 
             // Wait 100ms for GTM dataLayer to process, then redirect
             setTimeout(function() {
-                window.location.replace(destinationUrl);
+                window.location.replace(goUrl);
             }, 100);
         })();
     </script>

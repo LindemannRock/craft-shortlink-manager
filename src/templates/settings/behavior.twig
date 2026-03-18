@@ -55,10 +55,18 @@
     <p id="httpCodeTip" class="notice has-icon" style="margin-top: 10px;">
         <span class="icon" aria-hidden="true"></span>
         <span class="visually-hidden">Tip:</span>
-        <span id="httpCodeTipText">{{ "Most common: Use <strong>301</strong> for permanent {pluginName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName})|raw }}
+        <span id="httpCodeTipText">{{ "<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL."|t('shortlink-manager')|raw }}
             <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>
         </span>
     </p>
+
+    {% include 'lindemannrock-base/_components/info-box' with {
+        boxId: 'defaultHttpCodeWarningBox',
+        message: '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.'|t('shortlink-manager'),
+        type: 'warning',
+        margin: 'top',
+        hidden: settings.defaultHttpCode not in [301, 308],
+    } %}
 
 		{{ forms.lightswitchField({
         label: "Pass Query Parameters"|t('shortlink-manager'),
@@ -109,6 +117,7 @@
 // Update HTTP Status Code tip based on selection
 const httpCodeSelect = document.getElementById('defaultHttpCode');
 const httpCodeTipText = document.getElementById('httpCodeTipText');
+const httpCodeWarningBox = document.getElementById('defaultHttpCodeWarningBox');
 
 function updateHttpCodeTip() {
     if (!httpCodeSelect || !httpCodeTipText) return;
@@ -134,8 +143,17 @@ function updateHttpCodeTip() {
     httpCodeTipText.innerHTML = tip;
 }
 
+function updateHttpCodeWarning() {
+    if (!httpCodeSelect || !httpCodeWarningBox) return;
+
+    const code = parseInt(httpCodeSelect.value, 10);
+    httpCodeWarningBox.style.display = [301, 308].includes(code) ? '' : 'none';
+}
+
 if (httpCodeSelect) {
     httpCodeSelect.addEventListener('change', updateHttpCodeTip);
+    httpCodeSelect.addEventListener('change', updateHttpCodeWarning);
     updateHttpCodeTip(); // Initialize on load
+    updateHttpCodeWarning();
 }
 {% endjs %}

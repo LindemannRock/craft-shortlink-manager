@@ -170,7 +170,7 @@ class Settings extends Model
     /**
      * @var int Default HTTP status code for redirects
      */
-    public int $defaultHttpCode = 301;
+    public int $defaultHttpCode = 302;
 
     /**
      * @var bool Pass query parameters from shortlink URL to destination URL

@@ -41,7 +41,7 @@ class Install extends Migration
                 'authorId' => $this->integer()->null(),
                 'postDate' => $this->dateTime()->null(),
                 'dateExpired' => $this->dateTime()->null(),
-                'httpCode' => $this->integer()->notNull()->defaultValue(301),
+                'httpCode' => $this->integer()->notNull()->defaultValue(302),
                 'trackAnalytics' => $this->boolean()->notNull()->defaultValue(true),
                 'passQueryParams' => $this->boolean()->null()->comment('Pass query params to destination (null = use global setting)'),
                 'directRedirect' => $this->boolean()->null()->comment('Direct HTTP redirect, skip template (null = use global setting)'),
@@ -253,7 +253,7 @@ class Install extends Migration
                 'cacheDeviceDetection' => $this->boolean()->notNull()->defaultValue(true),
                 'deviceDetectionCacheDuration' => $this->integer()->notNull()->defaultValue(3600),
                 // Redirect/Behavior settings
-                'defaultHttpCode' => $this->integer()->notNull()->defaultValue(301),
+                'defaultHttpCode' => $this->integer()->notNull()->defaultValue(302),
                 'passQueryParams' => $this->boolean()->notNull()->defaultValue(false)->comment('Pass query params from shortlink URL to destination'),
                 'directRedirect' => $this->boolean()->notNull()->defaultValue(false)->comment('Direct HTTP redirect without template render'),
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),

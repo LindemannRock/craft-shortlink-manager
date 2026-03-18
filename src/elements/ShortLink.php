@@ -110,7 +110,7 @@ class ShortLink extends Element
     /**
      * @var int HTTP redirect code (301, 302, 307, 308)
      */
-    public int $httpCode = 301;
+    public int $httpCode = 302;
 
     /**
      * @var bool Track analytics
@@ -688,7 +688,7 @@ class ShortLink extends Element
             'dateExpired' => null,
             'authorId' => null,
             'postDate' => null,
-            'httpCode' => 301,
+            'httpCode' => 302,
             'trackAnalytics' => true,
             'passQueryParams' => null,
             'directRedirect' => null,

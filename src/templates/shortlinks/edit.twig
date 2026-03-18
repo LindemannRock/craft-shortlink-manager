@@ -535,6 +535,7 @@
     // Update HTTP Status Code tip based on selection
     const httpCodeSelect = document.getElementById('httpCode');
     const httpCodeTipText = document.getElementById('httpCodeTipText');
+    const httpCodeWarningBox = document.getElementById('httpCodeWarningBox');
 
     // Keep sidebar compact: create-folder uses prompt instead of rendering extra rows.
     const folderSelect = document.getElementById('folderId');
@@ -586,9 +587,20 @@
         httpCodeTipText.innerHTML = tip;
     }
 
+    function updateHttpCodeWarning() {
+        if (!httpCodeWarningBox || !httpCodeSelect) {
+            return;
+        }
+
+        const code = parseInt(httpCodeSelect.value, 10);
+        httpCodeWarningBox.style.display = [301, 308].includes(code) ? '' : 'none';
+    }
+
     if (httpCodeSelect) {
         httpCodeSelect.addEventListener('change', updateHttpCodeTip);
+        httpCodeSelect.addEventListener('change', updateHttpCodeWarning);
         updateHttpCodeTip(); // Initialize on load
+        updateHttpCodeWarning();
     }
 
     // Ensure typed-but-not-committed tag text is added before submit.

@@ -31,7 +31,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     /**
      * @var int Default HTTP code
      */
-    public int $defaultHttpCode = 301;
+    public int $defaultHttpCode = 302;
 
     /**
      * @inheritdoc
