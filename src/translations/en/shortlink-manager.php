@@ -296,8 +296,8 @@ return [
     '307 - Temporary' => '307 - Temporary',
     '308 - Permanent' => '308 - Permanent',
     'This is being overridden by the <code>defaultHttpCode</code> setting in <code>config/shortlink-manager.php</code>.' => 'This is being overridden by the <code>defaultHttpCode</code> setting in <code>config/shortlink-manager.php</code>.',
-    'Most common: Use <strong>301</strong> for permanent {pluginName}.' => 'Most common: Use <strong>301</strong> for permanent {pluginName}.',
     'Learn more' => 'Learn more',
+    '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.',
 
     // HTTP code tips (dynamic JS)
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.',

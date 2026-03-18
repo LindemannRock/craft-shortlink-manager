@@ -302,8 +302,8 @@ return [
     '307 - Temporary' => '307 – Temporär',
     '308 - Permanent' => '308 – Permanent',
     'This is being overridden by the <code>defaultHttpCode</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>defaultHttpCode</code> in <code>config/shortlink-manager.php</code> überschrieben.',
-    'Most common: Use <strong>301</strong> for permanent {pluginName}.' => 'Am häufigsten: Verwenden Sie <strong>301</strong> für permanente {pluginName}.',
     'Learn more' => 'Mehr erfahren',
+    '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 können von Browsern, CDNs und Hosting-Layern zwischengespeichert werden. Wenn Analytics-Tracking aktiviert ist, können wiederholte Aufrufe Craft umgehen und nicht erfasst werden. Verwenden Sie 302/307, wenn eine genaue Erfassung pro Aufruf wichtig ist.',
 
     // HTTP-Code-Tipps (dynamisches JS)
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 – Dauerhaft verschoben:</strong> Verwenden, wenn Inhalte dauerhaft verschoben wurden. Suchmaschinen aktualisieren ihren Index.',
