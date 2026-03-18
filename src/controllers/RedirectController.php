@@ -150,7 +150,7 @@ class RedirectController extends Controller
         $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
         $goSite = Craft::$app->getSites()->getSiteById($shortLink->siteId);
         $goUrl = UrlHelper::actionUrl('shortlink-manager/redirect/go', [
-            'code' => $shortLink->code,
+            'code' => $shortLink->slug,
             'site' => $goSite?->handle,
             'src' => $source,
         ]);
