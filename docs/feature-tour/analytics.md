@@ -87,7 +87,7 @@ This replaces the last octet of IPv4 addresses with `0` before hashing. The resu
 
 ## Geolocation
 
-Geolocation maps IP addresses to countries and cities. It runs asynchronously as a queue job so it does not slow down the redirect response.
+Geolocation maps IP addresses to countries and cities. It now runs inline during the analytics write path, using the same normalized IP state as hashing. If IP hashing cannot run because the salt is missing, geo lookup is skipped too.
 
 ```php
 return [

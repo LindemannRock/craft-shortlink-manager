@@ -74,11 +74,17 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 |---------|------|---------|-------------|
 | `defaultHttpCode` | `int` | `302` | Default HTTP status code for redirects. Options: `301`, `302`, `307`, `308` |
 | `passQueryParams` @since(5.11.0) | `bool` | `false` | Pass query parameters from the shortlink URL to the destination URL. Can be overridden per link (null = use global) |
-| `directRedirect` @since(5.12.0) | `bool` | `false` | Perform a direct server-side HTTP redirect without rendering a template. Analytics and hit counting are unaffected. Disables SEOmatic client-side tracking (GTM/GA events). Can be overridden per link (null = use global). |
+| `directRedirect` @since(5.12.0) | `bool` | `false` | Perform a direct server-side HTTP redirect without rendering a template. Disables SEOmatic client-side tracking (GTM/GA events). Can be overridden per link (null = use global). |
 | `notFoundRedirectUrl` | `string` | `'/'` | Where to redirect when a short link is not found or disabled. Supports env vars |
 
 > [!TIP]
 > Use `directRedirect` for maximum performance or when you do not need SEOmatic client-side tracking events. The redirect template is still useful when you want GTM/GA events to fire before the browser navigates away.
+
+> [!IMPORTANT]
+> `directRedirect` is the fastest path, but it only records server-side analytics when the short URL request reaches Craft/PHP. If a browser, CDN, or static cache serves that URL before Craft runs, repeat-hit analytics can be bypassed. Keep `directRedirect = false` for analytics-safe redirect pages under caching, or add cache bypass rules for your shortlink routes when direct mode must be used.
+
+> [!TIP]
+> `302` is the default because it is the safest general-purpose status code for short links. `301` and `308` remain available, but they are much more likely to be cached aggressively by browsers and edge caches.
 
 ---
 

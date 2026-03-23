@@ -26,9 +26,9 @@ Go to **ShortLink Manager → New Link**.
 
 **Optional fields:**
 
-- **HTTP Code** — Redirect status. `301` (permanent), `302` (temporary), `307` (temp, method preserved), `308` (perm, method preserved). Defaults to the `defaultHttpCode` setting.
+- **HTTP Code** — Redirect status. `301` (permanent), `302` (temporary), `307` (temp, method preserved), `308` (perm, method preserved). Defaults to the `defaultHttpCode` setting (`302` by default).
 - **Pass Query Params** — When enabled, query parameters appended to the short URL are forwarded to the destination. Overrides the global `passQueryParams` setting. Set to null to use the global setting.
-- **Direct Redirect** @since(5.12.0) — Bypass the redirect template for an immediate server-side HTTP redirect. Overrides the global `directRedirect` setting. See [Direct Redirect](direct-redirect.md).
+- **Direct Redirect** @since(5.12.0) — Bypass the redirect template for an immediate server-side HTTP redirect. Overrides the global `directRedirect` setting. Fastest path, but repeat-hit analytics can be affected by browser/CDN/static caching because the short URL request itself becomes the tracked redirect request. See [Direct Redirect](direct-redirect.md).
 - **Track Analytics** — Whether click tracking is recorded for this link. Enabled by default.
 - **Post Date** — When the link becomes active. Visitors clicking before this date get redirected to `notFoundRedirectUrl`.
 - **Expiry Date** — When the link stops working. Expired links redirect to the expired template (or `expiredRedirectUrl` if set).

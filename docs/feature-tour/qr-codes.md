@@ -2,6 +2,9 @@
 
 Every short link in ShortLink Manager can have a QR code. Each QR code encodes the short link's public URL, so if you update the destination, the QR code continues working without reprinting. Scanning triggers the same redirect flow as clicking — including analytics tracking.
 
+> [!TIP]
+> QR scans follow the same redirect mode as normal clicks. If `directRedirect` is enabled, repeat scan analytics can be bypassed by browser/CDN/static caching unless those routes bypass cache. If you need analytics-safe QR scans under caching, keep `directRedirect = false`.
+
 ## How It Works
 
 QR codes are generated dynamically by the `bacon/bacon-qr-code` library and cached to avoid regenerating on every request. Each QR code encodes the short link's public URL (e.g., `https://example.com/s/qr/abc123`).

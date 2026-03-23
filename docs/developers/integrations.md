@@ -87,11 +87,16 @@ Render the tracking HTML in your redirect template:
 {% block content %}
     {{ shortLink.renderSeomaticTracking('redirect')|raw }}
 
-    <meta http-equiv="refresh" content="0; url={{ shortLink.destinationUrl }}">
+    <script>
+        window.location.replace({{ goUrl|json_encode|raw }});
+    </script>
 {% endblock %}
 ```
 
 The `renderSeomaticTracking(eventType)` @since(5.1.0) method returns SEOmatic-compatible tracking markup, or `null` if SEOmatic is not installed or the event type is not in `seomaticTrackingEvents`.
+
+> [!IMPORTANT]
+> In a custom redirect template, redirect to `goUrl`, not directly to `shortLink.destinationUrl`. The `goUrl` action route is the server-side tracking hop that records analytics and then issues the final redirect.
 
 ### Direct Redirect Warning
 

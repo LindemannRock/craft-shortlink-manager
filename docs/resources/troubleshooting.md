@@ -45,6 +45,46 @@ ddev craft shortlink-manager/security/generate-salt
 
 4. **Check plugin logs:** Enable debug logging in `config/shortlink-manager.php` (`'logLevel' => 'debug'`) and check **ShortLink Manager → Logs**.
 
+5. **Check whether Direct Redirect is enabled.** In Direct Redirect mode, analytics only record when the short URL request reaches Craft. If a browser, CDN, Blitz, or platform static cache serves the short URL before PHP runs, repeat-hit analytics can be bypassed.
+
+6. **Check the redirect mode under caching.**
+   - If you need analytics-safe redirects under static caching, keep `directRedirect = false`
+   - If you need `directRedirect = true`, add cache bypass rules for your shortlink routes
+
+7. **Clear stale redirect caches after changes.** If you changed a link from `301`/`308` to `302`/`307`, or changed the redirect mode, clear browser/CDN/static caches before retesting. Previously cached permanent redirects can keep masking the new behavior.
+
+## Analytics Record Once, Then Stop Under Static Cache
+
+This symptom almost always means the short URL response is being cached before it reaches Craft on later requests.
+
+### Why it happens
+
+- With `directRedirect = true`, the initial short URL request is both the analytics event and the redirect response
+- If that response is cached by the browser, CDN, or a static cache layer, later requests can bypass Craft entirely
+- When Craft does not run, analytics do not run
+
+### How to fix it
+
+Choose the mode that matches your goal:
+
+1. **Reliable analytics under caching**
+   - Keep `directRedirect = false`
+   - Let the redirect template route to the internal tracking action before the final redirect
+
+2. **Fastest direct redirect**
+   - Use `directRedirect = true`
+   - Add cache bypass rules for your shortlink routes if accurate repeat-hit analytics matter
+
+### After changing settings
+
+Always clear:
+
+- Browser cache
+- CDN/edge cache
+- Any platform static cache
+
+Old `301`/`308` responses can remain cached even after your plugin settings or link settings are updated.
+
 ## Geolocation Shows No Country / City Data
 
 1. **Is `enableGeoDetection` set to `true`?** Check **ShortLink Manager → Settings → Analytics**.
@@ -59,7 +99,7 @@ ddev craft shortlink-manager/security/generate-salt
 
 Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFAULT_CITY`.
 
-3. **Check queue processing.** Geolocation runs as a queue job. If your queue isn't processing, geo data won't be recorded. Run `php craft queue/run` or `ddev craft queue/run` to process pending jobs.
+3. **Check plugin logs instead of the queue.** Geolocation now runs inline during the analytics write path, so a queue backlog is not the cause. If geo fields are blank, enable debug logging and inspect the ShortLink Manager logs for hash-salt, provider, or persistence errors.
 
 4. **Check your geo provider rate limits.** Free tiers have request limits (ip-api.com: 45/min, ipapi.co: 1000/day). If you exceed the limit, lookups fail silently. Consider a paid API key or switch providers.
 
@@ -142,6 +182,18 @@ To enable SEOmatic tracking:
 - Set the per-link `directRedirect` to `false` (overrides the global setting)
 
 See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../developers/integrations.md).
+
+## Custom Redirect Template Still Skips Tracking
+
+If you override `templates/shortlink-manager/redirect.twig`, make sure it redirects to the internal `goUrl` variable, not directly to `destinationUrl`.
+
+For non-direct redirects, the tracked flow is:
+
+1. Render the redirect template
+2. Redirect to `goUrl`
+3. Let the internal action route record analytics and issue the final redirect
+
+If your custom template redirects straight to `destinationUrl`, the tracking hop is bypassed.
 
 ## Redirect Manager Integration Not Creating Redirects
 

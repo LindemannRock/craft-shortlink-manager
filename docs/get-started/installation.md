@@ -73,6 +73,9 @@ The key templates are:
 > [!TIP]
 > If you enable `directRedirect` globally or per link, the redirect template is bypassed entirely. Keep the template for links where SEOmatic/GTM tracking is needed.
 
+> [!IMPORTANT]
+> If you customize `templates/shortlink-manager/redirect.twig`, keep it aligned with the plugin's current redirect flow. In non-direct mode, the template must redirect to `goUrl` so analytics and hit counting can run on the internal tracking hop before the final redirect.
+
 ### 4. Review Configuration
 
 See [Configuration](configuration.md) for all available settings. Most can be managed from **ShortLink Manager → Settings** without a config file.
