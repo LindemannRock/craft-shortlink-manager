@@ -515,9 +515,14 @@ class ShortLinkManager extends Plugin
             'shortlink-manager/taxonomy' => 'shortlink-manager/taxonomy/index',
             'shortlink-manager/taxonomy/folders/new' => 'shortlink-manager/taxonomy/new-folder',
             'shortlink-manager/taxonomy/folders/<folderId:\d+>' => 'shortlink-manager/taxonomy/edit-folder',
+            'shortlink-manager/taxonomy/tags/new' => 'shortlink-manager/taxonomy/new-tag',
+            'shortlink-manager/taxonomy/tags/<tagId:\d+>' => 'shortlink-manager/taxonomy/edit-tag',
             'shortlink-manager/taxonomy/save-folder' => 'shortlink-manager/taxonomy/save-folder',
+            'shortlink-manager/taxonomy/save-tag' => 'shortlink-manager/taxonomy/save-tag',
             'shortlink-manager/taxonomy/delete-folder' => 'shortlink-manager/taxonomy/delete-folder',
+            'shortlink-manager/taxonomy/bulk-delete-folders' => 'shortlink-manager/taxonomy/bulk-delete-folders',
             'shortlink-manager/taxonomy/delete-tag' => 'shortlink-manager/taxonomy/delete-tag',
+            'shortlink-manager/taxonomy/bulk-delete-tags' => 'shortlink-manager/taxonomy/bulk-delete-tags',
 
             // Settings routes
             'shortlink-manager/settings' => 'shortlink-manager/settings/index',

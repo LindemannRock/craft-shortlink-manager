@@ -1,0 +1,29 @@
+{% extends "shortlink-manager/_layouts/cp" %}
+
+{% set title = isNew ? 'New Tag'|t('shortlink-manager') : 'Edit Tag'|t('shortlink-manager') %}
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'taxonomy' %}
+
+{% set crumbs = [
+    { label: shortlinkHelper.fullName, url: url('shortlink-manager') },
+    { label: 'Folders & Tags'|t('shortlink-manager'), url: url('shortlink-manager/taxonomy', { view: 'tags' }) },
+    { label: isNew ? 'New Tag'|t('shortlink-manager') : tag.name },
+] %}
+
+{% block actionButton %}
+    <div class="btngroup submit">
+        <button type="submit" class="btn submit">{{ 'Save'|t('app') }}</button>
+    </div>
+    <a class="btn" href="{{ url('shortlink-manager/taxonomy', { view: 'tags' }) }}">{{ 'Cancel'|t('app') }}</a>
+{% endblock %}
+
+{% block content %}
+    {% include 'shortlink-manager/taxonomy/_edit-form' with {
+        formAction: 'shortlink-manager/taxonomy/save-tag',
+        redirectUrl: url('shortlink-manager/taxonomy', { view: 'tags' }),
+        idInputName: 'tagId',
+        taxonomyItem: tag,
+        fieldId: 'tagName',
+        fieldLabel: 'Tag Name'|t('shortlink-manager'),
+    } only %}
+{% endblock %}

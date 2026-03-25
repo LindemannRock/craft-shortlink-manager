@@ -1,0 +1,14 @@
+{% import "_includes/forms" as forms %}
+
+<input type="hidden" name="action" value="{{ formAction }}">
+{{ redirectInput(redirectUrl) }}
+<input type="hidden" name="{{ idInputName }}" value="{{ taxonomyItem.id }}">
+
+{{ forms.textField({
+    first: true,
+    label: fieldLabel,
+    id: fieldId,
+    name: 'name',
+    value: taxonomyItem.name,
+    required: true,
+}) }}

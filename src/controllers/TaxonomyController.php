@@ -82,6 +82,36 @@ class TaxonomyController extends Controller
         ]);
     }
 
+    public function actionEditTag(int $tagId): Response
+    {
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $tag = TagRecord::findOne(['id' => $tagId]);
+        if (!$tag) {
+            throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Tag not found.'));
+        }
+
+        return $this->renderTemplate('shortlink-manager/taxonomy/edit-tag', [
+            'tag' => $tag,
+            'isNew' => false,
+        ]);
+    }
+
+    public function actionNewTag(): Response
+    {
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $tag = new TagRecord();
+        $tag->id = 0;
+        $tag->name = '';
+        $tag->slug = '';
+
+        return $this->renderTemplate('shortlink-manager/taxonomy/edit-tag', [
+            'tag' => $tag,
+            'isNew' => true,
+        ]);
+    }
+
     public function actionSaveFolder(): Response
     {
         $this->requirePostRequest();
@@ -140,6 +170,64 @@ class TaxonomyController extends Controller
         return $this->redirectToPostedUrl();
     }
 
+    public function actionSaveTag(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $tagId = (int)$this->request->getBodyParam('tagId', 0);
+        $name = trim((string)$this->request->getBodyParam('name', ''));
+
+        if ($name === '') {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag name cannot be empty.'));
+            return $this->redirectToPostedUrl();
+        }
+
+        $slug = StringHelper::toKebabCase($name);
+        if ($slug === '') {
+            $slug = strtolower((string)preg_replace('/\s+/', '-', $name));
+        }
+
+        if ($slug === '') {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Invalid tag name.'));
+            return $this->redirectToPostedUrl();
+        }
+
+        $exists = TagRecord::find()
+            ->where(['slug' => $slug])
+            ->andWhere(['not', ['id' => $tagId]])
+            ->exists();
+        if ($exists) {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag name already exists.'));
+            return $this->redirectToPostedUrl();
+        }
+
+        $tag = $tagId > 0
+            ? TagRecord::findOne(['id' => $tagId])
+            : new TagRecord();
+
+        if (!$tag) {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag not found.'));
+            return $this->redirectToPostedUrl();
+        }
+
+        $tag->name = $name;
+        $tag->slug = $slug;
+        if (!$tag->save()) {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Could not save tag.'));
+            return $this->redirectToPostedUrl();
+        }
+
+        Craft::$app->getElements()->invalidateCachesForElementType(ShortLink::class);
+        Craft::$app->getSession()->setNotice(
+            $tagId > 0
+                ? Craft::t('shortlink-manager', 'Tag renamed.')
+                : Craft::t('shortlink-manager', 'Tag created.')
+        );
+
+        return $this->redirectToPostedUrl();
+    }
+
     public function actionDeleteFolder(): Response
     {
         $this->requirePostRequest();
@@ -174,6 +262,50 @@ class TaxonomyController extends Controller
         return $this->redirectToPostedUrl();
     }
 
+    public function actionBulkDeleteFolders(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $folderIds = array_values(array_unique(array_filter(array_map(
+            'intval',
+            (array)$this->request->getBodyParam('folderIds', [])
+        ))));
+
+        if ($folderIds === []) {
+            $message = Craft::t('shortlink-manager', 'No folders selected.');
+            if ($this->request->getAcceptsJson()) {
+                return $this->asFailure($message);
+            }
+            Craft::$app->getSession()->setError($message);
+            return $this->redirectToPostedUrl();
+        }
+
+        $deletedCount = 0;
+        foreach (FolderRecord::findAll(['id' => $folderIds]) as $folder) {
+            if ($folder->delete()) {
+                $deletedCount++;
+            }
+        }
+
+        if ($deletedCount === 0) {
+            $message = Craft::t('shortlink-manager', 'Could not delete folders.');
+            if ($this->request->getAcceptsJson()) {
+                return $this->asFailure($message);
+            }
+            Craft::$app->getSession()->setError($message);
+            return $this->redirectToPostedUrl();
+        }
+
+        Craft::$app->getElements()->invalidateCachesForElementType(ShortLink::class);
+        $message = Craft::t('shortlink-manager', 'Deleted {count} folder(s).', ['count' => $deletedCount]);
+        if ($this->request->getAcceptsJson()) {
+            return $this->asSuccess($message, ['count' => $deletedCount]);
+        }
+        Craft::$app->getSession()->setNotice($message);
+        return $this->redirectToPostedUrl();
+    }
+
     public function actionDeleteTag(): Response
     {
         $this->requirePostRequest();
@@ -203,6 +335,50 @@ class TaxonomyController extends Controller
         $message = Craft::t('shortlink-manager', 'Tag deleted.');
         if ($this->request->getAcceptsJson()) {
             return $this->asSuccess($message);
+        }
+        Craft::$app->getSession()->setNotice($message);
+        return $this->redirectToPostedUrl();
+    }
+
+    public function actionBulkDeleteTags(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:editLinks');
+
+        $tagIds = array_values(array_unique(array_filter(array_map(
+            'intval',
+            (array)$this->request->getBodyParam('tagIds', [])
+        ))));
+
+        if ($tagIds === []) {
+            $message = Craft::t('shortlink-manager', 'No tags selected.');
+            if ($this->request->getAcceptsJson()) {
+                return $this->asFailure($message);
+            }
+            Craft::$app->getSession()->setError($message);
+            return $this->redirectToPostedUrl();
+        }
+
+        $deletedCount = 0;
+        foreach (TagRecord::findAll(['id' => $tagIds]) as $tag) {
+            if ($tag->delete()) {
+                $deletedCount++;
+            }
+        }
+
+        if ($deletedCount === 0) {
+            $message = Craft::t('shortlink-manager', 'Could not delete tags.');
+            if ($this->request->getAcceptsJson()) {
+                return $this->asFailure($message);
+            }
+            Craft::$app->getSession()->setError($message);
+            return $this->redirectToPostedUrl();
+        }
+
+        Craft::$app->getElements()->invalidateCachesForElementType(ShortLink::class);
+        $message = Craft::t('shortlink-manager', 'Deleted {count} tag(s).', ['count' => $deletedCount]);
+        if ($this->request->getAcceptsJson()) {
+            return $this->asSuccess($message, ['count' => $deletedCount]);
         }
         Craft::$app->getSession()->setNotice($message);
         return $this->redirectToPostedUrl();

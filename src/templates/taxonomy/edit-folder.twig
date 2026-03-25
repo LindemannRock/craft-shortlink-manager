@@ -1,14 +1,13 @@
 {% extends "shortlink-manager/_layouts/cp" %}
-{% import "_includes/forms" as forms %}
 
-{% set title = 'Edit Folder'|t('shortlink-manager') %}
+{% set title = isNew ? 'New Folder'|t('shortlink-manager') : 'Edit Folder'|t('shortlink-manager') %}
 {% set fullPageForm = true %}
 {% set selectedSubnavItem = 'taxonomy' %}
 
 {% set crumbs = [
     { label: shortlinkHelper.fullName, url: url('shortlink-manager') },
     { label: 'Folders & Tags'|t('shortlink-manager'), url: url('shortlink-manager/taxonomy', { view: 'folders' }) },
-    { label: folder.name },
+    { label: isNew ? 'New Folder'|t('shortlink-manager') : folder.name },
 ] %}
 
 {% block actionButton %}
@@ -19,16 +18,12 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="shortlink-manager/taxonomy/save-folder">
-    {{ redirectInput(url('shortlink-manager/taxonomy', { view: 'folders' })) }}
-    <input type="hidden" name="folderId" value="{{ folder.id }}">
-
-    {{ forms.textField({
-        first: true,
-        label: 'Folder Name'|t('shortlink-manager'),
-        id: 'folderName',
-        name: 'name',
-        value: folder.name,
-        required: true,
-    }) }}
+    {% include 'shortlink-manager/taxonomy/_edit-form' with {
+        formAction: 'shortlink-manager/taxonomy/save-folder',
+        redirectUrl: url('shortlink-manager/taxonomy', { view: 'folders' }),
+        idInputName: 'folderId',
+        taxonomyItem: folder,
+        fieldId: 'folderName',
+        fieldLabel: 'Folder Name'|t('shortlink-manager'),
+    } only %}
 {% endblock %}

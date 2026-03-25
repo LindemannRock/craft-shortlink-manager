@@ -223,6 +223,8 @@
             showTimeZone: false
         }) }}
 
+        {% set pendingNewFolderName = craft.app.request.getBodyParam('newFolderName', '') %}
+        {% set folderFieldValue = pendingNewFolderName ? '__new__' : (shortLink.folderId ?? '') %}
         {% set folderFieldOptions = [{label: 'None'|t('app'), value: ''}] %}
         {% for value, label in (folderOptions ?? {}) %}
             {% set folderFieldOptions = folderFieldOptions|merge([{label: label, value: value}]) %}
@@ -234,11 +236,21 @@
             instructions: "Select a folder for this {singularName}."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
             id: 'folderId',
             name: 'folderId',
-            value: shortLink.folderId ?? '',
+            value: folderFieldValue,
             options: folderFieldOptions,
         }) }}
 
-        <input type="hidden" id="newFolderName" name="newFolderName" value="">
+        {{ forms.textField({
+            instructions: "Create a folder and assign it when this {singularName} is saved."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+            id: 'newFolderName',
+            name: 'newFolderName',
+            value: pendingNewFolderName,
+            placeholder: 'e.g. Campaigns'|t('shortlink-manager'),
+            fieldClass: [
+                'sidebar-new-folder-field',
+                folderFieldValue == '__new__' ? null : 'hidden',
+            ],
+        }) }}
 
         {% set tagOptions = [] %}
         {% for tagName in (allTagNames ?? []) %}
@@ -514,6 +526,16 @@
     {% endif %}
 {% endblock %}
 
+{% css %}
+    .details .meta > .sidebar-new-folder-field .input {
+        width: 100%;
+    }
+
+    .details .meta .selectize.multiselect {
+        width: 100%;
+    }
+{% endcss %}
+
 {% js %}
     // Copy URL button
     $('#copy-url-btn').on('click', function() {
@@ -537,30 +559,21 @@
     const httpCodeTipText = document.getElementById('httpCodeTipText');
     const httpCodeWarningBox = document.getElementById('httpCodeWarningBox');
 
-    // Keep sidebar compact: create-folder uses prompt instead of rendering extra rows.
     const folderSelect = document.getElementById('folderId');
+    const newFolderField = document.getElementById('{{ 'newFolderName'|namespaceInputId }}-field');
     const newFolderInput = document.getElementById('newFolderName');
-    if (folderSelect && newFolderInput) {
-        folderSelect.addEventListener('change', function() {
-            if (folderSelect.value !== '__new__') {
-                if (folderSelect.value !== '') {
-                    newFolderInput.value = '';
-                }
-                return;
-            }
+    if (folderSelect && newFolderInput && newFolderField) {
+        const updateNewFolderField = () => {
+            const creatingNewFolder = folderSelect.value === '__new__';
+            newFolderField.classList.toggle('hidden', !creatingNewFolder);
 
-            const folderName = window.prompt('{{ "Enter new folder name"|t('shortlink-manager')|e('js') }}', '');
-            if (folderName && folderName.trim() !== '') {
-                newFolderInput.value = folderName.trim();
-                folderSelect.value = '';
-                if (typeof Craft !== 'undefined' && Craft.cp) {
-                    Craft.cp.displayNotice('{{ "New folder will be created on save."|t('shortlink-manager')|e('js') }}');
-                }
-            } else {
+            if (!creatingNewFolder) {
                 newFolderInput.value = '';
-                folderSelect.value = '';
             }
-        });
+        };
+
+        folderSelect.addEventListener('change', updateNewFolderField);
+        updateNewFolderField();
     }
 
     function updateHttpCodeTip() {
