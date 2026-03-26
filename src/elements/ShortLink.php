@@ -1109,9 +1109,9 @@ class ShortLink extends Element
         // Get the QR prefix from settings
         $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
         $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
-        $code = ltrim((string) $this->code, '/');
+        $slug = ltrim((string) $this->slug, '/');
 
-        return $settings->buildPublicUrl("{$qrPrefix}/{$code}", $this->siteId, $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$slug}", $this->siteId, $params);
     }
 
     /**
@@ -1140,9 +1140,9 @@ class ShortLink extends Element
         // Get the QR prefix from settings
         $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
         $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
-        $code = ltrim((string) $this->code, '/');
+        $slug = ltrim((string) $this->slug, '/');
 
-        return $settings->buildPublicUrl("{$qrPrefix}/{$code}/view", $this->siteId, $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$slug}/view", $this->siteId, $params);
     }
 
     /**

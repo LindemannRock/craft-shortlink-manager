@@ -700,6 +700,7 @@
             const sizeInput = document.getElementById('qrCodeSize');
             const formatSelect = document.getElementById('qrCodeFormat');
             const baseUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}) }}';
+            const publicBaseUrl = '{{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId) }}';
             let updateTimeout;
 
             function updateQrCode() {
@@ -772,7 +773,7 @@
 
                     // Update shortLink to full size
                     if (qrLink) {
-                        qrLink.href = `${baseUrl}&${fullSizeParams}`;
+                        qrLink.href = `${publicBaseUrl}?${fullSizeParams}`;
                     }
                 }, 150); // Debounce delay
             }
@@ -941,9 +942,9 @@
         const eyeColor = $('#qrCodeEyeColor').val() ? $('#qrCodeEyeColor').val().replace(/^#/, '') : '';
         const format = $('#qrCodeFormat').val() || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
 
-        // Build download URL using action URL
-        let downloadUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}) }}' +
-            '&size=' + size +
+        // Build download URL using the public QR URL
+        let downloadUrl = '{{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId) }}' +
+            '?size=' + size +
             '&color=' + color +
             '&bg=' + bgColor +
             '&format=' + format +
@@ -962,14 +963,17 @@
             }
         {% endif %}
 
-        // Create temporary link and click it
-        const downloadLink = document.createElement('a');
-        downloadLink.href = downloadUrl;
-        const finalFilename = '{{ shortLink.code }}-qr-' + size;
-        downloadLink.download = `${finalFilename}.${format}`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        // Trigger the download in a hidden iframe so Craft's unsaved-changes
+        // guard doesn't treat it as leaving the editor page.
+        let downloadFrame = document.getElementById('shortlink-qr-download-frame');
+        if (!downloadFrame) {
+            downloadFrame = document.createElement('iframe');
+            downloadFrame.id = 'shortlink-qr-download-frame';
+            downloadFrame.style.display = 'none';
+            document.body.appendChild(downloadFrame);
+        }
+
+        downloadFrame.src = downloadUrl;
     });
 
     // Reset QR code settings to defaults
