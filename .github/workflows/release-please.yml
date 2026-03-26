@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
   pull-requests: write
 
 jobs:
@@ -18,4 +17,3 @@ jobs:
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           release-type: php
-          skip-labeling: true
