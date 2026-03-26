@@ -279,6 +279,12 @@ class AnalyticsQueryInsightsService
 
         $results = $query->all();
 
+        // Pre-fetch all sites keyed by ID
+        $sitesById = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $s) {
+            $sitesById[$s->id] = $s;
+        }
+
         // Parse metadata and add site name
         foreach ($results as &$result) {
             if (!empty($result['metadata'])) {
@@ -289,7 +295,7 @@ class AnalyticsQueryInsightsService
             }
 
             // Get site name through Site model to parse env vars
-            $site = !empty($result['siteId']) ? Craft::$app->getSites()->getSiteById($result['siteId']) : null;
+            $site = !empty($result['siteId']) ? ($sitesById[$result['siteId']] ?? null) : null;
             $result['siteName'] = $site ? $site->name : '-';
 
             // Pre-format dateCreated for display with timezone
@@ -336,9 +342,15 @@ class AnalyticsQueryInsightsService
 
         $results = $query->all();
 
+        // Pre-fetch all sites keyed by ID
+        $sitesById = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $s) {
+            $sitesById[$s->id] = $s;
+        }
+
         // Add site name through Site model to parse env vars
         foreach ($results as &$result) {
-            $site = !empty($result['siteId']) ? Craft::$app->getSites()->getSiteById($result['siteId']) : null;
+            $site = !empty($result['siteId']) ? ($sitesById[$result['siteId']] ?? null) : null;
             $result['siteName'] = $site ? $site->name : '-';
 
             // Pre-format lastClick for display with timezone

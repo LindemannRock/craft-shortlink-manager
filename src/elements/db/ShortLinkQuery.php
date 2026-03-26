@@ -12,6 +12,7 @@ use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
  * ShortLinkQuery element query
@@ -185,6 +186,42 @@ class ShortLinkQuery extends ElementQuery
     {
         $this->tagSlug = $value;
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterPopulate(array $elements): array
+    {
+        /** @var ShortLink[] $elements */
+        $elements = parent::afterPopulate($elements);
+
+        if ($this->asArray || empty($elements)) {
+            return $elements;
+        }
+
+        $ids = [];
+        foreach ($elements as $element) {
+            if ($element instanceof ShortLink && $element->id) {
+                $ids[] = (int)$element->id;
+            }
+        }
+
+        if ($ids === []) {
+            return $elements;
+        }
+
+        $tagsByLink = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLinks($ids);
+
+        foreach ($elements as $element) {
+            if (!$element instanceof ShortLink || !$element->id) {
+                continue;
+            }
+
+            $element->setTagNames($tagsByLink[(int)$element->id] ?? []);
+        }
+
+        return $elements;
     }
 
     // Protected Methods

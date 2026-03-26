@@ -192,9 +192,9 @@ class AnalyticsController extends Controller
         if (empty($exportData)) {
             Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'No analytics data to export.'));
             if ($linkId) {
-                return $this->redirect('shortlink-manager/shortlinks/' . $linkId . '?range=' . $dateRange);
+                return $this->redirect('shortlink-manager/shortlinks/' . $linkId . '?range=' . urlencode($dateRange));
             }
-            return $this->redirect('shortlink-manager/analytics?dateRange=' . $dateRange);
+            return $this->redirect('shortlink-manager/analytics?dateRange=' . urlencode($dateRange));
         }
 
         $settings = ShortLinkManager::$plugin->getSettings();

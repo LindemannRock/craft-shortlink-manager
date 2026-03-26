@@ -132,8 +132,9 @@ class RedirectController extends Controller
             'passQueryParams' => $shouldPassQueryParams,
         ]);
 
-        // Get source parameter for QR tracking (like Smart Links does)
-        $source = Craft::$app->getRequest()->getParam('src', 'direct');
+        // Get source parameter for QR tracking — allowlist to prevent log injection / metadata bloat
+        $rawSource = Craft::$app->getRequest()->getParam('src', 'direct');
+        $source = in_array($rawSource, ['qr', 'direct'], true) ? $rawSource : 'direct';
 
         // Get device info for analytics and SEOmatic tracking
         $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice();
@@ -234,7 +235,8 @@ class RedirectController extends Controller
             $destinationUrl = $this->mergeQueryParams($destinationUrl);
         }
 
-        $source = Craft::$app->getRequest()->getParam('src', 'direct');
+        $rawSource = Craft::$app->getRequest()->getParam('src', 'direct');
+        $source = in_array($rawSource, ['qr', 'direct'], true) ? $rawSource : 'direct';
 
         return $this->executeRedirect($shortLink, $destinationUrl, $source);
     }
@@ -376,7 +378,7 @@ class RedirectController extends Controller
                 'destination' => $redirect['destinationUrl'],
             ]);
 
-            return $this->redirect($redirect['destinationUrl'], $redirect['statusCode']);
+            return $this->redirect($this->_sanitizeUrl($redirect['destinationUrl']), $redirect['statusCode']);
         }
 
         // Fallback to configured URL

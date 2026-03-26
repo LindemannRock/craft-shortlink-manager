@@ -358,18 +358,15 @@ class ShortlinksController extends Controller
         $tagInput = $this->request->getBodyParam('tags', []);
         $tagValues = [];
         if (is_array($tagInput)) {
-            array_walk_recursive($tagInput, static function($value) use (&$tagValues): void {
+            foreach (array_slice(array_values($tagInput), 0, 100) as $value) {
                 if (is_scalar($value)) {
                     $tagValues[] = (string)$value;
                 }
-            });
+            }
         } elseif (is_string($tagInput) && $tagInput !== '') {
-            $tagValues = explode(',', $tagInput);
+            $tagValues = array_slice(explode(',', $tagInput), 0, 100);
         }
-        $shortLink->tagNames = array_values(array_unique(array_filter(array_map(
-            static fn(string $tag): string => trim($tag),
-            $tagValues
-        ))));
+        $shortLink->setTagNames($tagValues);
 
         // Save the link using service (handles slug change redirects)
         if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($shortLink)) {
@@ -514,8 +511,9 @@ class ShortlinksController extends Controller
             return $this->asJsonFailure(Craft::t('shortlink-manager', 'Tags cannot be empty.'));
         }
 
+        $existingByLink = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLinks($ids);
         foreach ($ids as $id) {
-            $existing = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink($id);
+            $existing = $existingByLink[$id] ?? [];
             $merged = array_values(array_unique(array_merge($existing, $inputTags)));
             ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames($id, $merged);
         }
@@ -546,8 +544,9 @@ class ShortlinksController extends Controller
 
         $removeLookup = array_fill_keys(array_map(static fn(string $tag): string => mb_strtolower($tag), $removeTags), true);
 
+        $existingByLink = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLinks($ids);
         foreach ($ids as $id) {
-            $existing = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink($id);
+            $existing = $existingByLink[$id] ?? [];
             $filtered = array_values(array_filter($existing, static function(string $tag) use ($removeLookup): bool {
                 return !isset($removeLookup[mb_strtolower($tag)]);
             }));

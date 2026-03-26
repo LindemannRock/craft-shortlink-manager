@@ -216,9 +216,13 @@ class SettingsController extends Controller
             }
         }
 
-        // Only update fields that were posted and are not overridden by config
+        // Only update fields belonging to the current section and not overridden by config
+        $section = $this->_validSettingsSection(
+            $this->request->getBodyParam('section', 'general'),
+        );
+        $allowedKeys = array_flip($this->_validationAttributesForSection($section));
         foreach ($settingsData as $key => $value) {
-            if (!$settings->isOverriddenByConfig($key) && property_exists($settings, $key)) {
+            if (isset($allowedKeys[$key]) && !$settings->isOverriddenByConfig($key) && property_exists($settings, $key)) {
                 // Handle special array field conversions
                 if ($key === 'enabledIntegrations') {
                     // Decode JSON string from hidden field
@@ -242,9 +246,6 @@ class SettingsController extends Controller
         }
 
         // Validate only fields belonging to the current settings section.
-        $section = $this->_validSettingsSection(
-            $this->request->getBodyParam('section', 'general'),
-        );
         $attributesToValidate = $this->_validationAttributesForSection($section);
         $attributesToValidate = array_values(array_filter(
             $attributesToValidate,

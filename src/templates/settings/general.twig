@@ -82,7 +82,7 @@
         {% set smartLinkPluginForWarning = craft.app.plugins.getPlugin('smartlink-manager') ?? craft.app.plugins.getPlugin('smart-links') %}
         {% set smartLinkEnabledForWarning = (craft.app.plugins.isPluginEnabled('smartlink-manager') or craft.app.plugins.isPluginEnabled('smart-links')) and smartLinkPluginForWarning %}
         {% set smartLinkUsePrefix = smartLinkEnabledForWarning ? (smartLinkPluginForWarning.settings.usePrefix ?? true) : true %}
-        {% set smartLinkNameForWarning = smartLinkEnabledForWarning ? (smartLinkPluginForWarning.settings.pluginName ?? smartLinkPluginForWarning.name ?? 'SmartLink Manager') : 'SmartLink Manager' %}
+        {% set smartLinkNameForWarning = (smartLinkEnabledForWarning ? (smartLinkPluginForWarning.settings.pluginName ?? smartLinkPluginForWarning.name ?? 'SmartLink Manager') : 'SmartLink Manager')|e %}
         {% set currentUsePrefix = settings.usePrefix ?? true %}
         {% set sameHostCollision = false %}
         {% set possibleHostCollision = false %}

@@ -6,12 +6,9 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
-use craft\db\Query;
-use craft\helpers\StringHelper;
 use craft\web\Controller;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
-use lindemannrock\shortlinkmanager\records\FolderRecord;
-use lindemannrock\shortlinkmanager\records\TagRecord;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
 class TaxonomyController extends Controller
@@ -20,35 +17,9 @@ class TaxonomyController extends Controller
     {
         $this->requirePermission('shortLinkManager:editLinks');
 
-        $folders = (new Query())
-            ->select([
-                'f.id',
-                'f.name',
-                'f.slug',
-                'usageCount' => 'COUNT(sl.id)',
-            ])
-            ->from('{{%shortlinkmanager_folders}} f')
-            ->leftJoin('{{%shortlinkmanager}} sl', '[[sl.folderId]] = [[f.id]]')
-            ->groupBy(['f.id', 'f.name', 'f.slug'])
-            ->orderBy(['f.name' => SORT_ASC])
-            ->all();
-
-        $tags = (new Query())
-            ->select([
-                't.id',
-                't.name',
-                't.slug',
-                'usageCount' => 'COUNT(st.id)',
-            ])
-            ->from('{{%shortlinkmanager_tags}} t')
-            ->leftJoin('{{%shortlinkmanager_shortlink_tags}} st', '[[st.tagId]] = [[t.id]]')
-            ->groupBy(['t.id', 't.name', 't.slug'])
-            ->orderBy(['t.name' => SORT_ASC])
-            ->all();
-
         return $this->renderTemplate('shortlink-manager/taxonomy/index', [
-            'folders' => $folders,
-            'tags' => $tags,
+            'folders' => ShortLinkManager::$plugin->taxonomy->getFoldersForIndex(),
+            'tags' => ShortLinkManager::$plugin->taxonomy->getTagsForIndex(),
         ]);
     }
 
@@ -56,7 +27,7 @@ class TaxonomyController extends Controller
     {
         $this->requirePermission('shortLinkManager:editLinks');
 
-        $folder = FolderRecord::findOne(['id' => $folderId]);
+        $folder = ShortLinkManager::$plugin->taxonomy->getFolderById($folderId);
         if (!$folder) {
             throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Folder not found.'));
         }
@@ -71,10 +42,7 @@ class TaxonomyController extends Controller
     {
         $this->requirePermission('shortLinkManager:editLinks');
 
-        $folder = new FolderRecord();
-        $folder->id = 0;
-        $folder->name = '';
-        $folder->slug = '';
+        $folder = ShortLinkManager::$plugin->taxonomy->createFolderRecord();
 
         return $this->renderTemplate('shortlink-manager/taxonomy/edit-folder', [
             'folder' => $folder,
@@ -86,7 +54,7 @@ class TaxonomyController extends Controller
     {
         $this->requirePermission('shortLinkManager:editLinks');
 
-        $tag = TagRecord::findOne(['id' => $tagId]);
+        $tag = ShortLinkManager::$plugin->taxonomy->getTagById($tagId);
         if (!$tag) {
             throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Tag not found.'));
         }
@@ -101,10 +69,7 @@ class TaxonomyController extends Controller
     {
         $this->requirePermission('shortLinkManager:editLinks');
 
-        $tag = new TagRecord();
-        $tag->id = 0;
-        $tag->name = '';
-        $tag->slug = '';
+        $tag = ShortLinkManager::$plugin->taxonomy->createTagRecord();
 
         return $this->renderTemplate('shortlink-manager/taxonomy/edit-tag', [
             'tag' => $tag,
@@ -117,46 +82,21 @@ class TaxonomyController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:editLinks');
 
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $folderId = (int)$this->request->getBodyParam('folderId', 0);
         $name = trim((string)$this->request->getBodyParam('name', ''));
 
-        if ($name === '') {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Folder name cannot be empty.'));
-            return $this->redirectToPostedUrl();
-        }
-
-        $slug = StringHelper::toKebabCase($name);
-        if ($slug === '') {
-            $slug = strtolower((string)preg_replace('/\s+/', '-', $name));
-        }
-
-        if ($slug === '') {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Invalid folder name.'));
-            return $this->redirectToPostedUrl();
-        }
-
-        $exists = FolderRecord::find()
-            ->where(['slug' => $slug])
-            ->andWhere(['not', ['id' => $folderId]])
-            ->exists();
-        if ($exists) {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Folder name already exists.'));
-            return $this->redirectToPostedUrl();
-        }
-
         $folder = $folderId > 0
-            ? FolderRecord::findOne(['id' => $folderId])
-            : new FolderRecord();
+            ? $taxonomy->getFolderById($folderId)
+            : $taxonomy->createFolderRecord();
 
         if (!$folder) {
             Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Folder not found.'));
             return $this->redirectToPostedUrl();
         }
 
-        $folder->name = $name;
-        $folder->slug = $slug;
-        if (!$folder->save()) {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Could not save folder.'));
+        if (!$taxonomy->saveFolder($folder, $name)) {
+            Craft::$app->getSession()->setError($folder->getFirstError('name') ?: Craft::t('shortlink-manager', 'Could not save folder.'));
             return $this->redirectToPostedUrl();
         }
 
@@ -175,46 +115,21 @@ class TaxonomyController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:editLinks');
 
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $tagId = (int)$this->request->getBodyParam('tagId', 0);
         $name = trim((string)$this->request->getBodyParam('name', ''));
 
-        if ($name === '') {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag name cannot be empty.'));
-            return $this->redirectToPostedUrl();
-        }
-
-        $slug = StringHelper::toKebabCase($name);
-        if ($slug === '') {
-            $slug = strtolower((string)preg_replace('/\s+/', '-', $name));
-        }
-
-        if ($slug === '') {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Invalid tag name.'));
-            return $this->redirectToPostedUrl();
-        }
-
-        $exists = TagRecord::find()
-            ->where(['slug' => $slug])
-            ->andWhere(['not', ['id' => $tagId]])
-            ->exists();
-        if ($exists) {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag name already exists.'));
-            return $this->redirectToPostedUrl();
-        }
-
         $tag = $tagId > 0
-            ? TagRecord::findOne(['id' => $tagId])
-            : new TagRecord();
+            ? $taxonomy->getTagById($tagId)
+            : $taxonomy->createTagRecord();
 
         if (!$tag) {
             Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag not found.'));
             return $this->redirectToPostedUrl();
         }
 
-        $tag->name = $name;
-        $tag->slug = $slug;
-        if (!$tag->save()) {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Could not save tag.'));
+        if (!$taxonomy->saveTag($tag, $name)) {
+            Craft::$app->getSession()->setError($tag->getFirstError('name') ?: Craft::t('shortlink-manager', 'Could not save tag.'));
             return $this->redirectToPostedUrl();
         }
 
@@ -233,8 +148,9 @@ class TaxonomyController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:editLinks');
 
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $folderId = (int)$this->request->getRequiredBodyParam('folderId');
-        $folder = FolderRecord::findOne(['id' => $folderId]);
+        $folder = $taxonomy->getFolderById($folderId);
         if (!$folder) {
             $message = Craft::t('shortlink-manager', 'Folder not found.');
             if ($this->request->getAcceptsJson()) {
@@ -244,7 +160,7 @@ class TaxonomyController extends Controller
             return $this->redirectToPostedUrl();
         }
 
-        if (!$folder->delete()) {
+        if ($taxonomy->deleteFoldersByIds([$folderId]) !== 1) {
             $message = Craft::t('shortlink-manager', 'Could not delete folder.');
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($message);
@@ -267,6 +183,7 @@ class TaxonomyController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:editLinks');
 
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $folderIds = array_values(array_unique(array_filter(array_map(
             'intval',
             (array)$this->request->getBodyParam('folderIds', [])
@@ -281,12 +198,7 @@ class TaxonomyController extends Controller
             return $this->redirectToPostedUrl();
         }
 
-        $deletedCount = 0;
-        foreach (FolderRecord::findAll(['id' => $folderIds]) as $folder) {
-            if ($folder->delete()) {
-                $deletedCount++;
-            }
-        }
+        $deletedCount = $taxonomy->deleteFoldersByIds($folderIds);
 
         if ($deletedCount === 0) {
             $message = Craft::t('shortlink-manager', 'Could not delete folders.');
@@ -311,8 +223,9 @@ class TaxonomyController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:editLinks');
 
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $tagId = (int)$this->request->getRequiredBodyParam('tagId');
-        $tag = TagRecord::findOne(['id' => $tagId]);
+        $tag = $taxonomy->getTagById($tagId);
         if (!$tag) {
             $message = Craft::t('shortlink-manager', 'Tag not found.');
             if ($this->request->getAcceptsJson()) {
@@ -322,7 +235,7 @@ class TaxonomyController extends Controller
             return $this->redirectToPostedUrl();
         }
 
-        if (!$tag->delete()) {
+        if ($taxonomy->deleteTagsByIds([$tagId]) !== 1) {
             $message = Craft::t('shortlink-manager', 'Could not delete tag.');
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($message);
@@ -345,6 +258,7 @@ class TaxonomyController extends Controller
         $this->requirePostRequest();
         $this->requirePermission('shortLinkManager:editLinks');
 
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $tagIds = array_values(array_unique(array_filter(array_map(
             'intval',
             (array)$this->request->getBodyParam('tagIds', [])
@@ -359,12 +273,7 @@ class TaxonomyController extends Controller
             return $this->redirectToPostedUrl();
         }
 
-        $deletedCount = 0;
-        foreach (TagRecord::findAll(['id' => $tagIds]) as $tag) {
-            if ($tag->delete()) {
-                $deletedCount++;
-            }
-        }
+        $deletedCount = $taxonomy->deleteTagsByIds($tagIds);
 
         if ($deletedCount === 0) {
             $message = Craft::t('shortlink-manager', 'Could not delete tags.');

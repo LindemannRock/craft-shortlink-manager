@@ -10,7 +10,6 @@ namespace lindemannrock\shortlinkmanager\elements;
 
 use Craft;
 use craft\base\Element;
-use craft\db\Query;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
@@ -177,6 +176,8 @@ class ShortLink extends Element
      * @var array<int, string> Tag names (plugin-internal taxonomy)
      */
     public array $tagNames = [];
+
+    private bool $_tagNamesLoaded = false;
 
     // Static Methods
     // =========================================================================
@@ -361,11 +362,7 @@ class ShortLink extends Element
             ],
         ];
 
-        $folderRows = (new Query())
-            ->select(['id', 'name'])
-            ->from('{{%shortlinkmanager_folders}}')
-            ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC])
-            ->all();
+        $folderRows = ShortLinkManager::$plugin->taxonomy->getFoldersForIndex();
 
         if (!empty($folderRows)) {
             $sources[] = ['heading' => Craft::t('shortlink-manager', 'Folders')];
@@ -376,8 +373,8 @@ class ShortLink extends Element
             ];
 
             foreach ($folderRows as $row) {
-                $folderId = (int)($row['id'] ?? 0);
-                $folderName = trim((string)($row['name'] ?? ''));
+                $folderId = (int)$row['id'];
+                $folderName = trim((string)$row['name']);
                 if ($folderId <= 0 || $folderName === '') {
                     continue;
                 }
@@ -390,13 +387,7 @@ class ShortLink extends Element
             }
         }
 
-        $tagRows = (new Query())
-            ->select(['t.slug', 't.name'])
-            ->distinct()
-            ->from('{{%shortlinkmanager_tags}} t')
-            ->innerJoin('{{%shortlinkmanager_shortlink_tags}} st', '[[st.tagId]] = [[t.id]]')
-            ->orderBy(['name' => SORT_ASC])
-            ->all();
+        $tagRows = ShortLinkManager::$plugin->taxonomy->getTagsForIndex();
 
         if (!empty($tagRows)) {
             $sources[] = ['heading' => Craft::t('shortlink-manager', 'Tags')];
@@ -407,8 +398,8 @@ class ShortLink extends Element
             ];
 
             foreach ($tagRows as $row) {
-                $tagSlug = trim((string)($row['slug'] ?? ''));
-                $tagName = trim((string)($row['name'] ?? ''));
+                $tagSlug = trim((string)$row['slug']);
+                $tagName = trim((string)$row['name']);
                 if ($tagSlug === '' || $tagName === '') {
                     continue;
                 }
@@ -574,10 +565,8 @@ class ShortLink extends Element
         $this->normalizeDateTime('dateExpired');
         $this->normalizeDateTime('postDate');
 
-        // Load taxonomy values once for existing records.
-        if ($this->id && empty($this->tagNames)) {
-            $this->tagNames = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id);
-        }
+        // Tag names are hydrated by the query layer when elements are fetched.
+        // Avoid eager-loading here — init() fires before the batch hydration path.
     }
 
     /**
@@ -630,10 +619,20 @@ class ShortLink extends Element
     {
         // Load content data for current site
         $this->loadContent();
+    }
 
-        if ($this->id && empty($this->tagNames)) {
-            $this->tagNames = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id);
-        }
+    /**
+     * @param array<int, string> $tagNames
+     */
+    public function setTagNames(array $tagNames): void
+    {
+        $this->tagNames = ShortLinkManager::$plugin->taxonomy->normalizeTagNames($tagNames);
+        $this->_tagNamesLoaded = true;
+    }
+
+    public function hasLoadedTagNames(): bool
+    {
+        return $this->_tagNamesLoaded;
     }
 
     /**
@@ -921,10 +920,11 @@ class ShortLink extends Element
      */
     private function renderTagsBadgeHtml(): string
     {
-        $tagNames = $this->tagNames;
-        if (empty($tagNames) && $this->id) {
-            $tagNames = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id);
+        if (!$this->hasLoadedTagNames() && $this->id) {
+            $this->setTagNames(ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id));
         }
+
+        $tagNames = $this->tagNames;
         if (empty($tagNames)) {
             return '—';
         }
@@ -1249,6 +1249,10 @@ class ShortLink extends Element
      */
     public function beforeValidate(): bool
     {
+        if (!$this->hasLoadedTagNames() && $this->tagNames !== []) {
+            $this->setTagNames($this->tagNames);
+        }
+
         // If propagating and data is empty, load it from records
         if ($this->propagating && $this->id) {
             if (empty($this->code)) {
@@ -1260,6 +1264,10 @@ class ShortLink extends Element
                     $this->shortLinkType = $record->shortLinkType;
                     $this->folderId = $record->folderId ? (int)$record->folderId : null;
                 }
+            }
+
+            if (!$this->hasLoadedTagNames()) {
+                $this->setTagNames(ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLink((int)$this->id));
             }
 
             // Load content if not loaded
@@ -1513,16 +1521,18 @@ class ShortLink extends Element
                 $this->logError('Failed to save content record', ['errors' => $contentRecord->getErrors()]);
             }
 
-            ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames(
-                (int)$this->id,
-                $this->tagNames
-            );
-
             // For auto shortlinks (field-managed), always sync elementId/elementType to ALL sites.
             // Import/save flows can run via propagation, and skipping here can leave cross-site URLs stale.
             if ($this->shortLinkType === 'auto' && $this->elementId) {
                 $this->syncElementToAllSites();
             }
+        }
+
+        if (!$this->getIsRevision() && $this->hasLoadedTagNames()) {
+            ShortLinkManager::$plugin->taxonomy->syncShortLinkTagsByNames(
+                (int)$this->id,
+                $this->tagNames
+            );
         }
 
         parent::afterSave($isNew);
@@ -1603,17 +1613,6 @@ class ShortLink extends Element
         // Delete analytics data (cascade will handle this via foreign key)
 
         return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterDelete(): void
-    {
-        parent::afterDelete();
-
-        // Shortlink-tag pivots are removed by FK cascade; cleanup orphan tags afterwards.
-        ShortLinkManager::$plugin->taxonomy->cleanupUnusedTags();
     }
 
     /**

@@ -100,6 +100,12 @@ class AnalyticsExportService
             }
         }
 
+        // Pre-fetch all sites keyed by ID (cached by Craft's Sites service)
+        $sitesById = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            $sitesById[$site->id] = $site;
+        }
+
         // Format data for export
         $exportData = [];
         foreach ($results as $row) {
@@ -123,7 +129,7 @@ class AnalyticsExportService
             $siteName = '';
             $shortLinkUrl = '';
             if (!empty($row['siteId'])) {
-                $site = Craft::$app->getSites()->getSiteById($row['siteId']);
+                $site = $sitesById[$row['siteId']] ?? null;
                 $siteName = $site ? $site->name : '';
                 $usePrefix = (bool) ($settings->usePrefix ?? true);
                 $slugPrefix = trim((string) ($settings->slugPrefix ?? 's'), '/');

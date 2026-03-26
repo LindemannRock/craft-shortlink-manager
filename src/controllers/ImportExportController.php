@@ -87,9 +87,15 @@ class ImportExportController extends Controller
             'postDate', 'dateExpired',
         ];
 
+        // Pre-fetch all sites keyed by ID
+        $sitesById = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $s) {
+            $sitesById[$s->id] = $s;
+        }
+
         $shortlinks = ShortLink::find()->site('*')->status(null)->orderBy(['elements.dateCreated' => SORT_DESC])->all();
         foreach ($shortlinks as $shortLink) {
-            $site = Craft::$app->getSites()->getSiteById($shortLink->siteId);
+            $site = $sitesById[$shortLink->siteId] ?? null;
             $rows[] = [
                 'code' => $shortLink->code,
                 'shortLinkType' => $shortLink->shortLinkType,
@@ -507,7 +513,7 @@ class ImportExportController extends Controller
 
                 $shortLink->httpCode = (int)($primaryRow['httpCode'] ?: 302);
                 $shortLink->folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName((string)($primaryRow['folder'] ?? '')) ?: null;
-                $shortLink->tagNames = $this->parseTagList($primaryRow['tags'] ?? []);
+                $shortLink->setTagNames($this->parseTagList($primaryRow['tags'] ?? []));
                 $shortLink->trackAnalytics = (bool)$primaryRow['trackAnalytics'];
                 $shortLink->passQueryParams = $primaryRow['passQueryParams'] !== null ? (bool)$primaryRow['passQueryParams'] : null;
                 $shortLink->directRedirect = $primaryRow['directRedirect'] !== null ? (bool)$primaryRow['directRedirect'] : null;
@@ -553,7 +559,7 @@ class ImportExportController extends Controller
                     $siteVariant->siteId = $siteRowSiteId;
                     $siteVariant->setEnabledForSite((bool)$siteRow['enabled']);
                     $siteVariant->folderId = $shortLink->folderId;
-                    $siteVariant->tagNames = $shortLink->tagNames;
+                    $siteVariant->setTagNames($shortLink->tagNames);
 
                     if ($shortLink->shortLinkType === 'auto') {
                         $siteVariant->elementId = $shortLink->elementId;
@@ -730,7 +736,10 @@ class ImportExportController extends Controller
             return $aliases[$key];
         }
 
-        return class_exists($trimmed) ? $trimmed : null;
+        // Validate against Craft's registered element types instead of raw class_exists()
+        // to avoid autoloading side-effects from user-supplied class names in CSV
+        $registeredTypes = Craft::$app->getElements()->getAllElementTypes();
+        return in_array($trimmed, $registeredTypes, true) ? $trimmed : null;
     }
 
     private function parseDateOrNull(string $value): ?\DateTime
