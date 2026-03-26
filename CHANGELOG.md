@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.17.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.1...v5.17.2) (2026-03-26)
+
+
+### Miscellaneous Chores
+
+* **release:** remove issue permissions and skip labeling from workflow ([7557104](https://github.com/LindemannRock/craft-shortlink-manager/commit/755710435dc5bffd6cab833454bb38735bed0028))
+
 ## [5.17.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.0...v5.17.1) (2026-03-26)
 
 
