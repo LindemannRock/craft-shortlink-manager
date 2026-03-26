@@ -151,8 +151,15 @@ class ShortLinkManager extends Plugin
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
             function(RegisterUrlRulesEvent $event) {
-                // Add at the BEGINNING of rules array (higher priority)
-                $event->rules = array_merge($this->getSiteUrlRules(), $event->rules);
+                $siteUrlRules = $this->getSiteUrlRules();
+
+                // Keep explicit QR/prefixed routes high priority, but append
+                // root-level fallback routes after existing site routes.
+                $event->rules = array_merge(
+                    $siteUrlRules['priority'],
+                    $event->rules,
+                    $siteUrlRules['fallback']
+                );
             }
         );
 
@@ -560,7 +567,7 @@ class ShortLinkManager extends Plugin
             ? implode('|', $siteHandles)
             : '[a-zA-Z0-9\-\_]+';
 
-        $rules = [
+        $priorityRules = [
             // QR Code routes - supports both standalone ('qr') and nested ('s/qr') patterns
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
@@ -569,16 +576,44 @@ class ShortLinkManager extends Plugin
         ];
 
         // Always keep prefixed routes for backward compatibility.
-        $rules[$slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
-        $rules['<siteHandle:' . $siteHandlePattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+        $priorityRules[$slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+        $priorityRules['<siteHandle:' . $siteHandlePattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
 
         // Root routes are enabled when usePrefix is disabled.
+        $fallbackRules = [];
         if (!$usePrefix) {
-            $rules['<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
-            $rules['<siteHandle:' . $siteHandlePattern . '>/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+            $rootCodePattern = $this->getRootCodeRoutePattern($settings);
+            $fallbackRules['<code:' . $rootCodePattern . '>'] = 'shortlink-manager/redirect/index';
+            $fallbackRules['<siteHandle:' . $siteHandlePattern . '>/<code:' . $rootCodePattern . '>'] = 'shortlink-manager/redirect/index';
         }
 
-        return $rules;
+        return [
+            'priority' => $priorityRules,
+            'fallback' => $fallbackRules,
+        ];
+    }
+
+    /**
+     * Build the root shortlink code pattern, excluding reserved codes.
+     */
+    private function getRootCodeRoutePattern(Settings $settings): string
+    {
+        $pattern = '[a-zA-Z0-9\-\_]+';
+        $reservedCodes = array_values(array_filter(array_map(
+            static fn(string $code): string => trim($code),
+            $settings->reservedCodes ?? []
+        )));
+
+        if ($reservedCodes === []) {
+            return $pattern;
+        }
+
+        $reservedPattern = implode('|', array_map(
+            static fn(string $code): string => preg_quote($code, '/'),
+            $reservedCodes
+        ));
+
+        return '(?!(?i:' . $reservedPattern . ')$)' . $pattern;
     }
 
     /**
