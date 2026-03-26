@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.17.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.3...v5.17.0) (2026-03-26)
+
+
+### Features
+
+* **taxonomy:** add tag management functionality ([05f0f7b](https://github.com/LindemannRock/craft-shortlink-manager/commit/05f0f7b604f695e2aa69cae94bfedd0a7cfd251f))
+
+
+### Bug Fixes
+
+* **routes:** improve URL rule handling for shortlinks ([f2630ec](https://github.com/LindemannRock/craft-shortlink-manager/commit/f2630ec55e2e063caefe83487cfe41c47a5073c6))
+
 ## [5.16.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.2...v5.16.3) (2026-03-18)
 
 
