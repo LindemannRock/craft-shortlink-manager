@@ -8,6 +8,8 @@
 
 return [
     'ShortLink Manager' => 'ShortLink Manager',
+    'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Create short links, generate QR codes, and track performance from one control panel workspace.',
+    'Open ShortLink Manager' => 'Open ShortLink Manager',
     '{name} plugin loaded' => '{name} plugin loaded',
 
     // Navigation
