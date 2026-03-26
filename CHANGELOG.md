@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.17.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.0...v5.17.1) (2026-03-26)
+
+
+### Bug Fixes
+
+* **shortlink:** update QR code URL handling in ShortLink and templates ([4050920](https://github.com/LindemannRock/craft-shortlink-manager/commit/40509208bde9b7ddd0786bbba975080309a07bf9))
+
 ## [5.17.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.3...v5.17.0) (2026-03-26)
 
 
