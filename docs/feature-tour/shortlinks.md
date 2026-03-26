@@ -34,6 +34,8 @@ Go to **ShortLink Manager → New Link**.
 - **Expiry Date** — When the link stops working. Expired links redirect to the expired template (or `expiredRedirectUrl` if set).
 - **Expired Redirect URL** — Where to send visitors when this specific link has expired. Overrides the global expired template.
 - **Expired Message** — Custom message shown on the expired page. Overrides the global `expiredMessage` setting.
+- **Folder** — Assign the link to an organizational folder (one folder per link). Folders are managed at **ShortLink Manager → Folders & Tags**.
+- **Tags** — Assign one or more tags to the link (comma-separated). Tags are managed at **ShortLink Manager → Folders & Tags**.
 
 ### Programmatically
 
@@ -101,6 +103,11 @@ From the element index, select links and use the action menu:
 - **Enable / Disable** — Toggle active status
 - **Delete** — Permanently delete selected links
 - **Duplicate** — Clone links with new auto-generated codes
+- **Set Folder** — Move selected links into a chosen folder (replaces any existing folder assignment)
+- **Clear Folder** — Remove the folder assignment from selected links
+- **Add Tags** — Append tags to selected links without removing existing tags
+- **Remove Tags** — Remove specific tags from selected links
+- **Clear Tags** — Remove all tags from selected links
 
 ## Sorting and Filtering
 

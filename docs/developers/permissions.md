@@ -21,6 +21,16 @@ ShortLink Manager registers granular permissions that can be assigned to user gr
 | └─ `shortLinkManager:exportAnalytics` | Export analytics data to CSV or JSON |
 | └─ `shortLinkManager:clearAnalytics` | Clear all analytics data |
 
+### Import / Export
+
+| Permission | Description |
+|------------|-------------|
+| **`shortLinkManager:manageImportExport`** | Parent — access the Import/Export CP section |
+| └─ `shortLinkManager:importLinks` | Upload and import short links from CSV |
+| └─ `shortLinkManager:exportLinks` | Export short links to CSV |
+| └─ `shortLinkManager:viewImportHistory` | View the import history log |
+| └─ `shortLinkManager:clearImportHistory` | Clear the import history log |
+
 ### Cache
 
 | Permission | Description |
@@ -78,3 +88,5 @@ To give a user **read-only** access to short links, grant only `manageLinks` (wi
 To give a user **full access**, grant `manageLinks`, `createLinks`, `editLinks`, and `deleteLinks`.
 
 The same pattern applies to analytics: `viewAnalytics` grants access to the analytics dashboard, while `exportAnalytics` and `clearAnalytics` are optional write operations.
+
+The same pattern applies to import/export: `manageImportExport` grants access to the Import/Export CP section. Individual child permissions (`importLinks`, `exportLinks`, `viewImportHistory`, `clearImportHistory`) control specific operations.

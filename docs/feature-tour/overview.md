@@ -25,6 +25,10 @@ ShortLink Manager creates short, memorable URLs that redirect visitors to any de
 
 - **[Integrations](integrations.md)** — SEOmatic pushes GTM/GA4 data layer events on redirect and QR scan. Redirect Manager auto-creates 301s when slugs change. Craft Link Field lets editors pick short links in any Link field.
 
+- **Folders & Tags** — Organize short links using plugin-internal folders (one per link) and tags (many per link). Manage them at **ShortLink Manager → Folders & Tags**. Use bulk actions on the element index to assign or clear folders and tags across multiple links at once.
+
+- **Import / Export** — Bulk-import short links from CSV via **ShortLink Manager → Import/Export**. Map columns in the browser before committing, then review a per-row preview (valid, duplicate, error) before importing. Export all short links to CSV at any time. Import history is logged for auditing.
+
 ## Dashboard Widgets
 
 ShortLink Manager registers two Craft dashboard widgets. Add them via **Dashboard → New Widget**.
@@ -44,7 +48,7 @@ ShortLink Manager adds a utility at **Utilities → ShortLink Manager** with sys
 
 The main element index at **ShortLink Manager** lists all short links with sortable columns for Code, Type, Destination, Status, Interactions, and Date Created. Filter by status, link type, or search by code or destination URL.
 
-**Bulk actions:** Enable, Disable, Delete, Duplicate.
+**Bulk actions:** Enable, Disable, Delete, Duplicate, Set Folder, Clear Folder, Add Tags, Remove Tags, Clear Tags.
 
 **Link sources:** All Links, Auto-generated, Vanity URLs.
 

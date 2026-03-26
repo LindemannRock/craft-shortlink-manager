@@ -148,6 +148,8 @@ Properties available on a `ShortLink` element in Twig:
 | `qrCodeEyeColor` | `string\|null` | QR eye color |
 | `qrCodeFormat` | `string\|null` | QR format override |
 | `qrLogoId` | `int\|null` | QR logo asset ID (overrides default) |
+| `folderId` | `int\|null` | Plugin-internal folder ID |
+| `tagNames` | `array` | Plugin-internal tag names |
 | `status` | `string` | Current status |
 | `url` | `string` | The full short link URL |
 

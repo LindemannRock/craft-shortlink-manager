@@ -28,6 +28,8 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **ShortLink Field** — Custom field type for attaching shortlinks to entries
 - **Multi-Site** — Per-site destination URLs, optional custom domain
 - **Dashboard Widgets** — Analytics Summary and Top Links widgets
+- **Folders & Tags** — Organize short links with plugin-internal folders and tags; bulk-assign via element index actions
+- **Import / Export** — Bulk-import from CSV with column mapping and row-level preview; export all links to CSV
 
 ## Requirements
 
