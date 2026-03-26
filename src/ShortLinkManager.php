@@ -102,9 +102,9 @@ class ShortLinkManager extends Plugin
             ['shortLinkManager:downloadSystemLogs'],
             [
                 'installExperience' => [
-                    'headline' => 'ShortLink Manager',
-                    'body' => 'Create short links, generate QR codes, and track performance from one control panel workspace.',
-                    'ctaLabel' => 'Open ShortLink Manager',
+                    'headline' => Craft::t('shortlink-manager', 'ShortLink Manager'),
+                    'body' => Craft::t('shortlink-manager', 'Create short links, generate QR codes, and track performance from one control panel workspace.'),
+                    'ctaLabel' => Craft::t('shortlink-manager', 'Open ShortLink Manager'),
                     'ctaUrl' => 'shortlink-manager',
                     'redirectUri' => 'shortlink-manager',
                     'confettiPreset' => 'surprise',
