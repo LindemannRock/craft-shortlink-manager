@@ -25,9 +25,13 @@ Click the widget's settings icon to configure:
 |---------|------|---------|-------------|
 | **Date Range** | `string` | `'last7days'` | Time period to summarize: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
 
+### Analytics Disabled
+
+If analytics are disabled in plugin settings, the widget displays "Analytics are disabled in plugin settings" instead of data.
+
 ### Multi-Site
 
-In a multi-site setup, the widget shows analytics for all sites unless you configure a specific site scope. Site filtering is available within the widget settings.
+In a multi-site setup, the widget automatically scopes analytics to the sites the current user has edit access to.
 
 ## Top Links Widget
 
@@ -48,9 +52,13 @@ Click the widget's settings icon to configure:
 | **Date Range** | `string` | `'last7days'` | Time period: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
 | **Limit** | `int` | `5` | Maximum number of links to display (1–20) |
 
+### Analytics Disabled
+
+If analytics are disabled in plugin settings, the widget displays "Analytics are disabled in plugin settings" instead of data.
+
 ### Multi-Site
 
-The Top Links widget shows results across all sites by default. Configure a site scope in widget settings to restrict the results.
+The Top Links widget automatically scopes results to the sites the current user has edit access to.
 
 ## Permissions
 

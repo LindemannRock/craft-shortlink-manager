@@ -22,7 +22,9 @@
             "feature-tour/direct-redirect",
             "feature-tour/shortlink-field",
             "feature-tour/dashboard-widgets",
-            "feature-tour/integrations"
+            "feature-tour/integrations",
+            "feature-tour/folders-tags",
+            "feature-tour/import-export"
         ]
     },
     {

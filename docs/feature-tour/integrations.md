@@ -1,6 +1,6 @@
 # Integrations
 
-ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft Link Field. Each integration is optional and can be enabled or disabled in **Settings → Integrations**.
+ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft Link Field. The SEOmatic and Redirect Manager integrations can be enabled or disabled in **Settings → Integrations**. The Craft Link Field integration is automatic and requires no configuration.
 
 ## SEOmatic Integration
 
@@ -33,6 +33,7 @@ Each event pushes the following payload:
         "browser": "Safari",
         "browser_version": "17.0",
         "is_mobile": true,
+        "is_tablet": false,
         "country": "US",
         "city": "New York"
     }
