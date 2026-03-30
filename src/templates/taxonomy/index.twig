@@ -69,12 +69,12 @@
         ? {
             url: url('shortlink-manager/taxonomy/folders/new'),
             label: 'New Folder'|t('shortlink-manager'),
-            permission: 'shortLinkManager:editLinks',
+            permission: 'shortLinkManager:createTaxonomy',
         }
         : {
             url: url('shortlink-manager/taxonomy/tags/new'),
             label: 'New Tag'|t('shortlink-manager'),
-            permission: 'shortLinkManager:editLinks',
+            permission: 'shortLinkManager:createTaxonomy',
         },
 } %}
 
@@ -101,6 +101,7 @@
                     {
                         label: 'Edit'|t('app'),
                         url: url('shortlink-manager/taxonomy/folders/' ~ item.id),
+                        permission: 'shortLinkManager:editTaxonomy',
                     },
                     {type: 'divider'},
                     {
@@ -109,6 +110,7 @@
                         jsAction: 'delete-folder',
                         confirm: 'Delete this folder?'|t('shortlink-manager'),
                         title: item.usageCount > 0 ? 'This also unassigns the folder from linked shortlinks.'|t('shortlink-manager') : null,
+                        permission: 'shortLinkManager:deleteTaxonomy',
                     },
                 ],
             },
@@ -124,6 +126,7 @@
                     {
                         label: 'Edit'|t('app'),
                         url: url('shortlink-manager/taxonomy/tags/' ~ item.id),
+                        permission: 'shortLinkManager:editTaxonomy',
                     },
                     {type: 'divider'},
                     {
@@ -131,6 +134,7 @@
                         class: 'error',
                         jsAction: 'delete-tag',
                         confirm: 'Delete this tag?'|t('shortlink-manager'),
+                        permission: 'shortLinkManager:deleteTaxonomy',
                     },
                 ],
             },
@@ -139,9 +143,11 @@
 {% endblock %}
 
 {% block bulkActions %}
-    <button type="button" class="btn secondary" id="lr-bulk-delete-btn">
-        {{ 'Delete'|t('app') }} (<span id="lr-selected-count">0</span>)
-    </button>
+    {% if currentUser.can('shortLinkManager:deleteTaxonomy') %}
+        <button type="button" class="btn secondary" id="lr-bulk-delete-btn">
+            {{ 'Delete'|t('app') }} (<span id="lr-selected-count">0</span>)
+        </button>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

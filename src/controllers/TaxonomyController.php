@@ -15,7 +15,7 @@ class TaxonomyController extends Controller
 {
     public function actionIndex(): Response
     {
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:manageTaxonomy');
 
         return $this->renderTemplate('shortlink-manager/taxonomy/index', [
             'folders' => ShortLinkManager::$plugin->taxonomy->getFoldersForIndex(),
@@ -25,7 +25,7 @@ class TaxonomyController extends Controller
 
     public function actionEditFolder(int $folderId): Response
     {
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:editTaxonomy');
 
         $folder = ShortLinkManager::$plugin->taxonomy->getFolderById($folderId);
         if (!$folder) {
@@ -40,7 +40,7 @@ class TaxonomyController extends Controller
 
     public function actionNewFolder(): Response
     {
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:createTaxonomy');
 
         $folder = ShortLinkManager::$plugin->taxonomy->createFolderRecord();
 
@@ -52,7 +52,7 @@ class TaxonomyController extends Controller
 
     public function actionEditTag(int $tagId): Response
     {
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:editTaxonomy');
 
         $tag = ShortLinkManager::$plugin->taxonomy->getTagById($tagId);
         if (!$tag) {
@@ -67,7 +67,7 @@ class TaxonomyController extends Controller
 
     public function actionNewTag(): Response
     {
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:createTaxonomy');
 
         $tag = ShortLinkManager::$plugin->taxonomy->createTagRecord();
 
@@ -80,7 +80,7 @@ class TaxonomyController extends Controller
     public function actionSaveFolder(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:editTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $folderId = (int)$this->request->getBodyParam('folderId', 0);
@@ -113,7 +113,7 @@ class TaxonomyController extends Controller
     public function actionSaveTag(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:editTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $tagId = (int)$this->request->getBodyParam('tagId', 0);
@@ -146,7 +146,7 @@ class TaxonomyController extends Controller
     public function actionDeleteFolder(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:deleteTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $folderId = (int)$this->request->getRequiredBodyParam('folderId');
@@ -181,7 +181,7 @@ class TaxonomyController extends Controller
     public function actionBulkDeleteFolders(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:deleteTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $folderIds = array_values(array_unique(array_filter(array_map(
@@ -221,7 +221,7 @@ class TaxonomyController extends Controller
     public function actionDeleteTag(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:deleteTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $tagId = (int)$this->request->getRequiredBodyParam('tagId');
@@ -256,7 +256,7 @@ class TaxonomyController extends Controller
     public function actionBulkDeleteTags(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editLinks');
+        $this->requirePermission('shortLinkManager:deleteTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
         $tagIds = array_values(array_unique(array_filter(array_map(

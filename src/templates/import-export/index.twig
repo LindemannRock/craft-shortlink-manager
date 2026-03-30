@@ -17,15 +17,13 @@
         },
     }) %}
 {% endif %}
-{% if canViewHistory %}
-    {% set tabs = tabs|merge({
-        importHistory: {
-            label: 'Import History'|t('shortlink-manager'),
-            url: '#import-history',
-        },
-    }) %}
-{% endif %}
-{% if not canImportExport and canViewHistory %}
+{% set tabs = tabs|merge({
+    importHistory: {
+        label: 'Import History'|t('shortlink-manager'),
+        url: '#import-history',
+    },
+}) %}
+{% if not canImportExport %}
     {% set selectedTab = 'importHistory' %}
 {% endif %}
 
@@ -92,18 +90,16 @@ promo-entry,auto,,123,craft\elements\Entry,code,301,1,en,Product,"launch,ios",1,
         {% endif %}
     </div>
 
-    {% if canViewHistory %}
-        {% include 'lindemannrock-base/_partials/import-history' with {
-            sectionId: 'import-history',
-            title: 'Import History'|t('shortlink-manager'),
-            importHistory: importHistory,
-            canClearHistory: currentUser.can('shortLinkManager:clearImportHistory'),
-            clearButtonId: 'clear-logs-btn',
-            clearLabel: 'Clear history'|t('shortlink-manager'),
-            emptyMessage: 'No import history yet.'|t('shortlink-manager'),
-            translationCategory: 'shortlink-manager',
-        } only %}
-    {% endif %}
+    {% include 'lindemannrock-base/_partials/import-history' with {
+        sectionId: 'import-history',
+        title: 'Import History'|t('shortlink-manager'),
+        importHistory: importHistory,
+        canClearHistory: canClearHistory,
+        clearButtonId: 'clear-logs-btn',
+        clearLabel: 'Clear history'|t('shortlink-manager'),
+        emptyMessage: 'No import history yet.'|t('shortlink-manager'),
+        translationCategory: 'shortlink-manager',
+    } only %}
 
     {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}

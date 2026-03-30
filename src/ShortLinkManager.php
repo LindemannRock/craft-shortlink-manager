@@ -379,20 +379,14 @@ class ShortLinkManager extends Plugin
             'key' => 'import-export',
             'label' => Craft::t('shortlink-manager', 'Import/Export'),
             'url' => 'shortlink-manager/import-export',
-            'permissionsAny' => [
-                'shortLinkManager:manageImportExport',
-                'shortLinkManager:importLinks',
-                'shortLinkManager:exportLinks',
-                'shortLinkManager:viewImportHistory',
-                'shortLinkManager:clearImportHistory',
-            ],
+            'permissionsAll' => ['shortLinkManager:manageImportExport'],
         ];
 
         $sections[] = [
             'key' => 'taxonomy',
             'label' => Craft::t('shortlink-manager', 'Folders & Tags'),
             'url' => 'shortlink-manager/taxonomy',
-            'permissionsAll' => ['shortLinkManager:editLinks'],
+            'permissionsAll' => ['shortLinkManager:manageTaxonomy'],
         ];
 
         if ($includeLogs) {
@@ -625,7 +619,7 @@ class ShortLinkManager extends Plugin
         $plural = $settings->getPluralLowerDisplayName();
 
         return [
-            // Shortlinks - grouped
+            // Shortlinks
             'shortLinkManager:manageLinks' => [
                 'label' => Craft::t('shortlink-manager', 'Manage {plural}', ['plural' => $plural]),
                 'nested' => [
@@ -640,6 +634,22 @@ class ShortLinkManager extends Plugin
                     ],
                 ],
             ],
+            // Taxonomy (Folders & Tags)
+            'shortLinkManager:manageTaxonomy' => [
+                'label' => Craft::t('shortlink-manager', 'Manage folders & tags'),
+                'nested' => [
+                    'shortLinkManager:createTaxonomy' => [
+                        'label' => Craft::t('shortlink-manager', 'Create folders & tags'),
+                    ],
+                    'shortLinkManager:editTaxonomy' => [
+                        'label' => Craft::t('shortlink-manager', 'Edit folders & tags'),
+                    ],
+                    'shortLinkManager:deleteTaxonomy' => [
+                        'label' => Craft::t('shortlink-manager', 'Delete folders & tags'),
+                    ],
+                ],
+            ],
+            // Analytics
             'shortLinkManager:viewAnalytics' => [
                 'label' => Craft::t('shortlink-manager', 'View analytics'),
                 'nested' => [
@@ -651,6 +661,7 @@ class ShortLinkManager extends Plugin
                     ],
                 ],
             ],
+            // Import/Export
             'shortLinkManager:manageImportExport' => [
                 'label' => Craft::t('shortlink-manager', 'Manage import/export'),
                 'nested' => [
@@ -660,17 +671,16 @@ class ShortLinkManager extends Plugin
                     'shortLinkManager:exportLinks' => [
                         'label' => Craft::t('shortlink-manager', 'Export links'),
                     ],
-                    'shortLinkManager:viewImportHistory' => [
-                        'label' => Craft::t('shortlink-manager', 'View import history'),
-                    ],
                     'shortLinkManager:clearImportHistory' => [
                         'label' => Craft::t('shortlink-manager', 'Clear import history'),
                     ],
                 ],
             ],
+            // Cache
             'shortLinkManager:clearCache' => [
                 'label' => Craft::t('shortlink-manager', 'Clear cache'),
             ],
+            // Logs
             'shortLinkManager:viewLogs' => [
                 'label' => Craft::t('shortlink-manager', 'View logs'),
                 'nested' => [
@@ -684,6 +694,7 @@ class ShortLinkManager extends Plugin
                     ],
                 ],
             ],
+            // Settings
             'shortLinkManager:manageSettings' => [
                 'label' => Craft::t('shortlink-manager', 'Manage settings'),
             ],
