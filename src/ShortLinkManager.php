@@ -649,18 +649,6 @@ class ShortLinkManager extends Plugin
                     ],
                 ],
             ],
-            // Analytics
-            'shortLinkManager:viewAnalytics' => [
-                'label' => Craft::t('shortlink-manager', 'View analytics'),
-                'nested' => [
-                    'shortLinkManager:exportAnalytics' => [
-                        'label' => Craft::t('shortlink-manager', 'Export analytics'),
-                    ],
-                    'shortLinkManager:clearAnalytics' => [
-                        'label' => Craft::t('shortlink-manager', 'Clear analytics'),
-                    ],
-                ],
-            ],
             // Import/Export
             'shortLinkManager:manageImportExport' => [
                 'label' => Craft::t('shortlink-manager', 'Manage import/export'),
@@ -673,6 +661,18 @@ class ShortLinkManager extends Plugin
                     ],
                     'shortLinkManager:clearImportHistory' => [
                         'label' => Craft::t('shortlink-manager', 'Clear import history'),
+                    ],
+                ],
+            ],
+            // Analytics
+            'shortLinkManager:viewAnalytics' => [
+                'label' => Craft::t('shortlink-manager', 'View analytics'),
+                'nested' => [
+                    'shortLinkManager:exportAnalytics' => [
+                        'label' => Craft::t('shortlink-manager', 'Export analytics'),
+                    ],
+                    'shortLinkManager:clearAnalytics' => [
+                        'label' => Craft::t('shortlink-manager', 'Clear analytics'),
                     ],
                 ],
             ],
