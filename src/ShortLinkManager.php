@@ -368,6 +368,13 @@ class ShortLinkManager extends Plugin
         }
 
         $sections[] = [
+            'key' => 'taxonomy',
+            'label' => Craft::t('shortlink-manager', 'Folders & Tags'),
+            'url' => 'shortlink-manager/taxonomy',
+            'permissionsAll' => ['shortLinkManager:manageTaxonomy'],
+        ];
+
+        $sections[] = [
             'key' => 'analytics',
             'label' => Craft::t('shortlink-manager', 'Analytics'),
             'url' => 'shortlink-manager/analytics',
@@ -380,13 +387,6 @@ class ShortLinkManager extends Plugin
             'label' => Craft::t('shortlink-manager', 'Import/Export'),
             'url' => 'shortlink-manager/import-export',
             'permissionsAll' => ['shortLinkManager:manageImportExport'],
-        ];
-
-        $sections[] = [
-            'key' => 'taxonomy',
-            'label' => Craft::t('shortlink-manager', 'Folders & Tags'),
-            'url' => 'shortlink-manager/taxonomy',
-            'permissionsAll' => ['shortLinkManager:manageTaxonomy'],
         ];
 
         if ($includeLogs) {
