@@ -145,6 +145,7 @@ return [
     'Linked element has no URL' => 'Linked element has no URL',
 
     // Validation messages
+    'Found {count, number} {count, plural, =1{error} other{errors}}' => 'Found {count, number} {count, plural, =1{error} other{errors}}',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.',
     'This code is already in use (slug: {slug}).' => 'This code is already in use (slug: {slug}).',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)',

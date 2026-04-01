@@ -237,6 +237,7 @@ return [
     '{displayName} caches' => '{displayName} Caches',
 
     // Validation (Settings model)
+    'Found {count, number} {count, plural, =1{error} other{errors}}' => 'Es wurde {count, number} {count, plural, =1{Fehler} other{Fehler}} gefunden',
     'Only letters, numbers, hyphens, and underscores are allowed.' => 'Nur Buchstaben, Zahlen, Bindestriche und Unterstriche sind erlaubt.',
     'Do not start or end the prefix with "/".' => 'Das Präfix darf nicht mit „/" beginnen oder enden.',
     'Prefix cannot contain empty path segments ("//"). Use single slashes only.' => 'Das Präfix darf keine leeren Pfadsegmente enthalten (\"//\"). Verwenden Sie nur einfache Schrägstriche.',

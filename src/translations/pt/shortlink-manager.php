@@ -237,6 +237,7 @@ return [
     '{displayName} caches' => 'Caches de {displayName}',
 
     // Validation (Settings model)
+    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{erro encontrado} other{erros encontrados}}',
     'Do not start or end the prefix with "/".' => 'Não inicie nem termine o prefixo com "/".',
     'Prefix cannot contain empty path segments ("//"). Use single slashes only.' => 'O prefixo não pode conter segmentos de caminho vazios ("//"). Utilize apenas barras simples.',
     'Template path must include a relative template path after the environment variable.' => 'O caminho do template tem de incluir um caminho relativo após a variável de ambiente.',

@@ -237,6 +237,7 @@ return [
     '{displayName} caches' => '{displayName}-caches',
 
     // Validation (Settings model)
+    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{fejl} other{fejl}} fundet',
     'Do not start or end the prefix with "/".' => 'Start eller afslut ikke præfikset med "/".',
     'Prefix cannot contain empty path segments ("//"). Use single slashes only.' => 'Præfikset må ikke indeholde tomme stisegmenter ("//"). Brug kun enkle skråstreger.',
     'Template path must include a relative template path after the environment variable.' => 'Templatestien skal indeholde en relativ templatesti efter miljøvariablen.',

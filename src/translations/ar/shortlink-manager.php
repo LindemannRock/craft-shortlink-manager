@@ -237,6 +237,7 @@ return [
     '{displayName} caches' => 'Cache {displayName}',
 
     // Validation (Settings model)
+    'Found {count, number} {count, plural, =1{error} other{errors}}' => 'تم العثور على {count, number} {count, plural, =1{خطأ} other{أخطاء}}',
     'Only letters, numbers, hyphens, and underscores are allowed.' => 'يُسمح فقط بالحروف والأرقام والشرطات والشرطات السفلية.',
     'Do not start or end the prefix with "/".' => 'لا تبدأ البادئة أو تنهيها بـ "/".',
     'Prefix cannot contain empty path segments ("//"). Use single slashes only.' => 'لا يمكن أن تحتوي البادئة على مقاطع مسار فارغة ("//"). استخدم شرطات مائلة منفردة فقط.',

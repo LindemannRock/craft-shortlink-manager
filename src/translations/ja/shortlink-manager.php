@@ -237,6 +237,7 @@ return [
     '{displayName} caches' => '{displayName} の キャッシュ',
 
     // Validation (Settings model)
+    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} 件の{count, plural, =1{エラー} other{エラー}}が見つかりました',
     'Do not start or end the prefix with "/".' => 'プレフィックスの先頭または末尾に "/" を使用しないでください。',
     'Prefix cannot contain empty path segments ("//"). Use single slashes only.' => 'プレフィックスに空のパスセグメント ("//") を含めることはできません。単一のスラッシュのみを使用してください。',
     'Template path must include a relative template path after the environment variable.' => 'テンプレートパスには、環境変数の後に相対テンプレートパスを含める必要があります。',
