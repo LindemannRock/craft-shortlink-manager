@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'コントロールパネルのワークスペースからショートリンクの作成、QR コード の生成、パフォーマンスの追跡が行えます。',
     'Open ShortLink Manager' => 'ShortLink Manager を開く',
@@ -372,6 +373,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug（詳細なデバッグ）',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'ログに記録するメッセージの種類を選択してください。デバッグレベルには devMode の有効化が必要です。',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>logLevel</code> 設定によって上書きされています。',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'すべてのレベル',
+    'Info' => '情報',
+    'Debug' => 'デバッグ',
+    'Select File' => 'ファイルを選択',
+    'Select Date' => '日付を選択',
+    'All Sources' => 'すべてのソース',
+    'Search messages and context...' => 'メッセージとコンテキストを検索...',
+    'System Logs' => 'システムログ',
+    'System' => 'システム',
+    'Current log level' => '現在のログレベル',
+    'No log files found. Log files are created when plugin activities occur.' => 'ログファイルが見つかりません。プラグインのアクティビティが発生するとログファイルが作成されます。',
+    'No log entries found for the selected filters.' => '選択したフィルターに一致するログエントリが見つかりません。',
+    'No context data available.' => 'コンテキストデータがありません。',
+    'Level' => 'レベル',
+    'User' => 'ユーザー',
+    'Message' => 'メッセージ',
+    'entry' => 'エントリ',
+    'entries' => 'エントリ',
+    'Available Logs' => '利用可能なログ',
+    'Current File' => '現在のファイル',
+    'Download File' => 'ファイルをダウンロード',
+    'Log Location' => 'ログの場所',
+    'Current Level' => '現在のレベル',
+    'Retention' => '保持期間',
+    'days' => '日',
+    'Context' => 'コンテキスト',
+    'Entries' => 'エントリ',
+    'file' => 'ファイル',
+    'files' => 'ファイル',
+
     'Save Settings' => '設定を保存する',
 
     // Settings: Behavior

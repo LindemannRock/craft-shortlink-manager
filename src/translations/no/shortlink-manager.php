@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Opprett korte lenker, generer QR-koder og følg ytelsen fra ett samlet arbeidsområde i kontrollpanelet.',
     'Open ShortLink Manager' => 'Åpne ShortLink Manager',
@@ -372,6 +373,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (detaljert feilsøking)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Velg hvilke typer meldinger som skal logges. Debug-nivå krever at devMode er aktivert.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dette overstyres av innstillingen <code>logLevel</code> i <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Alle nivåer',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Velg fil',
+    'Select Date' => 'Velg dato',
+    'All Sources' => 'Alle kilder',
+    'Search messages and context...' => 'Søk i meldinger og kontekst...',
+    'System Logs' => 'Systemlogger',
+    'System' => 'System',
+    'Current log level' => 'Gjeldende loggnivå',
+    'No log files found. Log files are created when plugin activities occur.' => 'Ingen loggfiler funnet. Loggfiler opprettes når plugin-aktiviteter oppstår.',
+    'No log entries found for the selected filters.' => 'Ingen loggoppføringer funnet for de valgte filtrene.',
+    'No context data available.' => 'Ingen kontekstdata tilgjengelig.',
+    'Level' => 'Nivå',
+    'User' => 'Bruker',
+    'Message' => 'Melding',
+    'entry' => 'oppføring',
+    'entries' => 'oppføringer',
+    'Available Logs' => 'Tilgjengelige logger',
+    'Current File' => 'Gjeldende fil',
+    'Download File' => 'Last ned fil',
+    'Log Location' => 'Loggplassering',
+    'Current Level' => 'Gjeldende nivå',
+    'Retention' => 'Oppbevaring',
+    'days' => 'dager',
+    'Context' => 'Kontekst',
+    'Entries' => 'Oppføringer',
+    'file' => 'fil',
+    'files' => 'filer',
+
     'Save Settings' => 'Lagre innstillinger',
 
     // Settings: Behavior

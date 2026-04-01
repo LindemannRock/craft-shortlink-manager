@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Maak short links aan, genereer QR codes en volg prestaties vanuit één werkruimte in het configuratiescherm.',
     'Open ShortLink Manager' => 'ShortLink Manager openen',
@@ -370,6 +371,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (gedetailleerde foutopsporing)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Kies welke typen berichten worden gelogd. Debugniveau vereist dat devMode is ingeschakeld.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>logLevel</code> in <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Alle niveaus',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Bestand selecteren',
+    'Select Date' => 'Datum selecteren',
+    'All Sources' => 'Alle bronnen',
+    'Search messages and context...' => 'Berichten en context doorzoeken...',
+    'System Logs' => 'Systeemlogboeken',
+    'System' => 'Systeem',
+    'Current log level' => 'Huidig logniveau',
+    'No log files found. Log files are created when plugin activities occur.' => 'Geen logbestanden gevonden. Logbestanden worden aangemaakt wanneer plugin-activiteiten plaatsvinden.',
+    'No log entries found for the selected filters.' => 'Geen logvermeldingen gevonden voor de geselecteerde filters.',
+    'No context data available.' => 'Geen contextgegevens beschikbaar.',
+    'Level' => 'Niveau',
+    'User' => 'Gebruiker',
+    'Message' => 'Bericht',
+    'entry' => 'vermelding',
+    'entries' => 'vermeldingen',
+    'Available Logs' => 'Beschikbare logboeken',
+    'Current File' => 'Huidig bestand',
+    'Download File' => 'Bestand downloaden',
+    'Log Location' => 'Loglocatie',
+    'Current Level' => 'Huidig niveau',
+    'Retention' => 'Retentie',
+    'days' => 'dagen',
+    'Context' => 'Context',
+    'Entries' => 'Vermeldingen',
+    'file' => 'bestand',
+    'files' => 'bestanden',
+
     'Save Settings' => 'Instellingen opslaan',
 
     // Settings: Behavior

@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Shortlinks erstellen, QR Codes generieren und die Performance über einen zentralen Arbeitsbereich im Control Panel verfolgen.',
     'Open ShortLink Manager' => 'ShortLink Manager öffnen',
@@ -370,6 +371,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (detaillierte Fehlersuche)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Wählen Sie, welche Nachrichtentypen protokolliert werden sollen. Die Debug-Ebene erfordert, dass devMode aktiviert ist.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>logLevel</code> in <code>config/shortlink-manager.php</code> überschrieben.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Alle Stufen',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Datei auswählen',
+    'Select Date' => 'Datum auswählen',
+    'All Sources' => 'Alle Quellen',
+    'Search messages and context...' => 'Nachrichten und Kontext durchsuchen...',
+    'System Logs' => 'Systemprotokolle',
+    'System' => 'System',
+    'Current log level' => 'Aktuelle Protokollierungsstufe',
+    'No log files found. Log files are created when plugin activities occur.' => 'Keine Protokolldateien gefunden. Protokolldateien werden erstellt wenn Plugin-Aktivitäten auftreten.',
+    'No log entries found for the selected filters.' => 'Keine Protokolleinträge für die ausgewählten Filter gefunden.',
+    'No context data available.' => 'Keine Kontextdaten verfügbar.',
+    'Level' => 'Stufe',
+    'User' => 'Benutzer',
+    'Message' => 'Nachricht',
+    'entry' => 'Eintrag',
+    'entries' => 'Einträge',
+    'Available Logs' => 'Verfügbare Protokolle',
+    'Current File' => 'Aktuelle Datei',
+    'Download File' => 'Datei herunterladen',
+    'Log Location' => 'Protokollspeicherort',
+    'Current Level' => 'Aktuelle Stufe',
+    'Retention' => 'Aufbewahrung',
+    'days' => 'Tage',
+    'Context' => 'Kontext',
+    'Entries' => 'Einträge',
+    'file' => 'Datei',
+    'files' => 'Dateien',
+
     'Save Settings' => 'Einstellungen speichern',
 
     // Settings: Behavior

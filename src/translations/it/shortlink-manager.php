@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Crea short link, genera QR Code e monitora le prestazioni da un unico workspace nel pannello di controllo.',
     'Open ShortLink Manager' => 'Apri ShortLink Manager',
@@ -372,6 +373,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (debugging dettagliato)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Scegliere quali tipi di messaggi registrare. Il livello Debug richiede che devMode sia abilitato.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Questa impostazione è sovrascritta dall\'impostazione <code>logLevel</code> in <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Tutti i livelli',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Seleziona file',
+    'Select Date' => 'Seleziona data',
+    'All Sources' => 'Tutte le fonti',
+    'Search messages and context...' => 'Cerca messaggi e contesto...',
+    'System Logs' => 'Log di sistema',
+    'System' => 'Sistema',
+    'Current log level' => 'Livello di log attuale',
+    'No log files found. Log files are created when plugin activities occur.' => 'Nessun file di log trovato. I file di log vengono creati quando si verificano attività del plugin.',
+    'No log entries found for the selected filters.' => 'Nessuna voce di log trovata per i filtri selezionati.',
+    'No context data available.' => 'Nessun dato di contesto disponibile.',
+    'Level' => 'Livello',
+    'User' => 'Utente',
+    'Message' => 'Messaggio',
+    'entry' => 'voce',
+    'entries' => 'voci',
+    'Available Logs' => 'Log disponibili',
+    'Current File' => 'File attuale',
+    'Download File' => 'Scarica file',
+    'Log Location' => 'Posizione del log',
+    'Current Level' => 'Livello attuale',
+    'Retention' => 'Conservazione',
+    'days' => 'giorni',
+    'Context' => 'Contesto',
+    'Entries' => 'Voci',
+    'file' => 'file',
+    'files' => 'file',
+
     'Save Settings' => 'Salva impostazioni',
 
     // Settings: Behavior

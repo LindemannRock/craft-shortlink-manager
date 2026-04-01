@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Créez des liens courts, générez des QR codes et suivez les performances depuis un seul espace de travail du panneau de contrôle.',
     'Open ShortLink Manager' => 'Ouvrir ShortLink Manager',
@@ -370,6 +371,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (débogage détaillé)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Choisissez les types de messages à journaliser. Le niveau Debug nécessite l\'activation du devMode.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>logLevel</code> dans <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Tous les niveaux',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Sélectionner un fichier',
+    'Select Date' => 'Sélectionner une date',
+    'All Sources' => 'Toutes les sources',
+    'Search messages and context...' => 'Rechercher dans les messages et le contexte...',
+    'System Logs' => 'Journaux système',
+    'System' => 'Système',
+    'Current log level' => 'Niveau de journalisation actuel',
+    'No log files found. Log files are created when plugin activities occur.' => 'Aucun fichier journal trouvé. Les fichiers journaux sont créés lors des activités du plugin.',
+    'No log entries found for the selected filters.' => 'Aucune entrée de journal trouvée pour les filtres sélectionnés.',
+    'No context data available.' => 'Aucune donnée de contexte disponible.',
+    'Level' => 'Niveau',
+    'User' => 'Utilisateur',
+    'Message' => 'Message',
+    'entry' => 'entrée',
+    'entries' => 'entrées',
+    'Available Logs' => 'Journaux disponibles',
+    'Current File' => 'Fichier actuel',
+    'Download File' => 'Télécharger le fichier',
+    'Log Location' => 'Emplacement du journal',
+    'Current Level' => 'Niveau actuel',
+    'Retention' => 'Rétention',
+    'days' => 'jours',
+    'Context' => 'Contexte',
+    'Entries' => 'Entrées',
+    'file' => 'fichier',
+    'files' => 'fichiers',
+
     'Save Settings' => 'Enregistrer les paramètres',
 
     // Settings: Behavior

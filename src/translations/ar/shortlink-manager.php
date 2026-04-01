@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'أنشئ روابط قصيرة، وولّد QR codes، وتتبّع الأداء من مساحة عمل واحدة في لوحة التحكم.',
     'Open ShortLink Manager' => 'فتح ShortLink Manager',
@@ -370,6 +371,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (تصحيح مفصل)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'اختر أنواع الرسائل المراد تسجيلها. يتطلب مستوى Debug تفعيل devMode.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>logLevel</code> في <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'جميع المستويات',
+    'Info' => 'معلومات',
+    'Debug' => 'تصحيح',
+    'Select File' => 'اختيار ملف',
+    'Select Date' => 'اختيار تاريخ',
+    'All Sources' => 'جميع المصادر',
+    'Search messages and context...' => 'البحث في الرسائل والسياق...',
+    'System Logs' => 'سجلات النظام',
+    'System' => 'النظام',
+    'Current log level' => 'مستوى السجل الحالي',
+    'No log files found. Log files are created when plugin activities occur.' => 'لم يتم العثور على ملفات سجل. يتم إنشاء ملفات السجل عند حدوث أنشطة الإضافة.',
+    'No log entries found for the selected filters.' => 'لم يتم العثور على إدخالات سجل للمرشحات المحددة.',
+    'No context data available.' => 'لا تتوفر بيانات سياقية.',
+    'Level' => 'المستوى',
+    'User' => 'المستخدم',
+    'Message' => 'الرسالة',
+    'entry' => 'إدخال',
+    'entries' => 'إدخالات',
+    'Available Logs' => 'السجلات المتاحة',
+    'Current File' => 'الملف الحالي',
+    'Download File' => 'تنزيل الملف',
+    'Log Location' => 'موقع السجل',
+    'Current Level' => 'المستوى الحالي',
+    'Retention' => 'الاحتفاظ',
+    'days' => 'أيام',
+    'Context' => 'السياق',
+    'Entries' => 'الإدخالات',
+    'file' => 'ملف',
+    'files' => 'ملفات',
+
     'Save Settings' => 'حفظ الإعدادات',
 
     // Settings: Behavior

@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Opret short links, generer QR-koder og følg performance fra ét samlet arbejdsområde i kontrolpanelet.',
     'Open ShortLink Manager' => 'Åbn ShortLink Manager',
@@ -372,6 +373,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (detaljeret fejlfinding)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Vælg, hvilke typer beskeder der skal logges. Debug-niveauet kræver, at devMode er aktiveret.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>logLevel</code> i <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Alle niveauer',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Vælg fil',
+    'Select Date' => 'Vælg dato',
+    'All Sources' => 'Alle kilder',
+    'Search messages and context...' => 'Søg i beskeder og kontekst...',
+    'System Logs' => 'Systemlogfiler',
+    'System' => 'System',
+    'Current log level' => 'Nuværende logniveau',
+    'No log files found. Log files are created when plugin activities occur.' => 'Ingen logfiler fundet. Logfiler oprettes når plugin-aktiviteter forekommer.',
+    'No log entries found for the selected filters.' => 'Ingen logposter fundet for de valgte filtre.',
+    'No context data available.' => 'Ingen kontekstdata tilgængelig.',
+    'Level' => 'Niveau',
+    'User' => 'Bruger',
+    'Message' => 'Besked',
+    'entry' => 'post',
+    'entries' => 'poster',
+    'Available Logs' => 'Tilgængelige logfiler',
+    'Current File' => 'Nuværende fil',
+    'Download File' => 'Download fil',
+    'Log Location' => 'Logplacering',
+    'Current Level' => 'Nuværende niveau',
+    'Retention' => 'Opbevaring',
+    'days' => 'dage',
+    'Context' => 'Kontekst',
+    'Entries' => 'Poster',
+    'file' => 'fil',
+    'files' => 'filer',
+
     'Save Settings' => 'Gem indstillinger',
 
     // Settings: Behavior

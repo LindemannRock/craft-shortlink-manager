@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Skapa short links, generera QR-koder och följ upp prestanda från en och samma arbetsyta i kontrollpanelen.',
     'Open ShortLink Manager' => 'Öppna ShortLink Manager',
@@ -372,6 +373,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (detaljerad felsökning)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Välj vilka typer av meddelanden som ska loggas. Debug-nivå kräver att devMode är aktiverat.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Den här inställningen åsidosätts av inställningen <code>logLevel</code> i <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Alla nivåer',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Välj fil',
+    'Select Date' => 'Välj datum',
+    'All Sources' => 'Alla källor',
+    'Search messages and context...' => 'Sök meddelanden och kontext...',
+    'System Logs' => 'Systemloggar',
+    'System' => 'System',
+    'Current log level' => 'Aktuell loggnivå',
+    'No log files found. Log files are created when plugin activities occur.' => 'Inga loggfiler hittades. Loggfiler skapas när plugin-aktiviteter inträffar.',
+    'No log entries found for the selected filters.' => 'Inga loggposter hittades för de valda filtren.',
+    'No context data available.' => 'Ingen kontextdata tillgänglig.',
+    'Level' => 'Nivå',
+    'User' => 'Användare',
+    'Message' => 'Meddelande',
+    'entry' => 'post',
+    'entries' => 'poster',
+    'Available Logs' => 'Tillgängliga loggar',
+    'Current File' => 'Aktuell fil',
+    'Download File' => 'Ladda ner fil',
+    'Log Location' => 'Loggplats',
+    'Current Level' => 'Aktuell nivå',
+    'Retention' => 'Lagring',
+    'days' => 'dagar',
+    'Context' => 'Kontext',
+    'Entries' => 'Poster',
+    'file' => 'fil',
+    'files' => 'filer',
+
     'Save Settings' => 'Spara inställningar',
 
     // Settings: Behavior

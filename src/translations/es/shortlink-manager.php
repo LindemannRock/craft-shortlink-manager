@@ -7,6 +7,7 @@
  */
 
 return [
+    // Plugin meta
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Cree enlaces cortos, genere QR codes y realice un seguimiento del rendimiento desde un único espacio de trabajo en el panel de control.',
     'Open ShortLink Manager' => 'Abrir ShortLink Manager',
@@ -370,6 +371,38 @@ return [
     'Debug (Detailed debugging)' => 'Debug (depuración detallada)',
     'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Elija qué tipos de mensajes registrar. El nivel de depuración requiere que devMode esté habilitado.',
     'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Este ajuste está siendo reemplazado por el parámetro <code>logLevel</code> en <code>config/shortlink-manager.php</code>.',
+
+    // Logs viewer (logging-library)
+    'All Levels' => 'Todos los niveles',
+    'Info' => 'Info',
+    'Debug' => 'Debug',
+    'Select File' => 'Seleccionar archivo',
+    'Select Date' => 'Seleccionar fecha',
+    'All Sources' => 'Todas las fuentes',
+    'Search messages and context...' => 'Buscar en mensajes y contexto...',
+    'System Logs' => 'Registros del sistema',
+    'System' => 'Sistema',
+    'Current log level' => 'Nivel de registro actual',
+    'No log files found. Log files are created when plugin activities occur.' => 'No se encontraron archivos de registro. Los archivos de registro se crean cuando ocurren actividades del plugin.',
+    'No log entries found for the selected filters.' => 'No se encontraron entradas de registro para los filtros seleccionados.',
+    'No context data available.' => 'No hay datos de contexto disponibles.',
+    'Level' => 'Nivel',
+    'User' => 'Usuario',
+    'Message' => 'Mensaje',
+    'entry' => 'entrada',
+    'entries' => 'entradas',
+    'Available Logs' => 'Registros disponibles',
+    'Current File' => 'Archivo actual',
+    'Download File' => 'Descargar archivo',
+    'Log Location' => 'Ubicación del registro',
+    'Current Level' => 'Nivel actual',
+    'Retention' => 'Retención',
+    'days' => 'días',
+    'Context' => 'Contexto',
+    'Entries' => 'Entradas',
+    'file' => 'archivo',
+    'files' => 'archivos',
+
     'Save Settings' => 'Guardar configuración',
 
     // Settings: Behavior
