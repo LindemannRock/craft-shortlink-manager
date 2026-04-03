@@ -46,7 +46,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
      */
     public static function icon(): string
     {
-        return '@appicons/link-simple.svg';
+        return '@lindemannrock/shortlinkmanager/icon-mask.svg';
     }
 
     /**
