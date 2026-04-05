@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.18.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.2...v5.18.0) (2026-04-05)
+
+
+### Features
+
+* Add 10 new language translations (FR, NL, ES, AR, IT, PT, JA, SV, DA, NO) ([2b46b18](https://github.com/LindemannRock/craft-shortlink-manager/commit/2b46b18baf5a436649e22f7e57d79eb909311453))
+
+
+### Bug Fixes
+
+* **icon:** update icon path for ShortLinkField ([ab2d277](https://github.com/LindemannRock/craft-shortlink-manager/commit/ab2d277cc5cae24816bf7e0b29f59dd578c51e8b))
+* read-only settings page accessibility flag ([156a14a](https://github.com/LindemannRock/craft-shortlink-manager/commit/156a14af6247bb3cb0015fdb777f1e06493d89b7))
+* update install experience text to use Craft translation ([5402356](https://github.com/LindemannRock/craft-shortlink-manager/commit/5402356e9e996056e176ff9e4144d798902c9073))
+
 ## [5.17.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.1...v5.17.2) (2026-03-26)
 
 
