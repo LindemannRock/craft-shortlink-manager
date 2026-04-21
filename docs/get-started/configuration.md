@@ -314,3 +314,7 @@ Supported tokens: `{siteHandle}`, `{siteId}`, `{siteUid}`.
 
 > [!NOTE]
 > `shortlinkBaseUrl` supports optional tokens `{siteHandle}`, `{siteId}`, and `{siteUid}` for multisite URL generation.
+
+## Translations
+
+ShortLink Manager includes translations for 12 languages. See [Translations](../resources/translations.md) for the full list and override instructions.

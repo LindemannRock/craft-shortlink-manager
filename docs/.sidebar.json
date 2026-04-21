@@ -47,7 +47,8 @@
         "collapsable": true,
         "open": false,
         "children": [
-            "resources/troubleshooting"
+            "resources/troubleshooting",
+            "resources/translations"
         ]
     }
 ]
