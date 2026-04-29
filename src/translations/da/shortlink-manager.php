@@ -189,14 +189,14 @@ return [
     'Row' => 'Række',
     'HTTP' => 'HTTP',
     'Enabled' => 'Aktiveret',
-    'Cancel' => 'Annullér',
+    'Cancel' => 'Annuller',
 
     // Export column headers
     'Date/Time' => 'Dato/Tid',
     'Code' => 'Kode',
     'Status' => 'Status',
     'Short Link URL' => 'Short Link URL',
-    'Site' => 'Site',
+    'Site' => 'Websted',
     'Source' => 'Kilde',
     'Destination URL' => 'Destinations-URL',
     'Referrer' => 'Referrer',
@@ -552,7 +552,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Brugerfladeindstillinger',
-    'Items Per Page' => 'Elementer per side',
+    'Items Per Page' => 'Elementer pr. side',
     'Number of {pluginName} to show per page' => 'Antal {pluginName} der skal vises per side',
     'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>itemsPerPage</code> i <code>config/shortlink-manager.php</code>.',
 

@@ -459,7 +459,7 @@ return [
     'Failed to queue cleanup job' => 'Échec de la mise en file d\'attente de la tâche de nettoyage',
 
     // Settings: Cache
-    'Cache Settings' => 'Paramètres de cache',
+    'Cache Settings' => 'Paramètres du cache',
     'Cache Storage Settings' => 'Paramètres de stockage du cache',
     'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.' => 'Comment stocker les données de cache. Utilisez Redis/Database pour les environnements à équilibrage de charge ou multi-serveurs.',
     'File System (default, single server)' => 'Système de fichiers (défaut, serveur unique)',

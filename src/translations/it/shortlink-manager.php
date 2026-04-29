@@ -271,7 +271,7 @@ return [
     '{singularName} Base URL' => 'URL base {singularName}',
     'System Overview' => 'Panoramica di sistema',
     'Quick Actions' => 'Azioni rapide',
-    'Plugin Name' => 'Nome plugin',
+    'Plugin Name' => 'Nome del plugin',
     'Enabled Sites' => 'Siti abilitati',
     'Slug Prefix' => 'Prefisso Slug',
     'Shortlink Base URL' => 'URL base Shortlink',

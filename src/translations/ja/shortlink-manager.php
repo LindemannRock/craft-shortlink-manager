@@ -461,7 +461,7 @@ return [
     'Failed to queue cleanup job' => '整理ジョブのキューへの追加に失敗しました',
 
     // Settings: Cache
-    'Cache Settings' => 'キャッシュ 設定',
+    'Cache Settings' => 'キャッシュ設定',
     'Cache Storage Settings' => 'キャッシュ 保存設定',
     'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.' => 'キャッシュ データの保存方法。負荷分散またはマルチサーバー環境では Redis/Database を使用してください。',
     'File System (default, single server)' => 'ファイルシステム（デフォルト、シングルサーバー）',

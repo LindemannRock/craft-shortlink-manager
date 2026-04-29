@@ -550,7 +550,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'إعدادات الواجهة',
-    'Items Per Page' => 'العناصر لكل صفحة',
+    'Items Per Page' => 'العناصر في الصفحة',
     'Number of {pluginName} to show per page' => 'عدد {pluginName} المعروضة لكل صفحة',
     'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>itemsPerPage</code> في <code>config/shortlink-manager.php</code>.',
 
@@ -628,7 +628,7 @@ return [
     'Logo' => 'الشعار',
     'Override the default QR code logo' => 'تجاوز شعار QR Code الافتراضي',
     'Using default logo from settings (click to override)' => 'استخدام الشعار الافتراضي من الإعدادات (انقر للتجاوز)',
-    'Actions' => 'إجراءات',
+    'Actions' => 'الإجراءات',
     'QR Code Actions' => 'إجراءات QR Code',
     'Download QR Code' => 'تنزيل QR Code',
     'Small (256px)' => 'صغير (256px)',

@@ -15,7 +15,7 @@ return [
 
     // Navigation
     'Links' => 'Links',
-    'Analytics' => 'Analysen',
+    'Analytics' => 'Analytik',
     'Logs' => 'Protokolle',
     'Settings' => 'Einstellungen',
     'Dashboard' => 'Dashboard',
