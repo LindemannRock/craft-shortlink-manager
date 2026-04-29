@@ -419,20 +419,6 @@ return [
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Questa impostazione è sovrascritta dall\'impostazione <code>enableGeoDetection</code> in <code>config/shortlink-manager.php</code>.',
 
     // Geo provider settings (from base partial)
-    'Geo Provider' => 'Provider Geo',
-    'Select the geo IP lookup provider. HTTPS providers recommended for privacy.' => 'Selezionare il provider di ricerca geo IP. Si raccomandano provider HTTPS per la privacy.',
-    'ip-api.com (HTTP free, HTTPS paid)' => 'ip-api.com (HTTP gratuito, HTTPS a pagamento)',
-    'ipapi.co (HTTPS, 1k/day free)' => 'ipapi.co (HTTPS, 1k/giorno gratuito)',
-    'ipinfo.io (HTTPS, 50k/month free)' => 'ipinfo.io (HTTPS, 50k/mese gratuito)',
-    'This is being overridden by the <code>geoProvider</code> setting in <code>config/shortlink-manager.php</code>.' => 'Questa impostazione è sovrascritta dall\'impostazione <code>geoProvider</code> in <code>config/shortlink-manager.php</code>.',
-    'API Key' => 'API Key',
-    'Optional. Required for paid tiers (enables HTTPS for ip-api.com Pro).' => 'Facoltativo. Obbligatorio per i piani a pagamento (abilita HTTPS per ip-api.com Pro).',
-    'This is being overridden by the <code>geoApiKey</code> setting in <code>config/shortlink-manager.php</code>.' => 'Questa impostazione è sovrascritta dall\'impostazione <code>geoApiKey</code> in <code>config/shortlink-manager.php</code>.',
-    'ip-api.com free tier uses HTTP. IP addresses will be transmitted unencrypted. Add an API key for HTTPS (Pro tier) or switch to ipapi.co/ipinfo.io.' => 'Il piano gratuito di ip-api.com usa HTTP. Gli indirizzi IP verranno trasmessi non crittografati. Aggiungere una API Key per HTTPS (piano Pro) o passare a ipapi.co/ipinfo.io.',
-    'ip-api.com: HTTP free tier (45 requests/min). Add API key for HTTPS (Pro tier, $13/month). IP addresses transmitted unencrypted without API key.' => 'ip-api.com: piano gratuito HTTP (45 richieste/min). Aggiungere API Key per HTTPS (piano Pro, $13/mese). Gli indirizzi IP vengono trasmessi non crittografati senza API Key.',
-    'ipapi.co: HTTPS with 1,000 free requests/day. API key optional (increases rate limits).' => 'ipapi.co: HTTPS con 1.000 richieste gratuite/giorno. API Key facoltativa (aumenta i limiti di velocità).',
-    'ipinfo.io: HTTPS with 50,000 free requests/month. API key optional (increases rate limits).' => 'ipinfo.io: HTTPS con 50.000 richieste gratuite/mese. API Key facoltativa (aumenta i limiti di velocità).',
-
     // IP salt error banner (from base partial)
     'error' => 'errore',
     'Configuration Required' => 'Configurazione richiesta',

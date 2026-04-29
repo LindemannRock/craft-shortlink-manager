@@ -419,20 +419,6 @@ return [
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>enableGeoDetection</code> 設定によって上書きされています。',
 
     // Geo provider settings (from base partial)
-    'Geo Provider' => 'Geo プロバイダー',
-    'Select the geo IP lookup provider. HTTPS providers recommended for privacy.' => 'Geo IP 検索プロバイダーを選択してください。プライバシーのため HTTPS プロバイダーを推奨します。',
-    'ip-api.com (HTTP free, HTTPS paid)' => 'ip-api.com（HTTP 無料、HTTPS 有料）',
-    'ipapi.co (HTTPS, 1k/day free)' => 'ipapi.co（HTTPS、1,000 件/日無料）',
-    'ipinfo.io (HTTPS, 50k/month free)' => 'ipinfo.io（HTTPS、50,000 件/月無料）',
-    'This is being overridden by the <code>geoProvider</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>geoProvider</code> 設定によって上書きされています。',
-    'API Key' => 'API Key',
-    'Optional. Required for paid tiers (enables HTTPS for ip-api.com Pro).' => '省略可能。有料プランでは必須です（ip-api.com Pro の HTTPS を有効にします）。',
-    'This is being overridden by the <code>geoApiKey</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>geoApiKey</code> 設定によって上書きされています。',
-    'ip-api.com free tier uses HTTP. IP addresses will be transmitted unencrypted. Add an API key for HTTPS (Pro tier) or switch to ipapi.co/ipinfo.io.' => 'ip-api.com の無料プランは HTTP を使用します。IP アドレスは暗号化されずに送信されます。HTTPS 用の API Key を追加するか（Pro プラン）、ipapi.co/ipinfo.io に切り替えてください。',
-    'ip-api.com: HTTP free tier (45 requests/min). Add API key for HTTPS (Pro tier, $13/month). IP addresses transmitted unencrypted without API key.' => 'ip-api.com: HTTP 無料プラン（45 リクエスト/分）。HTTPS 用の API Key を追加してください（Pro プラン、$13/月）。API Key なしの場合、IP アドレスは暗号化されずに送信されます。',
-    'ipapi.co: HTTPS with 1,000 free requests/day. API key optional (increases rate limits).' => 'ipapi.co: 1,000 リクエスト/日の無料 HTTPS プラン。API Key は省略可能（レート制限が増加します）。',
-    'ipinfo.io: HTTPS with 50,000 free requests/month. API key optional (increases rate limits).' => 'ipinfo.io: 50,000 リクエスト/月の無料 HTTPS プラン。API Key は省略可能（レート制限が増加します）。',
-
     // IP salt error banner (from base partial)
     'error' => 'エラー',
     'Configuration Required' => '設定が必要です',

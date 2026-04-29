@@ -417,20 +417,6 @@ return [
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>enableGeoDetection</code> في <code>config/shortlink-manager.php</code>.',
 
     // Geo provider settings (from base partial)
-    'Geo Provider' => 'مزوّد Geo',
-    'Select the geo IP lookup provider. HTTPS providers recommended for privacy.' => 'اختر مزوّد البحث الجغرافي عن IP. يُنصح بمزودي HTTPS للخصوصية.',
-    'ip-api.com (HTTP free, HTTPS paid)' => 'ip-api.com (HTTP مجاني، HTTPS مدفوع)',
-    'ipapi.co (HTTPS, 1k/day free)' => 'ipapi.co (HTTPS، 1,000/يوم مجانًا)',
-    'ipinfo.io (HTTPS, 50k/month free)' => 'ipinfo.io (HTTPS، 50,000/شهر مجانًا)',
-    'This is being overridden by the <code>geoProvider</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>geoProvider</code> في <code>config/shortlink-manager.php</code>.',
-    'API Key' => 'مفتاح API',
-    'Optional. Required for paid tiers (enables HTTPS for ip-api.com Pro).' => 'اختياري. مطلوب للمستويات المدفوعة (يُفعّل HTTPS لـ ip-api.com Pro).',
-    'This is being overridden by the <code>geoApiKey</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>geoApiKey</code> في <code>config/shortlink-manager.php</code>.',
-    'ip-api.com free tier uses HTTP. IP addresses will be transmitted unencrypted. Add an API key for HTTPS (Pro tier) or switch to ipapi.co/ipinfo.io.' => 'المستوى المجاني من ip-api.com يستخدم HTTP. ستُرسَل عناوين IP غير مشفّرة. أضف مفتاح API للحصول على HTTPS (المستوى Pro) أو انتقل إلى ipapi.co/ipinfo.io.',
-    'ip-api.com: HTTP free tier (45 requests/min). Add API key for HTTPS (Pro tier, $13/month). IP addresses transmitted unencrypted without API key.' => 'ip-api.com: مستوى HTTP المجاني (45 طلبًا/دقيقة). أضف مفتاح API للحصول على HTTPS (المستوى Pro، 13 دولارًا/شهر). تُرسَل عناوين IP غير مشفّرة بدون مفتاح API.',
-    'ipapi.co: HTTPS with 1,000 free requests/day. API key optional (increases rate limits).' => 'ipapi.co: HTTPS مع 1,000 طلب مجاني/يوم. مفتاح API اختياري (يزيد حدود الطلبات).',
-    'ipinfo.io: HTTPS with 50,000 free requests/month. API key optional (increases rate limits).' => 'ipinfo.io: HTTPS مع 50,000 طلب مجاني/شهر. مفتاح API اختياري (يزيد حدود الطلبات).',
-
     // IP salt error banner (from base partial)
     'error' => 'خطأ',
     'Configuration Required' => 'التهيئة مطلوبة',

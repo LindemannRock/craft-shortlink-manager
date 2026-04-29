@@ -417,20 +417,6 @@ return [
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>enableGeoDetection</code> in <code>config/shortlink-manager.php</code> überschrieben.',
 
     // Geo-Provider-Einstellungen (aus Base-Partial)
-    'Geo Provider' => 'Geo-Provider',
-    'Select the geo IP lookup provider. HTTPS providers recommended for privacy.' => 'Wählen Sie den Geo-IP-Lookup-Provider. HTTPS-Provider werden aus Datenschutzgründen empfohlen.',
-    'ip-api.com (HTTP free, HTTPS paid)' => 'ip-api.com (HTTP kostenlos, HTTPS kostenpflichtig)',
-    'ipapi.co (HTTPS, 1k/day free)' => 'ipapi.co (HTTPS, 1k/Tag kostenlos)',
-    'ipinfo.io (HTTPS, 50k/month free)' => 'ipinfo.io (HTTPS, 50k/Monat kostenlos)',
-    'This is being overridden by the <code>geoProvider</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>geoProvider</code> in <code>config/shortlink-manager.php</code> überschrieben.',
-    'API Key' => 'API-Schlüssel',
-    'Optional. Required for paid tiers (enables HTTPS for ip-api.com Pro).' => 'Optional. Erforderlich für kostenpflichtige Tarife (aktiviert HTTPS für ip-api.com Pro).',
-    'This is being overridden by the <code>geoApiKey</code> setting in <code>config/shortlink-manager.php</code>.' => 'Wird durch die Einstellung <code>geoApiKey</code> in <code>config/shortlink-manager.php</code> überschrieben.',
-    'ip-api.com free tier uses HTTP. IP addresses will be transmitted unencrypted. Add an API key for HTTPS (Pro tier) or switch to ipapi.co/ipinfo.io.' => 'ip-api.com Free-Tier verwendet HTTP. IP-Adressen werden unverschlüsselt übertragen. Fügen Sie einen API-Schlüssel für HTTPS (Pro-Tier) hinzu oder wechseln Sie zu ipapi.co/ipinfo.io.',
-    'ip-api.com: HTTP free tier (45 requests/min). Add API key for HTTPS (Pro tier, $13/month). IP addresses transmitted unencrypted without API key.' => 'ip-api.com: HTTP Free-Tier (45 Anfragen/Min.). API-Schlüssel für HTTPS hinzufügen (Pro-Tier, $13/Monat). IP-Adressen werden ohne API-Schlüssel unverschlüsselt übertragen.',
-    'ipapi.co: HTTPS with 1,000 free requests/day. API key optional (increases rate limits).' => 'ipapi.co: HTTPS mit 1.000 kostenlosen Anfragen/Tag. API-Schlüssel optional (erhöht Rate-Limits).',
-    'ipinfo.io: HTTPS with 50,000 free requests/month. API key optional (increases rate limits).' => 'ipinfo.io: HTTPS mit 50.000 kostenlosen Anfragen/Monat. API-Schlüssel optional (erhöht Rate-Limits).',
-
     // IP-Salt-Fehlerbanner (aus Base-Partial)
     'error' => 'Fehler',
     'Configuration Required' => 'Konfiguration erforderlich',

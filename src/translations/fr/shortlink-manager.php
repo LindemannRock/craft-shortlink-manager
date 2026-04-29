@@ -417,20 +417,6 @@ return [
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>enableGeoDetection</code> dans <code>config/shortlink-manager.php</code>.',
 
     // Geo provider settings (from base partial)
-    'Geo Provider' => 'Fournisseur Geo',
-    'Select the geo IP lookup provider. HTTPS providers recommended for privacy.' => 'Sélectionnez le fournisseur de géolocalisation IP. Les fournisseurs HTTPS sont recommandés pour la confidentialité.',
-    'ip-api.com (HTTP free, HTTPS paid)' => 'ip-api.com (HTTP gratuit, HTTPS payant)',
-    'ipapi.co (HTTPS, 1k/day free)' => 'ipapi.co (HTTPS, 1 000/jour gratuit)',
-    'ipinfo.io (HTTPS, 50k/month free)' => 'ipinfo.io (HTTPS, 50 000/mois gratuit)',
-    'This is being overridden by the <code>geoProvider</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>geoProvider</code> dans <code>config/shortlink-manager.php</code>.',
-    'API Key' => 'Clé API',
-    'Optional. Required for paid tiers (enables HTTPS for ip-api.com Pro).' => 'Facultatif. Requis pour les niveaux payants (active HTTPS pour ip-api.com Pro).',
-    'This is being overridden by the <code>geoApiKey</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>geoApiKey</code> dans <code>config/shortlink-manager.php</code>.',
-    'ip-api.com free tier uses HTTP. IP addresses will be transmitted unencrypted. Add an API key for HTTPS (Pro tier) or switch to ipapi.co/ipinfo.io.' => 'Le niveau gratuit d\'ip-api.com utilise HTTP. Les adresses IP seront transmises non chiffrées. Ajoutez une clé API pour HTTPS (niveau Pro) ou passez à ipapi.co/ipinfo.io.',
-    'ip-api.com: HTTP free tier (45 requests/min). Add API key for HTTPS (Pro tier, $13/month). IP addresses transmitted unencrypted without API key.' => 'ip-api.com : niveau gratuit HTTP (45 requêtes/min). Ajoutez une clé API pour HTTPS (niveau Pro, 13 $/mois). Les adresses IP sont transmises non chiffrées sans clé API.',
-    'ipapi.co: HTTPS with 1,000 free requests/day. API key optional (increases rate limits).' => 'ipapi.co : HTTPS avec 1 000 requêtes gratuites/jour. Clé API facultative (augmente les limites de débit).',
-    'ipinfo.io: HTTPS with 50,000 free requests/month. API key optional (increases rate limits).' => 'ipinfo.io : HTTPS avec 50 000 requêtes gratuites/mois. Clé API facultative (augmente les limites de débit).',
-
     // IP salt error banner (from base partial)
     'error' => 'erreur',
     'Configuration Required' => 'Configuration requise',

@@ -419,20 +419,6 @@ return [
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Den här inställningen åsidosätts av inställningen <code>enableGeoDetection</code> i <code>config/shortlink-manager.php</code>.',
 
     // Geo provider settings (from base partial)
-    'Geo Provider' => 'Geo-leverantör',
-    'Select the geo IP lookup provider. HTTPS providers recommended for privacy.' => 'Välj leverantör för geo-IP-sökning. HTTPS-leverantörer rekommenderas för integritetsskydd.',
-    'ip-api.com (HTTP free, HTTPS paid)' => 'ip-api.com (HTTP gratis, HTTPS betald)',
-    'ipapi.co (HTTPS, 1k/day free)' => 'ipapi.co (HTTPS, 1 000/dag gratis)',
-    'ipinfo.io (HTTPS, 50k/month free)' => 'ipinfo.io (HTTPS, 50 000/månad gratis)',
-    'This is being overridden by the <code>geoProvider</code> setting in <code>config/shortlink-manager.php</code>.' => 'Den här inställningen åsidosätts av inställningen <code>geoProvider</code> i <code>config/shortlink-manager.php</code>.',
-    'API Key' => 'API-nyckel',
-    'Optional. Required for paid tiers (enables HTTPS for ip-api.com Pro).' => 'Valfri. Krävs för betalda nivåer (aktiverar HTTPS för ip-api.com Pro).',
-    'This is being overridden by the <code>geoApiKey</code> setting in <code>config/shortlink-manager.php</code>.' => 'Den här inställningen åsidosätts av inställningen <code>geoApiKey</code> i <code>config/shortlink-manager.php</code>.',
-    'ip-api.com free tier uses HTTP. IP addresses will be transmitted unencrypted. Add an API key for HTTPS (Pro tier) or switch to ipapi.co/ipinfo.io.' => 'ip-api.coms gratisversion använder HTTP. IP-adresser överförs okrypterade. Lägg till en API-nyckel för HTTPS (Pro-version) eller byt till ipapi.co/ipinfo.io.',
-    'ip-api.com: HTTP free tier (45 requests/min). Add API key for HTTPS (Pro tier, $13/month). IP addresses transmitted unencrypted without API key.' => 'ip-api.com: HTTP-gratisversion (45 förfrågningar/min). Lägg till API-nyckel för HTTPS (Pro-version, $13/månad). IP-adresser överförs okrypterade utan API-nyckel.',
-    'ipapi.co: HTTPS with 1,000 free requests/day. API key optional (increases rate limits).' => 'ipapi.co: HTTPS med 1 000 gratisförfrågningar/dag. API-nyckel valfri (ökar hastighetsgränser).',
-    'ipinfo.io: HTTPS with 50,000 free requests/month. API key optional (increases rate limits).' => 'ipinfo.io: HTTPS med 50 000 gratisförfrågningar/månad. API-nyckel valfri (ökar hastighetsgränser).',
-
     // IP salt error banner (from base partial)
     'error' => 'fel',
     'Configuration Required' => 'Konfiguration krävs',
