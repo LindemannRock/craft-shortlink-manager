@@ -59,13 +59,11 @@
 		</div>
 	</div>
 
-	<form method="post" accept-charset="UTF-8">
-		<input type="hidden" name="action" value="shortlink-manager/settings/save">
-		{{ csrfInput() }}
-		{{ redirectInput('shortlink-manager/settings/qr-code') }}
-		{{ hiddenInput('section', 'qr-code') }}
+	{{ actionInput('shortlink-manager/settings/save') }}
+	{{ redirectInput('shortlink-manager/settings/qr-code') }}
+	{{ hiddenInput('section', 'qr-code') }}
 
-		<h2 style="margin-top: 0px;">{{ "Appearance & Style"|t('shortlink-manager') }}</h2>
+		<h2 class="first">{{ "Appearance & Style"|t('shortlink-manager') }}</h2>
 
 		{{ forms.textField({
         label: "Size"|t('shortlink-manager'),
@@ -312,8 +310,6 @@
 				<a href="{{ url('shortlink-manager/settings/cache') }}">{{ "Go to Cache Settings"|t('shortlink-manager') }}</a>
 			</p>
 		</div>
-
-	</form>
 
 	{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}

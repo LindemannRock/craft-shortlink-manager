@@ -22,13 +22,11 @@
 
 {% block content %}
 
-	<form method="post" accept-charset="UTF-8">
-		{{ actionInput('shortlink-manager/settings/save') }}
-		{{ csrfInput() }}
-		{{ redirectInput('shortlink-manager/settings/cache') }}
-		{{ hiddenInput('section', 'cache') }}
+	{{ actionInput('shortlink-manager/settings/save') }}
+	{{ redirectInput('shortlink-manager/settings/cache') }}
+	{{ hiddenInput('section', 'cache') }}
 
-		<h2 style="margin-top: 0px;">{{ "Cache Storage Settings"|t('shortlink-manager') }}</h2>
+		<h2 class="first">{{ "Cache Storage Settings"|t('shortlink-manager') }}</h2>
 
 		{{ forms.selectField({
 			label: 'Cache Storage Method'|t('shortlink-manager'),
@@ -156,8 +154,6 @@
 				</p>
 			</div>
 		{% endif %}
-
-	</form>
 
 	{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}

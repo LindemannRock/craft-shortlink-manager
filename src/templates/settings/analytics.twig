@@ -24,13 +24,11 @@
 
 {% block content %}
 
-    <form method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="shortlink-manager/settings/save">
-        {{ csrfInput() }}
-        {{ redirectInput('shortlink-manager/settings/analytics') }}
-        {{ hiddenInput('section', 'analytics') }}
+    {{ actionInput('shortlink-manager/settings/save') }}
+    {{ redirectInput('shortlink-manager/settings/analytics') }}
+    {{ hiddenInput('section', 'analytics') }}
 
-    <h2 style="margin-top: 0px;">{{ "Analytics"|t('shortlink-manager') }}</h2>
+    <h2 class="first">{{ "Analytics"|t('shortlink-manager') }}</h2>
 
     {{ forms.lightswitchField({
         label: "Enable Analytics"|t('shortlink-manager'),
@@ -146,8 +144,6 @@
         </div>
 
     </div>{# end #analytics-settings #}
-
-</form>
 
     {% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}

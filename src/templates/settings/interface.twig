@@ -22,13 +22,11 @@
 
 {% block content %}
 
-	<form method="post" accept-charset="UTF-8">
-		{{ actionInput('shortlink-manager/settings/save') }}
-		{{ csrfInput() }}
-		{{ redirectInput('shortlink-manager/settings/interface') }}
-		{{ hiddenInput('section', 'interface') }}
+	{{ actionInput('shortlink-manager/settings/save') }}
+	{{ redirectInput('shortlink-manager/settings/interface') }}
+	{{ hiddenInput('section', 'interface') }}
 
-		<h2 style="margin-top: 0px;">{{ "Interface Settings"|t('shortlink-manager') }}</h2>
+		<h2 class="first">{{ "Interface Settings"|t('shortlink-manager') }}</h2>
 
 		{{ forms.textField({
             label: "Items Per Page"|t('shortlink-manager'),
@@ -45,8 +43,6 @@
                 "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
             errors: settings.getErrors('itemsPerPage')
         }) }}
-
-	</form>
 
 	{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}

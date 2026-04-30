@@ -27,13 +27,11 @@
 	{% set smartLinksPlugin = craft.app.plugins.getPlugin('smartlink-manager') ?? craft.app.plugins.getPlugin('smart-links') %}
 	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smartlink-manager') or craft.app.plugins.isPluginInstalled('smart-links') %}
 
-	<form method="post" accept-charset="UTF-8">
-		<input type="hidden" name="action" value="shortlink-manager/settings/save">
-		{{ csrfInput() }}
-		{{ redirectInput('shortlink-manager/settings/general') }}
-		{{ hiddenInput('section', 'general') }}
+	{{ actionInput('shortlink-manager/settings/save') }}
+	{{ redirectInput('shortlink-manager/settings/general') }}
+	{{ hiddenInput('section', 'general') }}
 
-		<h2 style="margin-top: 0px;">{{ "General Settings"|t('shortlink-manager') }}</h2>
+		<h2 class="first">{{ "General Settings"|t('shortlink-manager') }}</h2>
 
 		{{ forms.textField({
         label: "Plugin Name"|t('shortlink-manager'),
@@ -406,8 +404,6 @@
         warning: settings.isOverriddenByConfig('logLevel') ?
             "This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
     }) }}
-
-	</form>
 
 	{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}

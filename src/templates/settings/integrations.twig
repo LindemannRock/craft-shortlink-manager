@@ -22,13 +22,11 @@
 
 {% block content %}
 
-    <form method="post" accept-charset="UTF-8">
-        {{ actionInput('shortlink-manager/settings/save') }}
-        {{ csrfInput() }}
-        {{ redirectInput('shortlink-manager/settings/integrations') }}
-        {{ hiddenInput('section', 'integrations') }}
+    {{ actionInput('shortlink-manager/settings/save') }}
+    {{ redirectInput('shortlink-manager/settings/integrations') }}
+    {{ hiddenInput('section', 'integrations') }}
 
-        <h2 style="margin-top: 0px;">{{ "Third-Party Integrations"|t('shortlink-manager') }}</h2>
+        <h2 class="first">{{ "Third-Party Integrations"|t('shortlink-manager') }}</h2>
 
         <div class="field">
             <p class="light">{{ "Integrate {pluginName} with third-party analytics and tracking services to push click events to Google Tag Manager, Google Analytics, and other platforms."|t('shortlink-manager', { pluginName: shortlinkHelper.fullName }) }}</p>
@@ -468,8 +466,6 @@
                 }
             });
         {% endjs %}
-
-    </form>
 
     {% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}
