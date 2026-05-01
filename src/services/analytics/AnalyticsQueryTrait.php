@@ -16,7 +16,7 @@ use lindemannrock\base\helpers\DateRangeHelper;
  *
  * @author    LindemannRock
  * @package   ShortLinkManager
- * @since     5.7.0
+ * @since     5.13.0
  */
 trait AnalyticsQueryTrait
 {

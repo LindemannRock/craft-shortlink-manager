@@ -26,7 +26,7 @@ use yii\web\Request;
  *
  * @author    LindemannRock
  * @package   ShortLinkManager
- * @since     5.7.0
+ * @since     5.13.0
  */
 class AnalyticsTrackingService
 {

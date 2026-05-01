@@ -13,7 +13,7 @@ namespace lindemannrock\shortlinkmanager\integrations;
  *
  * Contract for all third-party analytics integrations
  *
- * @since 5.1.0
+ * @since 5.0.0
  */
 interface IntegrationInterface
 {

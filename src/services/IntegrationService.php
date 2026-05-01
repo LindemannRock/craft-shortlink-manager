@@ -15,7 +15,7 @@ use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
  * Central manager for all third-party analytics integrations
  * Handles loading, initialization, and routing of events to enabled integrations
  *
- * @since 5.1.0
+ * @since 5.0.0
  */
 class IntegrationService extends Component
 {

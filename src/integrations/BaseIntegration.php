@@ -18,7 +18,7 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  * Abstract base class for all third-party integrations
  * Provides common functionality and helpers
  *
- * @since 5.1.0
+ * @since 5.0.0
  */
 abstract class BaseIntegration implements IntegrationInterface
 {

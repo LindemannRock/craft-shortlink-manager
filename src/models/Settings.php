@@ -776,8 +776,6 @@ class Settings extends Model
 
     /**
      * Expand supported site tokens in shortlink base pattern.
-     *
-     * @since 5.13.0
      */
     private function expandShortlinkBaseUrl(string $baseUrl, int $siteId): string
     {
