@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.18.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.0...v5.18.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* apply config overrides through shared settings helper ([5454fca](https://github.com/LindemannRock/craft-shortlink-manager/commit/5454fca8a47c951782279f6fff679b7e67717dc8))
+* drop PAT requirement for release-please — use built-in GITHUB_TOKEN ([dbcc230](https://github.com/LindemannRock/craft-shortlink-manager/commit/dbcc230043c7eb6fea1df713865eea81271b82bd))
+* **integrations:** update version annotations to reflect correct release versions ([a4d9765](https://github.com/LindemannRock/craft-shortlink-manager/commit/a4d97652a51b1375a0b29ddabb0b57d77f882c69))
+* **translations:** correct various translation strings across locales ([6b484f6](https://github.com/LindemannRock/craft-shortlink-manager/commit/6b484f6b46697cb3d245cdcc949cfa996a12d597))
+* **translations:** remove deprecated geo provider settings from multiple locales ([08db00f](https://github.com/LindemannRock/craft-shortlink-manager/commit/08db00f18adf8bcb150bc0efff825b9b4f09e2e1))
+* update geo-settings inclusion to use pluginHandle instead of translationCategory ([1861c9e](https://github.com/LindemannRock/craft-shortlink-manager/commit/1861c9e94aa99936cb2b1acbd029cd40e3062c9a))
+
 ## [5.18.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.2...v5.18.0) (2026-04-05)
 
 
