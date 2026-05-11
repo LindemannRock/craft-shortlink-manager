@@ -48,21 +48,26 @@ class ShortLinkType extends BaseElementLinkType
     {
         $id = sprintf('shortlink%s', mt_rand());
 
-        // Get the site ID based on the current context
+        $request = Craft::$app->getRequest();
+
+        // Get the site ID based on the current context. Skip request-sniffing under
+        // console (getIsPost/getQueryParam are web-only) and fall through to current site.
         $siteId = null;
 
-        // Try to get site from POST data (when saving)
-        if (Craft::$app->getRequest()->getIsPost()) {
-            $siteId = Craft::$app->getRequest()->getBodyParam('siteId');
-        }
+        if (!$request->getIsConsoleRequest()) {
+            // Try to get site from POST data (when saving)
+            if ($request->getIsPost()) {
+                $siteId = $request->getBodyParam('siteId');
+            }
 
-        // Try to get site from query param (when editing)
-        if (!$siteId) {
-            $siteHandle = Craft::$app->getRequest()->getQueryParam('site');
-            if ($siteHandle) {
-                $site = Craft::$app->sites->getSiteByHandle($siteHandle);
-                if ($site) {
-                    $siteId = $site->id;
+            // Try to get site from query param (when editing)
+            if (!$siteId) {
+                $siteHandle = $request->getQueryParam('site');
+                if ($siteHandle) {
+                    $site = Craft::$app->sites->getSiteByHandle($siteHandle);
+                    if ($site) {
+                        $siteId = $site->id;
+                    }
                 }
             }
         }
@@ -190,21 +195,30 @@ class ShortLinkType extends BaseElementLinkType
      */
     private function detectCurrentSiteId(): int
     {
+        $request = Craft::$app->getRequest();
+
+        // Console runs (e.g. craft resave/entries) have no HTTP request context.
+        // getIsPost(), getQueryParam(), and other web-only methods would fatal —
+        // bail out early and use the current site.
+        if ($request->getIsConsoleRequest()) {
+            return Craft::$app->getSites()->getCurrentSite()->id;
+        }
+
         // On frontend, always use the current site
-        if (Craft::$app->getRequest()->getIsSiteRequest()) {
+        if ($request->getIsSiteRequest()) {
             return Craft::$app->getSites()->getCurrentSite()->id;
         }
 
         // In CP, try POST data first (when saving)
-        if (Craft::$app->getRequest()->getIsPost()) {
-            $siteId = Craft::$app->getRequest()->getBodyParam('siteId');
+        if ($request->getIsPost()) {
+            $siteId = $request->getBodyParam('siteId');
             if ($siteId) {
                 return (int)$siteId;
             }
         }
 
         // Try query param (CP editing)
-        $siteHandle = Craft::$app->getRequest()->getQueryParam('site');
+        $siteHandle = $request->getQueryParam('site');
         if ($siteHandle && $site = Craft::$app->sites->getSiteByHandle($siteHandle)) {
             return $site->id;
         }
