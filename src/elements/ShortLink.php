@@ -465,11 +465,54 @@ class ShortLink extends Element
     protected static function defineSortOptions(): array
     {
         return [
+            [
+                'label' => Craft::t('shortlink-manager', 'Shortlink'),
+                'orderBy' => 'elements_sites.title',
+                'attribute' => 'title',
+                'defaultDir' => 'asc',
+            ],
             'slug' => Craft::t('shortlink-manager', 'Code/Slug'),
+            [
+                'label' => Craft::t('shortlink-manager', 'Type'),
+                'orderBy' => 'shortlinkmanager.linkType',
+                'attribute' => 'linkType',
+                'defaultDir' => 'asc',
+            ],
+            [
+                'label' => Craft::t('shortlink-manager', 'Destination'),
+                'orderBy' => 'shortlinkmanager_content.destinationUrl',
+                'attribute' => 'destinationUrl',
+                'defaultDir' => 'asc',
+            ],
+            [
+                // Sort by folder name via correlated subquery — the
+                // shortlinkmanager_folders table isn't in the element query's
+                // JOIN graph (only the folderId column is selected), and a
+                // subquery is non-invasive vs. modifying beforePrepare().
+                'label' => Craft::t('shortlink-manager', 'Folder'),
+                'orderBy' => '(SELECT [[name]] FROM {{%shortlinkmanager_folders}} WHERE [[id]] = [[shortlinkmanager.folderId]])',
+                'attribute' => 'folder',
+                'defaultDir' => 'asc',
+            ],
+            [
+                // Sorts by the per-site enabled flag. The plugin also computes
+                // an "expired" status from dateExpired, but the index column
+                // here surfaces enabled/disabled — match that.
+                'label' => Craft::t('app', 'Status'),
+                'orderBy' => 'elements_sites.enabled',
+                'attribute' => 'status',
+                'defaultDir' => 'desc',
+            ],
             [
                 'label' => Craft::t('shortlink-manager', 'Interactions'),
                 'orderBy' => 'shortlinkmanager.hits',
                 'attribute' => 'hits',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('app', 'Post Date'),
+                'orderBy' => 'shortlinkmanager.postDate',
+                'attribute' => 'postDate',
                 'defaultDir' => 'desc',
             ],
             [
