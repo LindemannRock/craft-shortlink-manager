@@ -495,6 +495,16 @@ class ShortLink extends Element
                 'defaultDir' => 'asc',
             ],
             [
+                // Tags is a many-to-many relation — no single value to sort
+                // alphabetically. Sort by tag COUNT instead, so "most tagged"
+                // and "untagged" links bubble up. Different semantic from the
+                // column display, but answers a real operator question.
+                'label' => Craft::t('shortlink-manager', 'Tags'),
+                'orderBy' => '(SELECT COUNT(*) FROM {{%shortlinkmanager_shortlink_tags}} WHERE [[shortLinkId]] = [[elements.id]])',
+                'attribute' => 'tags',
+                'defaultDir' => 'desc',
+            ],
+            [
                 // Sorts by the per-site enabled flag. The plugin also computes
                 // an "expired" status from dateExpired, but the index column
                 // here surfaces enabled/disabled — match that.
