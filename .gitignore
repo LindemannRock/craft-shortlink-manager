@@ -49,3 +49,4 @@ test-results/
 /.phpunit.result.cache
 /phpunit.xml
 /coverage/
+/coverage.xml
