@@ -13,14 +13,114 @@ use yii\web\Response;
 
 class TaxonomyController extends Controller
 {
+    /**
+     * List folders and tags.
+     *
+     * Follows the canonical CP table index-page pattern (in-memory variant) —
+     * see plugins/base/docs/template-guides/cp-table-index-pattern.md.
+     * Controller owns query-param parsing, allowlist validation, filter, and
+     * pagination; the Twig template stays presentational.
+     */
     public function actionIndex(): Response
     {
         $this->requirePermission('shortLinkManager:manageTaxonomy');
 
+        $request = Craft::$app->getRequest();
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $taxonomy = ShortLinkManager::$plugin->taxonomy;
+
+        // ---- Param parsing + allowlist validation -------------------------
+
+        $view = (string) $request->getQueryParam('view', 'folders');
+        $validViews = ['folders', 'tags'];
+        if (!in_array($view, $validViews, true)) {
+            $view = 'folders';
+        }
+
+        // 64-char defensive clamp on free-text search.
+        $search = trim((string) $request->getQueryParam('search', ''));
+        if (mb_strlen($search) > 64) {
+            $search = mb_substr($search, 0, 64);
+        }
+
+        $validSortFields = ['name', 'usageCount'];
+        $sort = (string) $request->getParam('sort', 'name');
+        if (!in_array($sort, $validSortFields, true)) {
+            $sort = 'name';
+        }
+        $dir = strtolower((string) $request->getParam('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        // ---- Load + filter ------------------------------------------------
+
+        $items = $view === 'tags'
+            ? $taxonomy->getTagsForIndex()
+            : $taxonomy->getFoldersForIndex();
+
+        if ($search !== '') {
+            $needle = mb_strtolower($search);
+            $items = array_values(array_filter(
+                $items,
+                static fn(array $i): bool =>
+                    str_contains(mb_strtolower($i['name']), $needle)
+                    || str_contains(mb_strtolower($i['slug']), $needle)
+            ));
+        }
+
+        // ---- Sort + paginate ----------------------------------------------
+
+        $items = $this->sortItems($items, $sort, $dir);
+
+        $totalCount = count($items);
+        $page = max(1, (int) $request->getParam('page', 1));
+        $limit = max(1, (int) $settings->itemsPerPage);
+        $offset = ($page - 1) * $limit;
+        $items = array_slice($items, $offset, $limit);
+
         return $this->renderTemplate('shortlink-manager/taxonomy/index', [
-            'folders' => ShortLinkManager::$plugin->taxonomy->getFoldersForIndex(),
-            'tags' => ShortLinkManager::$plugin->taxonomy->getTagsForIndex(),
+            'currentView' => $view,
+            'items' => $items,
+            'search' => $search,
+            'sort' => $sort,
+            'dir' => $dir,
+            'page' => $page,
+            'limit' => $limit,
+            'totalCount' => $totalCount,
+            'canCreate' => Craft::$app->getUser()->checkPermission('shortLinkManager:createTaxonomy'),
+            'canEdit' => Craft::$app->getUser()->checkPermission('shortLinkManager:editTaxonomy'),
+            'canDelete' => Craft::$app->getUser()->checkPermission('shortLinkManager:deleteTaxonomy'),
         ]);
+    }
+
+    /**
+     * Sort folder/tag rows in PHP. Both views share the
+     * {id, name, slug, usageCount} shape, so one helper covers both.
+     *
+     * The sort-field allowlist is enforced in actionIndex() before we land
+     * here, so the default branch is reached only on a logic bug.
+     *
+     * @param array<int, array{id:int, name:string, slug:string, usageCount:int}> $items
+     * @return array<int, array{id:int, name:string, slug:string, usageCount:int}>
+     */
+    private function sortItems(array $items, string $sort, string $dir): array
+    {
+        $multiplier = $dir === 'desc' ? -1 : 1;
+
+        usort($items, function(array $a, array $b) use ($sort, $multiplier): int {
+            $cmp = match ($sort) {
+                'usageCount' => $a['usageCount'] <=> $b['usageCount'],
+                default => strcasecmp($a['name'], $b['name']),
+            };
+
+            // Stable tie-break by name so equal usage counts don't shuffle
+            // between requests — keeps pagination predictable.
+            if ($cmp === 0 && $sort !== 'name') {
+                $cmp = strcasecmp($a['name'], $b['name']);
+            }
+
+            return $cmp * $multiplier;
+        });
+
+        return $items;
     }
 
     public function actionEditFolder(int $folderId): Response

@@ -7,8 +7,8 @@ namespace lindemannrock\shortlinkmanager\tests\Integration;
 use craft\helpers\Json;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use lindemannrock\base\testing\StubWebRequest;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
-use lindemannrock\shortlinkmanager\tests\Stubs\StubRequest;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 
 /**
@@ -76,7 +76,7 @@ final class ClickTrackingTest extends TestCase
     public function testTrackClickWritesAnalyticsRowWithExpectedFields(): void
     {
         $link = $this->seedShortLink(['destinationUrl' => 'https://example.com/dest']);
-        $request = new StubRequest(userIp: '203.0.113.42');
+        $request = new StubWebRequest(userIp: '203.0.113.42');
 
         $this->analytics->trackClick($link, $request, 'qr');
 
@@ -84,7 +84,7 @@ final class ClickTrackingTest extends TestCase
         $this->assertNotNull($row, 'trackClick() should persist a single analytics row.');
         $this->assertSame($link->siteId, (int) $row['siteId']);
         $this->assertSame('https://example.com/dest', $row['destinationUrl']);
-        $this->assertSame('Mozilla/5.0 (Test) ShortLinkManagerStub/1.0', $row['userAgent']);
+        $this->assertSame('Mozilla/5.0 (Test) LindemannRockStub/1.0', $row['userAgent']);
         $this->assertSame('https://example.com/some/page', $row['referer']);
 
         // Source is stored inside the metadata JSON blob.
@@ -98,7 +98,7 @@ final class ClickTrackingTest extends TestCase
         $link = $this->seedShortLink();
         $expectedHash = hash('sha256', '203.0.113.42' . self::TEST_SALT);
 
-        $this->analytics->trackClick($link, new StubRequest(userIp: '203.0.113.42'));
+        $this->analytics->trackClick($link, new StubWebRequest(userIp: '203.0.113.42'));
 
         $row = $this->fetchRow('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]);
         $this->assertNotNull($row);
@@ -109,7 +109,7 @@ final class ClickTrackingTest extends TestCase
     public function testTrackClickProducesSameHashForSameIpAcrossCalls(): void
     {
         $link = $this->seedShortLink();
-        $request = new StubRequest(userIp: '203.0.113.42');
+        $request = new StubWebRequest(userIp: '203.0.113.42');
 
         $this->analytics->trackClick($link, $request);
         $this->analytics->trackClick($link, $request);
@@ -133,8 +133,8 @@ final class ClickTrackingTest extends TestCase
         $link = $this->seedShortLink();
         // Two IPs in the same /24 must collapse to the same anonymised form
         // (192.168.1.0), then hash to the same value.
-        $this->analytics->trackClick($link, new StubRequest(userIp: '192.168.1.42'));
-        $this->analytics->trackClick($link, new StubRequest(userIp: '192.168.1.99'));
+        $this->analytics->trackClick($link, new StubWebRequest(userIp: '192.168.1.42'));
+        $this->analytics->trackClick($link, new StubWebRequest(userIp: '192.168.1.99'));
 
         $hashes = (new \craft\db\Query())
             ->from('{{%shortlinkmanager_analytics}}')
@@ -155,7 +155,7 @@ final class ClickTrackingTest extends TestCase
         $settings->enableAnalytics = false;
 
         $link = $this->seedShortLink();
-        $this->analytics->trackClick($link, new StubRequest());
+        $this->analytics->trackClick($link, new StubWebRequest());
 
         $this->assertSame(
             0,
@@ -174,7 +174,7 @@ final class ClickTrackingTest extends TestCase
         $settings->ipHashSalt = '$SHORTLINK_MANAGER_IP_SALT';
 
         $link = $this->seedShortLink();
-        $this->analytics->trackClick($link, new StubRequest(userIp: '203.0.113.42'));
+        $this->analytics->trackClick($link, new StubWebRequest(userIp: '203.0.113.42'));
 
         $row = $this->fetchRow('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]);
         $this->assertNotNull($row, 'A missing salt must not crash trackClick — the row should still land.');
