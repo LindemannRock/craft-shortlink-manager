@@ -1,18 +1,8 @@
 {% extends 'lindemannrock-base/_layouts/cp-table' %}
 
-{% set currentView = craft.app.request.getParam('view', 'folders') %}
-{% set search = craft.app.request.getParam('search', '') %}
-
-{% set folderItems = folders ?? [] %}
-{% set tagItems = tags ?? [] %}
-{% set tableItems = currentView == 'tags' ? tagItems : folderItems %}
-{% if search %}
-    {% set searchLower = search|lower %}
-    {% set tableItems = tableItems|filter(i =>
-        searchLower in (i.name ?? '')|lower
-        or searchLower in (i.slug ?? '')|lower
-    ) %}
-{% endif %}
+{# Filters arrive pre-validated from the controller. Don't re-validate or
+   default them here — the controller has already snapped off-list values
+   back to defaults. #}
 
 {% set tableConfig = {
     plugin: {
@@ -39,43 +29,40 @@
         placeholder: currentView == 'tags' ? 'Search tags...'|t('shortlink-manager') : 'Search folders...'|t('shortlink-manager'),
         value: search,
     },
+    sort: {
+        field: sort,
+        direction: dir,
+    },
     table: {
-        columns: currentView == 'tags'
-            ? [
-                { key: 'name', label: 'Name'|t('app') },
-                { key: 'usageCount', label: 'Used by'|t('shortlink-manager'), hideable: true },
-            ]
-            : [
-                { key: 'name', label: 'Name'|t('app') },
-                { key: 'usageCount', label: 'Used by'|t('shortlink-manager'), hideable: true },
-            ],
-        items: tableItems,
+        columns: [
+            { key: 'name', label: 'Name'|t('app'), sortable: true },
+            { key: 'usageCount', label: 'Used by'|t('shortlink-manager'), sortable: true, hideable: true },
+        ],
+        items: items,
         emptyMessage: currentView == 'tags'
             ? 'No tags found.'|t('shortlink-manager')
             : 'No folders found.'|t('shortlink-manager'),
     },
     pagination: {
-        page: 1,
-        limit: tableItems|length,
-        totalCount: tableItems|length,
+        page: page,
+        limit: limit,
+        totalCount: totalCount,
         itemLabel: {
             singular: currentView == 'tags' ? 'tag'|t('shortlink-manager') : 'folder'|t('shortlink-manager'),
             plural: currentView == 'tags' ? 'tags'|t('shortlink-manager') : 'folders'|t('shortlink-manager'),
         },
     },
-    checkboxes: true,
+    checkboxes: canDelete,
     rowActions: true,
-    newButton: currentView == 'folders'
+    newButton: canCreate ? (currentView == 'folders'
         ? {
             url: url('shortlink-manager/taxonomy/folders/new'),
             label: 'New Folder'|t('shortlink-manager'),
-            permission: 'shortLinkManager:createTaxonomy',
         }
         : {
             url: url('shortlink-manager/taxonomy/tags/new'),
             label: 'New Tag'|t('shortlink-manager'),
-            permission: 'shortLinkManager:createTaxonomy',
-        },
+        }) : null,
 } %}
 
 {% block tableRow %}
@@ -98,21 +85,18 @@
                 icon: 'settings',
                 title: 'Actions'|t('app'),
                 items: [
-                    {
+                    canEdit ? {
                         label: 'Edit'|t('app'),
                         url: url('shortlink-manager/taxonomy/folders/' ~ item.id),
-                        permission: 'shortLinkManager:editTaxonomy',
-                    },
-                    {type: 'divider'},
-                    {
+                    } : null,
+                    (canEdit and canDelete) ? {type: 'divider'} : null,
+                    canDelete ? {
                         label: 'Delete'|t('app'),
                         class: 'error',
                         jsAction: 'delete-folder',
-                        confirm: 'Delete this folder?'|t('shortlink-manager'),
                         title: item.usageCount > 0 ? 'This also unassigns the folder from linked shortlinks.'|t('shortlink-manager') : null,
-                        permission: 'shortLinkManager:deleteTaxonomy',
-                    },
-                ],
+                    } : null,
+                ]|filter(v => v is not null),
             },
         } only %}
     {% else %}
@@ -123,29 +107,26 @@
                 icon: 'settings',
                 title: 'Actions'|t('app'),
                 items: [
-                    {
+                    canEdit ? {
                         label: 'Edit'|t('app'),
                         url: url('shortlink-manager/taxonomy/tags/' ~ item.id),
-                        permission: 'shortLinkManager:editTaxonomy',
-                    },
-                    {type: 'divider'},
-                    {
+                    } : null,
+                    (canEdit and canDelete) ? {type: 'divider'} : null,
+                    canDelete ? {
                         label: 'Delete'|t('app'),
                         class: 'error',
                         jsAction: 'delete-tag',
-                        confirm: 'Delete this tag?'|t('shortlink-manager'),
-                        permission: 'shortLinkManager:deleteTaxonomy',
-                    },
-                ],
+                    } : null,
+                ]|filter(v => v is not null),
             },
         } only %}
     {% endif %}
 {% endblock %}
 
 {% block bulkActions %}
-    {% if currentUser.can('shortLinkManager:deleteTaxonomy') %}
+    {% if canDelete %}
         <button type="button" class="btn secondary" id="lr-bulk-delete-btn">
-            {{ 'Delete'|t('app') }} (<span id="lr-selected-count">0</span>)
+            {{ 'Delete'|t('app') }} (<span class="lr-bulk-count">0</span>)
         </button>
     {% endif %}
 {% endblock %}
@@ -153,28 +134,40 @@
 {% block scripts %}
 <script>
 (function() {
-    const tableBody = document.getElementById('lr-table-body');
+    if (typeof Craft === 'undefined') return;
+
     const currentView = {{ currentView|json_encode|raw }};
-    const emptyMessage = {{ (currentView == 'tags'
-        ? 'No tags found.'|t('shortlink-manager')
-        : 'No folders found.'|t('shortlink-manager'))|json_encode|raw }};
-    const bulkDeleteBtn = document.getElementById('lr-bulk-delete-btn');
+    const tableBody = document.getElementById('lr-table-body');
+    const emptyMessage = currentView === 'tags'
+        ? {{ 'No tags found.'|t('shortlink-manager')|json_encode|raw }}
+        : {{ 'No folders found.'|t('shortlink-manager')|json_encode|raw }};
+
+    // Pre-translated strings: keep |t() in Twig (so they're translatable)
+    // and emit as JSON-encoded JS literals via |json_encode|raw — avoids
+    // the |e('js') trap (produces \uXXXX garbage when re-quoted).
+    const T = {
+        deleteFolderConfirm: {{ 'Delete this folder?'|t('shortlink-manager')|json_encode|raw }},
+        deleteTagConfirm: {{ 'Delete this tag?'|t('shortlink-manager')|json_encode|raw }},
+        folderDeleted: {{ 'Folder deleted.'|t('shortlink-manager')|json_encode|raw }},
+        tagDeleted: {{ 'Tag deleted.'|t('shortlink-manager')|json_encode|raw }},
+        deleteFolderFailed: {{ 'Could not delete folder.'|t('shortlink-manager')|json_encode|raw }},
+        deleteTagFailed: {{ 'Could not delete tag.'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteFoldersConfirm: {{ 'Delete {count} folder(s)? This will also unassign them from linked shortlinks.'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteTagsConfirm: {{ 'Delete {count} tag(s)?'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteFoldersFailed: {{ 'Could not delete folders.'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteTagsFailed: {{ 'Could not delete tags.'|t('shortlink-manager')|json_encode|raw }},
+        deleteCompleted: {{ 'Delete completed.'|t('shortlink-manager')|json_encode|raw }},
+    };
 
     function removeDeletedRow(id) {
-        if (!tableBody) {
-            return;
-        }
+        if (!tableBody) return;
 
         const row = tableBody.querySelector('.lr-data-row[data-id="' + CSS.escape(String(id)) + '"]');
-        if (!row) {
-            return;
-        }
+        if (!row) return;
 
         row.remove();
 
-        if (tableBody.querySelector('.lr-data-row')) {
-            return;
-        }
+        if (tableBody.querySelector('.lr-data-row')) return;
 
         const emptyRow = document.createElement('tr');
         emptyRow.className = 'lr-empty-row';
@@ -193,43 +186,37 @@
         ids.forEach(removeDeletedRow);
     }
 
+    function selectedIds() {
+        return window.lrTableSelection ? window.lrTableSelection.getSelectedIds() : [];
+    }
+
     function sendDeleteRequest(endpoint, key, id, successMessage, failureMessage) {
         const data = {};
         data[key] = id;
 
-        Craft.sendActionRequest('POST', endpoint, {data})
+        Craft.sendActionRequest('POST', endpoint, {data: data})
             .then(function(response) {
-                const message = response.data && response.data.message
-                    ? response.data.message
-                    : Craft.t('shortlink-manager', successMessage);
+                const message = response.data && response.data.message ? response.data.message : successMessage;
                 Craft.cp.displayNotice(message);
                 removeDeletedRow(id);
             })
             .catch(function(response) {
                 const message = response && response.response && response.response.data && response.response.data.message
                     ? response.response.data.message
-                    : Craft.t('shortlink-manager', failureMessage);
+                    : failureMessage;
                 Craft.cp.displayError(message);
             });
     }
 
-    function sendBulkDeleteRequest(endpoint, key, ids, confirmMessage, failureMessage) {
-        if (!ids.length) {
-            return;
-        }
-
-        if (!confirm(confirmMessage.replace('{count}', ids.length))) {
-            return;
-        }
+    function sendBulkDeleteRequest(endpoint, key, ids, failureMessage) {
+        if (!ids.length) return;
 
         const data = {};
         data[key] = ids;
 
-        Craft.sendActionRequest('POST', endpoint, {data})
+        Craft.sendActionRequest('POST', endpoint, {data: data})
             .then(function(response) {
-                const message = response.data && response.data.message
-                    ? response.data.message
-                    : Craft.t('shortlink-manager', 'Delete completed.');
+                const message = response.data && response.data.message ? response.data.message : T.deleteCompleted;
                 Craft.cp.displayNotice(message);
                 removeDeletedRows(ids);
                 window.lrTableSelection?.clear();
@@ -237,72 +224,81 @@
             .catch(function(response) {
                 const message = response && response.response && response.response.data && response.response.data.message
                     ? response.response.data.message
-                    : Craft.t('shortlink-manager', failureMessage);
+                    : failureMessage;
                 Craft.cp.displayError(message);
             });
     }
 
+    // ---------------------------------------------------------------------
+    // Row actions: delegated click handler, scoped by anchor + action name.
+    // Confirmation lives in this handler (single source of truth); the
+    // row-action items do not set `confirm:` to avoid double-prompts.
+    // ---------------------------------------------------------------------
     document.addEventListener('click', function(e) {
-        const actionEl = e.target.closest('[data-action]');
-        if (!actionEl) {
-            return;
-        }
+        const trigger = e.target.closest('a[data-action]');
+        if (!trigger) return;
 
-        const action = actionEl.getAttribute('data-action');
-        if (action !== 'delete-folder' && action !== 'delete-tag') {
-            return;
-        }
+        const action = trigger.dataset.action;
+        if (action !== 'delete-folder' && action !== 'delete-tag') return;
 
+        const itemId = trigger.dataset.id;
+        if (!itemId) return;
         e.preventDefault();
 
-        const actionId = actionEl.getAttribute('data-id');
-        const row = actionEl.closest('tr');
-        const itemId = actionId || (row && row.dataset ? row.dataset.id : null);
-        if (!itemId) {
-            return;
-        }
-
-        const confirmMsg = actionEl.getAttribute('data-confirm');
-        if (confirmMsg && !confirm(confirmMsg)) {
-            return;
-        }
-
         if (action === 'delete-folder') {
-            sendDeleteRequest('shortlink-manager/taxonomy/delete-folder', 'folderId', itemId, 'Folder deleted.', 'Could not delete folder.');
-            return;
-        }
-
-        sendDeleteRequest('shortlink-manager/taxonomy/delete-tag', 'tagId', itemId, 'Tag deleted.', 'Could not delete tag.');
-    });
-
-    bulkDeleteBtn?.addEventListener('click', function() {
-        const ids = window.lrTableSelection?.getSelectedIds() || [];
-
-        if (currentView === 'folders') {
-            sendBulkDeleteRequest(
-                'shortlink-manager/taxonomy/bulk-delete-folders',
-                'folderIds',
-                ids,
-                '{{ "Delete {count} folder(s)? This will also unassign them from linked shortlinks."|t("shortlink-manager")|e("js") }}',
-                'Could not delete folders.'
+            if (!confirm(T.deleteFolderConfirm)) return;
+            sendDeleteRequest(
+                'shortlink-manager/taxonomy/delete-folder',
+                'folderId',
+                itemId,
+                T.folderDeleted,
+                T.deleteFolderFailed
             );
             return;
         }
 
+        if (!confirm(T.deleteTagConfirm)) return;
+        sendDeleteRequest(
+            'shortlink-manager/taxonomy/delete-tag',
+            'tagId',
+            itemId,
+            T.tagDeleted,
+            T.deleteTagFailed
+        );
+    });
+
+    // ---------------------------------------------------------------------
+    // Bulk actions: mirror selection count, then dispatch via sendActionRequest.
+    // ---------------------------------------------------------------------
+    document.addEventListener('lr:selectionChanged', function(e) {
+        const count = e.detail && typeof e.detail.count === 'number' ? e.detail.count : 0;
+        document.querySelectorAll('.lr-bulk-count').forEach(function(el) {
+            el.textContent = count;
+        });
+    });
+
+    document.getElementById('lr-bulk-delete-btn')?.addEventListener('click', function() {
+        const ids = selectedIds();
+        if (!ids.length) return;
+
+        if (currentView === 'folders') {
+            if (!confirm(T.bulkDeleteFoldersConfirm.replace('{count}', ids.length))) return;
+            sendBulkDeleteRequest(
+                'shortlink-manager/taxonomy/bulk-delete-folders',
+                'folderIds',
+                ids,
+                T.bulkDeleteFoldersFailed
+            );
+            return;
+        }
+
+        if (!confirm(T.bulkDeleteTagsConfirm.replace('{count}', ids.length))) return;
         sendBulkDeleteRequest(
             'shortlink-manager/taxonomy/bulk-delete-tags',
             'tagIds',
             ids,
-            '{{ "Delete {count} tag(s)?"|t("shortlink-manager")|e("js") }}',
-            'Could not delete tags.'
+            T.bulkDeleteTagsFailed
         );
-    });
-
-    document.addEventListener('lr:selectionChanged', function(e) {
-        const countSpan = document.getElementById('lr-selected-count');
-        if (countSpan) {
-            countSpan.textContent = e.detail.count;
-        }
     });
 })();
 </script>
