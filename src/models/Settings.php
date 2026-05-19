@@ -858,7 +858,7 @@ class Settings extends Model
             'notFoundRedirectUrl' => Craft::t('shortlink-manager', '404 Redirect URL'),
             'enableAnalytics' => Craft::t('shortlink-manager', 'Enable Analytics'),
             'analyticsRetention' => Craft::t('shortlink-manager', 'Analytics Retention (days)'),
-            'anonymizeIp' => Craft::t('shortlink-manager', 'Anonymize IP Addresses'),
+            'anonymizeIpAddress' => Craft::t('shortlink-manager', 'Anonymize IP Addresses'),
             'enableGeoDetection' => Craft::t('shortlink-manager', 'Enable Geographic Detection'),
             'logLevel' => Craft::t('shortlink-manager', 'Log Level'),
         ];
