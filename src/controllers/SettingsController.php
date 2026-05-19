@@ -223,6 +223,14 @@ class SettingsController extends Controller
         $allowedKeys = array_flip($this->_validationAttributesForSection($section));
         foreach ($settingsData as $key => $value) {
             if (isset($allowedKeys[$key]) && !$settings->isOverriddenByConfig($key) && property_exists($settings, $key)) {
+                // Multi-state selects (e.g. "Use global default" = '') need '' → null
+                // so nullable properties hold null, not a coerced false / 0 / ''.
+                if ($value === '') {
+                    $type = (new \ReflectionProperty($settings, $key))->getType();
+                    if ($type instanceof \ReflectionNamedType && $type->allowsNull()) {
+                        $value = null;
+                    }
+                }
                 // Handle special array field conversions
                 if ($key === 'enabledIntegrations') {
                     // Decode JSON string from hidden field
@@ -633,6 +641,15 @@ class SettingsController extends Controller
                 'codeLength',
                 'itemsPerPage',
                 'reservedCodes',
+                'timeFormat',
+                'monthFormat',
+                'dateOrder',
+                'dateSeparator',
+                'showSeconds',
+                'defaultDateRange',
+                'exportsCsv',
+                'exportsJson',
+                'exportsExcel',
             ],
             'cache' => [
                 'cacheStorageMethod',
