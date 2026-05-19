@@ -259,7 +259,7 @@ class Install extends Migration
                 'notFoundRedirectUrl' => $this->string()->notNull()->defaultValue('/'),
                 'expiredMessage' => $this->text()->null(),
                 // Interface settings
-                'itemsPerPage' => $this->integer()->notNull()->defaultValue(50),
+                'itemsPerPage' => $this->integer()->notNull()->defaultValue(100),
                 // Integration settings
                 'enabledIntegrations' => $this->text()->null()->comment('JSON array of enabled integration handles'),
                 'redirectManagerEvents' => $this->text()->null()->comment('JSON array of redirect manager event types'),
@@ -267,6 +267,16 @@ class Install extends Migration
                 'seomaticEventPrefix' => $this->string(50)->defaultValue('shortlink_manager')->comment('Event prefix for GTM/GA events'),
                 // Logging
                 'logLevel' => $this->string(20)->notNull()->defaultValue('error'),
+                // Base plugin overrides — null = inherit from base config / defaults
+                'timeFormat' => $this->string(2)->null(),
+                'monthFormat' => $this->string(20)->null(),
+                'dateOrder' => $this->string(3)->null(),
+                'dateSeparator' => $this->string(1)->null(),
+                'showSeconds' => $this->boolean()->null(),
+                'defaultDateRange' => $this->string(15)->null(),
+                'exportsCsv' => $this->boolean()->null(),
+                'exportsJson' => $this->boolean()->null(),
+                'exportsExcel' => $this->boolean()->null(),
                 // Timestamps
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
@@ -284,6 +294,16 @@ class Install extends Migration
             $this->insert('{{%shortlinkmanager_settings}}', [
                 'usePrefix' => true,
                 'expiredMessage' => 'This link has expired',
+                // Base plugin overrides — seeded null so cascade falls through to base config / defaults.
+                'timeFormat' => null,
+                'monthFormat' => null,
+                'dateOrder' => null,
+                'dateSeparator' => null,
+                'showSeconds' => null,
+                'defaultDateRange' => null,
+                'exportsCsv' => null,
+                'exportsJson' => null,
+                'exportsExcel' => null,
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
                 'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
                 'uid' => StringHelper::UUID(),
