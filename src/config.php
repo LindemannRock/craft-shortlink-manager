@@ -147,7 +147,7 @@ return [
         // ========================================
         // Control panel interface options
 
-        'itemsPerPage' => 50,          // Number of shortlinks per page (10-500)
+        'itemsPerPage' => 100,         // Number of shortlinks per page (10-500)
 
 
         // ========================================
