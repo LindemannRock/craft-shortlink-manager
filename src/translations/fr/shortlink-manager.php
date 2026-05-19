@@ -268,7 +268,6 @@ return [
     'Download filename pattern contains invalid characters. Use only letters, numbers, dash (-), underscore (_), dot (.), and supported tokens.' => 'Le modèle de nom de fichier de téléchargement contient des caractères invalides. Utilisez uniquement des lettres, des chiffres, des traits d\'union (-), des tirets bas (_), des points (.) et des jetons supportés.',
 
     // Settings attribute labels
-    'Plugin Name' => 'Nom du plugin',
     'Enabled Sites' => 'Sites activés',
     'Slug Prefix' => 'Préfixe de slug',
     'Shortlink Base URL' => 'URL de base du lien court',
@@ -295,7 +294,6 @@ return [
     'Analytics Retention (days)' => 'Rétention des analytics (jours)',
     'Anonymize IP Addresses' => 'Anonymiser les adresses IP',
     'Enable Geographic Detection' => 'Activer la détection géographique',
-    'Log Level' => 'Niveau de journalisation',
 
     // Integrations
     'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Crée des redirections permanentes lorsque les slugs {pluginName} changent ou que des liens sont supprimés',
@@ -320,8 +318,6 @@ return [
 
     // Settings: General
     'General Settings' => 'Paramètres généraux',
-    'The name of the plugin as it appears in the Control Panel menu' => 'Le nom du plugin tel qu\'il apparaît dans le menu du panneau de contrôle',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>pluginName</code> dans <code>config/shortlink-manager.php</code>.',
     'Site Settings' => 'Paramètres du site',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Sélectionnez les sites pour lesquels {pluginName} doit être activé. Laissez vide pour activer sur tous les sites.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>enabledSites</code> dans <code>config/shortlink-manager.php</code>.',
@@ -366,12 +362,6 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'Message affiché sur la page d\'expiration lorsqu\'aucune URL de redirection personnalisée n\'est définie',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>expiredMessage</code> dans <code>config/shortlink-manager.php</code>.',
     'Logging Settings' => 'Paramètres de journalisation',
-    'Error (Critical errors only)' => 'Erreur (erreurs critiques uniquement)',
-    'Warning (Errors and warnings)' => 'Avertissement (erreurs et avertissements)',
-    'Info (General information)' => 'Info (informations générales)',
-    'Debug (Detailed debugging)' => 'Debug (débogage détaillé)',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Choisissez les types de messages à journaliser. Le niveau Debug nécessite l\'activation du devMode.',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>logLevel</code> dans <code>config/shortlink-manager.php</code>.',
 
     // Settings: Behavior
     'Behavior Settings' => 'Paramètres de comportement',
@@ -415,24 +405,6 @@ return [
     'Geographic Detection' => 'Détection géographique',
     'Detect user location for analytics' => 'Détecter la localisation des utilisateurs pour les analytics',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>enableGeoDetection</code> dans <code>config/shortlink-manager.php</code>.',
-
-    // Geo provider settings (from base partial)
-    // IP salt error banner (from base partial)
-    'error' => 'erreur',
-    'Configuration Required' => 'Configuration requise',
-    'IP hash salt is missing.' => 'Le sel de hachage IP est manquant.',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'Le suivi des analytics nécessite un sel sécurisé pour la protection de la vie privée.',
-    'Run one of these commands in your terminal:' => 'Exécutez l\'une de ces commandes dans votre terminal :',
-    'Standard:' => 'Standard :',
-    'COPY' => 'COPIER',
-    'DDEV:' => 'DDEV :',
-    'This will automatically add' => 'Ceci ajoutera automatiquement',
-    'to your' => 'à votre',
-    'file.' => 'fichier.',
-    'Warning:' => 'Avertissement :',
-    'Copy the same salt to staging and production environments.' => 'Copiez le même sel dans les environnements de staging et de production.',
-    'COPIED!' => 'COPIÉ !',
-    'Failed to copy to clipboard' => 'Échec de la copie dans le presse-papiers',
 
     'IP Address Privacy' => 'Confidentialité des adresses IP',
     'Mask IP addresses before storage for maximum privacy' => 'Masquer les adresses IP avant le stockage pour une confidentialité maximale',
@@ -550,9 +522,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Paramètres d\'interface',
-    'Items Per Page' => 'Éléments par page',
-    'Number of {pluginName} to show per page' => 'Nombre de {pluginName} à afficher par page',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Ce paramètre est remplacé par le paramètre <code>itemsPerPage</code> dans <code>config/shortlink-manager.php</code>.',
 
     // Settings: Integrations
     'Integrations Settings' => 'Paramètres des intégrations',

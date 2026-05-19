@@ -181,8 +181,6 @@ return [
 
     // Settings: General
     'General Settings' => 'General Settings',
-    'The name of the plugin as it appears in the Control Panel menu' => 'The name of the plugin as it appears in the Control Panel menu',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.',
     'Site Settings' => 'Site Settings',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.',
@@ -227,14 +225,7 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'Message shown on the expired page when no custom redirect URL is set',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.',
     'Logging Settings' => 'Logging Settings',
-    'Error (Critical errors only)' => 'Error (Critical errors only)',
-    'Warning (Errors and warnings)' => 'Warning (Errors and warnings)',
-    'Info (General information)' => 'Info (General information)',
-    'Debug (Detailed debugging)' => 'Debug (Detailed debugging)',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Choose what types of messages to log. Debug level requires devMode to be enabled.',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.',
 
-    'Plugin Name' => 'Plugin Name',
     'Enabled Sites' => 'Enabled Sites',
     'Slug Prefix' => 'Slug Prefix',
     'Shortlink Base URL' => 'Shortlink Base URL',
@@ -261,7 +252,6 @@ return [
     'Analytics Retention (days)' => 'Analytics Retention (days)',
     'Anonymize IP Addresses' => 'Anonymize IP Addresses',
     'Enable Geographic Detection' => 'Enable Geographic Detection',
-    'Log Level' => 'Log Level',
 
     // Settings: Behavior
     'Behavior Settings' => 'Behavior Settings',
@@ -426,9 +416,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Interface Settings',
-    'Items Per Page' => 'Items Per Page',
-    'Number of {pluginName} to show per page' => 'Number of {pluginName} to show per page',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.',
 
     'General' => 'General',
     'QR Code' => 'QR Code',
@@ -901,22 +888,6 @@ return [
     'Link Expired' => 'Link Expired',
     'This link has expired' => 'This link has expired',
 
-    // Base partials
-    'error' => 'error',
-    'Configuration Required' => 'Configuration Required',
-    'IP hash salt is missing.' => 'IP hash salt is missing.',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'Analytics tracking requires a secure salt for privacy protection.',
-    'Run one of these commands in your terminal:' => 'Run one of these commands in your terminal:',
-    'Standard:' => 'Standard:',
-    'COPY' => 'COPY',
-    'DDEV:' => 'DDEV:',
-    'This will automatically add' => 'This will automatically add',
-    'to your' => 'to your',
-    'file.' => 'file.',
-    'Warning:' => 'Warning:',
-    'Copy the same salt to staging and production environments.' => 'Copy the same salt to staging and production environments.',
-    'COPIED!' => 'COPIED!',
-    'Failed to copy to clipboard' => 'Failed to copy to clipboard',
     'Created By' => 'Created By',
     'Filename' => 'Filename',
     'Imported' => 'Imported',

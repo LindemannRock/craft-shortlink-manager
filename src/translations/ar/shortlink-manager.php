@@ -268,7 +268,6 @@ return [
     'Download filename pattern contains invalid characters. Use only letters, numbers, dash (-), underscore (_), dot (.), and supported tokens.' => 'يحتوي نمط اسم ملف التنزيل على أحرف غير صالحة. استخدم فقط الحروف والأرقام والشرطة (-) والشرطة السفلية (_) والنقطة (.) والرموز المدعومة.',
 
     // Settings attribute labels
-    'Plugin Name' => 'اسم الإضافة',
     'Enabled Sites' => 'المواقع المُفعَّلة',
     'Slug Prefix' => 'بادئة Slug',
     'Shortlink Base URL' => 'URL الأساسي للرابط القصير',
@@ -295,7 +294,6 @@ return [
     'Analytics Retention (days)' => 'فترة الاحتفاظ بـ Analytics (أيام)',
     'Anonymize IP Addresses' => 'إخفاء هوية عناوين IP',
     'Enable Geographic Detection' => 'تفعيل الكشف الجغرافي',
-    'Log Level' => 'مستوى التسجيل',
 
     // Integrations
     'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'ينشئ إعادة توجيه دائمة عند تغيير Slugs {pluginName} أو حذف الروابط',
@@ -320,8 +318,6 @@ return [
 
     // Settings: General
     'General Settings' => 'الإعدادات العامة',
-    'The name of the plugin as it appears in the Control Panel menu' => 'اسم الإضافة كما يظهر في قائمة لوحة التحكم',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>pluginName</code> في <code>config/shortlink-manager.php</code>.',
     'Site Settings' => 'إعدادات الموقع',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'حدد المواقع التي يجب تفعيل {pluginName} لها. اتركه فارغًا لتفعيله على جميع المواقع.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>enabledSites</code> في <code>config/shortlink-manager.php</code>.',
@@ -366,12 +362,6 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'الرسالة المعروضة على صفحة انتهاء الصلاحية عند عدم تعيين URL مخصص لإعادة التوجيه',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>expiredMessage</code> في <code>config/shortlink-manager.php</code>.',
     'Logging Settings' => 'إعدادات التسجيل',
-    'Error (Critical errors only)' => 'خطأ (الأخطاء الحرجة فقط)',
-    'Warning (Errors and warnings)' => 'تحذير (الأخطاء والتحذيرات)',
-    'Info (General information)' => 'معلومات (معلومات عامة)',
-    'Debug (Detailed debugging)' => 'Debug (تصحيح مفصل)',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'اختر أنواع الرسائل المراد تسجيلها. يتطلب مستوى Debug تفعيل devMode.',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>logLevel</code> في <code>config/shortlink-manager.php</code>.',
 
     // Settings: Behavior
     'Behavior Settings' => 'إعدادات السلوك',
@@ -415,24 +405,6 @@ return [
     'Geographic Detection' => 'الكشف الجغرافي',
     'Detect user location for analytics' => 'اكتشاف موقع المستخدم لأغراض Analytics',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>enableGeoDetection</code> في <code>config/shortlink-manager.php</code>.',
-
-    // Geo provider settings (from base partial)
-    // IP salt error banner (from base partial)
-    'error' => 'خطأ',
-    'Configuration Required' => 'التهيئة مطلوبة',
-    'IP hash salt is missing.' => 'Salt تجزئة IP مفقود.',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'يتطلب تتبع Analytics salt آمنًا لحماية الخصوصية.',
-    'Run one of these commands in your terminal:' => 'نفّذ أحد هذه الأوامر في الطرفية:',
-    'Standard:' => 'قياسي:',
-    'COPY' => 'نسخ',
-    'DDEV:' => 'DDEV:',
-    'This will automatically add' => 'سيضيف هذا تلقائيًا',
-    'to your' => 'إلى',
-    'file.' => 'ملفك.',
-    'Warning:' => 'تحذير:',
-    'Copy the same salt to staging and production environments.' => 'انسخ نفس Salt إلى بيئات التدريج والإنتاج.',
-    'COPIED!' => 'تم النسخ!',
-    'Failed to copy to clipboard' => 'فشل النسخ إلى الحافظة',
 
     'IP Address Privacy' => 'خصوصية عناوين IP',
     'Mask IP addresses before storage for maximum privacy' => 'إخفاء عناوين IP قبل التخزين لأقصى خصوصية',
@@ -550,9 +522,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'إعدادات الواجهة',
-    'Items Per Page' => 'العناصر في الصفحة',
-    'Number of {pluginName} to show per page' => 'عدد {pluginName} المعروضة لكل صفحة',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>itemsPerPage</code> في <code>config/shortlink-manager.php</code>.',
 
     // Settings: Integrations
     'Integrations Settings' => 'إعدادات التكاملات',

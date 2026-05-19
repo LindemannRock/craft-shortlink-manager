@@ -271,7 +271,6 @@ return [
     '{singularName} Base URL' => 'URL base de {singularName}',
     'System Overview' => 'Visão geral do sistema',
     'Quick Actions' => 'Ações rápidas',
-    'Plugin Name' => 'Nome do plugin',
     'Enabled Sites' => 'Sites ativos',
     'Slug Prefix' => 'Prefixo Slug',
     'Shortlink Base URL' => 'URL base do Shortlink',
@@ -297,7 +296,6 @@ return [
     'Analytics Retention (days)' => 'Retenção de analytics (dias)',
     'Anonymize IP Addresses' => 'Anonimizar endereços IP',
     'Enable Geographic Detection' => 'Ativar deteção geográfica',
-    'Log Level' => 'Nível de registo',
 
     // Integrations
     'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Cria redirecionamentos permanentes quando os slugs de {pluginName} são alterados ou os links são eliminados',
@@ -322,8 +320,6 @@ return [
 
     // Settings: General
     'General Settings' => 'Definições gerais',
-    'The name of the plugin as it appears in the Control Panel menu' => 'O nome do plugin tal como aparece no menu do painel de controlo',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'Esta definição está a ser substituída pela definição <code>pluginName</code> em <code>config/shortlink-manager.php</code>.',
     'Site Settings' => 'Definições do site',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Selecione os sites para os quais {pluginName} deve estar ativo. Deixe vazio para ativar em todos os sites.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'Esta definição está a ser substituída pela definição <code>enabledSites</code> em <code>config/shortlink-manager.php</code>.',
@@ -368,12 +364,6 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'Mensagem apresentada na página de expiração quando não está definido um URL de redirecionamento personalizado',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Esta definição está a ser substituída pela definição <code>expiredMessage</code> em <code>config/shortlink-manager.php</code>.',
     'Logging Settings' => 'Definições de registo',
-    'Error (Critical errors only)' => 'Erro (apenas erros críticos)',
-    'Warning (Errors and warnings)' => 'Aviso (erros e avisos)',
-    'Info (General information)' => 'Info (informação geral)',
-    'Debug (Detailed debugging)' => 'Debug (depuração detalhada)',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Escolha os tipos de mensagens a registar. O nível Debug requer que o devMode esteja ativo.',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Esta definição está a ser substituída pela definição <code>logLevel</code> em <code>config/shortlink-manager.php</code>.',
 
     // Settings: Behavior
     'Behavior Settings' => 'Definições de comportamento',
@@ -417,24 +407,6 @@ return [
     'Geographic Detection' => 'Deteção geográfica',
     'Detect user location for analytics' => 'Detetar localização do utilizador para analytics',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Esta definição está a ser substituída pela definição <code>enableGeoDetection</code> em <code>config/shortlink-manager.php</code>.',
-
-    // Geo provider settings (from base partial)
-    // IP salt error banner (from base partial)
-    'error' => 'erro',
-    'Configuration Required' => 'Configuração necessária',
-    'IP hash salt is missing.' => 'O salt de hash de IP está em falta.',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'O acompanhamento de analytics requer um salt seguro para proteção da privacidade.',
-    'Run one of these commands in your terminal:' => 'Execute um destes comandos no terminal:',
-    'Standard:' => 'Standard:',
-    'COPY' => 'COPIAR',
-    'DDEV:' => 'DDEV:',
-    'This will automatically add' => 'Isto irá adicionar automaticamente',
-    'to your' => 'ao seu',
-    'file.' => 'ficheiro.',
-    'Warning:' => 'Aviso:',
-    'Copy the same salt to staging and production environments.' => 'Copie o mesmo salt para os ambientes de staging e produção.',
-    'COPIED!' => 'COPIADO!',
-    'Failed to copy to clipboard' => 'Falha ao copiar para a área de transferência',
 
     'IP Address Privacy' => 'Privacidade dos endereços IP',
     'Mask IP addresses before storage for maximum privacy' => 'Mascarar endereços IP antes do armazenamento para máxima privacidade',
@@ -552,9 +524,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Definições de interface',
-    'Items Per Page' => 'Itens por página',
-    'Number of {pluginName} to show per page' => 'Número de {pluginName} a mostrar por página',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Esta definição está a ser substituída pela definição <code>itemsPerPage</code> em <code>config/shortlink-manager.php</code>.',
 
     // Settings: Integrations
     'Integrations Settings' => 'Definições de integrações',

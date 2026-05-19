@@ -271,7 +271,6 @@ return [
     '{singularName} Base URL' => '{singularName} ベース URL',
     'System Overview' => 'システム概要',
     'Quick Actions' => 'クイックアクション',
-    'Plugin Name' => 'プラグイン名',
     'Enabled Sites' => '有効なサイト',
     'Slug Prefix' => 'Slug プレフィックス',
     'Shortlink Base URL' => 'ショートリンク ベース URL',
@@ -297,7 +296,6 @@ return [
     'Analytics Retention (days)' => 'アナリティクス 保持期間（日）',
     'Anonymize IP Addresses' => 'IP アドレスを匿名化する',
     'Enable Geographic Detection' => '地理検出を有効にする',
-    'Log Level' => 'ログレベル',
 
     // Integrations
     'Creates permanent redirects when {pluginName} slugs change or links are deleted' => '{pluginName} の slug が変更されたりリンクが削除されたりした場合に恒久的なリダイレクトを作成します',
@@ -322,8 +320,6 @@ return [
 
     // Settings: General
     'General Settings' => '一般設定',
-    'The name of the plugin as it appears in the Control Panel menu' => 'コントロールパネルのメニューに表示されるプラグイン名',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>pluginName</code> 設定によって上書きされています。',
     'Site Settings' => 'サイト設定',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => '{pluginName} を有効にするサイトを選択してください。空白にするとすべてのサイトで有効になります。',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>enabledSites</code> 設定によって上書きされています。',
@@ -368,12 +364,6 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'カスタムリダイレクト URL が設定されていない場合に有効期限切れページに表示されるメッセージ',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>expiredMessage</code> 設定によって上書きされています。',
     'Logging Settings' => 'ログ設定',
-    'Error (Critical errors only)' => 'エラー（重大なエラーのみ）',
-    'Warning (Errors and warnings)' => '警告（エラーと警告）',
-    'Info (General information)' => '情報（一般情報）',
-    'Debug (Detailed debugging)' => 'Debug（詳細なデバッグ）',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'ログに記録するメッセージの種類を選択してください。デバッグレベルには devMode の有効化が必要です。',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>logLevel</code> 設定によって上書きされています。',
 
     // Settings: Behavior
     'Behavior Settings' => '動作設定',
@@ -417,24 +407,6 @@ return [
     'Geographic Detection' => '地理検出',
     'Detect user location for analytics' => 'アナリティクス のためにユーザーの位置情報を検出する',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>enableGeoDetection</code> 設定によって上書きされています。',
-
-    // Geo provider settings (from base partial)
-    // IP salt error banner (from base partial)
-    'error' => 'エラー',
-    'Configuration Required' => '設定が必要です',
-    'IP hash salt is missing.' => 'IP ハッシュ salt がありません。',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'アナリティクス トラッキングにはプライバシー保護のための安全な salt が必要です。',
-    'Run one of these commands in your terminal:' => 'ターミナルで次のコマンドのいずれかを実行してください:',
-    'Standard:' => 'Standard:',
-    'COPY' => 'コピー',
-    'DDEV:' => 'DDEV:',
-    'This will automatically add' => 'これにより自動的に追加されます',
-    'to your' => 'あなたの',
-    'file.' => 'ファイルへ。',
-    'Warning:' => '警告:',
-    'Copy the same salt to staging and production environments.' => 'ステージングおよび本番環境に同じ salt をコピーしてください。',
-    'COPIED!' => 'コピーしました！',
-    'Failed to copy to clipboard' => 'クリップボードへのコピーに失敗しました',
 
     'IP Address Privacy' => 'IP アドレスのプライバシー',
     'Mask IP addresses before storage for maximum privacy' => '最大限のプライバシーのために保存前に IP アドレスをマスクする',
@@ -552,9 +524,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'インターフェース設定',
-    'Items Per Page' => '1 ページあたりの件数',
-    'Number of {pluginName} to show per page' => '1 ページに表示する {pluginName} の件数',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>itemsPerPage</code> 設定によって上書きされています。',
 
     // Settings: Integrations
     'Integrations Settings' => '連携設定',

@@ -271,7 +271,6 @@ return [
     '{singularName} Base URL' => '{singularName}-basis-URL',
     'System Overview' => 'Systemoversigt',
     'Quick Actions' => 'Hurtige handlinger',
-    'Plugin Name' => 'Plugin-navn',
     'Enabled Sites' => 'Aktiverede sites',
     'Slug Prefix' => 'Slug-præfiks',
     'Shortlink Base URL' => 'Shortlink-basis-URL',
@@ -297,7 +296,6 @@ return [
     'Analytics Retention (days)' => 'Analytics-opbevaring (dage)',
     'Anonymize IP Addresses' => 'Anonymisér IP-adresser',
     'Enable Geographic Detection' => 'Aktivér geografisk registrering',
-    'Log Level' => 'Logniveau',
 
     // Integrations
     'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Opretter permanente omdirigeringer, når {pluginName}-slugs ændres, eller links slettes',
@@ -322,8 +320,6 @@ return [
 
     // Settings: General
     'General Settings' => 'Generelle indstillinger',
-    'The name of the plugin as it appears in the Control Panel menu' => 'Pluginets navn, som det vises i kontrolpanelets menu',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>pluginName</code> i <code>config/shortlink-manager.php</code>.',
     'Site Settings' => 'Site-indstillinger',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Vælg, hvilke sites {pluginName} skal aktiveres for. Lad feltet være tomt for at aktivere på alle sites.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>enabledSites</code> i <code>config/shortlink-manager.php</code>.',
@@ -368,12 +364,6 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'Besked vist på den udløbne side, når ingen brugerdefineret omdirigerings-URL er angivet',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>expiredMessage</code> i <code>config/shortlink-manager.php</code>.',
     'Logging Settings' => 'Logindstillinger',
-    'Error (Critical errors only)' => 'Fejl (kun kritiske fejl)',
-    'Warning (Errors and warnings)' => 'Advarsel (fejl og advarsler)',
-    'Info (General information)' => 'Info (generel information)',
-    'Debug (Detailed debugging)' => 'Debug (detaljeret fejlfinding)',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Vælg, hvilke typer beskeder der skal logges. Debug-niveauet kræver, at devMode er aktiveret.',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>logLevel</code> i <code>config/shortlink-manager.php</code>.',
 
     // Settings: Behavior
     'Behavior Settings' => 'Adfærdsindstillinger',
@@ -417,24 +407,6 @@ return [
     'Geographic Detection' => 'Geografisk registrering',
     'Detect user location for analytics' => 'Registrér brugerens placering til analytics',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>enableGeoDetection</code> i <code>config/shortlink-manager.php</code>.',
-
-    // Geo provider settings (from base partial)
-    // IP salt error banner (from base partial)
-    'error' => 'fejl',
-    'Configuration Required' => 'Konfiguration påkrævet',
-    'IP hash salt is missing.' => 'IP-hash-salt mangler.',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'Analytics-sporing kræver et sikkert salt for at beskytte privatlivet.',
-    'Run one of these commands in your terminal:' => 'Kør en af disse kommandoer i terminalen:',
-    'Standard:' => 'Standard:',
-    'COPY' => 'KOPIÉR',
-    'DDEV:' => 'DDEV:',
-    'This will automatically add' => 'Dette tilføjer automatisk',
-    'to your' => 'til din',
-    'file.' => 'fil.',
-    'Warning:' => 'Advarsel:',
-    'Copy the same salt to staging and production environments.' => 'Kopiér det samme salt til staging- og produktionsmiljøer.',
-    'COPIED!' => 'KOPIERET!',
-    'Failed to copy to clipboard' => 'Kunne ikke kopiere til udklipsholderen',
 
     'IP Address Privacy' => 'IP-adresse-privatliv',
     'Mask IP addresses before storage for maximum privacy' => 'Maskér IP-adresser inden lagring for maksimalt privatliv',
@@ -552,9 +524,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Brugerfladeindstillinger',
-    'Items Per Page' => 'Elementer pr. side',
-    'Number of {pluginName} to show per page' => 'Antal {pluginName} der skal vises per side',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Denne indstilling tilsidesættes af indstillingen <code>itemsPerPage</code> i <code>config/shortlink-manager.php</code>.',
 
     // Settings: Integrations
     'Integrations Settings' => 'Integrationsindstillinger',

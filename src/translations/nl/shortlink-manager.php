@@ -268,7 +268,6 @@ return [
     'Download filename pattern contains invalid characters. Use only letters, numbers, dash (-), underscore (_), dot (.), and supported tokens.' => 'Het patroon voor de downloadbestandsnaam bevat ongeldige tekens. Gebruik alleen letters, cijfers, koppelteken (-), underscore (_), punt (.) en ondersteunde tokens.',
 
     // Settings attribute labels
-    'Plugin Name' => 'Pluginnaam',
     'Enabled Sites' => 'Ingeschakelde sites',
     'Slug Prefix' => 'Slug-prefix',
     'Shortlink Base URL' => 'Shortlink basis-URL',
@@ -295,7 +294,6 @@ return [
     'Analytics Retention (days)' => 'Analyticsretentie (dagen)',
     'Anonymize IP Addresses' => 'IP-adressen anonimiseren',
     'Enable Geographic Detection' => 'Geografische detectie inschakelen',
-    'Log Level' => 'Logniveau',
 
     // Integrations
     'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Maakt permanente doorverwijzingen aan wanneer {pluginName} slugs veranderen of links worden verwijderd',
@@ -320,8 +318,6 @@ return [
 
     // Settings: General
     'General Settings' => 'Algemene instellingen',
-    'The name of the plugin as it appears in the Control Panel menu' => 'De naam van de plugin zoals deze verschijnt in het configuratieschermmenu',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>pluginName</code> in <code>config/shortlink-manager.php</code>.',
     'Site Settings' => 'Site-instellingen',
     'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'Selecteer voor welke sites {pluginName} moet worden ingeschakeld. Laat leeg om voor alle sites in te schakelen.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>enabledSites</code> in <code>config/shortlink-manager.php</code>.',
@@ -366,12 +362,6 @@ return [
     'Message shown on the expired page when no custom redirect URL is set' => 'Bericht weergegeven op de verlopen pagina wanneer geen aangepaste doorverwijzings-URL is ingesteld',
     'This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>expiredMessage</code> in <code>config/shortlink-manager.php</code>.',
     'Logging Settings' => 'Loginstellingen',
-    'Error (Critical errors only)' => 'Fout (alleen kritieke fouten)',
-    'Warning (Errors and warnings)' => 'Waarschuwing (fouten en waarschuwingen)',
-    'Info (General information)' => 'Info (algemene informatie)',
-    'Debug (Detailed debugging)' => 'Debug (gedetailleerde foutopsporing)',
-    'Choose what types of messages to log. Debug level requires devMode to be enabled.' => 'Kies welke typen berichten worden gelogd. Debugniveau vereist dat devMode is ingeschakeld.',
-    'This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>logLevel</code> in <code>config/shortlink-manager.php</code>.',
 
     // Settings: Behavior
     'Behavior Settings' => 'Gedragsinstellingen',
@@ -415,24 +405,6 @@ return [
     'Geographic Detection' => 'Geografische detectie',
     'Detect user location for analytics' => 'Gebruikerslocatie detecteren voor analytics',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>enableGeoDetection</code> in <code>config/shortlink-manager.php</code>.',
-
-    // Geo provider settings (from base partial)
-    // IP salt error banner (from base partial)
-    'error' => 'fout',
-    'Configuration Required' => 'Configuratie vereist',
-    'IP hash salt is missing.' => 'IP-hash salt ontbreekt.',
-    'Analytics tracking requires a secure salt for privacy protection.' => 'Analyticsregistratie vereist een beveiligd salt voor privacybescherming.',
-    'Run one of these commands in your terminal:' => 'Voer een van deze opdrachten uit in uw terminal:',
-    'Standard:' => 'Standaard:',
-    'COPY' => 'KOPIËREN',
-    'DDEV:' => 'DDEV:',
-    'This will automatically add' => 'Dit voegt automatisch toe',
-    'to your' => 'aan uw',
-    'file.' => 'bestand.',
-    'Warning:' => 'Waarschuwing:',
-    'Copy the same salt to staging and production environments.' => 'Kopieer hetzelfde salt naar staging- en productieomgevingen.',
-    'COPIED!' => 'GEKOPIEERD!',
-    'Failed to copy to clipboard' => 'Kopiëren naar klembord mislukt',
 
     'IP Address Privacy' => 'IP-adresprivacy',
     'Mask IP addresses before storage for maximum privacy' => 'IP-adressen maskeren vóór opslag voor maximale privacy',
@@ -550,9 +522,6 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Interface-instellingen',
-    'Items Per Page' => 'Items per pagina',
-    'Number of {pluginName} to show per page' => 'Aantal {pluginName} per pagina weergeven',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dit wordt overschreven door de instelling <code>itemsPerPage</code> in <code>config/shortlink-manager.php</code>.',
 
     // Settings: Integrations
     'Integrations Settings' => 'Integratie-instellingen',
