@@ -33,17 +33,10 @@
 
 		<h2 class="first">{{ "General Settings"|t('shortlink-manager') }}</h2>
 
-		{{ forms.textField({
-        label: "Plugin Name"|t('shortlink-manager'),
-        instructions: "The name of the plugin as it appears in the Control Panel menu"|t('shortlink-manager'),
-        id: 'pluginName',
-        name: 'settings[pluginName]',
-        value: settings.pluginName,
-        required: true,
-        disabled: settings.isOverriddenByConfig('pluginName'),
-        warning: settings.isOverriddenByConfig('pluginName') ?
-            "This is being overridden by the <code>pluginName</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
-    }) }}
+		{% include 'lindemannrock-base/_partials/field-plugin-name' with {
+            settings: settings,
+            pluginHandle: 'shortlink-manager',
+        } only %}
 
 		<hr>
 
@@ -381,29 +374,10 @@
 
 		<h2>{{ "Logging Settings"|t('shortlink-manager') }}</h2>
 
-		{% set logOptions = [
-        {value: 'error', label: 'Error (Critical errors only)'|t('shortlink-manager')},
-        {value: 'warning', label: 'Warning (Errors and warnings)'|t('shortlink-manager')},
-        {value: 'info', label: 'Info (General information)'|t('shortlink-manager')},
-    ] %}
-
-		{% if craft.app.config.general.devMode %}
-			{% set logOptions = logOptions|merge([
-            {value: 'debug', label: 'Debug (Detailed debugging)'|t('shortlink-manager')}
-        ]) %}
-		{% endif %}
-
-		{{ forms.selectField({
-        label: 'Log Level'|t('shortlink-manager'),
-        instructions: 'Choose what types of messages to log. Debug level requires devMode to be enabled.'|t('shortlink-manager'),
-        id: 'logLevel',
-        name: 'settings[logLevel]',
-        value: settings.logLevel,
-        options: logOptions,
-        disabled: settings.isOverriddenByConfig('logLevel'),
-        warning: settings.isOverriddenByConfig('logLevel') ?
-            "This is being overridden by the <code>logLevel</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
-    }) }}
+		{% include 'lindemannrock-base/_partials/field-log-level' with {
+            settings: settings,
+            pluginHandle: 'shortlink-manager',
+        } only %}
 
 	{% include 'lindemannrock-base/_components/plugin-credit.twig' %}
 {% endblock %}
