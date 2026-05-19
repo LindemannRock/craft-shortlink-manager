@@ -14,6 +14,13 @@ use craft\behaviors\EnvAttributeParserBehavior;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\traits\DateFormatSettingsTrait;
+use lindemannrock\base\traits\DateRangeSettingsTrait;
+use lindemannrock\base\traits\ExportFormatSettingsTrait;
+use lindemannrock\base\traits\GeoSettingsTrait;
+use lindemannrock\base\traits\ItemsPerPageSettingsTrait;
+use lindemannrock\base\traits\LogLevelSettingsTrait;
+use lindemannrock\base\traits\PluginNameSettingsTrait;
 use lindemannrock\base\traits\SettingsConfigTrait;
 use lindemannrock\base\traits\SettingsDisplayNameTrait;
 use lindemannrock\base\traits\SettingsPersistenceTrait;
@@ -29,7 +36,14 @@ use lindemannrock\logginglibrary\traits\LoggingTrait;
  */
 class Settings extends Model
 {
+    use DateFormatSettingsTrait;
+    use DateRangeSettingsTrait;
+    use ExportFormatSettingsTrait;
+    use GeoSettingsTrait;
+    use ItemsPerPageSettingsTrait;
+    use LogLevelSettingsTrait;
     use LoggingTrait;
+    use PluginNameSettingsTrait;
     use SettingsConfigTrait;
     use SettingsDisplayNameTrait;
     use SettingsPersistenceTrait;
@@ -271,16 +285,6 @@ class Settings extends Model
     public ?string $defaultCity = null;
 
     /**
-     * @var string Log level (debug, info, warning, error)
-     */
-    public string $logLevel = 'error';
-
-    /**
-     * @var int Items per page in element indexes
-     */
-    public int $itemsPerPage = 50;
-
-    /**
      * @var array|null Enabled integration handles
      */
     public ?array $enabledIntegrations = ['redirect-manager'];
@@ -332,6 +336,10 @@ class Settings extends Model
             'cacheDeviceDetection',
             'passQueryParams',
             'directRedirect',
+            'showSeconds',
+            'exportsCsv',
+            'exportsJson',
+            'exportsExcel',
         ];
     }
 
@@ -423,9 +431,8 @@ class Settings extends Model
      */
     protected function defineRules(): array
     {
-        return [
-            [['pluginName', 'slugPrefix', 'qrPrefix'], 'required'],
-            [['pluginName'], 'string', 'max' => 255],
+        return array_merge([
+            [['slugPrefix', 'qrPrefix'], 'required'],
             [['slugPrefix', 'qrPrefix'], 'string', 'max' => 50],
             [['usePrefix'], 'boolean'],
             [['shortlinkBaseUrl'], 'string', 'max' => 500],
@@ -443,8 +450,7 @@ class Settings extends Model
             [['seomaticEventPrefix'], 'match', 'pattern' => '/^[a-z0-9\_]+$/', 'message' => Craft::t('shortlink-manager', 'Only lowercase letters, numbers, and underscores are allowed.')],
             [['redirectTemplate', 'expiredTemplate', 'qrTemplate'], 'string', 'max' => 500],
             [['redirectTemplate', 'expiredTemplate', 'qrTemplate'], TemplatePathValidator::class, 'translationCategory' => 'shortlink-manager', 'checkTemplateExists' => true],
-            [['codeLength', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'defaultQrMargin', 'qrLogoSize', 'defaultHttpCode', 'analyticsRetention', 'itemsPerPage'], 'integer'],
-            [['itemsPerPage'], 'integer', 'min' => 10, 'max' => 500],
+            [['codeLength', 'defaultQrSize', 'qrCodeCacheDuration', 'deviceDetectionCacheDuration', 'defaultQrMargin', 'qrLogoSize', 'defaultHttpCode', 'analyticsRetention'], 'integer'],
             [['codeLength'], 'integer', 'min' => 4, 'max' => 32],
             [['defaultQrSize'], 'integer', 'min' => 100, 'max' => 1000],
             [['qrCodeCacheDuration', 'deviceDetectionCacheDuration'], 'integer', 'min' => 60, 'max' => 604800],
@@ -458,8 +464,6 @@ class Settings extends Model
             [['defaultQrFormat'], 'in', 'range' => ['png', 'svg']],
             [['defaultQrErrorCorrection'], 'in', 'range' => ['L', 'M', 'Q', 'H']],
             [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
-            [['geoProvider'], 'in', 'range' => ['ip-api.com', 'ipapi.co', 'ipinfo.io']],
-            [['geoApiKey'], 'string', 'max' => 255, 'skipOnEmpty' => true],
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
             [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'leaf']],
             [['qrDownloadFilename'], 'string'],
@@ -473,9 +477,7 @@ class Settings extends Model
             [['notFoundRedirectUrl'], UrlOrPathValidator::class, 'translationCategory' => 'shortlink-manager'],
             [['ipHashSalt'], 'string', 'min' => 32, 'message' => Craft::t('shortlink-manager', 'Salt must be at least 32 characters'), 'skipOnEmpty' => true],
             [['reservedCodes'], 'each', 'rule' => ['string']],
-            [['logLevel'], 'in', 'range' => ['debug', 'info', 'warning', 'error']],
-            [['logLevel'], 'validateLogLevel'],
-        ];
+        ], $this->pluginNameSettingsRules(), $this->itemsPerPageSettingsRules(), $this->logLevelSettingsRules(), $this->dateFormatSettingsRules(), $this->dateRangeSettingsRules(), $this->exportFormatSettingsRules(), $this->geoSettingsRules());
     }
 
     /**
@@ -492,42 +494,6 @@ class Settings extends Model
             $this->defaultQrLogoId = $value !== '' ? (int) $value : null;
         } else {
             $this->defaultQrLogoId = $value !== null ? (int) $value : null;
-        }
-    }
-
-    /**
-     * Validate log level - debug requires devMode
-     */
-    public function validateLogLevel($attribute, $params, $validator)
-    {
-        $logLevel = $this->$attribute;
-
-        // Reset session warning when devMode is true - allows warning to show again if devMode changes
-        if (Craft::$app->getConfig()->getGeneral()->devMode && !Craft::$app->getRequest()->getIsConsoleRequest()) {
-            Craft::$app->getSession()->remove('slm_debug_config_warning');
-        }
-
-        // Debug level is only allowed when devMode is enabled
-        if ($logLevel === 'debug' && !Craft::$app->getConfig()->getGeneral()->devMode) {
-            $this->$attribute = 'info';
-
-            if ($this->isOverriddenByConfig('logLevel')) {
-                if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-                    if (Craft::$app->getSession()->get('slm_debug_config_warning') === null) {
-                        $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                            'configFile' => 'config/shortlink-manager.php',
-                        ]);
-                        Craft::$app->getSession()->set('slm_debug_config_warning', true);
-                    }
-                } else {
-                    $this->logWarning('Log level "debug" from config file changed to "info" because devMode is disabled', [
-                        'configFile' => 'config/shortlink-manager.php',
-                    ]);
-                }
-            } else {
-                $this->logWarning('Log level automatically changed from "debug" to "info" because devMode is disabled');
-                $this->saveToDatabase();
-            }
         }
     }
 
@@ -831,8 +797,7 @@ class Settings extends Model
      */
     public function attributeLabels(): array
     {
-        return [
-            'pluginName' => Craft::t('shortlink-manager', 'Plugin Name'),
+        return array_merge([
             'enabledSites' => Craft::t('shortlink-manager', 'Enabled Sites'),
             'usePrefix' => Craft::t('shortlink-manager', 'Use URL Prefix'),
             'slugPrefix' => Craft::t('shortlink-manager', 'Slug Prefix'),
@@ -860,7 +825,6 @@ class Settings extends Model
             'analyticsRetention' => Craft::t('shortlink-manager', 'Analytics Retention (days)'),
             'anonymizeIpAddress' => Craft::t('shortlink-manager', 'Anonymize IP Addresses'),
             'enableGeoDetection' => Craft::t('shortlink-manager', 'Enable Geographic Detection'),
-            'logLevel' => Craft::t('shortlink-manager', 'Log Level'),
-        ];
+        ], $this->pluginNameSettingsLabel(), $this->itemsPerPageSettingsLabel(), $this->logLevelSettingsLabel(), $this->dateFormatSettingsLabels(), $this->dateRangeSettingsLabel(), $this->exportFormatSettingsLabels(), $this->geoSettingsLabel());
     }
 }
