@@ -41,7 +41,7 @@
             {% set linksSubBoxes = linksSubBoxes|merge([{value: disabledLinks, label: 'Disabled'|t('shortlink-manager')}]) %}
         {% endif %}
 
-        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+        {% include 'lindemannrock-base/_components/unified-card' with {
             title: 'Links Status'|t('shortlink-manager'),
             color: lrPaletteColor('emerald').color,
             value: totalLinks,
@@ -52,7 +52,7 @@
 
     {# Performance Card - only show if user can view analytics #}
     {% if settings.enableAnalytics and canViewAnalytics %}
-        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+        {% include 'lindemannrock-base/_components/unified-card' with {
             title: 'Performance'|t('shortlink-manager'),
             color: lrPaletteColor('sky').color,
             value: totalClicks,
@@ -75,14 +75,14 @@
                 {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'Devices'|t('shortlink-manager')}]) %}
             {% endif %}
 
-            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            {% include 'lindemannrock-base/_components/unified-card' with {
                 title: 'Cache Status'|t('shortlink-manager') ~ ' (Redis)',
                 color: lrPaletteColor('emerald').color,
                 value: 'Active'|t('shortlink-manager'),
                 subBoxes: cacheSubBoxes,
             } only %}
         {% else %}
-            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            {% include 'lindemannrock-base/_components/unified-card' with {
                 title: 'Cache Status'|t('shortlink-manager') ~ ' (File)',
                 color: lrPaletteColor('emerald').color,
                 value: qrCacheFiles + deviceCacheFiles,

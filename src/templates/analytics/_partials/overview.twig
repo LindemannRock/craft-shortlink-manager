@@ -1,25 +1,25 @@
 {# Overview Tab - Stats, Daily Interactions, Top Links, Recent Interactions #}
 
 <div class="lr-unified-cards">
-    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+    {% include 'lindemannrock-base/_components/unified-card' with {
         value: analyticsData.totalClicks ?? 0,
         description: 'Total Interactions'|t('shortlink-manager'),
         align: 'center',
     } only %}
 
-    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+    {% include 'lindemannrock-base/_components/unified-card' with {
         value: analyticsData.uniqueVisitors ?? 0,
         description: 'Unique Visitors'|t('shortlink-manager'),
         align: 'center',
     } only %}
 
-    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+    {% include 'lindemannrock-base/_components/unified-card' with {
         value: analyticsData.activeLinks ?? 0,
         description: 'Active Links'|t('shortlink-manager'),
         align: 'center',
     } only %}
 
-    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+    {% include 'lindemannrock-base/_components/unified-card' with {
         value: (analyticsData.linksUsedPercentage ?? 0) ~ '%',
         description: 'Engagement Rate'|t('shortlink-manager'),
         align: 'center',
