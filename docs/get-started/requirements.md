@@ -15,4 +15,4 @@ Composer pulls these packages automatically. Craft plugin dependencies also need
 |---------|---------|---------|
 | [lindemannrock/craft-plugin-base](https://github.com/LindemannRock/craft-plugin-base) | 5.0+ | Shared base plugin utilities (helpers, traits, layouts) |
 | [lindemannrock/craft-logging-library](https://github.com/LindemannRock/craft-logging-library) | 5.0+ | Optional — install in CP for log viewing |
-| [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode) | 2.0+ | QR code generation (PNG and SVG) |
+| [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode) | 2.0+ or 3.0+ | QR code generation (PNG and SVG) |
