@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.19.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.1...v5.19.0) (2026-05-21)
+
+
+### Added
+
+* add pre-commit hook for ECS and PHPStan code quality checks ([01424bd](https://github.com/LindemannRock/craft-shortlink-manager/commit/01424bdfc9864cb1b44f24747e9c6b166f786a52))
+* **analytics:** add logCategory to geo settings for tracking ([4b78e16](https://github.com/LindemannRock/craft-shortlink-manager/commit/4b78e1612a322383fe3fb684c02847e55e2212bc))
+* **i18n:** add translation issue template for reporting language problems ([a49fa11](https://github.com/LindemannRock/craft-shortlink-manager/commit/a49fa1146249c0f14eaf17e33544e4fae8aaa5d7))
+* **taxonomy:** implement folder and tag listing with filtering and sorting ([3507651](https://github.com/LindemannRock/craft-shortlink-manager/commit/3507651a901064f2c31f8ee71e9093b2e3271e2c))
+* **tests:** add integration tests for click tracking, hit counter, and slug generation ([ab3f9ea](https://github.com/LindemannRock/craft-shortlink-manager/commit/ab3f9ea9232930949cb92946ce191209c05a004e))
+* **tests:** add QrCodeServiceTest for QR code generation functionality ([487ab35](https://github.com/LindemannRock/craft-shortlink-manager/commit/487ab353ab34f9039895912f5d9aa3cb56b31367))
+
+
+### Fixed
+
+* correct phpstan include path in configuration ([48b506d](https://github.com/LindemannRock/craft-shortlink-manager/commit/48b506d1b2c94eef13d066d623addb49a3ae8618))
+* **i18n:** remove untranslated plugin name and log level strings from multiple locales ([4361f3d](https://github.com/LindemannRock/craft-shortlink-manager/commit/4361f3d18ce4582d6823c332f42eb58407570cdf))
+* **integrations:** prevent fatal in Link type on console runs ([57f74f4](https://github.com/LindemannRock/craft-shortlink-manager/commit/57f74f418e31fb097665875fac30165819f162be))
+
 ## [5.18.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.0...v5.18.1) (2026-05-06)
 
 
