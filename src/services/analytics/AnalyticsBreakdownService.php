@@ -368,6 +368,7 @@ class AnalyticsBreakdownService
         return [
             'provider' => $settings->geoProvider ?? 'ip-api.com',
             'apiKey' => $settings->geoApiKey ?? null,
+            'logCategory' => ShortLinkManager::$plugin->id,
         ];
     }
 
