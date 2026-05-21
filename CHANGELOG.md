@@ -1,6 +1,25 @@
 # Changelog
 
-## [5.18.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.0...v5.18.1) (2026-05-06)
+## [5.19.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.1...v5.19.0) - 2026-05-21
+
+
+### Added
+
+* add pre-commit hook for ECS and PHPStan code quality checks ([01424bd](https://github.com/LindemannRock/craft-shortlink-manager/commit/01424bdfc9864cb1b44f24747e9c6b166f786a52))
+* **analytics:** add logCategory to geo settings for tracking ([4b78e16](https://github.com/LindemannRock/craft-shortlink-manager/commit/4b78e1612a322383fe3fb684c02847e55e2212bc))
+* **i18n:** add translation issue template for reporting language problems ([a49fa11](https://github.com/LindemannRock/craft-shortlink-manager/commit/a49fa1146249c0f14eaf17e33544e4fae8aaa5d7))
+* **taxonomy:** implement folder and tag listing with filtering and sorting ([3507651](https://github.com/LindemannRock/craft-shortlink-manager/commit/3507651a901064f2c31f8ee71e9093b2e3271e2c))
+* **tests:** add integration tests for click tracking, hit counter, and slug generation ([ab3f9ea](https://github.com/LindemannRock/craft-shortlink-manager/commit/ab3f9ea9232930949cb92946ce191209c05a004e))
+* **tests:** add QrCodeServiceTest for QR code generation functionality ([487ab35](https://github.com/LindemannRock/craft-shortlink-manager/commit/487ab353ab34f9039895912f5d9aa3cb56b31367))
+
+
+### Fixed
+
+* correct phpstan include path in configuration ([48b506d](https://github.com/LindemannRock/craft-shortlink-manager/commit/48b506d1b2c94eef13d066d623addb49a3ae8618))
+* **i18n:** remove untranslated plugin name and log level strings from multiple locales ([4361f3d](https://github.com/LindemannRock/craft-shortlink-manager/commit/4361f3d18ce4582d6823c332f42eb58407570cdf))
+* **integrations:** prevent fatal in Link type on console runs ([57f74f4](https://github.com/LindemannRock/craft-shortlink-manager/commit/57f74f418e31fb097665875fac30165819f162be))
+
+## [5.18.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.0...v5.18.1) - 2026-05-06
 
 
 ### Bug Fixes
@@ -12,7 +31,7 @@
 * **translations:** remove deprecated geo provider settings from multiple locales ([08db00f](https://github.com/LindemannRock/craft-shortlink-manager/commit/08db00f18adf8bcb150bc0efff825b9b4f09e2e1))
 * update geo-settings inclusion to use pluginHandle instead of translationCategory ([1861c9e](https://github.com/LindemannRock/craft-shortlink-manager/commit/1861c9e94aa99936cb2b1acbd029cd40e3062c9a))
 
-## [5.18.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.2...v5.18.0) (2026-04-05)
+## [5.18.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.2...v5.18.0) - 2026-04-05
 
 
 ### Features
@@ -26,21 +45,21 @@
 * read-only settings page accessibility flag ([156a14a](https://github.com/LindemannRock/craft-shortlink-manager/commit/156a14af6247bb3cb0015fdb777f1e06493d89b7))
 * update install experience text to use Craft translation ([5402356](https://github.com/LindemannRock/craft-shortlink-manager/commit/5402356e9e996056e176ff9e4144d798902c9073))
 
-## [5.17.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.1...v5.17.2) (2026-03-26)
+## [5.17.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.1...v5.17.2) - 2026-03-26
 
 
 ### Miscellaneous Chores
 
 * **release:** remove issue permissions and skip labeling from workflow ([7557104](https://github.com/LindemannRock/craft-shortlink-manager/commit/755710435dc5bffd6cab833454bb38735bed0028))
 
-## [5.17.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.0...v5.17.1) (2026-03-26)
+## [5.17.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.17.0...v5.17.1) - 2026-03-26
 
 
 ### Bug Fixes
 
 * **shortlink:** update QR code URL handling in ShortLink and templates ([4050920](https://github.com/LindemannRock/craft-shortlink-manager/commit/40509208bde9b7ddd0786bbba975080309a07bf9))
 
-## [5.17.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.3...v5.17.0) (2026-03-26)
+## [5.17.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.3...v5.17.0) - 2026-03-26
 
 
 ### Features
@@ -52,14 +71,14 @@
 
 * **routes:** improve URL rule handling for shortlinks ([f2630ec](https://github.com/LindemannRock/craft-shortlink-manager/commit/f2630ec55e2e063caefe83487cfe41c47a5073c6))
 
-## [5.16.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.2...v5.16.3) (2026-03-18)
+## [5.16.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.2...v5.16.3) - 2026-03-18
 
 
 ### Bug Fixes
 
 * **redirect:** change shortlink code to use slug instead of code ([619b622](https://github.com/LindemannRock/craft-shortlink-manager/commit/619b622283f5398d526cc865f42fbe0b08737243))
 
-## [5.16.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.1...v5.16.2) (2026-03-18)
+## [5.16.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.1...v5.16.2) - 2026-03-18
 
 
 ### Bug Fixes
@@ -67,28 +86,28 @@
 * **config:** change default HTTP redirect code to 302 ([303b2c2](https://github.com/LindemannRock/craft-shortlink-manager/commit/303b2c2bcf6672dfb9230123dcd6bb7ec03b1d44))
 * **http:** change default HTTP redirect code from 301 to 302 ([ad47d89](https://github.com/LindemannRock/craft-shortlink-manager/commit/ad47d89629d2196666685a7f4eb5c01009a9bf3a))
 
-## [5.16.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.0...v5.16.1) (2026-03-17)
+## [5.16.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.16.0...v5.16.1) - 2026-03-17
 
 
 ### Miscellaneous Chores
 
 * **workflow:** update permissions in release-please.yml ([44ba030](https://github.com/LindemannRock/craft-shortlink-manager/commit/44ba030fb152f6c52eb67aa00f938ba97d5e2a6d))
 
-## [5.16.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.1...v5.16.0) (2026-03-17)
+## [5.16.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.1...v5.16.0) - 2026-03-17
 
 
 ### Features
 
 * **analytics:** streamline IP handling in trackClick method ([e0ba4b5](https://github.com/LindemannRock/craft-shortlink-manager/commit/e0ba4b54294938db4030004c294f2c0fa5e9e1f5))
 
-## [5.15.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.0...v5.15.1) (2026-03-17)
+## [5.15.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.15.0...v5.15.1) - 2026-03-17
 
 
 ### Bug Fixes
 
 * **analytics:** streamline click tracking and data storage ([1c1313b](https://github.com/LindemannRock/craft-shortlink-manager/commit/1c1313b8bcb3d9990cd26a94916a43f40209e6e1))
 
-## [5.15.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.14.0...v5.15.0) (2026-03-17)
+## [5.15.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.14.0...v5.15.0) - 2026-03-17
 
 
 ### Features
@@ -114,7 +133,7 @@
 * **settings:** validate shortlink base URL to prevent spaces ([3bcdc85](https://github.com/LindemannRock/craft-shortlink-manager/commit/3bcdc85bad62ec0bbe88305672f15d4a11be69d6))
 * **shortlink:** handle existing links switched from vanity to code ([1f25853](https://github.com/LindemannRock/craft-shortlink-manager/commit/1f25853ca1ce47d48ed09cba2e02681691ebd810))
 
-## [5.14.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.13.0...v5.14.0) (2026-03-04)
+## [5.14.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.13.0...v5.14.0) - 2026-03-04
 
 
 ### Features
@@ -129,7 +148,7 @@
 * **settings, ShortLinkManager, ShortLink:** improve URL handling and validation ([159f2d7](https://github.com/LindemannRock/craft-shortlink-manager/commit/159f2d7db5477f7cfb5827fb402d6f1c5fac3cbf))
 * **settings, validation, templates:** improve settings validation and error handling ([92fac44](https://github.com/LindemannRock/craft-shortlink-manager/commit/92fac44593b2ad23639f6d45ac46eb79c31281cd))
 
-## [5.13.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.12.0...v5.13.0) (2026-02-20)
+## [5.13.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.12.0...v5.13.0) - 2026-02-20
 
 
 ### Features
@@ -150,7 +169,7 @@
 * add .gitattributes with export-ignore for Packagist distribution ([fc993cd](https://github.com/LindemannRock/craft-shortlink-manager/commit/fc993cdfc60ddaf773331feb46a1914fce77dcb6))
 * switch to Craft License for commercial release ([0f8f8e5](https://github.com/LindemannRock/craft-shortlink-manager/commit/0f8f8e587071ca55427888c2f79085dd1be2b9cc))
 
-## [5.12.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.11.0...v5.12.0) (2026-02-07)
+## [5.12.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.11.0...v5.12.0) - 2026-02-07
 
 
 ### Features
@@ -159,7 +178,7 @@
 * **analytics:** enhance analytics data handling and sanitization ([d605cd6](https://github.com/LindemannRock/craft-shortlink-manager/commit/d605cd6efafcd2de50a1403d62d5b69f38a4ecb1))
 * **analytics:** Enhance analytics functionality with user permissions and site filtering ([e1ca55b](https://github.com/LindemannRock/craft-shortlink-manager/commit/e1ca55b7e0388f8e9d582983729944bfe42f443c))
 
-## [5.11.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.10.0...v5.11.0) (2026-02-05)
+## [5.11.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.10.0...v5.11.0) - 2026-02-05
 
 
 ### Features
@@ -181,7 +200,7 @@
 * update package-lock.json and package.json for dependency management ([c3bc52d](https://github.com/LindemannRock/craft-shortlink-manager/commit/c3bc52d117cb0566c93788cc670d106616b4a54b))
 * update package.json to include author and company information ([0c0d2da](https://github.com/LindemannRock/craft-shortlink-manager/commit/0c0d2da50c875247c1157df2cf2ab84711bb7e6c))
 
-## [5.10.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.9.0...v5.10.0) (2026-01-26)
+## [5.10.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.9.0...v5.10.0) - 2026-01-26
 
 
 ### Features
@@ -193,7 +212,7 @@
 
 * **jobs:** prevent duplicate scheduling of CleanupAnalyticsJob ([6d08934](https://github.com/LindemannRock/craft-shortlink-manager/commit/6d089345eb81778e09fd32dfa82bf00ee3a59e4d))
 
-## [5.9.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.1...v5.9.0) (2026-01-21)
+## [5.9.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.1...v5.9.0) - 2026-01-21
 
 
 ### Features
@@ -205,7 +224,7 @@
 
 * swap QR Code and Behavior settings links and update heading in General Settings ([f74eccd](https://github.com/LindemannRock/craft-shortlink-manager/commit/f74eccda39aca1491fe2ef0f09ce3e9b848d9409))
 
-## [5.8.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.0...v5.8.1) (2026-01-16)
+## [5.8.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.8.0...v5.8.1) - 2026-01-16
 
 
 ### Bug Fixes
@@ -216,7 +235,7 @@
 * update hardcoded cache paths with PluginHelper for consistency ([130bd28](https://github.com/LindemannRock/craft-shortlink-manager/commit/130bd2888e418870719bac3360eee384e28929e8))
 * update PluginHelper bootstrap to include download permissions for logging ([eec20fd](https://github.com/LindemannRock/craft-shortlink-manager/commit/eec20fd6b569d738d98d965fa497deb4f93533a6))
 
-## [5.8.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.7.0...v5.8.0) (2026-01-12)
+## [5.8.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.7.0...v5.8.0) - 2026-01-12
 
 
 ### Features
@@ -224,14 +243,14 @@
 * Format cache file counts and total clicks in cache clearing buttons ([c843262](https://github.com/LindemannRock/craft-shortlink-manager/commit/c84326261e84dd14a970013b5ea2bf41a1f67b10))
 * Update terminology from "Clicks" to "Interactions" and enhance link display in top links widget ([530e9aa](https://github.com/LindemannRock/craft-shortlink-manager/commit/530e9aa63f6352c9848d4a7d1f417d9c858df8c1))
 
-## [5.7.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.6.0...v5.7.0) (2026-01-10)
+## [5.7.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.6.0...v5.7.0) - 2026-01-10
 
 
 ### Features
 
 * Replace custom country name retrieval with GeoHelper utility ([0dcc15b](https://github.com/LindemannRock/craft-shortlink-manager/commit/0dcc15b292ea38259b2390dc1aaeeb2a8e40132c))
 
-## [5.6.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.5.0...v5.6.0) (2026-01-08)
+## [5.6.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.5.0...v5.6.0) - 2026-01-08
 
 
 ### Features
@@ -247,28 +266,28 @@
 
 * remove local composer.lock file ([705b8b8](https://github.com/LindemannRock/craft-shortlink-manager/commit/705b8b80b00e7e296ef6a0c0e44f29d9221d7ea0))
 
-## [5.5.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.2...v5.5.0) (2026-01-06)
+## [5.5.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.2...v5.5.0) - 2026-01-06
 
 
 ### Features
 
 * migrate to shared base plugin ([e74da6f](https://github.com/LindemannRock/craft-shortlink-manager/commit/e74da6f349f972837e68fd2e0b22ebd80c2c67af))
 
-## [5.4.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.1...v5.4.2) (2026-01-05)
+## [5.4.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.1...v5.4.2) - 2026-01-05
 
 
 ### Bug Fixes
 
 * add tab-content class to analytics sections for improved styling ([4b4c0ec](https://github.com/LindemannRock/craft-shortlink-manager/commit/4b4c0ec0f659c0997db2378ccbec3e5b361de8ec))
 
-## [5.4.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.0...v5.4.1) (2025-12-19)
+## [5.4.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.4.0...v5.4.1) - 2025-12-19
 
 
 ### Bug Fixes
 
 * Refactor site selection logic in AnalyticsController for improved clarity ([60d38a3](https://github.com/LindemannRock/craft-shortlink-manager/commit/60d38a37023d9a7f6ee20b9e371014d7aa681f3d))
 
-## [5.4.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.3...v5.4.0) (2025-12-19)
+## [5.4.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.3...v5.4.0) - 2025-12-19
 
 
 ### Features
@@ -283,28 +302,28 @@
 * update cache label to use display name and trim whitespace in settings methods ([d134c38](https://github.com/LindemannRock/craft-shortlink-manager/commit/d134c38745f298a07c4df3a03d68fc46d6cb87b6))
 * update country name mapping in analytics results ([0ece6ac](https://github.com/LindemannRock/craft-shortlink-manager/commit/0ece6ac137be3e821830b33f3981727d59acc0f2))
 
-## [5.3.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.2...v5.3.3) (2025-12-16)
+## [5.3.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.2...v5.3.3) - 2025-12-16
 
 
 ### Bug Fixes
 
 * update icon return value in ShortLinkManagerUtility ([e4f0951](https://github.com/LindemannRock/craft-shortlink-manager/commit/e4f09519a6bb2be44809f86884b7f9593577cc39))
 
-## [5.3.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.1...v5.3.2) (2025-12-16)
+## [5.3.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.1...v5.3.2) - 2025-12-16
 
 
 ### Bug Fixes
 
 * update time formatting in analytics dashboard to use locale settings ([cf2ad60](https://github.com/LindemannRock/craft-shortlink-manager/commit/cf2ad6025677349db175c81ac62b0c6f8e9b3e8b))
 
-## [5.3.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.0...v5.3.1) (2025-12-16)
+## [5.3.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.3.0...v5.3.1) - 2025-12-16
 
 
 ### Bug Fixes
 
 * simplify redirect manager events to only include slug-change ([ad4cd18](https://github.com/LindemannRock/craft-shortlink-manager/commit/ad4cd1848f9f30e1a52f1e4c58759823322a94e1))
 
-## [5.3.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.2.0...v5.3.0) (2025-12-16)
+## [5.3.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.2.0...v5.3.0) - 2025-12-16
 
 
 ### Features
@@ -316,7 +335,7 @@
 * implement Redis caching support and enhance cache management in ShortLinkManager ([a6429d9](https://github.com/LindemannRock/craft-shortlink-manager/commit/a6429d91eb6da1ed55ea9530905fd1f77f5cced6))
 * update icon to 'link-simple.svg' and refine Redis cache display in index template ([167dd39](https://github.com/LindemannRock/craft-shortlink-manager/commit/167dd39cba300cc23cec2aeb317eba3e7fa34a4d))
 
-## [5.2.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.6...v5.2.0) (2025-12-03)
+## [5.2.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.6...v5.2.0) - 2025-12-03
 
 
 ### Features
@@ -342,56 +361,56 @@
 
 * remove duplicate [@since](https://github.com/since) annotation in config.php ([441ff62](https://github.com/LindemannRock/craft-shortlink-manager/commit/441ff620b6eda37efbe8c08e0168ea8241513dcb))
 
-## [5.1.6](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.5...v5.1.6) (2025-11-11)
+## [5.1.6](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.5...v5.1.6) - 2025-11-11
 
 
 ### Bug Fixes
 
 * **ip-salt-error:** enhance error message with copyable commands for generating IP hash salt ([ab26918](https://github.com/LindemannRock/craft-shortlink-manager/commit/ab26918579ac778ec2f24a8fe9433b65c8e6c2e3))
 
-## [5.1.5](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.4...v5.1.5) (2025-11-11)
+## [5.1.5](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.4...v5.1.5) - 2025-11-11
 
 
 ### Bug Fixes
 
 * enhance QR prefix defaulting logic to support nested patterns and avoid conflicts ([48acf6f](https://github.com/LindemannRock/craft-shortlink-manager/commit/48acf6f363e68912f10758600dd16c5fd27717a7))
 
-## [5.1.4](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.3...v5.1.4) (2025-11-11)
+## [5.1.4](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.3...v5.1.4) - 2025-11-11
 
 
 ### Bug Fixes
 
 * update QR code URL prefix to support nested patterns ([031a062](https://github.com/LindemannRock/craft-shortlink-manager/commit/031a062dc0584c51979b74e4e5ae914238a33638))
 
-## [5.1.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.2...v5.1.3) (2025-11-11)
+## [5.1.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.2...v5.1.3) - 2025-11-11
 
 
 ### Code Refactoring
 
 * remove global enableQrCodes setting, keep per-link control ([279a7e8](https://github.com/LindemannRock/craft-shortlink-manager/commit/279a7e8b29830d8766e59dd3655ca393a4994e48))
 
-## [5.1.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.1...v5.1.2) (2025-11-11)
+## [5.1.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.1...v5.1.2) - 2025-11-11
 
 
 ### Bug Fixes
 
 * add form validation for QR logo selection and update required status on toggle change ([3599c95](https://github.com/LindemannRock/craft-shortlink-manager/commit/3599c95cb41c7c150f05657c5ac3e2eee9bf9aa1))
 
-## [5.1.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.0...v5.1.1) (2025-11-11)
+## [5.1.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.1.0...v5.1.1) - 2025-11-11
 
 
 ### Bug Fixes
 
 * improve handling of default QR logo ID in settings ([1e025bc](https://github.com/LindemannRock/craft-shortlink-manager/commit/1e025bcfbc266ad12d0b7b91f46028410fc63120))
 
-## [5.1.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.0.0...v5.1.0) (2025-11-11)
+## [5.1.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.0.0...v5.1.0) - 2025-11-11
 
 
 ### Features
 
 * add QR templates, multi-site support, and smart-links pattern consistency ([c8e2550](https://github.com/LindemannRock/craft-shortlink-manager/commit/c8e25501b25b49c17de9d180c3b30f826b931dbb))
 
-## 5.0.0 (2025-11-09)
+## 5.0.0 - 2025-11-09
 
 
 ### Features
