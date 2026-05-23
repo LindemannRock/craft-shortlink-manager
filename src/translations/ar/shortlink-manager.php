@@ -158,7 +158,7 @@ return [
     'Invalid Rows (will be skipped)' => 'صفوف غير صالحة (ستُتخطَّى)',
     'No Valid Shortlinks to Import' => 'لا توجد روابط قصيرة صالحة للاستيراد',
     'Import {count} Shortlinks' => 'استيراد {count} رابط قصير',
-    'Import from CSV' => 'الاستيراد من CSV',
+    'Import from CSV' => 'استيراد من CSV',
     'CSV File' => 'ملف CSV',
     'Select a CSV file to import shortlinks' => 'حدد ملف CSV لاستيراد الروابط القصيرة',
     'CSV Delimiter' => 'محدد CSV',
@@ -319,7 +319,7 @@ return [
     // Settings: General
     'General Settings' => 'الإعدادات العامة',
     'Site Settings' => 'إعدادات الموقع',
-    'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'حدد المواقع التي يجب تفعيل {pluginName} لها. اتركه فارغًا لتفعيله على جميع المواقع.',
+    'Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites.' => 'حدد المواقع التي يجب تفعيل {pluginName} لها. اتركه فارغًا لتفعيله على كل المواقع.',
     'This is being overridden by the <code>enabledSites</code> setting in <code>config/shortlink-manager.php</code>.' => 'يتم تجاوز هذا الإعداد بواسطة إعداد <code>enabledSites</code> في <code>config/shortlink-manager.php</code>.',
     'URL Settings' => 'إعدادات URL',
     'Use URL Prefix' => 'استخدام بادئة URL',
