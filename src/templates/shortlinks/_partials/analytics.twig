@@ -125,8 +125,8 @@
                             <tbody>
                                 {% for click in analytics.recentClicks %}
                                     <tr>
-                                        <td style="white-space: nowrap;">{{ click.dateCreated|lrDate('short') }}</td>
-                                        <td style="white-space: nowrap;">{{ click.dateCreated|lrTime('short') }}</td>
+                                        <td style="white-space: nowrap;">{{ click.dateCreated|lrDate }}</td>
+                                        <td style="white-space: nowrap;">{{ click.dateCreated|lrTime }}</td>
                                         <td>
                                             {% if click.siteId %}
                                                 {% set site = craft.app.sites.getSiteById(click.siteId) %}
