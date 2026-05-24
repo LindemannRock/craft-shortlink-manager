@@ -323,10 +323,10 @@ class AnalyticsController extends Controller
 
             $row = [
                 'dateFormatted' => $date instanceof \DateTime
-                    ? DateFormatHelper::formatDate($date, 'short', true, false)
+                    ? DateFormatHelper::formatDate($date, 'cascade', true, false)
                     : null,
                 'timeFormatted' => $date instanceof \DateTime
-                    ? DateFormatHelper::formatTime($date, 'short', null, false)
+                    ? DateFormatHelper::formatTime($date, 'cascade', null, false)
                     : null,
                 'linkId' => $click['linkId'] ?? null,
                 'linkCode' => $click['linkCode'] ?? null,
