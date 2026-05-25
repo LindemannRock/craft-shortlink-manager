@@ -53,6 +53,17 @@ ddev craft shortlink-manager/security/generate-salt
 
 7. **Clear stale redirect caches after changes.** If you changed a link from `301`/`308` to `302`/`307`, or changed the redirect mode, clear browser/CDN/static caches before retesting. Previously cached permanent redirects can keep masking the new behavior.
 
+## Date Format Changes Do Not Appear in the Short Links Index
+
+The ShortLink Manager index uses the plugin date/time settings for its date columns, including **Post Date**, **Expiry Date**, **Date Created**, and **Date Updated**.
+
+If a date-format setting does not appear to change the index:
+
+1. Make sure you are changing **ShortLink Manager → Settings → Interface**, not only Craft's global locale preferences.
+2. Check whether `config/shortlink-manager.php` sets `timeFormat`, `monthFormat`, `dateOrder`, `dateSeparator`, or `showSeconds`; config-file values override the CP settings.
+3. Clear caches and reload the index.
+4. Confirm the relevant column is enabled in the index column settings.
+
 ## Analytics Record Once, Then Stop Under Static Cache
 
 This symptom almost always means the short URL response is being cached before it reaches Craft on later requests.
