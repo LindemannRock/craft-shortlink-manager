@@ -35,7 +35,7 @@
     },
     table: {
         columns: [
-            { key: 'name', label: 'Name'|t('app'), sortable: true },
+            { key: 'name', label: 'Name'|t('shortlink-manager'), sortable: true },
             { key: 'usageCount', label: 'Used by'|t('shortlink-manager'), sortable: true, hideable: true },
         ],
         items: items,
@@ -83,15 +83,15 @@
             actions: {
                 type: 'menu',
                 icon: 'settings',
-                title: 'Actions'|t('app'),
+                title: 'Actions'|t('shortlink-manager'),
                 items: [
                     canEdit ? {
-                        label: 'Edit'|t('app'),
+                        label: 'Edit'|t('shortlink-manager'),
                         url: url('shortlink-manager/taxonomy/folders/' ~ item.id),
                     } : null,
                     (canEdit and canDelete) ? {type: 'divider'} : null,
                     canDelete ? {
-                        label: 'Delete'|t('app'),
+                        label: 'Delete'|t('shortlink-manager'),
                         class: 'error',
                         jsAction: 'delete-folder',
                         title: item.usageCount > 0 ? 'This also unassigns the folder from linked shortlinks.'|t('shortlink-manager') : null,
@@ -105,15 +105,15 @@
             actions: {
                 type: 'menu',
                 icon: 'settings',
-                title: 'Actions'|t('app'),
+                title: 'Actions'|t('shortlink-manager'),
                 items: [
                     canEdit ? {
-                        label: 'Edit'|t('app'),
+                        label: 'Edit'|t('shortlink-manager'),
                         url: url('shortlink-manager/taxonomy/tags/' ~ item.id),
                     } : null,
                     (canEdit and canDelete) ? {type: 'divider'} : null,
                     canDelete ? {
-                        label: 'Delete'|t('app'),
+                        label: 'Delete'|t('shortlink-manager'),
                         class: 'error',
                         jsAction: 'delete-tag',
                     } : null,
@@ -126,7 +126,7 @@
 {% block bulkActions %}
     {% if canDelete %}
         <button type="button" class="btn secondary" id="lr-bulk-delete-btn">
-            {{ 'Delete'|t('app') }} (<span class="lr-bulk-count">0</span>)
+            {{ 'Delete'|t('shortlink-manager') }} (<span class="lr-bulk-count">0</span>)
         </button>
     {% endif %}
 {% endblock %}

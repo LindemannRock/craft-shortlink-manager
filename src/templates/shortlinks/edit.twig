@@ -11,7 +11,7 @@
 
 {% set tabs = {
     fields: {
-        label: 'Content'|t('app'),
+        label: 'Content'|t('shortlink-manager'),
         url: '#fields',
     },
 } %}
@@ -51,7 +51,7 @@
         label: currentSite.name|t('site'),
         menu: {
             items: siteMenuItems,
-            label: 'Select site'|t('app')
+            label: 'Select site'|t('shortlink-manager')
         }
     }] %}
 {% endif %}
@@ -75,7 +75,7 @@
     {% if shortLink.id %}
         <div class="preview-btn-container btngroup">
             {% set viewLabel = shortlinkHelper.displayName %}
-            <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('app') }}</a>
+            <a href="{{ shortLink.getUrl() }}" target="_blank" class="btn">{{ 'View'|t('shortlink-manager') }}</a>
             <button type="button" class="btn menubtn"></button>
             <div class="menu">
                 <ul role="listbox">
@@ -101,13 +101,13 @@
         </div>
     {% endif %}
     <div class="btngroup submit">
-        <button type="submit" class="btn submit">{{ "Save"|t('app') }}</button>
+        <button type="submit" class="btn submit">{{ "Save"|t('shortlink-manager') }}</button>
         <button type="button" class="btn submit menubtn"></button>
         <div class="menu">
             <ul role="listbox">
                 <li>
                     <a class="formsubmit" role="option" tabindex="0" data-redirect="{{ url('shortlink-manager/shortlinks/{id}', {site: currentSite.handle})|hash }}">
-                        <span class="label">{{ 'Save and continue editing'|t('app') }}</span>
+                        <span class="label">{{ 'Save and continue editing'|t('shortlink-manager') }}</span>
                         <span class="shortcut" id="save-shortcut"></span>
                     </a>
                 </li>
@@ -115,13 +115,13 @@
         </div>
     </div>
     {% if shortLink.id and currentUser.can('shortLinkManager:deleteLinks') %}
-        <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('app') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('app') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
+        <button type="button" id="action-btn" class="btn menubtn action-btn hairline-dark m" title="{{ 'Actions'|t('shortlink-manager') }}" aria-controls="action-menu" aria-label="{{ 'Actions'|t('shortlink-manager') }}" data-disclosure-trigger="true" aria-expanded="false"></button>
         <div id="action-menu" class="menu menu--disclosure">
             <ul>
                 <li>
-                    <button class="menu-item error formsubmit" data-destructive data-action="shortlink-manager/shortlinks/delete" data-params='{"id":{{ shortLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('app') }}" data-redirect="{{ 'shortlink-manager/shortlinks'|hash }}" data-headers='{"Accept":"application/json"}'>
+                    <button class="menu-item error formsubmit" data-destructive data-action="shortlink-manager/shortlinks/delete" data-params='{"id":{{ shortLink.id }}}' data-confirm="{{ 'Are you sure you want to delete this entry?'|t('shortlink-manager') }}" data-redirect="{{ 'shortlink-manager/shortlinks'|hash }}" data-headers='{"Accept":"application/json"}'>
                         <span class="icon">{{ svg('@app/icons/trash.svg') }}</span>
-                        <span class="menu-item-label">{{ "Delete"|t('app') }}</span>
+                        <span class="menu-item-label">{{ "Delete"|t('shortlink-manager') }}</span>
                     </button>
                 </li>
             </ul>
@@ -192,7 +192,7 @@
 
         {# Author field #}
         {{ forms.elementSelectField({
-            label: "Author"|t('app'),
+            label: "Author"|t('shortlink-manager'),
             id: 'authorId',
             name: 'authorId',
             elementType: 'craft\\elements\\User',
@@ -207,7 +207,7 @@
 
         {# Post Date #}
         {{ forms.dateTimeField({
-            label: "Post Date"|t('app'),
+            label: "Post Date"|t('shortlink-manager'),
             id: 'postDate',
             name: 'postDate',
             value: shortLink.postDate ?? shortLink.dateCreated ?? now,
@@ -216,7 +216,7 @@
 
         {# Expiry Date #}
         {{ forms.dateTimeField({
-            label: "Expiry Date"|t('app'),
+            label: "Expiry Date"|t('shortlink-manager'),
             id: 'expiryDate',
             name: 'expiryDate',
             value: shortLink.dateExpired ?? null,
@@ -225,7 +225,7 @@
 
         {% set pendingNewFolderName = craft.app.request.getBodyParam('newFolderName', '') %}
         {% set folderFieldValue = pendingNewFolderName ? '__new__' : (shortLink.folderId ?? '') %}
-        {% set folderFieldOptions = [{label: 'None'|t('app'), value: ''}] %}
+        {% set folderFieldOptions = [{label: 'None'|t('shortlink-manager'), value: ''}] %}
         {% for value, label in (folderOptions ?? {}) %}
             {% set folderFieldOptions = folderFieldOptions|merge([{label: label, value: value}]) %}
         {% endfor %}
@@ -282,7 +282,7 @@
                         <input type="text" class="text fullwidth" readonly value="{{ shortLink.getUrl() }}" id="shortlink-url" style="border: none; padding-inline: var(--m) var(--s);">
                     </div>
                     <button type="button" class="btn" id="copy-url-btn" style="border-start-start-radius: 0; border-end-start-radius: 0;">
-                        {{ "Copy"|t('app') }}
+                        {{ "Copy"|t('shortlink-manager') }}
                     </button>
                 </div>
             </div>
@@ -291,7 +291,7 @@
 
     <div class="meta">
         {{ forms.lightswitchField({
-            label: "Enabled"|t('app'),
+            label: "Enabled"|t('shortlink-manager'),
             id: 'enabled',
             name: 'enabled',
             on: shortLink.enabled ?? true,
@@ -488,25 +488,25 @@
     {% if shortLink.id %}
         <dl class="meta read-only">
             <div class="data">
-                <dt class="heading">{{ "ID"|t('app') }}</dt>
+                <dt class="heading">{{ "ID"|t('shortlink-manager') }}</dt>
                 <dd class="value">{{ shortLink.id }}</dd>
             </div>
             <div class="data">
-                <dt class="heading">{{ "Status"|t('app') }}</dt>
+                <dt class="heading">{{ "Status"|t('shortlink-manager') }}</dt>
                 <dd class="value">
                     {% set status = shortLink.getStatus() %}
                      {% if status == 'expired' %}
                         <span class="status expired"></span>
-                        <span>{{ 'Expired'|t('app') }}</span>
+                        <span>{{ 'Expired'|t('shortlink-manager') }}</span>
                     {% elseif status == 'pending' %}
                         <span class="status pending"></span>
-                        <span>{{ 'Pending'|t('app') }}</span>
+                        <span>{{ 'Pending'|t('shortlink-manager') }}</span>
                     {% elseif status == 'disabled' %}
                         <span class="status disabled"></span>
-                        <span>{{ 'Disabled'|t('app') }}</span>
+                        <span>{{ 'Disabled'|t('shortlink-manager') }}</span>
                     {% else %}
                         <span class="status live"></span>
-                        <span>{{ 'Live'|t('app') }}</span>
+                        <span>{{ 'Live'|t('shortlink-manager') }}</span>
                     {% endif %}
                 </dd>
             </div>
@@ -515,11 +515,11 @@
                 <dd class="value">{{ shortLink.hits|number_format }}</dd>
             </div>
             <div class="data">
-                <dt class="heading">{{ "Created at"|t('app') }}</dt>
+                <dt class="heading">{{ "Created at"|t('shortlink-manager') }}</dt>
                 <dd class="value">{{ shortLink.dateCreated|lrDatetime }}</dd>
             </div>
             <div class="data">
-                <dt class="heading">{{ "Updated at"|t('app') }}</dt>
+                <dt class="heading">{{ "Updated at"|t('shortlink-manager') }}</dt>
                 <dd class="value">{{ shortLink.dateUpdated|lrDatetime }}</dd>
             </div>
         </dl>

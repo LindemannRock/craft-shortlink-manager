@@ -12,9 +12,9 @@
 
 {% block actionButton %}
     <div class="btngroup submit">
-        <button type="submit" class="btn submit">{{ 'Save'|t('app') }}</button>
+        <button type="submit" class="btn submit">{{ 'Save'|t('shortlink-manager') }}</button>
     </div>
-    <a class="btn" href="{{ url('shortlink-manager/taxonomy', { view: 'tags' }) }}">{{ 'Cancel'|t('app') }}</a>
+    <a class="btn" href="{{ url('shortlink-manager/taxonomy', { view: 'tags' }) }}">{{ 'Cancel'|t('shortlink-manager') }}</a>
 {% endblock %}
 
 {% block content %}
