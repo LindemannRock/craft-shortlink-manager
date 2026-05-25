@@ -324,10 +324,10 @@ class ShortLink extends Element
     public static function statuses(): array
     {
         return [
-            self::STATUS_ENABLED => Craft::t('app', 'Enabled'),
-            self::STATUS_DISABLED => Craft::t('app', 'Disabled'),
-            self::STATUS_PENDING => Craft::t('app', 'Pending'),
-            self::STATUS_EXPIRED => Craft::t('app', 'Expired'),
+            self::STATUS_ENABLED => Craft::t('shortlink-manager', 'Enabled'),
+            self::STATUS_DISABLED => Craft::t('shortlink-manager', 'Disabled'),
+            self::STATUS_PENDING => Craft::t('shortlink-manager', 'Pending'),
+            self::STATUS_EXPIRED => Craft::t('shortlink-manager', 'Expired'),
         ];
     }
 
@@ -510,7 +510,7 @@ class ShortLink extends Element
                 // Sorts by the per-site enabled flag. The plugin also computes
                 // an "expired" status from dateExpired, but the index column
                 // here surfaces enabled/disabled — match that.
-                'label' => Craft::t('app', 'Status'),
+                'label' => Craft::t('shortlink-manager', 'Status'),
                 'orderBy' => 'elements_sites.enabled',
                 'attribute' => 'status',
                 'defaultDir' => 'desc',
@@ -522,31 +522,31 @@ class ShortLink extends Element
                 'defaultDir' => 'desc',
             ],
             [
-                'label' => Craft::t('app', 'Post Date'),
+                'label' => Craft::t('shortlink-manager', 'Post Date'),
                 'orderBy' => 'shortlinkmanager.postDate',
                 'attribute' => 'postDate',
                 'defaultDir' => 'desc',
             ],
             [
-                'label' => Craft::t('app', 'Expiry Date'),
+                'label' => Craft::t('shortlink-manager', 'Expiry Date'),
                 'orderBy' => 'shortlinkmanager.dateExpired',
                 'attribute' => 'dateExpired',
                 'defaultDir' => 'asc',
             ],
             [
-                'label' => Craft::t('app', 'Date Created'),
+                'label' => Craft::t('shortlink-manager', 'Date Created'),
                 'orderBy' => 'elements.dateCreated',
                 'attribute' => 'dateCreated',
                 'defaultDir' => 'desc',
             ],
             [
-                'label' => Craft::t('app', 'Date Updated'),
+                'label' => Craft::t('shortlink-manager', 'Date Updated'),
                 'orderBy' => 'elements.dateUpdated',
                 'attribute' => 'dateUpdated',
                 'defaultDir' => 'desc',
             ],
             [
-                'label' => Craft::t('app', 'ID'),
+                'label' => Craft::t('shortlink-manager', 'ID'),
                 'orderBy' => 'elements.id',
                 'attribute' => 'id',
             ],
@@ -564,12 +564,12 @@ class ShortLink extends Element
             'destinationUrl' => ['label' => Craft::t('shortlink-manager', 'Destination')],
             'folder' => ['label' => Craft::t('shortlink-manager', 'Folder')],
             'tags' => ['label' => Craft::t('shortlink-manager', 'Tags')],
-            'status' => ['label' => Craft::t('app', 'Status')],
+            'status' => ['label' => Craft::t('shortlink-manager', 'Status')],
             'hits' => ['label' => Craft::t('shortlink-manager', 'Interactions')],
-            'postDate' => ['label' => Craft::t('app', 'Post Date')],
-            'dateExpired' => ['label' => Craft::t('app', 'Expiry Date')],
-            'dateCreated' => ['label' => Craft::t('app', 'Date Created')],
-            'dateUpdated' => ['label' => Craft::t('app', 'Date Updated')],
+            'postDate' => ['label' => Craft::t('shortlink-manager', 'Post Date')],
+            'dateExpired' => ['label' => Craft::t('shortlink-manager', 'Expiry Date')],
+            'dateCreated' => ['label' => Craft::t('shortlink-manager', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('shortlink-manager', 'Date Updated')],
         ];
     }
 
