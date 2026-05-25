@@ -298,13 +298,12 @@ class AnalyticsQueryInsightsService
             $site = !empty($result['siteId']) ? ($sitesById[$result['siteId']] ?? null) : null;
             $result['siteName'] = $site ? $site->name : '-';
 
-            // Pre-format dateCreated for display with timezone
-            // Database stores in UTC, so create DateTime with UTC timezone first
+            // Convert dateCreated from UTC string to local DateTime object.
+            // Controller formats for JSON via DateFormatHelper; Twig consumers use |lrDate / |lrTime.
             if (!empty($result['dateCreated'])) {
                 $utcDate = new \DateTime($result['dateCreated'], new \DateTimeZone('UTC'));
                 $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
                 $result['dateCreated'] = $utcDate;
-                $result['dateCreatedFormatted'] = Craft::$app->getFormatter()->asDatetime($utcDate, 'short');
             }
         }
 
@@ -353,13 +352,12 @@ class AnalyticsQueryInsightsService
             $site = !empty($result['siteId']) ? ($sitesById[$result['siteId']] ?? null) : null;
             $result['siteName'] = $site ? $site->name : '-';
 
-            // Pre-format lastClick for display with timezone
-            // Database stores in UTC, so create DateTime with UTC timezone first
+            // Convert lastClick from UTC string to local DateTime object.
+            // Twig consumers use |lrDatetime for cascade-aware formatting.
             if (!empty($result['lastClick'])) {
                 $utcDate = new \DateTime($result['lastClick'], new \DateTimeZone('UTC'));
                 $utcDate->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
                 $result['lastClick'] = $utcDate;
-                $result['lastClickFormatted'] = Craft::$app->getFormatter()->asDatetime($utcDate, 'short');
             }
         }
 
