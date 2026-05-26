@@ -497,7 +497,6 @@ return [
     'Live Preview' => 'Direkteforhåndsvisning',
     'Toggle preview' => 'Veksle forhåndsvisning',
     'Loading...' => 'Laster...',
-    'Save Settings' => 'Lagre innstillinger',
     'Error' => 'Feil',
     'Logo requires PNG format' => 'Logo krever PNG-format',
     'Failed to generate preview' => 'Kunne ikke generere forhåndsvisning',

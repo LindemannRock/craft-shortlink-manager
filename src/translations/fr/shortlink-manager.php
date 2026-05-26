@@ -495,7 +495,6 @@ return [
     'Live Preview' => 'Aperçu en direct',
     'Toggle preview' => 'Basculer l\'aperçu',
     'Loading...' => 'Chargement...',
-    'Save Settings' => 'Enregistrer les paramètres',
     'Error' => 'Erreur',
     'Logo requires PNG format' => 'Le logo nécessite le format PNG',
     'Failed to generate preview' => 'Échec de la génération de l\'aperçu',

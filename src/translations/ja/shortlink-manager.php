@@ -497,7 +497,6 @@ return [
     'Live Preview' => 'ライブプレビュー',
     'Toggle preview' => 'プレビューの切り替え',
     'Loading...' => '読み込み中...',
-    'Save Settings' => '設定を保存',
     'Error' => 'エラー',
     'Logo requires PNG format' => 'ロゴには PNG 形式が必要です',
     'Failed to generate preview' => 'プレビューの生成に失敗しました',

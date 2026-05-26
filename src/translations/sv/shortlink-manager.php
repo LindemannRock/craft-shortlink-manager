@@ -497,7 +497,6 @@ return [
     'Live Preview' => 'Direktförhandsgranskning',
     'Toggle preview' => 'Växla förhandsgranskning',
     'Loading...' => 'Laddar...',
-    'Save Settings' => 'Spara inställningar',
     'Error' => 'Fel',
     'Logo requires PNG format' => 'Logotypen kräver PNG-format',
     'Failed to generate preview' => 'Kunde inte generera förhandsgranskning',

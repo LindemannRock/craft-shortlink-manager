@@ -497,7 +497,6 @@ return [
     'Live Preview' => 'Pré-visualização em tempo real',
     'Toggle preview' => 'Ativar/desativar pré-visualização',
     'Loading...' => 'A carregar...',
-    'Save Settings' => 'Salvar configurações',
     'Error' => 'Erro',
     'Logo requires PNG format' => 'O logótipo requer formato PNG',
     'Failed to generate preview' => 'Falha ao gerar a pré-visualização',

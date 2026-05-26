@@ -495,7 +495,6 @@ return [
     'Live Preview' => 'Live voorvertoning',
     'Toggle preview' => 'Voorbeeld omschakelen',
     'Loading...' => 'Laden...',
-    'Save Settings' => 'Instellingen opslaan',
     'Error' => 'Fout',
     'Logo requires PNG format' => 'Logo vereist PNG-formaat',
     'Failed to generate preview' => 'Voorbeeld genereren mislukt',

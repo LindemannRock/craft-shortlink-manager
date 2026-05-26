@@ -495,7 +495,6 @@ return [
     'Live Preview' => 'معاينة مباشرة',
     'Toggle preview' => 'تبديل المعاينة',
     'Loading...' => 'جارٍ التحميل...',
-    'Save Settings' => 'حفظ الإعدادات',
     'Error' => 'خطأ',
     'Logo requires PNG format' => 'الشعار يتطلب صيغة PNG',
     'Failed to generate preview' => 'فشل إنشاء المعاينة',

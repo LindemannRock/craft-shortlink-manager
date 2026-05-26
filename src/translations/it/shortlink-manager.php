@@ -497,7 +497,6 @@ return [
     'Live Preview' => 'Anteprima in tempo reale',
     'Toggle preview' => 'Attiva/disattiva anteprima',
     'Loading...' => 'Caricamento...',
-    'Save Settings' => 'Salva impostazioni',
     'Error' => 'Errore',
     'Logo requires PNG format' => 'Il logo richiede il formato PNG',
     'Failed to generate preview' => 'Impossibile generare l\'anteprima',

@@ -495,7 +495,6 @@ return [
     'Live Preview' => 'Live-Vorschau',
     'Toggle preview' => 'Vorschau umschalten',
     'Loading...' => 'Wird geladen...',
-    'Save Settings' => 'Einstellungen speichern',
     'Error' => 'Fehler',
     'Logo requires PNG format' => 'Logo erfordert PNG-Format',
     'Failed to generate preview' => 'Vorschau konnte nicht generiert werden',

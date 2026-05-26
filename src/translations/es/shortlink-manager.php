@@ -495,7 +495,6 @@ return [
     'Live Preview' => 'Vista previa en vivo',
     'Toggle preview' => 'Alternar vista previa',
     'Loading...' => 'Cargando...',
-    'Save Settings' => 'Guardar configuración',
     'Error' => 'Error',
     'Logo requires PNG format' => 'El logo requiere formato PNG',
     'Failed to generate preview' => 'Error al generar la vista previa',

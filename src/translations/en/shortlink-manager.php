@@ -54,7 +54,6 @@ return [
     'Failed' => 'Failed',
     'Learn more' => 'Learn more',
     'Loading...' => 'Loading...',
-    'Save Settings' => 'Save Settings',
     'Note' => 'Note',
     'Site' => 'Site',
     'Source' => 'Source',
