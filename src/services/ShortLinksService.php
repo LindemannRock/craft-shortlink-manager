@@ -492,8 +492,8 @@ class ShortLinksService extends Component
 
             if ($settings->cacheStorageMethod === 'redis') {
                 // Clear Redis cache
-                $cache = Craft::$app->cache;
-                if ($cache instanceof \yii\redis\Cache) {
+                $cache = PluginHelper::getRedisCacheOrLog(ShortLinkManager::$plugin->id);
+                if ($cache !== null) {
                     $redis = $cache->redis;
 
                     // Get all keys from tracking sets
