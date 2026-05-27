@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'Anteprima importazione',
     'Import Preview' => 'Anteprima importazione',
     'Import History' => 'Cronologia importazioni',
-    'No import history yet.' => 'Nessuna cronologia di importazione ancora.',
-    'Clear history' => 'Cancella cronologia',
     'Upload & Map Columns' => 'Carica e mappa le colonne',
     'Rules:' => 'Regole:',
     'ShortLink Type' => 'Tipo ShortLink',

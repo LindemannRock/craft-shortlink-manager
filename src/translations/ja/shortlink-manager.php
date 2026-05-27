@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'インポートをプレビューする',
     'Import Preview' => 'インポートプレビュー',
     'Import History' => 'インポート履歴',
-    'No import history yet.' => 'インポート履歴はまだありません。',
-    'Clear history' => '履歴を削除する',
     'Upload & Map Columns' => 'アップロードしてカラムをマッピングする',
     'Rules:' => 'ルール:',
     'ShortLink Type' => 'ShortLink タイプ',

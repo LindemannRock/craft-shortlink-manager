@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'Forhåndsvis import',
     'Import Preview' => 'Importforhåndsvisning',
     'Import History' => 'Importhistorikk',
-    'No import history yet.' => 'Ingen importhistorikk ennå.',
-    'Clear history' => 'Tøm historikk',
     'Upload & Map Columns' => 'Last opp og tilknytt kolonner',
     'Rules:' => 'Regler:',
     'ShortLink Type' => 'ShortLink-type',

@@ -766,8 +766,6 @@ return [
     'Preview Import' => 'Preview Import',
     'Import Preview' => 'Import Preview',
     'Import History' => 'Import History',
-    'No import history yet.' => 'No import history yet.',
-    'Clear history' => 'Clear history',
     'Upload & Map Columns' => 'Upload & Map Columns',
     'Rules:' => 'Rules:',
     'ShortLink Type' => 'ShortLink Type',

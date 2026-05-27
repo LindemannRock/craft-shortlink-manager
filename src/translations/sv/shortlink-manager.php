@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'Förhandsgranska import',
     'Import Preview' => 'Importförhandsgranskning',
     'Import History' => 'Importhistorik',
-    'No import history yet.' => 'Ingen importhistorik ännu.',
-    'Clear history' => 'Rensa historik',
     'Upload & Map Columns' => 'Ladda upp och mappa kolumner',
     'Rules:' => 'Regler:',
     'ShortLink Type' => 'ShortLink-typ',

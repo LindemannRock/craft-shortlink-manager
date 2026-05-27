@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'Importvorschau',
     'Import Preview' => 'Importvorschau',
     'Import History' => 'Import-Verlauf',
-    'No import history yet.' => 'Noch kein Import-Verlauf vorhanden.',
-    'Clear history' => 'Verlauf leeren',
     'Upload & Map Columns' => 'Hochladen & Spalten zuordnen',
     'Rules:' => 'Regeln:',
     'ShortLink Type' => 'ShortLink-Typ',

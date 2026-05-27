@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'Prévisualiser l\'import',
     'Import Preview' => 'Prévisualisation de l\'import',
     'Import History' => 'Historique des imports',
-    'No import history yet.' => 'Pas encore d\'historique d\'import.',
-    'Clear history' => 'Effacer l\'historique',
     'Upload & Map Columns' => 'Téléverser et mapper les colonnes',
     'Rules:' => 'Règles :',
     'ShortLink Type' => 'Type de lien court',

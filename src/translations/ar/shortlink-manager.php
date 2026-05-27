@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'معاينة الاستيراد',
     'Import Preview' => 'معاينة الاستيراد',
     'Import History' => 'سجل الاستيراد',
-    'No import history yet.' => 'لا يوجد سجل استيراد بعد.',
-    'Clear history' => 'مسح السجل',
     'Upload & Map Columns' => 'رفع الملف وتعيين الأعمدة',
     'Rules:' => 'القواعد:',
     'ShortLink Type' => 'نوع ShortLink',

@@ -140,8 +140,6 @@ return [
     'Preview Import' => 'Importvoorbeeld',
     'Import Preview' => 'Importvoorvertoning',
     'Import History' => 'Importgeschiedenis',
-    'No import history yet.' => 'Nog geen importgeschiedenis.',
-    'Clear history' => 'Geschiedenis wissen',
     'Upload & Map Columns' => 'Uploaden en kolommen toewijzen',
     'Rules:' => 'Regels:',
     'ShortLink Type' => 'ShortLink-type',
