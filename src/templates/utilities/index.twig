@@ -168,7 +168,7 @@
 
 {% block scripts %}
 {% js %}
-{% if settings.enableQrCodeCache %}
+{% if hasCacheManagement and settings.enableQrCodeCache %}
 {% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
     id: 'clear-qr-cache',
     action: actionUrl('shortlink-manager/settings/clear-qr-cache'),
@@ -176,7 +176,7 @@
 } only %}
 {% endif %}
 
-{% if settings.cacheDeviceDetection %}
+{% if hasCacheManagement and settings.cacheDeviceDetection %}
 {% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
     id: 'clear-device-cache',
     action: actionUrl('shortlink-manager/settings/clear-device-cache'),
@@ -184,7 +184,7 @@
 } only %}
 {% endif %}
 
-{% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
+{% if hasCacheManagement and settings.enableQrCodeCache and settings.cacheDeviceDetection %}
 {% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
     id: 'clear-all-caches',
     action: actionUrl('shortlink-manager/settings/clear-all-caches'),
@@ -193,7 +193,7 @@
 } only %}
 {% endif %}
 
-{% if settings.enableAnalytics %}
+{% if hasAnalyticsManagement %}
 {% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
     id: 'clear-all-analytics',
     action: actionUrl('shortlink-manager/settings/clear-all-analytics'),
