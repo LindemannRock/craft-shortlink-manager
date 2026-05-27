@@ -53,6 +53,17 @@ ddev craft shortlink-manager/security/generate-salt
 
 7. **Clear stale redirect caches after changes.** If you changed a link from `301`/`308` to `302`/`307`, or changed the redirect mode, clear browser/CDN/static caches before retesting. Previously cached permanent redirects can keep masking the new behavior.
 
+## Scheduled Analytics Cleanup Does Not Reappear
+
+ShortLink Manager schedules a recurring queue job for analytics cleanup. If the queue is empty after the cleanup job runs:
+
+1. Confirm the queue worker is running.
+2. Visit any CP page to let ShortLink Manager bootstrap the initial job.
+3. Check that `enableAnalytics` is on.
+4. Check that `analyticsRetention` is greater than `0`.
+
+The queued job description shows when that specific queued row is due to run.
+
 ## Date Format Changes Do Not Appear in the Short Links Index
 
 The ShortLink Manager index uses the plugin date/time settings for its date columns, including **Post Date**, **Expiry Date**, **Date Created**, and **Date Updated**.
