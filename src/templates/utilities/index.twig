@@ -1,7 +1,7 @@
 {% extends 'lindemannrock-base/_layouts/cp-utilities' %}
 
 {# Permission checks #}
-{% set canViewLinks = currentUser.can('shortLinkManager:manageLinks') %}
+{% set canManageLinks = currentUser.can('shortLinkManager:manageLinks') %}
 {% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
 {% set canManageSettings = currentUser.can('shortLinkManager:manageSettings') %}
 {% set canClearCache = currentUser.can('shortLinkManager:clearCache') %}
@@ -11,7 +11,7 @@
 {% set settings = plugin.settings %}
 {% set storageMethod = settings.cacheStorageMethod %}
 
-{% set hasNavigation = canViewLinks or (settings.enableAnalytics and canViewAnalytics) or canManageSettings %}
+{% set hasNavigation = canManageLinks or (settings.enableAnalytics and canViewAnalytics) or canManageSettings %}
 {% set hasCacheManagement = (settings.enableQrCodeCache or settings.cacheDeviceDetection) and canClearCache %}
 {% set hasAnalyticsManagement = settings.enableAnalytics and canClearAnalytics %}
 {% set hasAnyQuickAction = hasNavigation or hasCacheManagement or hasAnalyticsManagement %}
@@ -28,8 +28,8 @@
 } %}
 
 {% block overview %}
-    {# Links Status Card - only show if user can view links #}
-    {% if canViewLinks %}
+    {# Links Status Card - only show if user can manage links #}
+    {% if canManageLinks %}
         {% set linksSubBoxes = [{value: activeLinks, label: 'Active'|t('shortlink-manager')}] %}
         {% if pendingLinks > 0 or (expiredLinks == 0 and disabledLinks == 0) %}
             {% set linksSubBoxes = linksSubBoxes|merge([{value: pendingLinks, label: 'Pending'|t('shortlink-manager')}]) %}
@@ -101,7 +101,7 @@
         {# Navigation Section #}
         {% if hasNavigation %}
             {% set navButtons = [] %}
-            {% if canViewLinks %}
+            {% if canManageLinks %}
                 {% set navButtons = navButtons|merge([{type: 'link', label: 'Manage {pluginName}'|t('shortlink-manager', {pluginName: shortlinkHelper.pluralDisplayName}), url: url('shortlink-manager/shortlinks')}]) %}
             {% endif %}
             {% if canManageSettings %}
