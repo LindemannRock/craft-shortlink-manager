@@ -8,6 +8,7 @@
 {% set selectedSubnavItem = 'shortlinks' %}
 {% set saveShortcutRedirect = 'shortlink-manager/shortlinks/{id}' %}
 {% set retainScrollOnSaveShortcut = true %}
+{% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
 
 {% set tabs = {
     fields: {
@@ -16,8 +17,8 @@
     },
 } %}
 
-{# Add analytics tab if globally enabled, shortLink exists, AND tracking is enabled for this shortLink #}
-{% if plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
+{# Add analytics tab if globally enabled, permitted, shortLink exists, AND tracking is enabled for this shortLink #}
+{% if canViewAnalytics and plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
     {% set tabs = tabs|merge({
         analytics: {
             label: 'Analytics'|t('shortlink-manager'),
@@ -169,7 +170,7 @@
     {% endif %}
 
     {# Analytics tab #}
-    {% if plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
+    {% if canViewAnalytics and plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
         <div id="analytics" class="hidden">
             {% include "shortlink-manager/shortlinks/_partials/analytics" %}
         </div>
@@ -317,13 +318,16 @@
             }) }}
         {% endif %}
 
-        {% if plugin.settings.enableAnalytics %}
+        {% if canViewAnalytics and plugin.settings.enableAnalytics %}
             {{ forms.lightswitchField({
                 label: "Track Analytics"|t('shortlink-manager'),
                 id: 'trackAnalytics',
                 name: 'trackAnalytics',
                 on: shortLink.trackAnalytics ?? true
             }) }}
+        {% elseif not plugin.settings.enableAnalytics %}
+            {# Hidden field to ensure trackAnalytics is set to false when analytics are disabled #}
+            <input type="hidden" name="trackAnalytics" value="0">
         {% endif %}
 
         {{ forms.lightswitchField({
