@@ -90,6 +90,7 @@ class DeviceDetectionService extends Component
             'cacheEnabled' => (bool) $settings->cacheDeviceDetection,
             'cacheStorageMethod' => $settings->cacheStorageMethod,
             'cacheDuration' => (int) $settings->deviceDetectionCacheDuration,
+            'pluginHandle' => ShortLinkManager::$plugin->id,
             'cachePath' => PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device'),
             'cacheKeyPrefix' => PluginHelper::getCacheKeyPrefix(ShortLinkManager::$plugin->id, 'device'),
             'cacheKeySet' => PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device'),
