@@ -20,6 +20,8 @@ Common issues and solutions for ShortLink Manager.
 
 7. **Are both ShortLink Manager and SmartLink Manager in root mode on the same host?** If both plugins have URL prefix disabled and share a host, root routes like `/{slug}` can collide. One plugin may capture requests meant for the other and trigger its own `notFoundRedirectUrl`.
 
+8. **If Redis caching is enabled, check the logs.** When `cacheStorageMethod` is set to `redis` but Craft's `cache` component is not Redis-backed, ShortLink Manager logs a cache-component warning and skips Redis-specific cache operations until the component is fixed.
+
 ## Short Link Creates a Loop or Doesn't Redirect
 
 If visiting a short link URL doesn't redirect but instead loads a Craft template or error:
