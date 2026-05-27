@@ -762,7 +762,6 @@ return [
     'Navigation' => 'Navigering',
     'Access main plugin sections' => 'Åtkomst till pluginets huvudsektioner',
     'View Analytics' => 'Visa analys',
-    'View Settings' => 'Visa inställningar',
     'Clear QR Cache' => 'Rensa QR-cache',
     'Clear Device Cache' => 'Rensa enhetscache',
     'Clear All Caches' => 'Rensa alla cacher',

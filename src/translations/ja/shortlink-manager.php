@@ -762,7 +762,6 @@ return [
     'Navigation' => 'ナビゲーション',
     'Access main plugin sections' => 'プラグインのメインセクションにアクセスする',
     'View Analytics' => 'アナリティクスを表示する',
-    'View Settings' => '設定を表示する',
     'Clear QR Cache' => 'QR キャッシュを削除する',
     'Clear Device Cache' => 'デバイスキャッシュを削除する',
     'Clear All Caches' => 'すべてのキャッシュを削除する',

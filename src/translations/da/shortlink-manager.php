@@ -762,7 +762,6 @@ return [
     'Navigation' => 'Navigation',
     'Access main plugin sections' => 'Adgang til pluginets hovedsektioner',
     'View Analytics' => 'Vis analytics',
-    'View Settings' => 'Vis indstillinger',
     'Clear QR Cache' => 'Ryd QR-cache',
     'Clear Device Cache' => 'Ryd enhedscache',
     'Clear All Caches' => 'Ryd alle caches',

@@ -762,7 +762,6 @@ return [
     'Navigation' => 'Navegação',
     'Access main plugin sections' => 'Aceder às secções principais do plugin',
     'View Analytics' => 'Ver análises',
-    'View Settings' => 'Ver definições',
     'Clear QR Cache' => 'Limpar cache QR',
     'Clear Device Cache' => 'Limpar cache de dispositivos',
     'Clear All Caches' => 'Limpar todas as caches',

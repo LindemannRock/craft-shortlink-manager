@@ -880,7 +880,6 @@ return [
     'Navigation' => 'Navigation',
     'Access main plugin sections' => 'Access main plugin sections',
     'View Analytics' => 'View Analytics',
-    'View Settings' => 'View Settings',
     'Clear QR Cache' => 'Clear QR Cache',
     'Clear Device Cache' => 'Clear Device Cache',
     'Clear All Caches' => 'Clear All Caches',

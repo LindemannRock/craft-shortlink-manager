@@ -764,7 +764,6 @@ return [
     'Navigation' => 'Navigatie',
     'Access main plugin sections' => 'Toegang tot hoofdsecties van de plugin',
     'View Analytics' => 'Analytics bekijken',
-    'View Settings' => 'Instellingen bekijken',
     'Clear QR Cache' => 'QR cache wissen',
     'Clear Device Cache' => 'Apparaatcache wissen',
     'Clear All Caches' => 'Alle caches wissen',

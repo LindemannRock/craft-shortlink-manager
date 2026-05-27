@@ -760,7 +760,6 @@ return [
     'Navigation' => 'التنقل',
     'Access main plugin sections' => 'الوصول إلى الأقسام الرئيسية للإضافة',
     'View Analytics' => 'عرض Analytics',
-    'View Settings' => 'عرض الإعدادات',
     'Clear QR Cache' => 'مسح Cache QR',
     'Clear Device Cache' => 'مسح Cache الأجهزة',
     'Clear All Caches' => 'مسح جميع الCaches',
