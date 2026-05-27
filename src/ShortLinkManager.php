@@ -28,6 +28,7 @@ use craft\utilities\ClearCaches;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use lindemannrock\base\helpers\CpNavHelper;
+use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -722,13 +723,19 @@ class ShortLinkManager extends Plugin
                 ->exists();
 
             if (!$existingJob) {
+                $initialDelay = 5 * 60;
+                $initialRun = (clone DateFormatHelper::now())->modify("+{$initialDelay} seconds");
                 $job = new CleanupAnalyticsJob([
                     'reschedule' => true,
+                    'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
+                        $initialRun,
+                        $settings,
+                        false,
+                        false,
+                    ),
                 ]);
 
-                // Add to queue with a small initial delay
-                // The job will re-queue itself to run every 24 hours
-                Craft::$app->queue->delay(5 * 60)->push($job);
+                Craft::$app->queue->delay($initialDelay)->push($job);
 
                 $this->logInfo('Scheduled initial analytics cleanup job', ['interval' => '24 hours']);
             }
