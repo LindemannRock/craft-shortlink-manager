@@ -8,7 +8,7 @@ Navigate to **ShortLink Manager → Import/Export**. The page shows three sectio
 
 - **Export** — download all short links as a CSV file (requires `shortLinkManager:exportLinks`)
 - **Import** — upload a CSV file and map columns to short link fields (requires `shortLinkManager:importLinks`)
-- **Import History** — log of past imports (requires `shortLinkManager:viewImportHistory`)
+- **Import History** — log of past imports (requires `shortLinkManager:manageImportExport`)
 
 ## Exporting Short Links
 
@@ -116,7 +116,6 @@ Click **Clear History** (requires `shortLinkManager:clearImportHistory`) to remo
 | `shortLinkManager:manageImportExport` | Access the Import/Export section |
 | `shortLinkManager:exportLinks` | Download CSV export |
 | `shortLinkManager:importLinks` | Upload and run imports |
-| `shortLinkManager:viewImportHistory` | View import history log |
 | `shortLinkManager:clearImportHistory` | Clear all import history records |
 
 See [Permissions](../developers/permissions.md) for the full permission hierarchy.
