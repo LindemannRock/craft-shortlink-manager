@@ -92,13 +92,9 @@ promo-entry,auto,,123,craft\elements\Entry,code,301,1,en,Product,"launch,ios",1,
 
     {% include 'lindemannrock-base/_partials/import-history' with {
         sectionId: 'import-history',
-        title: 'Import History'|t('shortlink-manager'),
         importHistory: importHistory,
         canClearHistory: canClearHistory,
         clearButtonId: 'clear-logs-btn',
-        clearLabel: 'Clear history'|t('shortlink-manager'),
-        emptyMessage: 'No import history yet.'|t('shortlink-manager'),
-        translationCategory: 'shortlink-manager',
     } only %}
 
     {% include 'lindemannrock-base/_components/plugin-credit' %}
