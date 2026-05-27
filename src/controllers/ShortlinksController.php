@@ -299,7 +299,10 @@ class ShortlinksController extends Controller
 
         $shortLink->expiredRedirectUrl = $this->request->getBodyParam('expiredRedirectUrl');
         $shortLink->expiredMessage = $this->request->getBodyParam('expiredMessage');
-        $shortLink->trackAnalytics = (bool) $this->request->getBodyParam('trackAnalytics', true);
+        $trackAnalytics = $this->request->getBodyParam('trackAnalytics');
+        if ($trackAnalytics !== null) {
+            $shortLink->trackAnalytics = (bool)$trackAnalytics;
+        }
 
         // Handle passQueryParams - only set if explicitly provided (preserves existing value for API callers)
         $passQueryParams = $this->request->getBodyParam('passQueryParams');
