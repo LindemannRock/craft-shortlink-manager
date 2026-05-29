@@ -130,7 +130,7 @@ class ImportExportController extends Controller
         $settings = ShortLinkManager::$plugin->getSettings();
         $filename = ExportHelper::filename($settings, ['export'], 'csv');
 
-        return ExportHelper::toCsv($rows, $headers, $filename, ['postDate', 'dateExpired']);
+        return ExportHelper::dispatchTable($rows, $headers, 'csv', $filename, ['postDate', 'dateExpired']);
     }
 
     public function actionUpload(): Response
