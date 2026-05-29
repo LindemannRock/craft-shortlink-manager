@@ -256,16 +256,19 @@ class AnalyticsController extends Controller
         $dateColumns = ['dateCreated'];
 
         // Export based on format
-        $extension = $format === 'excel' ? 'xlsx' : $format;
+        $extension = ExportHelper::extensionForFormat($format);
         $filename = ExportHelper::filename($settings, $filenameParts, $extension);
 
-        return match ($format) {
-            'json' => ExportHelper::toJson($exportData, $filename, $dateColumns),
-            'excel' => ExportHelper::toExcel($exportData, $headers, $filename, $dateColumns, [
+        return ExportHelper::dispatchTable(
+            rows: $exportData,
+            headers: $headers,
+            format: $format,
+            filename: $filename,
+            dateColumns: $dateColumns,
+            excelOptions: [
                 'sheetTitle' => Craft::t('shortlink-manager', 'Analytics'),
-            ]),
-            default => ExportHelper::toCsv($exportData, $headers, $filename, $dateColumns),
-        };
+            ],
+        );
     }
 
     /**
