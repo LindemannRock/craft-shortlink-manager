@@ -13,7 +13,7 @@ class AddTagsAction extends ElementAction
 {
     public function getTriggerLabel(): string
     {
-        return Craft::t('shortlink-manager', 'Add Tags…');
+        return Craft::t('shortlink-manager', 'Add Tags...');
     }
 
     public function getTriggerHtml(): ?string

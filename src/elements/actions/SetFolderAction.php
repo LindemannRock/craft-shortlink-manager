@@ -13,7 +13,7 @@ class SetFolderAction extends ElementAction
 {
     public function getTriggerLabel(): string
     {
-        return Craft::t('shortlink-manager', 'Set Folder…');
+        return Craft::t('shortlink-manager', 'Set Folder...');
     }
 
     public function getTriggerHtml(): ?string

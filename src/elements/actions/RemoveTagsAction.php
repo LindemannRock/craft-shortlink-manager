@@ -13,7 +13,7 @@ class RemoveTagsAction extends ElementAction
 {
     public function getTriggerLabel(): string
     {
-        return Craft::t('shortlink-manager', 'Remove Tags…');
+        return Craft::t('shortlink-manager', 'Remove Tags...');
     }
 
     public function getTriggerHtml(): ?string
