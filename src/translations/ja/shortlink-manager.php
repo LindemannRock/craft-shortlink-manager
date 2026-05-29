@@ -453,9 +453,9 @@ return [
     // Settings: Cache
     'Cache Settings' => 'キャッシュ設定',
     'Cache Storage Settings' => 'キャッシュ保存設定',
-    'How to store cache data. Use Redis/データベース for load-balanced or multi-server environments.' => 'キャッシュデータの保存方法。負荷分散またはマルチサーバー環境では Redis/データベース を使用してください。',
+    'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.' => 'キャッシュデータの保存方法。負荷分散またはマルチサーバー環境では Redis/データベース を使用してください。',
     'File System (default, single server)' => 'ファイルシステム（デフォルト、シングルサーバー）',
-    'Redis/データベース (load-balanced, multi-server, cloud hosting)' => 'Redis/データベース（負荷分散、マルチサーバー、クラウドホスティング）',
+    'Redis/Database (load-balanced, multi-server, cloud hosting)' => 'Redis/データベース（負荷分散、マルチサーバー、クラウドホスティング）',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/shortlink-manager.php</code>.' => 'この設定は <code>config/shortlink-manager.php</code> の <code>cacheStorageMethod</code> 設定によって上書きされています。',
     'QR Code Caching' => 'QR コードキャッシュ',
     'Enable QR Code Cache' => 'QR コードキャッシュを有効にする',

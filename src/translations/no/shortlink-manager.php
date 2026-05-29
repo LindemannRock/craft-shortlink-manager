@@ -423,7 +423,7 @@ return [
     'This is being overridden by the <code>enableAnalytics</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dette overstyres av innstillingen <code>enableAnalytics</code> i <code>config/shortlink-manager.php</code>.',
     'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Når aktivert vil {pluginName} spore besøksinteraksjoner, enhetstyper, geografiske data og annen analyseinformasjon.',
     'Geographic Detection' => 'Geografisk deteksjon',
-    'Detect user location for analyse' => 'Detekter brukerposisjon for analyse',
+    'Detect user location for analytics' => 'Detekter brukerposisjon for analyse',
     'This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>.' => 'Dette overstyres av innstillingen <code>enableGeoDetection</code> i <code>config/shortlink-manager.php</code>.',
 
     'IP Address Privacy' => 'IP-adressepersonvern',
