@@ -16,7 +16,7 @@ return [
     // Navigation
     'Links' => 'Links',
     'Analytics' => 'Análises',
-    'Logs' => 'Logs',
+    'Logs' => 'Registos',
     'Settings' => 'Definições',
     'Dashboard' => 'Painel',
 
@@ -37,9 +37,9 @@ return [
     'Export links' => 'Exportar links',
     'Clear import history' => 'Limpar histórico de importações',
     'Clear cache' => 'Limpar cache',
-    'View logs' => 'Ver logs',
-    'View system logs' => 'Ver logs do sistema',
-    'Download system logs' => 'Transferir logs do sistema',
+    'View logs' => 'Ver registos',
+    'View system logs' => 'Ver registos do sistema',
+    'Download system logs' => 'Descarregar registos do sistema',
     'Manage settings' => 'Gerir definições',
 
     // Widgets
@@ -166,7 +166,7 @@ return [
     'Semicolon (;)' => 'Ponto e vírgula (;)',
     'Tab' => 'Tabulação',
     'Pipe (|)' => 'Barra vertical (|)',
-    'Are you sure you want to clear all import logs? This action cannot be undone.' => 'Tem a certeza de que pretende limpar todos os logs de importação? Esta ação não pode ser anulada.',
+    'Are you sure you want to clear all import logs? This action cannot be undone.' => 'Tem a certeza de que pretende limpar todos os registos de importação? Esta ação não pode ser anulada.',
     'Failed to clear history.' => 'Falha ao limpar o histórico.',
     'Map Columns' => 'Mapear colunas',
     '-- Do not import --' => '-- Não importar --',
@@ -219,7 +219,7 @@ return [
     'Content' => 'Conteúdo',
     'Name' => 'Nome',
     'None' => 'Nenhum',
-    'Live' => 'Live',
+    'Live' => 'Publicado',
     'Select site' => 'Selecionar site',
     'ID' => 'ID',
     'Created at' => 'Criado a',
