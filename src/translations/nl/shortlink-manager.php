@@ -836,7 +836,7 @@ return [
     'Performance' => 'Prestaties',
     'Total interactions tracked' => 'Totaal bijgehouden interacties',
     'QR Scans' => 'QR scans',
-    'QR Codes' => 'QR codes',
+    'QR Codes' => 'QR-codes',
     'Devices' => 'Apparaten',
     'Cache Status' => 'Cachestatus',
     'Total cached entries' => 'Totaal gecachte vermeldingen',
