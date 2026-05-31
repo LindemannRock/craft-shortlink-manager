@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Door velden beheerde shortlinks vereisen een elementId',
     'Linked element not found for field-managed shortlink' => 'Gekoppeld element niet gevonden voor door veld beheerde shortlink',
     'Linked element has no URL' => 'Gekoppeld element heeft geen URL',
+    'ShortLink not found' => 'Shortlink niet gevonden',
+    'User does not have permission to import shortlinks.' => 'De gebruiker heeft geen toestemming om shortlinks te importeren.',
+    'User does not have permission to export shortlinks.' => 'De gebruiker heeft geen toestemming om shortlinks te exporteren.',
+    'User does not have permission to clear import history.' => 'De gebruiker heeft geen toestemming om de importgeschiedenis te wissen.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{fout} other{fouten}} gevonden',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Geselecteerde map beheren',
     'Rename selected folder' => 'Geselecteerde map hernoemen',
     'Please select a folder.' => 'Selecteer een map.',
-    'Folder not found.' => 'Map niet gevonden.',
+    'Folder not found' => 'Map niet gevonden',
     'Invalid folder name.' => 'Ongeldige mapnaam.',
     'Folder name already exists.' => 'Mapnaam bestaat al.',
     'Could not rename folder.' => 'Map kon niet worden hernoemd.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Map hernoemen',
     'Could not save folder.' => 'Map kon niet worden opgeslagen.',
     'Folder created.' => 'Map aangemaakt.',
-    'Tag not found.' => 'Tag niet gevonden.',
+    'Tag not found' => 'Tag niet gevonden',
     'Could not delete tag.' => 'Tag kon niet worden verwijderd.',
     'Tag deleted.' => 'Tag verwijderd.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Verwijder tags om ze uit alle shortlinks te verwijderen. Ongebruikte tags worden ook automatisch opgeschoond.',

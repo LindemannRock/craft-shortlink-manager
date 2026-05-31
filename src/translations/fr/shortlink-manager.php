@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Les liens courts gérés par champ nécessitent un elementId',
     'Linked element not found for field-managed shortlink' => 'Élément lié introuvable pour le lien court géré par champ',
     'Linked element has no URL' => 'L\'élément lié n\'a pas d\'URL',
+    'ShortLink not found' => 'Lien court introuvable',
+    'User does not have permission to import shortlinks.' => 'L\'utilisateur n\'a pas la permission d\'importer des liens courts.',
+    'User does not have permission to export shortlinks.' => 'L\'utilisateur n\'a pas la permission d\'exporter des liens courts.',
+    'User does not have permission to clear import history.' => 'L\'utilisateur n\'a pas la permission d\'effacer l\'historique des imports.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{erreur trouvée} other{erreurs trouvées}}',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Gérer le dossier sélectionné',
     'Rename selected folder' => 'Renommer le dossier sélectionné',
     'Please select a folder.' => 'Veuillez sélectionner un dossier.',
-    'Folder not found.' => 'Dossier introuvable.',
+    'Folder not found' => 'Dossier introuvable',
     'Invalid folder name.' => 'Nom de dossier invalide.',
     'Folder name already exists.' => 'Ce nom de dossier existe déjà.',
     'Could not rename folder.' => 'Impossible de renommer le dossier.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Renommer le dossier',
     'Could not save folder.' => 'Impossible d\'enregistrer le dossier.',
     'Folder created.' => 'Dossier créé.',
-    'Tag not found.' => 'Tag introuvable.',
+    'Tag not found' => 'Tag introuvable',
     'Could not delete tag.' => 'Impossible de supprimer le tag.',
     'Tag deleted.' => 'Tag supprimé.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Supprimez les tags pour les retirer de tous les liens courts. Les tags non utilisés sont également nettoyés automatiquement.',

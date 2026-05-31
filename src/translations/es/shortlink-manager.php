@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Los enlaces cortos gestionados por campo requieren elementId',
     'Linked element not found for field-managed shortlink' => 'Elemento vinculado no encontrado para el enlace corto gestionado por campo',
     'Linked element has no URL' => 'El elemento vinculado no tiene URL',
+    'ShortLink not found' => 'Enlace corto no encontrado',
+    'User does not have permission to import shortlinks.' => 'El usuario no tiene permiso para importar enlaces cortos.',
+    'User does not have permission to export shortlinks.' => 'El usuario no tiene permiso para exportar enlaces cortos.',
+    'User does not have permission to clear import history.' => 'El usuario no tiene permiso para borrar el historial de importaciones.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{error encontrado} other{errores encontrados}}',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Gestionar carpeta seleccionada',
     'Rename selected folder' => 'Renombrar carpeta seleccionada',
     'Please select a folder.' => 'Seleccione una carpeta.',
-    'Folder not found.' => 'Carpeta no encontrada.',
+    'Folder not found' => 'Carpeta no encontrada',
     'Invalid folder name.' => 'Nombre de carpeta no válido.',
     'Folder name already exists.' => 'Este nombre de carpeta ya existe.',
     'Could not rename folder.' => 'No se pudo renombrar la carpeta.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Renombrar carpeta',
     'Could not save folder.' => 'No se pudo guardar la carpeta.',
     'Folder created.' => 'Carpeta creada.',
-    'Tag not found.' => 'Etiqueta no encontrada.',
+    'Tag not found' => 'Etiqueta no encontrada',
     'Could not delete tag.' => 'No se pudo eliminar la etiqueta.',
     'Tag deleted.' => 'Etiqueta eliminada.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Elimine etiquetas para quitarlas de todos los enlaces cortos. Las etiquetas no utilizadas también se limpian automáticamente.',

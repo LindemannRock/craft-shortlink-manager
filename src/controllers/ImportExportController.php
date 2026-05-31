@@ -637,21 +637,21 @@ class ImportExportController extends Controller
     private function requireImportPermission(): void
     {
         if (!$this->canImport()) {
-            throw new ForbiddenHttpException('User does not have permission to import shortlinks.');
+            throw new ForbiddenHttpException(Craft::t('shortlink-manager', 'User does not have permission to import shortlinks.'));
         }
     }
 
     private function requireExportPermission(): void
     {
         if (!$this->canExport()) {
-            throw new ForbiddenHttpException('User does not have permission to export shortlinks.');
+            throw new ForbiddenHttpException(Craft::t('shortlink-manager', 'User does not have permission to export shortlinks.'));
         }
     }
 
     private function requireClearImportHistoryPermission(): void
     {
         if (!$this->canClearHistory()) {
-            throw new ForbiddenHttpException('User does not have permission to clear import history.');
+            throw new ForbiddenHttpException(Craft::t('shortlink-manager', 'User does not have permission to clear import history.'));
         }
     }
 

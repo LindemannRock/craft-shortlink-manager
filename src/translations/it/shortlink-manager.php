@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'I shortlink gestiti tramite campo richiedono elementId',
     'Linked element not found for field-managed shortlink' => 'Elemento collegato non trovato per il shortlink gestito tramite campo',
     'Linked element has no URL' => 'L\'elemento collegato non ha un URL',
+    'ShortLink not found' => 'Shortlink non trovato',
+    'User does not have permission to import shortlinks.' => 'L\'utente non dispone dell\'autorizzazione per importare i shortlink.',
+    'User does not have permission to export shortlinks.' => 'L\'utente non dispone dell\'autorizzazione per esportare i shortlink.',
+    'User does not have permission to clear import history.' => 'L\'utente non dispone dell\'autorizzazione per cancellare la cronologia importazioni.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{errore trovato} other{errori trovati}}',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Gestisci la cartella selezionata',
     'Rename selected folder' => 'Rinomina la cartella selezionata',
     'Please select a folder.' => 'Selezionare una cartella.',
-    'Folder not found.' => 'Cartella non trovata.',
+    'Folder not found' => 'Cartella non trovata',
     'Invalid folder name.' => 'Nome cartella non valido.',
     'Folder name already exists.' => 'Il nome della cartella esiste già.',
     'Could not rename folder.' => 'Impossibile rinominare la cartella.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Rinomina cartella',
     'Could not save folder.' => 'Impossibile salvare la cartella.',
     'Folder created.' => 'Cartella creata.',
-    'Tag not found.' => 'Tag non trovato.',
+    'Tag not found' => 'Tag non trovato',
     'Could not delete tag.' => 'Impossibile eliminare il tag.',
     'Tag deleted.' => 'Tag eliminato.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Elimina i tag per rimuoverli da tutti i shortlink. I tag inutilizzati vengono puliti automaticamente.',

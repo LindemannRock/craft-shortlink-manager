@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Field-managed shortlinks require elementId',
     'Linked element not found for field-managed shortlink' => 'Linked element not found for field-managed shortlink',
     'Linked element has no URL' => 'Linked element has no URL',
+    'ShortLink not found' => 'ShortLink not found',
+    'User does not have permission to import shortlinks.' => 'User does not have permission to import shortlinks.',
+    'User does not have permission to export shortlinks.' => 'User does not have permission to export shortlinks.',
+    'User does not have permission to clear import history.' => 'User does not have permission to clear import history.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => 'Found {count, number} {count, plural, =1{error} other{errors}}',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Manage selected folder',
     'Rename selected folder' => 'Rename selected folder',
     'Please select a folder.' => 'Please select a folder.',
-    'Folder not found.' => 'Folder not found.',
+    'Folder not found' => 'Folder not found',
     'Invalid folder name.' => 'Invalid folder name.',
     'Folder name already exists.' => 'Folder name already exists.',
     'Could not rename folder.' => 'Could not rename folder.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Rename folder',
     'Could not save folder.' => 'Could not save folder.',
     'Folder created.' => 'Folder created.',
-    'Tag not found.' => 'Tag not found.',
+    'Tag not found' => 'Tag not found',
     'Could not delete tag.' => 'Could not delete tag.',
     'Tag deleted.' => 'Tag deleted.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.',

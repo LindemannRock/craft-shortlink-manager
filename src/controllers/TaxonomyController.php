@@ -129,7 +129,7 @@ class TaxonomyController extends Controller
 
         $folder = ShortLinkManager::$plugin->taxonomy->getFolderById($folderId);
         if (!$folder) {
-            throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Folder not found.'));
+            throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Folder not found'));
         }
 
         return $this->renderTemplate('shortlink-manager/taxonomy/edit-folder', [
@@ -156,7 +156,7 @@ class TaxonomyController extends Controller
 
         $tag = ShortLinkManager::$plugin->taxonomy->getTagById($tagId);
         if (!$tag) {
-            throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Tag not found.'));
+            throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'Tag not found'));
         }
 
         return $this->renderTemplate('shortlink-manager/taxonomy/edit-tag', [
@@ -191,7 +191,7 @@ class TaxonomyController extends Controller
             : $taxonomy->createFolderRecord();
 
         if (!$folder) {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Folder not found.'));
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Folder not found'));
             return $this->redirectToPostedUrl();
         }
 
@@ -224,7 +224,7 @@ class TaxonomyController extends Controller
             : $taxonomy->createTagRecord();
 
         if (!$tag) {
-            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag not found.'));
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag not found'));
             return $this->redirectToPostedUrl();
         }
 
@@ -252,7 +252,7 @@ class TaxonomyController extends Controller
         $folderId = (int)$this->request->getRequiredBodyParam('folderId');
         $folder = $taxonomy->getFolderById($folderId);
         if (!$folder) {
-            $message = Craft::t('shortlink-manager', 'Folder not found.');
+            $message = Craft::t('shortlink-manager', 'Folder not found');
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($message);
             }
@@ -327,7 +327,7 @@ class TaxonomyController extends Controller
         $tagId = (int)$this->request->getRequiredBodyParam('tagId');
         $tag = $taxonomy->getTagById($tagId);
         if (!$tag) {
-            $message = Craft::t('shortlink-manager', 'Tag not found.');
+            $message = Craft::t('shortlink-manager', 'Tag not found');
             if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($message);
             }

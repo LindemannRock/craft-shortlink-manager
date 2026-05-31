@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'الروابط القصيرة المُدارة بواسطة حقل تتطلب elementId',
     'Linked element not found for field-managed shortlink' => 'لم يتم العثور على العنصر المرتبط للرابط القصير المُدار بحقل',
     'Linked element has no URL' => 'العنصر المرتبط لا يمتلك URL',
+    'ShortLink not found' => 'لم يتم العثور على الرابط القصير',
+    'User does not have permission to import shortlinks.' => 'ليس لدى المستخدم صلاحية لاستيراد الروابط القصيرة.',
+    'User does not have permission to export shortlinks.' => 'ليس لدى المستخدم صلاحية لتصدير الروابط القصيرة.',
+    'User does not have permission to clear import history.' => 'ليس لدى المستخدم صلاحية لمسح سجل الاستيراد.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => 'تم العثور على {count, number} {count, plural, =1{خطأ} other{أخطاء}}',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'إدارة المجلد المحدد',
     'Rename selected folder' => 'إعادة تسمية المجلد المحدد',
     'Please select a folder.' => 'الرجاء اختيار مجلد.',
-    'Folder not found.' => 'المجلد غير موجود.',
+    'Folder not found' => 'المجلد غير موجود',
     'Invalid folder name.' => 'اسم المجلد غير صالح.',
     'Folder name already exists.' => 'اسم المجلد موجود بالفعل.',
     'Could not rename folder.' => 'تعذّر إعادة تسمية المجلد.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'إعادة تسمية المجلد',
     'Could not save folder.' => 'تعذّر حفظ المجلد.',
     'Folder created.' => 'تم إنشاء المجلد.',
-    'Tag not found.' => 'العلامة غير موجودة.',
+    'Tag not found' => 'العلامة غير موجودة',
     'Could not delete tag.' => 'تعذّر حذف العلامة.',
     'Tag deleted.' => 'تم حذف العلامة.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'احذف العلامات لإزالتها من جميع الروابط القصيرة. يتم أيضًا تنظيف العلامات غير المستخدمة تلقائيًا.',

@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Fälthanterare shortlinks kräver elementId',
     'Linked element not found for field-managed shortlink' => 'Länkat element hittades inte för fälthanterare shortlink',
     'Linked element has no URL' => 'Det länkade elementet saknar URL',
+    'ShortLink not found' => 'Shortlinken hittades inte',
+    'User does not have permission to import shortlinks.' => 'Användaren har inte behörighet att importera shortlinks.',
+    'User does not have permission to export shortlinks.' => 'Användaren har inte behörighet att exportera shortlinks.',
+    'User does not have permission to clear import history.' => 'Användaren har inte behörighet att rensa importhistoriken.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{fel} other{fel}} hittades',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Hantera vald mapp',
     'Rename selected folder' => 'Byt namn på vald mapp',
     'Please select a folder.' => 'Välj en mapp.',
-    'Folder not found.' => 'Mappen hittades inte.',
+    'Folder not found' => 'Mappen hittades inte',
     'Invalid folder name.' => 'Ogiltigt mappnamn.',
     'Folder name already exists.' => 'Mappnamnet finns redan.',
     'Could not rename folder.' => 'Kunde inte byta namn på mappen.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Byt namn på mapp',
     'Could not save folder.' => 'Kunde inte spara mappen.',
     'Folder created.' => 'Mapp skapad.',
-    'Tag not found.' => 'Taggen hittades inte.',
+    'Tag not found' => 'Taggen hittades inte',
     'Could not delete tag.' => 'Kunde inte ta bort taggen.',
     'Tag deleted.' => 'Tagg borttagen.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Ta bort taggar för att ta bort dem från alla shortlinks. Oanvända taggar rensas även automatiskt.',

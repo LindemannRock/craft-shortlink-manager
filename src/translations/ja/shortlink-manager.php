@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'フィールド管理のショートリンクには elementId が必要です',
     'Linked element not found for field-managed shortlink' => 'フィールド管理のショートリンクのリンク先要素が見つかりません',
     'Linked element has no URL' => 'リンク先要素に URL がありません',
+    'ShortLink not found' => 'ショートリンクが見つかりません',
+    'User does not have permission to import shortlinks.' => 'ユーザーにショートリンクをインポートする権限がありません。',
+    'User does not have permission to export shortlinks.' => 'ユーザーにショートリンクをエクスポートする権限がありません。',
+    'User does not have permission to clear import history.' => 'ユーザーにインポート履歴を削除する権限がありません。',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} 件の{count, plural, =1{エラー} other{エラー}}が見つかりました',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => '選択したフォルダを管理する',
     'Rename selected folder' => '選択したフォルダの名前を変更する',
     'Please select a folder.' => 'フォルダを選択してください。',
-    'Folder not found.' => 'フォルダが見つかりません。',
+    'Folder not found' => 'フォルダが見つかりません',
     'Invalid folder name.' => '無効なフォルダ名です。',
     'Folder name already exists.' => 'このフォルダ名はすでに存在します。',
     'Could not rename folder.' => 'フォルダの名前を変更できませんでした。',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'フォルダの名前を変更する',
     'Could not save folder.' => 'フォルダを保存できませんでした。',
     'Folder created.' => 'フォルダを作成しました。',
-    'Tag not found.' => 'タグが見つかりません。',
+    'Tag not found' => 'タグが見つかりません',
     'Could not delete tag.' => 'タグを削除できませんでした。',
     'Tag deleted.' => 'タグを削除しました。',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'タグを削除するとすべてのショートリンクから削除されます。未使用のタグも自動的に整理されます。',

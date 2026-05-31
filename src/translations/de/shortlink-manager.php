@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Feldverwaltete Shortlinks erfordern elementId',
     'Linked element not found for field-managed shortlink' => 'Verknüpftes Element für feldverwalteten Shortlink nicht gefunden',
     'Linked element has no URL' => 'Verknüpftes Element hat keine URL',
+    'ShortLink not found' => 'Shortlink nicht gefunden',
+    'User does not have permission to import shortlinks.' => 'Der Benutzer hat keine Berechtigung, Shortlinks zu importieren.',
+    'User does not have permission to export shortlinks.' => 'Der Benutzer hat keine Berechtigung, Shortlinks zu exportieren.',
+    'User does not have permission to clear import history.' => 'Der Benutzer hat keine Berechtigung, den Import-Verlauf zu leeren.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => 'Es wurde {count, number} {count, plural, =1{Fehler} other{Fehler}} gefunden',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Ausgewählten Ordner verwalten',
     'Rename selected folder' => 'Ausgewählten Ordner umbenennen',
     'Please select a folder.' => 'Bitte einen Ordner auswählen.',
-    'Folder not found.' => 'Ordner nicht gefunden.',
+    'Folder not found' => 'Ordner nicht gefunden',
     'Invalid folder name.' => 'Ungültiger Ordnername.',
     'Folder name already exists.' => 'Ordnername existiert bereits.',
     'Could not rename folder.' => 'Ordner konnte nicht umbenannt werden.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Ordner umbenennen',
     'Could not save folder.' => 'Ordner konnte nicht gespeichert werden.',
     'Folder created.' => 'Ordner erstellt.',
-    'Tag not found.' => 'Tag nicht gefunden.',
+    'Tag not found' => 'Tag nicht gefunden',
     'Could not delete tag.' => 'Tag konnte nicht gelöscht werden.',
     'Tag deleted.' => 'Tag gelöscht.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Tags löschen, um sie aus allen Shortlinks zu entfernen. Nicht verwendete Tags werden ebenfalls automatisch bereinigt.',

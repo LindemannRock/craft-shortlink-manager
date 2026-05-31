@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Os shortlinks geridos por campo requerem elementId',
     'Linked element not found for field-managed shortlink' => 'Elemento associado não encontrado para o shortlink gerido por campo',
     'Linked element has no URL' => 'O elemento associado não tem URL',
+    'ShortLink not found' => 'Shortlink não encontrado',
+    'User does not have permission to import shortlinks.' => 'O utilizador não tem permissão para importar shortlinks.',
+    'User does not have permission to export shortlinks.' => 'O utilizador não tem permissão para exportar shortlinks.',
+    'User does not have permission to clear import history.' => 'O utilizador não tem permissão para limpar o histórico de importações.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{erro encontrado} other{erros encontrados}}',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Gerir a pasta selecionada',
     'Rename selected folder' => 'Renomear a pasta selecionada',
     'Please select a folder.' => 'Selecione uma pasta.',
-    'Folder not found.' => 'Pasta não encontrada.',
+    'Folder not found' => 'Pasta não encontrada',
     'Invalid folder name.' => 'Nome de pasta inválido.',
     'Folder name already exists.' => 'O nome da pasta já existe.',
     'Could not rename folder.' => 'Não foi possível renomear a pasta.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Renomear pasta',
     'Could not save folder.' => 'Não foi possível guardar a pasta.',
     'Folder created.' => 'Pasta criada.',
-    'Tag not found.' => 'Etiqueta não encontrada.',
+    'Tag not found' => 'Etiqueta não encontrada',
     'Could not delete tag.' => 'Não foi possível eliminar a etiqueta.',
     'Tag deleted.' => 'Etiqueta eliminada.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Elimine as etiquetas para as remover de todos os shortlinks. As etiquetas não utilizadas também são limpas automaticamente.',

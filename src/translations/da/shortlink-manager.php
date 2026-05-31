@@ -162,6 +162,10 @@ return [
     'Field-managed shortlinks require elementId' => 'Feltstyrede shortlinks kræver elementId',
     'Linked element not found for field-managed shortlink' => 'Tilknyttet element ikke fundet for feltstyret shortlink',
     'Linked element has no URL' => 'Det tilknyttede element har ingen URL',
+    'ShortLink not found' => 'Shortlink ikke fundet',
+    'User does not have permission to import shortlinks.' => 'Brugeren har ikke tilladelse til at importere shortlinks.',
+    'User does not have permission to export shortlinks.' => 'Brugeren har ikke tilladelse til at eksportere shortlinks.',
+    'User does not have permission to clear import history.' => 'Brugeren har ikke tilladelse til at rydde importhistorikken.',
 
     // Validation messages
     'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{fejl} other{fejl}} fundet',
@@ -644,7 +648,7 @@ return [
     'Manage selected folder' => 'Administrér valgt mappe',
     'Rename selected folder' => 'Omdøb valgt mappe',
     'Please select a folder.' => 'Vælg en mappe.',
-    'Folder not found.' => 'Mappe ikke fundet.',
+    'Folder not found' => 'Mappe ikke fundet',
     'Invalid folder name.' => 'Ugyldigt mappenavn.',
     'Folder name already exists.' => 'Mappenavnet findes allerede.',
     'Could not rename folder.' => 'Kunne ikke omdøbe mappen.',
@@ -669,7 +673,7 @@ return [
     'Rename folder' => 'Omdøb mappe',
     'Could not save folder.' => 'Kunne ikke gemme mappen.',
     'Folder created.' => 'Mappe oprettet.',
-    'Tag not found.' => 'Tag ikke fundet.',
+    'Tag not found' => 'Tag ikke fundet',
     'Could not delete tag.' => 'Kunne ikke slette tagget.',
     'Tag deleted.' => 'Tag slettet.',
     'Delete tags to remove them from all shortlinks. Unused tags are also cleaned up automatically.' => 'Slet tags for at fjerne dem fra alle shortlinks. Ubrugte tags ryddes også op automatisk.',

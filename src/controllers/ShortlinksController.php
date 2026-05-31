@@ -108,7 +108,7 @@ class ShortlinksController extends Controller
                 // Check if ShortLink Manager is enabled for this site
                 $settings = ShortLinkManager::getInstance()->getSettings();
                 if (!$settings->isSiteEnabled($site->id)) {
-                    throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
+                    throw new \yii\web\ForbiddenHttpException(Craft::t('shortlink-manager', '{pluginName} is not enabled for this site.', ['pluginName' => ShortLinkManager::$plugin->getSettings()->getFullName()]));
                 }
 
                 // Enforce site edit permission (multi-site only)
@@ -123,7 +123,7 @@ class ShortlinksController extends Controller
                     ->one();
 
                 if (!$shortLink) {
-                    throw new \yii\web\NotFoundHttpException('ShortLink not found');
+                    throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'ShortLink not found'));
                 }
             }
 
@@ -139,7 +139,7 @@ class ShortlinksController extends Controller
                 // Check if ShortLink Manager is enabled for this site
                 $settings = ShortLinkManager::getInstance()->getSettings();
                 if (!$settings->isSiteEnabled($site->id)) {
-                    throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
+                    throw new \yii\web\ForbiddenHttpException(Craft::t('shortlink-manager', '{pluginName} is not enabled for this site.', ['pluginName' => ShortLinkManager::$plugin->getSettings()->getFullName()]));
                 }
 
                 // Enforce site edit permission (multi-site only)
@@ -189,7 +189,7 @@ class ShortlinksController extends Controller
         // Validate site is enabled for this plugin
         $settings = ShortLinkManager::$plugin->getSettings();
         if (!$settings->isSiteEnabled($siteId)) {
-            throw new \yii\web\ForbiddenHttpException('ShortLink Manager is not enabled for this site.');
+            throw new \yii\web\ForbiddenHttpException(Craft::t('shortlink-manager', '{pluginName} is not enabled for this site.', ['pluginName' => ShortLinkManager::$plugin->getSettings()->getFullName()]));
         }
 
         // Enforce site edit permission (multi-site only)
@@ -206,7 +206,7 @@ class ShortlinksController extends Controller
                 ->one();
 
             if (!$shortLink) {
-                throw new \yii\web\NotFoundHttpException('ShortLink not found');
+                throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'ShortLink not found'));
             }
         } else {
             $this->requirePermission('shortLinkManager:createLinks');
@@ -407,7 +407,7 @@ class ShortlinksController extends Controller
             ->one();
 
         if (!$shortLink) {
-            throw new \yii\web\NotFoundHttpException('ShortLink not found');
+            throw new \yii\web\NotFoundHttpException(Craft::t('shortlink-manager', 'ShortLink not found'));
         }
 
         // Enforce site edit permission (multi-site only)
