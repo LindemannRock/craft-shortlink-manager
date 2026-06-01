@@ -26,24 +26,23 @@
 	<legend class='h6'>{{ "{pluginName} Status"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
 	<div class='meta'>
 		{% set status = shortLink.getStatus() %}
+		{% set statusColorKey = status in ['disabled', 'expired', 'pending'] ? status : 'enabled' %}
+		{% set statusLabel = {
+			enabled: 'Enabled'|t('shortlink-manager'),
+			disabled: 'Disabled'|t('shortlink-manager'),
+			expired: 'Expired'|t('shortlink-manager'),
+			pending: 'Pending'|t('shortlink-manager'),
+		}[statusColorKey] %}
 		<div class='field'>
 			<div class='heading'>
 				<label>{{ "Status"|t('shortlink-manager') }}</label>
 			</div>
 			<div class='input'>
-				{% if status == 'enabled' %}
-					<span class='status live'></span>
-					<span>{{ 'Enabled'|t('shortlink-manager') }}</span>
-					{% elseif status == 'expired' %}
-					<span class='status expired'></span>
-					<span>{{ 'Expired'|t('shortlink-manager') }}</span>
-					{% elseif status == 'pending' %}
-					<span class='status pending'></span>
-					<span>{{ 'Pending'|t('shortlink-manager') }}</span>
-				{% else %}
-					<span class='status disabled'></span>
-					<span>{{ 'Disabled'|t('shortlink-manager') }}</span>
-				{% endif %}
+				{% include 'lindemannrock-base/_components/status-dot' with {
+					value: statusColorKey,
+					colorSet: 'status',
+				} only %}
+				<span>{{ statusLabel }}</span>
 			</div>
 		</div>
 
@@ -54,13 +53,12 @@
 						<label>{{ "Query Params"|t('shortlink-manager') }}</label>
 					</div>
 					<div class='input'>
-						{% if shortLink.passQueryParams ?? true %}
-							<span class='status live'></span>
-							<span>{{ 'Enabled'|t('shortlink-manager') }}</span>
-						{% else %}
-							<span class='status disabled'></span>
-							<span>{{ 'Disabled'|t('shortlink-manager') }}</span>
-						{% endif %}
+						{% set passQueryParamsEnabled = shortLink.passQueryParams ?? true %}
+						{% include 'lindemannrock-base/_components/status-dot' with {
+							value: passQueryParamsEnabled ? 'enabled' : 'disabled',
+							colorSet: 'status',
+						} only %}
+						<span>{{ passQueryParamsEnabled ? 'Enabled'|t('shortlink-manager') : 'Disabled'|t('shortlink-manager') }}</span>
 					</div>
 				</div>
 			{% endif %}
@@ -71,13 +69,12 @@
 						<label>{{ "Direct Redirect"|t('shortlink-manager') }}</label>
 					</div>
 					<div class='input'>
-						{% if shortLink.directRedirect ?? true %}
-							<span class='status live'></span>
-							<span>{{ 'Enabled'|t('shortlink-manager') }}</span>
-						{% else %}
-							<span class='status disabled'></span>
-							<span>{{ 'Disabled'|t('shortlink-manager') }}</span>
-						{% endif %}
+						{% set directRedirectEnabled = shortLink.directRedirect ?? true %}
+						{% include 'lindemannrock-base/_components/status-dot' with {
+							value: directRedirectEnabled ? 'enabled' : 'disabled',
+							colorSet: 'status',
+						} only %}
+						<span>{{ directRedirectEnabled ? 'Enabled'|t('shortlink-manager') : 'Disabled'|t('shortlink-manager') }}</span>
 					</div>
 				</div>
 			{% endif %}
@@ -88,13 +85,11 @@
 						<label>{{ "Analytics"|t('shortlink-manager') }}</label>
 					</div>
 					<div class='input'>
-						{% if shortLink.trackAnalytics %}
-							<span class='status live'></span>
-							<span>{{ 'Enabled'|t('shortlink-manager') }}</span>
-						{% else %}
-							<span class='status disabled'></span>
-							<span>{{ 'Disabled'|t('shortlink-manager') }}</span>
-						{% endif %}
+						{% include 'lindemannrock-base/_components/status-dot' with {
+							value: shortLink.trackAnalytics ? 'enabled' : 'disabled',
+							colorSet: 'status',
+						} only %}
+						<span>{{ shortLink.trackAnalytics ? 'Enabled'|t('shortlink-manager') : 'Disabled'|t('shortlink-manager') }}</span>
 					</div>
 				</div>
 			{% endif %}
@@ -104,13 +99,11 @@
 					<label>{{ "QR Code"|t('shortlink-manager') }}</label>
 				</div>
 				<div class='input'>
-					{% if shortLink.qrCodeEnabled %}
-						<span class='status live'></span>
-						<span>{{ 'Enabled'|t('shortlink-manager') }}</span>
-					{% else %}
-						<span class='status disabled'></span>
-						<span>{{ 'Disabled'|t('shortlink-manager') }}</span>
-					{% endif %}
+					{% include 'lindemannrock-base/_components/status-dot' with {
+						value: shortLink.qrCodeEnabled ? 'enabled' : 'disabled',
+						colorSet: 'status',
+					} only %}
+					<span>{{ shortLink.qrCodeEnabled ? 'Enabled'|t('shortlink-manager') : 'Disabled'|t('shortlink-manager') }}</span>
 				</div>
 			</div>
 		{% endif %}

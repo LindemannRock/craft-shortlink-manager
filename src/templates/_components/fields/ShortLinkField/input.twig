@@ -9,7 +9,10 @@
 <div class="shortlink-field">
     {% if not isPluginEnabledForSite %}
         <p class="light">
-            <span class="status disabled"></span>
+            {% include 'lindemannrock-base/_components/status-dot' with {
+                value: 'disabled',
+                colorSet: 'status',
+            } only %}
             {{ "{pluginName} is not enabled for this site."|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}
         </p>
     {% else %}
@@ -44,13 +47,22 @@
         <p class="light" style="margin-top: 8px;">
             {% set status = shortLink.getStatus() %}
             {% if status == 'disabled' %}
-                <span class="status disabled"></span>
+                {% include 'lindemannrock-base/_components/status-dot' with {
+                    value: 'disabled',
+                    colorSet: 'status',
+                } only %}
                 {{ "Disabled for this site"|t('shortlink-manager') }}
             {% elseif status == 'expired' %}
-                <span class="status expired"></span>
+                {% include 'lindemannrock-base/_components/status-dot' with {
+                    value: 'expired',
+                    colorSet: 'status',
+                } only %}
                 {{ "Expired"|t('shortlink-manager') }}
             {% elseif status == 'pending' %}
-                <span class="status pending"></span>
+                {% include 'lindemannrock-base/_components/status-dot' with {
+                    value: 'pending',
+                    colorSet: 'status',
+                } only %}
                 {{ "Pending"|t('shortlink-manager') }}
             {% else %}
                 {% if shortLink.linkType == 'code' %}

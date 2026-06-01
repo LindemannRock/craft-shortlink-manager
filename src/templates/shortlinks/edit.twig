@@ -499,19 +499,18 @@
                 <dt class="heading">{{ "Status"|t('shortlink-manager') }}</dt>
                 <dd class="value">
                     {% set status = shortLink.getStatus() %}
-                     {% if status == 'expired' %}
-                        <span class="status expired"></span>
-                        <span>{{ 'Expired'|t('shortlink-manager') }}</span>
-                    {% elseif status == 'pending' %}
-                        <span class="status pending"></span>
-                        <span>{{ 'Pending'|t('shortlink-manager') }}</span>
-                    {% elseif status == 'disabled' %}
-                        <span class="status disabled"></span>
-                        <span>{{ 'Disabled'|t('shortlink-manager') }}</span>
-                    {% else %}
-                        <span class="status live"></span>
-                        <span>{{ 'Live'|t('shortlink-manager') }}</span>
-                    {% endif %}
+                    {% set statusColorKey = status in ['disabled', 'expired', 'pending'] ? status : 'enabled' %}
+                    {% set statusLabel = {
+                        enabled: 'Enabled'|t('shortlink-manager'),
+                        disabled: 'Disabled'|t('shortlink-manager'),
+                        expired: 'Expired'|t('shortlink-manager'),
+                        pending: 'Pending'|t('shortlink-manager'),
+                    }[statusColorKey] %}
+                    {% include 'lindemannrock-base/_components/status-dot' with {
+                        value: statusColorKey,
+                        colorSet: 'status',
+                    } only %}
+                    <span>{{ statusLabel }}</span>
                 </dd>
             </div>
             <div class="data">
