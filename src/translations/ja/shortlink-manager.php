@@ -71,7 +71,6 @@ return [
     'Content' => 'コンテンツ',
     'Name' => '名前',
     'None' => 'なし',
-    'Live' => 'ライブ',
     'Select site' => 'サイトを選択する',
     'ID' => 'ID',
     'Created at' => '作成日時',

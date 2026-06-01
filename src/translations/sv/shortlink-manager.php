@@ -71,7 +71,6 @@ return [
     'Content' => 'Innehåll',
     'Name' => 'Namn',
     'None' => 'Ingen',
-    'Live' => 'Live',
     'Select site' => 'Välj webbplats',
     'ID' => 'ID',
     'Created at' => 'Skapad',

@@ -71,7 +71,6 @@ return [
     'Content' => 'Innhold',
     'Name' => 'Navn',
     'None' => 'Ingen',
-    'Live' => 'Live',
     'Select site' => 'Velg nettsted',
     'ID' => 'ID',
     'Created at' => 'Opprettet',

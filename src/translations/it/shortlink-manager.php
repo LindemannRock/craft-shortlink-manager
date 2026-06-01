@@ -71,7 +71,6 @@ return [
     'Content' => 'Contenuto',
     'Name' => 'Nome',
     'None' => 'Nessuno',
-    'Live' => 'Live',
     'Select site' => 'Seleziona sito',
     'ID' => 'ID',
     'Created at' => 'Creato il',

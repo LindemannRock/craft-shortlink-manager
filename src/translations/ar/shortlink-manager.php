@@ -71,7 +71,6 @@ return [
     'Content' => 'المحتوى',
     'Name' => 'الاسم',
     'None' => 'بدون',
-    'Live' => 'Live',
     'Select site' => 'اختيار الموقع',
     'ID' => 'ID',
     'Created at' => 'تم الإنشاء في',

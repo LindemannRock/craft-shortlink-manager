@@ -71,7 +71,6 @@ return [
     'Content' => 'Indhold',
     'Name' => 'Navn',
     'None' => 'Ingen',
-    'Live' => 'Live',
     'Select site' => 'Vælg websted',
     'ID' => 'ID',
     'Created at' => 'Oprettet',
