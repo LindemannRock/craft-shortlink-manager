@@ -1249,7 +1249,7 @@ class ShortLink extends Element
                     return;
                 }
 
-                $testSlug = $this->duplicateOf && !$this->id
+                $testSlug = !$this->id && $this->slug
                     ? (string)$this->slug
                     : $this->generateSlugFromCode($this->code);
 
@@ -1367,6 +1367,12 @@ class ShortLink extends Element
         } elseif ($this->code && $this->slug !== $this->generateSlugFromCode($this->code)) {
             // Code changed, regenerate slug
             $this->slug = $this->generateSlugFromCode($this->code);
+        }
+
+        if (!$this->id && !$this->duplicateOf && $this->slug && !ShortLinkManager::$plugin->shortLinks->isReservedSlug($this->slug)) {
+            $uniqueSlug = SlugHandleHelper::makeUnique('{{%shortlinkmanager}}', 'slug', $this->slug);
+            $this->slug = $uniqueSlug;
+            $this->code = $uniqueSlug;
         }
 
         // Auto-generate title from code (required for hasTitles = true)
