@@ -13,6 +13,7 @@ use craft\web\UploadedFile;
 use lindemannrock\base\helpers\CsvImportHelper;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\ExportHelper;
+use lindemannrock\base\helpers\SlugHandleHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ImportHistoryRecord;
@@ -672,11 +673,7 @@ class ImportExportController extends Controller
 
     private function generateSlugFromCode(string $code): string
     {
-        $slug = strtolower($code);
-        $slug = preg_replace('/[^a-z0-9\-_]/', '-', $slug) ?? '';
-        $slug = preg_replace('/-+/', '-', $slug) ?? '';
-
-        return trim($slug, '-');
+        return SlugHandleHelper::normalizeSlug($code, '');
     }
 
     private function normalizeShortLinkType(string $value): string
