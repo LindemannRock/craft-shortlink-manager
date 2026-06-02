@@ -210,8 +210,7 @@ class AnalyticsController extends Controller
                 ->id($linkId)
                 ->one();
             if ($shortLink) {
-                $cleanCode = preg_replace('/[^a-zA-Z0-9-_]/', '', $shortLink->code);
-                $filenameParts[] = $cleanCode;
+                $filenameParts[] = $shortLink->code;
             }
         }
 
@@ -219,7 +218,7 @@ class AnalyticsController extends Controller
         if ($siteId) {
             $site = Craft::$app->getSites()->getSiteById($siteId);
             if ($site) {
-                $filenameParts[] = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', str_replace(' ', '-', $site->name)));
+                $filenameParts[] = $site->name;
             }
         }
 

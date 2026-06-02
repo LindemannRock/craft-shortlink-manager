@@ -11,6 +11,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 use Craft;
 use craft\models\Site;
 use craft\web\Controller;
+use lindemannrock\base\helpers\SafeSegmentHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -227,8 +228,9 @@ class QrCodeController extends Controller
                     '{size}' => $options['size'] ?? $settings->defaultQrSize,
                     '{format}' => $format,
                 ]);
-                // Sanitize filename to prevent header injection
-                $filename = preg_replace('/[^a-zA-Z0-9_\-.]/', '-', $filename);
+                $filename = SafeSegmentHelper::filenamePart($filename, 'qr-code', [
+                    'allowDots' => true,
+                ]);
                 $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '.' . $format . '"');
             }
 
