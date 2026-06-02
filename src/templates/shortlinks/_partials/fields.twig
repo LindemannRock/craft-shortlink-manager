@@ -110,9 +110,6 @@
             required: true,
             errors: shortLink.getErrors('code'),
         }) }}
-        {% if shortLink.slug and shortLink.code != shortLink.slug %}
-            <p class="light" style="margin-top: 4px;">{{ "Slug: {slug}"|t('shortlink-manager', {slug: shortLink.slug}) }}</p>
-        {% endif %}
     </div>
 {% endif %}
 
