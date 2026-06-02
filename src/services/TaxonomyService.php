@@ -11,7 +11,7 @@ namespace lindemannrock\shortlinkmanager\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
-use craft\helpers\StringHelper;
+use lindemannrock\base\helpers\SlugHandleHelper;
 use lindemannrock\shortlinkmanager\records\FolderRecord;
 use lindemannrock\shortlinkmanager\records\ShortLinkTagRecord;
 use lindemannrock\shortlinkmanager\records\TagRecord;
@@ -440,12 +440,6 @@ class TaxonomyService extends Component
 
     private function buildSlug(string $name): string
     {
-        $slug = StringHelper::toKebabCase($name);
-
-        if ($slug === '') {
-            $slug = strtolower((string)preg_replace('/\s+/', '-', $name));
-        }
-
-        return trim($slug);
+        return SlugHandleHelper::normalizeSlug($name, '');
     }
 }
