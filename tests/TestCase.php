@@ -44,7 +44,7 @@ abstract class TestCase extends IntegrationTestCase
      * table cascades on `linkId`, so deleting the element rows handles the
      * full cleanup chain via FK CASCADE.
      */
-    protected const MARKER = '__sl_test_';
+    protected const MARKER = 'sl-test-';
 
     protected ShortLinksService $shortLinks;
     protected AnalyticsService $analytics;
@@ -97,11 +97,10 @@ abstract class TestCase extends IntegrationTestCase
 
     /**
      * Seed a saved {@see ShortLink} element with a marker code. The marker
-     * pattern is `__sl_test_<n>_<random>` so the element survives the unique
+     * pattern is `sl-test-<n>-<random>` so the element survives the unique
      * slug index and `purgeTestShortLinks()` can wipe it by LIKE prefix on
      * either `slug` or `code` (the two columns mirror each other for vanity
-     * links, since `generateSlugFromCode()` is identity-preserving on
-     * lowercase + underscore-only inputs).
+     * links, since the marker is already normalized).
      *
      * Built directly rather than via `createShortLink()` so we can pin both
      * `code` and `slug` to the marker — `createShortLink()` only forwards
@@ -113,7 +112,7 @@ abstract class TestCase extends IntegrationTestCase
     protected function seedShortLink(array $overrides = []): ShortLink
     {
         $this->seedCounter++;
-        $marker = self::MARKER . $this->seedCounter . '_' . substr(uniqid('', true), -8);
+        $marker = self::MARKER . $this->seedCounter . '-' . substr(uniqid('', true), -8);
 
         $element = new ShortLink();
         $element->code = $overrides['code'] ?? $marker;
@@ -148,7 +147,7 @@ abstract class TestCase extends IntegrationTestCase
     }
 
     /**
-     * DELETE FROM {%shortlinkmanager} WHERE slug LIKE '__sl_test_%' —
+     * DELETE FROM {%shortlinkmanager} WHERE slug LIKE 'sl-test-%' —
      * the FK CASCADE on the analytics + content + element tables drains
      * the rest. The slug column is the only place the marker is guaranteed
      * to appear; the element/content rows don't carry it.

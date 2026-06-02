@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
+use Craft;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
@@ -96,5 +98,22 @@ final class SlugGenerationTest extends TestCase
             $this->shortLinks->validateSlug($existing->slug, $existing->id),
             'validateSlug() must skip the row identified by $excludeId.',
         );
+    }
+
+    public function testDuplicatingShortLinkUsesHyphenatedUniqueSlug(): void
+    {
+        $existing = $this->seedShortLink([
+            'code' => 'sl-test-duplicate',
+            'slug' => 'sl-test-duplicate',
+        ]);
+        $this->seedShortLink([
+            'code' => 'sl-test-duplicate-1',
+            'slug' => 'sl-test-duplicate-1',
+        ]);
+
+        $duplicate = Craft::$app->getElements()->duplicateElement($existing);
+
+        $this->assertInstanceOf(ShortLink::class, $duplicate);
+        $this->assertSame('sl-test-duplicate-2', $duplicate->slug);
     }
 }
