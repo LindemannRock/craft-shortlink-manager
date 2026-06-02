@@ -509,7 +509,6 @@ return [
     'The short code for this link' => 'De korte code voor deze link',
     'Will be auto-generated when you save (e.g., {example})' => 'Wordt automatisch gegenereerd bij opslaan (bijv. {example})',
     'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)' => 'Voer een aangepaste memorabele code in (letters, cijfers, koppeltekens, underscores, spaties)',
-    'Slug: {slug}' => 'Slug: {slug}',
     'This {singularName} is managed by a field on:' => 'Deze {singularName} wordt beheerd door een veld op:',
     'Automatically synced from linked element\'s URL' => 'Automatisch gesynchroniseerd vanuit de URL van het gekoppelde element',
     'Destination Type' => 'Bestemmingstype',

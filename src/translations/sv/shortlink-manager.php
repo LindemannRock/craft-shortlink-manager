@@ -509,7 +509,6 @@ return [
     'The short code for this link' => 'Kortkoden för den här länken',
     'Will be auto-generated when you save (e.g., {example})' => 'Genereras automatiskt när du sparar (t.ex. {example})',
     'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)' => 'Ange en anpassad minnesvärd kod (bokstäver, siffror, bindestreck, understreck, mellanslag)',
-    'Slug: {slug}' => 'Slug: {slug}',
     'This {singularName} is managed by a field on:' => 'Den här {singularName} hanteras av ett fält på:',
     'Automatically synced from linked element\'s URL' => 'Synkroniseras automatiskt från det länkade elementets URL',
     'Destination Type' => 'Destinationstyp',

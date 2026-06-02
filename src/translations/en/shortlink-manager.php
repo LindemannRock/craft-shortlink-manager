@@ -509,7 +509,6 @@ return [
     'The short code for this link' => 'The short code for this link',
     'Will be auto-generated when you save (e.g., {example})' => 'Will be auto-generated when you save (e.g., {example})',
     'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)' => 'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)',
-    'Slug: {slug}' => 'Slug: {slug}',
     'This {singularName} is managed by a field on:' => 'This {singularName} is managed by a field on:',
     'Automatically synced from linked element\'s URL' => 'Automatically synced from linked element\'s URL',
     'Destination Type' => 'Destination Type',

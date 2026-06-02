@@ -509,7 +509,6 @@ return [
     'The short code for this link' => 'このリンクのショートコード',
     'Will be auto-generated when you save (e.g., {example})' => '保存時に自動生成されます（例: {example}）',
     'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)' => 'カスタムの覚えやすいコードを入力してください（文字、数字、ハイフン、アンダースコア、スペース）',
-    'Slug: {slug}' => 'Slug: {slug}',
     'This {singularName} is managed by a field on:' => 'この {singularName} は次のフィールドによって管理されています:',
     'Automatically synced from linked element\'s URL' => 'リンクされた要素の URL から自動同期されます',
     'Destination Type' => '宛先タイプ',

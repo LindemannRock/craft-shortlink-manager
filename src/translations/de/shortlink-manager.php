@@ -509,7 +509,6 @@ return [
     'The short code for this link' => 'Der Kurzcode für diesen Link',
     'Will be auto-generated when you save (e.g., {example})' => 'Wird beim Speichern automatisch generiert (z. B. {example})',
     'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)' => 'Einen benutzerdefinierten, einprägsamen Code eingeben (Buchstaben, Zahlen, Bindestriche, Unterstriche, Leerzeichen)',
-    'Slug: {slug}' => 'Slug: {slug}',
     'This {singularName} is managed by a field on:' => 'Dieser {singularName} wird durch ein Feld verwaltet auf:',
     'Automatically synced from linked element\'s URL' => 'Automatisch von der URL des verknüpften Elements synchronisiert',
     'Destination Type' => 'Zieltyp',

@@ -100,6 +100,31 @@ final class SlugGenerationTest extends TestCase
         );
     }
 
+    public function testNewCustomVanityCodeAutoSuffixesExistingSlug(): void
+    {
+        $this->seedShortLink([
+            'code' => 'sl-test-vanity',
+            'slug' => 'sl-test-vanity',
+        ]);
+
+        $new = new ShortLink();
+        $new->code = 'SL Test Vanity';
+        $new->linkType = 'vanity';
+        $new->shortLinkType = 'manual';
+        $new->destinationUrl = 'https://example.com/testing';
+        $new->siteId = Craft::$app->getSites()->getPrimarySite()->id;
+        $new->httpCode = 302;
+        $new->setEnabledForSite(true);
+
+        $this->assertTrue(
+            $this->shortLinks->saveShortLink($new),
+            'New custom vanity shortlink should save with an auto-suffixed code — errors: ' . json_encode($new->getErrors()),
+        );
+
+        $this->assertSame('sl-test-vanity-1', $new->code);
+        $this->assertSame('sl-test-vanity-1', $new->slug);
+    }
+
     public function testDuplicatingShortLinkUsesHyphenatedUniqueSlug(): void
     {
         $existing = $this->seedShortLink([

@@ -509,7 +509,6 @@ return [
     'The short code for this link' => 'الكود القصير لهذا الرابط',
     'Will be auto-generated when you save (e.g., {example})' => 'سيُولَّد تلقائيًا عند الحفظ (مثل {example})',
     'Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)' => 'أدخل كودًا مخصصًا سهل التذكر (حروف وأرقام وشرطات وشرطات سفلية ومسافات)',
-    'Slug: {slug}' => 'Slug: {slug}',
     'This {singularName} is managed by a field on:' => 'هذا {singularName} مُدار بواسطة حقل على:',
     'Automatically synced from linked element\'s URL' => 'تمت المزامنة تلقائيًا من URL العنصر المرتبط',
     'Destination Type' => 'نوع الوجهة',
