@@ -20,6 +20,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
 use lindemannrock\base\helpers\DateFormatHelper;
+use lindemannrock\base\helpers\SlugHandleHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\actions\AddTagsAction;
 use lindemannrock\shortlinkmanager\elements\actions\ClearFolderAction;
@@ -1248,8 +1249,9 @@ class ShortLink extends Element
                     return;
                 }
 
-                // Generate what the slug would be
-                $testSlug = $this->generateSlugFromCode($this->code);
+                $testSlug = $this->duplicateOf && !$this->id
+                    ? (string)$this->slug
+                    : $this->generateSlugFromCode($this->code);
 
                 // Check if this slug already exists
                 $query = (new \craft\db\Query())
@@ -1310,6 +1312,17 @@ class ShortLink extends Element
 
         // If propagating and data is empty, load it from records
         if ($this->propagating && $this->id) {
+            if ($this->duplicateOf) {
+                $record = ShortLinkRecord::findOne($this->id);
+                if ($record) {
+                    $this->code = $record->code;
+                    $this->slug = $record->slug;
+                    $this->linkType = $record->linkType;
+                    $this->shortLinkType = $record->shortLinkType;
+                    $this->folderId = $record->folderId ? (int)$record->folderId : null;
+                }
+            }
+
             if (empty($this->code)) {
                 $record = ShortLinkRecord::findOne($this->id);
                 if ($record) {
@@ -1373,32 +1386,11 @@ class ShortLink extends Element
                 $this->destinationUrl = $this->duplicateOf->destinationUrl;
             }
 
-            // Generate unique slug
-            $baseSlug = ($this->duplicateOf instanceof ShortLink ? $this->duplicateOf->slug : null) ?: $this->slug;
-            $testSlug = $baseSlug;
-            $num = 1;
+            $baseSlug = $this->generateSlugFromCode(
+                ($this->duplicateOf instanceof ShortLink ? $this->duplicateOf->slug : null) ?: (string)$this->slug
+            );
 
-            // Keep trying until we find a unique slug
-            while (true) {
-                $exists = (new \craft\db\Query())
-                    ->from('{{%shortlinkmanager}}')
-                    ->where(['slug' => $testSlug])
-                    ->exists();
-
-                if (!$exists) {
-                    break;
-                }
-
-                $testSlug = $baseSlug . '-' . $num;
-                $num++;
-
-                // Safety check to prevent infinite loop
-                if ($num > 100) {
-                    break;
-                }
-            }
-
-            $this->slug = $testSlug;
+            $this->slug = SlugHandleHelper::makeUnique('{{%shortlinkmanager}}', 'slug', $baseSlug);
         }
 
         return parent::beforeValidate();
@@ -1450,13 +1442,7 @@ class ShortLink extends Element
      */
     private function generateSlugFromCode(string $code): string
     {
-        // Sanitize: lowercase, replace spaces/special chars with hyphens
-        $slug = strtolower($code);
-        $slug = preg_replace('/[^a-z0-9\-_]/', '-', $slug);
-        $slug = preg_replace('/-+/', '-', $slug); // Remove multiple hyphens
-        $slug = trim($slug, '-'); // Remove leading/trailing hyphens
-
-        return $slug;
+        return SlugHandleHelper::normalizeSlug($code, '');
     }
 
     /**
@@ -1517,6 +1503,14 @@ class ShortLink extends Element
             } else {
                 $record = new ShortLinkRecord();
                 $record->id = $this->id;
+            }
+
+            if ($this->duplicateOf && !$isNew) {
+                $this->code = $record->code;
+                $this->slug = $record->slug;
+                $this->linkType = $record->linkType;
+                $this->shortLinkType = $record->shortLinkType;
+                $this->folderId = $record->folderId ? (int)$record->folderId : null;
             }
 
             // Save non-translatable fields to main table
