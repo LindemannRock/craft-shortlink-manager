@@ -14,6 +14,7 @@ use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\helpers\StringHelper;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\SlugHandleHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ShortLinkRecord;
@@ -69,7 +70,7 @@ class ShortLinksService extends Component
         }
 
         // Set properties from options
-        $element->slug = $options['code'] ?? $options['slug'] ?? '';
+        $element->slug = SlugHandleHelper::normalizeSlug($options['code'] ?? $options['slug'] ?? '', '');
         $element->linkType = $options['type'] ?? $options['linkType'] ?? 'code';
         $element->shortLinkType = $options['shortLinkType'] ?? 'manual';
         $element->destinationUrl = $options['url'] ?? $options['destinationUrl'] ?? $element->destinationUrl ?? '';
@@ -140,7 +141,7 @@ class ShortLinksService extends Component
      */
     public function getBySlug(string $slug, ?int $siteId = null): ?ShortLink
     {
-        $slug = strtolower(trim($slug));
+        $slug = SlugHandleHelper::normalizeSlug($slug, '');
 
         $query = ShortLink::find()
             ->slug($slug)
@@ -339,6 +340,11 @@ class ShortLinksService extends Component
      */
     public function validateSlug(string $slug, ?int $excludeId = null): bool
     {
+        $slug = SlugHandleHelper::normalizeSlug($slug, '');
+        if ($slug === '') {
+            return false;
+        }
+
         // Check if reserved
         if ($this->isReservedSlug($slug)) {
             return false;
