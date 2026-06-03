@@ -232,11 +232,11 @@ class AnalyticsBreakdownService
     public function getReferrerBreakdown(int $shortLinkId): array
     {
         return (new Query())
-            ->select(['referer', 'COUNT(*) as count'])
+            ->select(['referrer', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId])
-            ->andWhere(['not', ['referer' => null]])
-            ->groupBy('referer')
+            ->andWhere(['not', ['referrer' => null]])
+            ->groupBy('referrer')
             ->orderBy(['count' => SORT_DESC])
             ->limit(20)
             ->all();

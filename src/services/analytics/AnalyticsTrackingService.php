@@ -73,7 +73,7 @@ class AnalyticsTrackingService
         $userAgent = $request->getUserAgent();
 
         // Get referrer
-        $referer = $request->getReferrer();
+        $referrer = $request->getReferrer();
 
         // Detect device/browser info using Matomo DeviceDetector
         $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice($userAgent);
@@ -95,7 +95,7 @@ class AnalyticsTrackingService
             'destinationUrl' => $shortLink->destinationUrl,
             'ip' => $ipHash,
             'userAgent' => $userAgent,
-            'referer' => $referer,
+            'referrer' => $referrer,
             'language' => $deviceInfo['language'] ?? null,
             'deviceType' => $deviceInfo['deviceType'],
             'deviceBrand' => $deviceInfo['deviceBrand'],

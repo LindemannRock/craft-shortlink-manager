@@ -85,7 +85,7 @@ final class ClickTrackingTest extends TestCase
         $this->assertSame($link->siteId, (int) $row['siteId']);
         $this->assertSame('https://example.com/dest', $row['destinationUrl']);
         $this->assertSame('Mozilla/5.0 (Test) LindemannRockStub/1.0', $row['userAgent']);
-        $this->assertSame('https://example.com/some/page', $row['referer']);
+        $this->assertSame('https://example.com/some/page', $row['referrer']);
 
         // Source is stored inside the metadata JSON blob.
         $this->assertNotEmpty($row['metadata']);

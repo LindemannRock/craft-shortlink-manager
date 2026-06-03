@@ -66,7 +66,7 @@ class AnalyticsExportService
                 'a.country',
                 'a.city',
                 'a.language',
-                'a.referer as referrer',
+                'a.referrer',
                 'a.userAgent',
                 'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
             ])

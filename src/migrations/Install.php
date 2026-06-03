@@ -163,7 +163,7 @@ class Install extends Migration
                 'ip' => $this->string(64)->null(),
                 'userAgent' => $this->text()->null(),
                 'metadata' => $this->text()->null(),
-                'referer' => $this->string()->null(),
+                'referrer' => $this->string()->null(),
                 'deviceType' => $this->string(50)->null(),
                 'deviceBrand' => $this->string(50)->null(),
                 'deviceModel' => $this->string(100)->null(),

@@ -92,11 +92,11 @@ class AnalyticsQueryInsightsService
 
         // Get referrer breakdown
         $referrerBreakdown = (new Query())
-            ->select(['referer', 'COUNT(*) as count'])
+            ->select(['referrer', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId])
-            ->andWhere(['not', ['referer' => null]])
-            ->groupBy('referer')
+            ->andWhere(['not', ['referrer' => null]])
+            ->groupBy('referrer')
             ->orderBy(['count' => SORT_DESC])
             ->limit(10)
             ->all();
@@ -200,7 +200,7 @@ class AnalyticsQueryInsightsService
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $recentClicksQuery = (new Query())
             ->select([
-                'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referer', 'a.metadata',
+                'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referrer', 'a.metadata',
                 'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
                 'a.browserEngine', 'a.osName', 'a.osVersion', 'a.clientType', 'a.isRobot',
                 'a.isMobileApp', 'a.botName', 'a.country', 'a.city', 'a.language', 'a.region',
@@ -256,7 +256,7 @@ class AnalyticsQueryInsightsService
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
             ->select([
-                'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referer', 'a.metadata',
+                'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referrer', 'a.metadata',
                 'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
                 'a.browserEngine', 'a.osName', 'a.osVersion', 'a.clientType', 'a.isRobot',
                 'a.isMobileApp', 'a.botName', 'a.country', 'a.city', 'a.language', 'a.region',

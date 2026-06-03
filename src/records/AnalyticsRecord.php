@@ -19,7 +19,7 @@ use craft\db\ActiveRecord;
  * @property string|null $destinationUrl
  * @property string|null $ip
  * @property string|null $userAgent
- * @property string|null $referer
+ * @property string|null $referrer
  * @property string|null $language
  * @property string|null $deviceType
  * @property string|null $deviceBrand
