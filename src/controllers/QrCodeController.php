@@ -11,6 +11,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 use Craft;
 use craft\models\Site;
 use craft\web\Controller;
+use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\SafeSegmentHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -162,23 +163,12 @@ class QrCodeController extends Controller
                 }
             }
         } else {
-            // Preview mode - just use query params
-            $logoId = $request->getQueryParam('logo');
-
-            // Validate logo belongs to the allowed volume and user has access
-            if ($logoId) {
-                $logoAsset = \craft\elements\Asset::find()->id($logoId)->one();
-                $allowedVolumeUids = array_filter([
-                    $settings->qrLogoVolumeUid,
-                ]);
-                $volumeUid = $logoAsset?->getVolume()->uid;
-                if (!$logoAsset
-                    || ($allowedVolumeUids && !in_array($volumeUid, $allowedVolumeUids, true))
-                    || !Craft::$app->getUser()->checkPermission('viewAssets:' . $volumeUid)
-                ) {
-                    $logoId = null;
-                }
-            }
+            // Preview mode - just use query params. Validate the logo server-side
+            // against the configured volume + the user's viewAssets permission.
+            $logoId = AssetVolumeHelper::validateAssetId(
+                $request->getQueryParam('logo'),
+                $settings->qrLogoVolumeUid,
+            );
 
             $options = [
                 'size' => $request->getQueryParam('size'),

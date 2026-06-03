@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Db;
 use craft\web\Controller;
+use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -332,13 +333,13 @@ class ShortlinksController extends Controller
 
         $shortLink->qrCodeFormat = $this->request->getBodyParam('qrCodeFormat') ?: null;
 
-        // Handle qrLogoId (asset field returns array)
-        $qrLogoId = $this->request->getBodyParam('qrLogoId');
-        if (is_array($qrLogoId)) {
-            $shortLink->qrLogoId = !empty($qrLogoId[0]) ? (int)$qrLogoId[0] : null;
-        } else {
-            $shortLink->qrLogoId = $qrLogoId ? (int)$qrLogoId : null;
-        }
+        // Validate qrLogoId server-side against the configured volume + the user's
+        // viewAssets permission. The field's source restriction is client-side only,
+        // so a crafted POST could otherwise embed any asset as the QR logo.
+        $shortLink->qrLogoId = AssetVolumeHelper::validateAssetId(
+            $this->request->getBodyParam('qrLogoId'),
+            ShortLinkManager::$plugin->getSettings()->qrLogoVolumeUid,
+        );
 
         // Folder/tags (plugin-internal taxonomy)
         $folderIdParam = (string)$this->request->getBodyParam('folderId', '');

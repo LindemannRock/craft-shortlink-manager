@@ -10,6 +10,7 @@ use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\web\Controller;
 use craft\web\UploadedFile;
+use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\CsvImportHelper;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\ExportHelper;
@@ -524,7 +525,13 @@ class ImportExportController extends Controller
                 $shortLink->qrCodeFormat = in_array((string)($primaryRow['qrCodeFormat'] ?? ''), ['png', 'svg'], true)
                     ? (string)$primaryRow['qrCodeFormat']
                     : null;
-                $shortLink->qrLogoId = !empty($primaryRow['qrLogoId']) ? (int)$primaryRow['qrLogoId'] : null;
+                // Validate the imported logo against the configured volume + the
+                // importing user's viewAssets permission, rather than trusting the
+                // raw asset ID from the CSV row.
+                $shortLink->qrLogoId = AssetVolumeHelper::validateAssetId(
+                    $primaryRow['qrLogoId'] ?? null,
+                    ShortLinkManager::$plugin->getSettings()->qrLogoVolumeUid,
+                );
                 $shortLink->postDate = $primaryRow['postDate'] instanceof \DateTime ? $primaryRow['postDate'] : null;
                 $shortLink->dateExpired = $primaryRow['dateExpired'] instanceof \DateTime ? $primaryRow['dateExpired'] : null;
                 $shortLink->setEnabledForSite((bool)$primaryRow['enabled']);
