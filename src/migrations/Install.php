@@ -3,7 +3,7 @@
  * ShortLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\shortlinkmanager\migrations;
@@ -163,7 +163,7 @@ class Install extends Migration
                 'ip' => $this->string(64)->null(),
                 'userAgent' => $this->text()->null(),
                 'metadata' => $this->text()->null(),
-                'referrer' => $this->string()->null(),
+                'referrer' => $this->text()->null(),
                 'deviceType' => $this->string(50)->null(),
                 'deviceBrand' => $this->string(50)->null(),
                 'deviceModel' => $this->string(100)->null(),
