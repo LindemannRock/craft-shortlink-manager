@@ -140,5 +140,20 @@ final class SlugGenerationTest extends TestCase
 
         $this->assertInstanceOf(ShortLink::class, $duplicate);
         $this->assertSame('sl-test-duplicate-2', $duplicate->slug);
+        // code must stay in sync with the unique slug, or the persisted row diverges.
+        $this->assertSame('sl-test-duplicate-2', $duplicate->code);
+
+        // Regression: reload the duplicate as the CP edit page would (code comes from
+        // the stored row) and re-save. A divergent code regenerates a colliding slug
+        // and fails validation, so this save must succeed.
+        $reloaded = ShortLink::find()->id($duplicate->id)->status(null)->one();
+        $this->assertInstanceOf(ShortLink::class, $reloaded);
+        $this->assertTrue(
+            Craft::$app->getElements()->saveElement($reloaded),
+            'Re-saving a duplicated vanity link must not collide on its own slug — errors: '
+                . json_encode($reloaded->getErrors()),
+        );
+        $this->assertSame('sl-test-duplicate-2', $reloaded->slug);
+        $this->assertSame('sl-test-duplicate-2', $reloaded->code);
     }
 }
