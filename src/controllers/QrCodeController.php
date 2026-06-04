@@ -123,14 +123,14 @@ class QrCodeController extends Controller
 
             // Check if plugin is enabled for this site
             if (!$settings->isSiteEnabled($shortLink->siteId)) {
-                $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
+                $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->getResolvedNotFoundRedirectUrl());
                 return $this->redirect($redirectUrl);
             }
 
             // Check if QR codes are enabled for this shortlink
             if (!$shortLink->qrCodeEnabled) {
                 // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
-                $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
+                $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->getResolvedNotFoundRedirectUrl());
                 return $this->redirect($redirectUrl);
             }
 
@@ -269,13 +269,13 @@ class QrCodeController extends Controller
 
         // Check if plugin is enabled for this site
         if (!$settings->isSiteEnabled($shortLink->siteId)) {
-            $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
+            $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->getResolvedNotFoundRedirectUrl());
             return $this->redirect($redirectUrl);
         }
 
         // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
         if (!$shortLink->qrCodeEnabled) {
-            $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
+            $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->getResolvedNotFoundRedirectUrl());
             return $this->redirect($redirectUrl);
         }
 

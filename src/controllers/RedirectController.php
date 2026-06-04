@@ -384,7 +384,7 @@ class RedirectController extends Controller
 
         // Fallback to configured URL
         $settings = ShortLinkManager::$plugin->getSettings();
-        $notFoundUrl = $this->_sanitizeUrl($settings->notFoundRedirectUrl ?? '/');
+        $notFoundUrl = $this->_sanitizeUrl($settings->getResolvedNotFoundRedirectUrl());
 
         return $this->redirect($notFoundUrl, 302);
     }

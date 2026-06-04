@@ -3,7 +3,7 @@
  * ShortLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\shortlinkmanager\models;
@@ -738,6 +738,19 @@ class Settings extends Model
         }
 
         return UrlHelper::siteUrl($relativePath, $params, null, $siteId);
+    }
+
+    /**
+     * The configured 404 redirect URL with any environment variable resolved,
+     * falling back to "/" when empty or unset.
+     *
+     * @since 5.20.0
+     */
+    public function getResolvedNotFoundRedirectUrl(): string
+    {
+        $url = trim((string) App::parseEnv($this->notFoundRedirectUrl));
+
+        return $url !== '' ? $url : '/';
     }
 
     /**
