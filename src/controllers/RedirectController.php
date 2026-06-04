@@ -3,7 +3,7 @@
  * ShortLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\shortlinkmanager\controllers;
@@ -13,6 +13,7 @@ use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -512,21 +513,11 @@ class RedirectController extends Controller
      */
     private function _sanitizeUrl(string $url): string
     {
-        $url = trim($url);
-
-        // Allow relative URLs
-        if (str_starts_with($url, '/')) {
-            return $url;
+        if (!UrlSafetyHelper::isSafeRedirectUrl($url)) {
+            $this->logWarning('Blocked unsafe URL scheme', ['url' => $url]);
         }
 
-        // Allow http and https
-        if (preg_match('#^https?://#i', $url)) {
-            return $url;
-        }
-
-        // Reject everything else (javascript:, data:, vbscript:, etc.)
-        $this->logWarning('Blocked unsafe URL scheme', ['url' => $url]);
-        return '/';
+        return UrlSafetyHelper::sanitizeRedirectUrl($url);
     }
 
     /**
