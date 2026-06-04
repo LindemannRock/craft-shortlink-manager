@@ -24,14 +24,6 @@
 
 {% block content %}
 
-	{% if settings is defined and settings.hasErrors() %}
-		{% include 'lindemannrock-base/_partials/error-summary' with {
-			errors: settings.getErrors(),
-			linkMode: 'field-id',
-			translationCategory: 'shortlink-manager'
-		} %}
-	{% endif %}
-
 	<div class="qr-preview-floating">
 		<div class="qr-preview-header">
 			<span>{{ "Live Preview"|t('shortlink-manager') }}</span>
