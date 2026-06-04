@@ -379,17 +379,19 @@ return [
     'Cache Device Detection' => 'Cache enhedsregistrering',
     'Cache device detection results for better performance' => 'Cache resultater fra enhedsregistrering for bedre performance',
     'Device Detection Cache Duration' => 'Cache-varighed for enhedsregistrering',
-    'Cache Location' => 'Cache-placering',
-    "Using Craft's configured Redis cache from <code>config/app.php</code>" => "Bruger Crafts konfigurerede Redis-cache fra <code>config/app.php</code>",
-    'Redis Not Configured' => 'Redis ikke konfigureret',
-    "To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>." => "For at bruge Redis-caching skal du installere <code>yiisoft/yii2-redis</code> og konfigurere det i <code>config/app.php</code>.",
-    'Cache duration in seconds. Current:' => 'Cache-varighed i sekunder. Nuværende:',
-    'How it works' => 'Sådan fungerer det',
-    'Device detection parses user-agent strings to identify devices, browsers, and operating systems' => 'Enhedsregistrering fortolker user-agent-strenge for at identificere enheder, browsere og operativsystemer',
-    'Results are cached to avoid re-parsing the same user-agent repeatedly' => 'Resultaterne caches for at undgå at fortolke den samme user-agent gentagne gange',
-    'Recommended to keep enabled for production sites' => 'Anbefales at holde aktiveret for produktionssites',
-    'Device detection caching is only available when Analytics is enabled. Go to' => 'Caching af enhedsregistrering er kun tilgængelig, når analytics er aktiveret. Gå til',
-    'to enable analytics.' => 'for at aktivere analytics.',
+    '<strong>Cache Location:</strong> <code>{path}</code>' => '<strong>Cache-placering:</strong> <code>{path}</code>',
+    '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Cache-placering:</strong> Bruger Craft\'s konfigurerede Redis-cache fra <code>config/app.php</code>',
+    '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis ikke konfigureret:</strong> For at bruge Redis-caching skal du installere <code>yiisoft/yii2-redis</code> og konfigurere det i <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Lær mere</a>',
+    'Cache duration in seconds. Current: <strong id="qrCodeCacheDuration-human"></strong>' => 'Cache-varighed i sekunder. Nuværende: <strong id="qrCodeCacheDuration-human"></strong>',
+    'Cache duration in seconds. Current: <strong id="deviceDetectionCacheDuration-human"></strong>' => 'Cache-varighed i sekunder. Nuværende: <strong id="deviceDetectionCacheDuration-human"></strong>',
+    '<strong>How it works:</strong><br>
+• Device detection parses user-agent strings to identify devices, browsers, and operating systems<br>
+• Results are cached to avoid re-parsing the same user-agent repeatedly<br>
+• Recommended to keep enabled for production sites' => '<strong>Sådan fungerer det:</strong><br>
+• Enhedsregistrering fortolker user-agent-strenge for at identificere enheder, browsere og operativsystemer<br>
+• Resultaterne caches for at undgå at fortolke den samme user-agent gentagne gange<br>
+• Anbefales at holde aktiveret for produktionssites',
+    'Device detection caching is only available when Analytics is enabled. Go to {link} to enable analytics.' => 'Caching til enhedsregistrering er kun tilgængeligt, når Analyser er aktiveret. Gå til {link} for at aktivere analyser.',
     '{count} second' => '{count} sekund',
     '{count} seconds' => '{count} sekunder',
     '{count} minute' => '{count} minut',

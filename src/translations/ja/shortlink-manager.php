@@ -379,17 +379,19 @@ return [
     'Cache Device Detection' => 'デバイス検出を キャッシュする',
     'Cache device detection results for better performance' => 'パフォーマンス向上のためにデバイス検出結果を キャッシュする',
     'Device Detection Cache Duration' => 'デバイス検出キャッシュ期間',
-    'Cache Location' => 'キャッシュ場所',
-    "Using Craft's configured Redis cache from <code>config/app.php</code>" => "<code>config/app.php</code> から設定された Craft の Redis キャッシュを使用しています",
-    'Redis Not Configured' => 'Redis が設定されていません',
-    "To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>." => "Redis キャッシュを使用するには、<code>yiisoft/yii2-redis</code> をインストールし、<code>config/app.php</code> で設定してください。",
-    'Cache duration in seconds. Current:' => 'キャッシュ期間（秒）。現在:',
-    'How it works' => '動作の仕組み',
-    'Device detection parses user-agent strings to identify devices, browsers, and operating systems' => 'デバイス検出は User-Agent 文字列を解析してデバイス、ブラウザー、OS を識別します',
-    'Results are cached to avoid re-parsing the same user-agent repeatedly' => '同じ User-Agent を繰り返し解析しないよう結果を キャッシュします',
-    'Recommended to keep enabled for production sites' => '本番サイトでは有効のままにすることを推奨します',
-    'Device detection caching is only available when Analytics is enabled. Go to' => 'デバイス検出キャッシュはアナリティクスが有効な場合のみ利用できます。アナリティクスを有効にするには',
-    'to enable analytics.' => 'に移動してください。',
+    '<strong>Cache Location:</strong> <code>{path}</code>' => '<strong>キャッシュの場所:</strong> <code>{path}</code>',
+    '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>キャッシュの場所:</strong> <code>config/app.php</code> で設定された Craft の Redis キャッシュを使用しています',
+    '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis 未設定:</strong> Redis キャッシュを使用するには、<code>yiisoft/yii2-redis</code> をインストールして <code>config/app.php</code> で設定してください。<a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">詳細を見る</a>',
+    'Cache duration in seconds. Current: <strong id="qrCodeCacheDuration-human"></strong>' => 'キャッシュ時間（秒単位）。現在: <strong id="qrCodeCacheDuration-human"></strong>',
+    'Cache duration in seconds. Current: <strong id="deviceDetectionCacheDuration-human"></strong>' => 'キャッシュ時間（秒単位）。現在: <strong id="deviceDetectionCacheDuration-human"></strong>',
+    '<strong>How it works:</strong><br>
+• Device detection parses user-agent strings to identify devices, browsers, and operating systems<br>
+• Results are cached to avoid re-parsing the same user-agent repeatedly<br>
+• Recommended to keep enabled for production sites' => '<strong>動作の仕組み:</strong><br>
+• デバイス検出は User-Agent 文字列を解析してデバイス、ブラウザー、OS を識別します<br>
+• 同じ User-Agent を繰り返し解析しないよう結果をキャッシュします<br>
+• 本番サイトでは有効のままにすることを推奨します',
+    'Device detection caching is only available when Analytics is enabled. Go to {link} to enable analytics.' => 'デバイス検出のキャッシュはアナリティクスが有効な場合のみ利用できます。アナリティクスを有効にするには {link} に移動してください。',
     '{count} second' => '{count} 秒',
     '{count} seconds' => '{count} 秒',
     '{count} minute' => '{count} 分',

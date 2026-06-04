@@ -379,17 +379,19 @@ return [
     'Cache Device Detection' => 'Memorizza nella cache il rilevamento dispositivi',
     'Cache device detection results for better performance' => 'Memorizza nella cache i risultati del rilevamento dispositivi per prestazioni migliori',
     'Device Detection Cache Duration' => 'Durata cache rilevamento dispositivi',
-    'Cache Location' => 'Posizione cache',
-    "Using Craft's configured Redis cache from <code>config/app.php</code>" => "Utilizzo della cache Redis configurata di Craft da <code>config/app.php</code>",
-    'Redis Not Configured' => 'Redis non configurato',
-    "To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>." => "Per usare il caching Redis, installare <code>yiisoft/yii2-redis</code> e configurarlo in <code>config/app.php</code>.",
-    'Cache duration in seconds. Current:' => 'Durata della cache in secondi. Attuale:',
-    'How it works' => 'Come funziona',
-    'Device detection parses user-agent strings to identify devices, browsers, and operating systems' => 'Il rilevamento dispositivi analizza le stringhe user-agent per identificare dispositivi, browser e sistemi operativi',
-    'Results are cached to avoid re-parsing the same user-agent repeatedly' => 'I risultati vengono memorizzati nella cache per evitare di analizzare ripetutamente lo stesso user-agent',
-    'Recommended to keep enabled for production sites' => 'Si consiglia di mantenere abilitato per i siti in produzione',
-    'Device detection caching is only available when Analytics is enabled. Go to' => 'Il caching del rilevamento dispositivi è disponibile solo quando gli analytics sono abilitati. Andare a',
-    'to enable analytics.' => 'per abilitare gli analytics.',
+    '<strong>Cache Location:</strong> <code>{path}</code>' => '<strong>Posizione cache:</strong> <code>{path}</code>',
+    '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Posizione cache:</strong> utilizzo della cache Redis configurata di Craft da <code>config/app.php</code>',
+    '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis non configurato:</strong> per utilizzare la cache Redis, installa <code>yiisoft/yii2-redis</code> e configuralo in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Ulteriori informazioni</a>',
+    'Cache duration in seconds. Current: <strong id="qrCodeCacheDuration-human"></strong>' => 'Durata cache in secondi. Attuale: <strong id="qrCodeCacheDuration-human"></strong>',
+    'Cache duration in seconds. Current: <strong id="deviceDetectionCacheDuration-human"></strong>' => 'Durata cache in secondi. Attuale: <strong id="deviceDetectionCacheDuration-human"></strong>',
+    '<strong>How it works:</strong><br>
+• Device detection parses user-agent strings to identify devices, browsers, and operating systems<br>
+• Results are cached to avoid re-parsing the same user-agent repeatedly<br>
+• Recommended to keep enabled for production sites' => '<strong>Come funziona:</strong><br>
+• Il rilevamento dispositivi analizza le stringhe user-agent per identificare dispositivi, browser e sistemi operativi<br>
+• I risultati vengono memorizzati nella cache per evitare di analizzare ripetutamente lo stesso user-agent<br>
+• Si consiglia di mantenere abilitato per i siti in produzione',
+    'Device detection caching is only available when Analytics is enabled. Go to {link} to enable analytics.' => 'Il caching del rilevamento dispositivi è disponibile solo quando le analisi sono abilitate. Andare a {link} per abilitare le analisi.',
     '{count} second' => '{count} secondo',
     '{count} seconds' => '{count} secondi',
     '{count} minute' => '{count} minuto',
