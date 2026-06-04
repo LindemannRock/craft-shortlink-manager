@@ -3,7 +3,7 @@
  * ShortLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\shortlinkmanager\controllers;
@@ -13,6 +13,7 @@ use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\SafeSegmentHelper;
+use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -122,14 +123,14 @@ class QrCodeController extends Controller
 
             // Check if plugin is enabled for this site
             if (!$settings->isSiteEnabled($shortLink->siteId)) {
-                $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+                $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
                 return $this->redirect($redirectUrl);
             }
 
             // Check if QR codes are enabled for this shortlink
             if (!$shortLink->qrCodeEnabled) {
                 // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
-                $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+                $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
                 return $this->redirect($redirectUrl);
             }
 
@@ -268,13 +269,13 @@ class QrCodeController extends Controller
 
         // Check if plugin is enabled for this site
         if (!$settings->isSiteEnabled($shortLink->siteId)) {
-            $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+            $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
             return $this->redirect($redirectUrl);
         }
 
         // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
         if (!$shortLink->qrCodeEnabled) {
-            $redirectUrl = $settings->notFoundRedirectUrl ?? '/';
+            $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->notFoundRedirectUrl ?? '/');
             return $this->redirect($redirectUrl);
         }
 
