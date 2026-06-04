@@ -1397,6 +1397,12 @@ class ShortLink extends Element
             );
 
             $this->slug = SlugHandleHelper::makeUnique('{{%shortlinkmanager}}', 'slug', $baseSlug);
+            // Keep code and the auto-generated title in sync with the unique slug,
+            // matching the new-link path above (code === slug for vanity links).
+            // Without this, the persisted code stays the original's, so re-saving the
+            // duplicate regenerates a colliding slug and fails validation.
+            $this->code = $this->slug;
+            $this->title = $this->slug;
         }
 
         return parent::beforeValidate();
