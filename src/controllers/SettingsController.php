@@ -11,6 +11,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 use Craft;
 use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\SettingsPostHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -216,50 +217,27 @@ class SettingsController extends Controller
             }
         }
 
-        // Only update fields belonging to the current section and not overridden by config
         $section = $this->_validSettingsSection(
             $this->request->getBodyParam('section', 'general'),
         );
-        $allowedKeys = array_flip($this->_validationAttributesForSection($section));
-        foreach ($settingsData as $key => $value) {
-            if (isset($allowedKeys[$key]) && !$settings->isOverriddenByConfig($key) && property_exists($settings, $key)) {
-                // Multi-state selects (e.g. "Use global default" = '') need '' → null
-                // so nullable properties hold null, not a coerced false / 0 / ''.
-                if ($value === '') {
-                    $type = (new \ReflectionProperty($settings, $key))->getType();
-                    if ($type instanceof \ReflectionNamedType && $type->allowsNull()) {
-                        $value = null;
-                    }
-                }
-                // Handle special array field conversions
-                if ($key === 'enabledIntegrations') {
-                    // Decode JSON string from hidden field
-                    $settings->enabledIntegrations = is_string($value) ? json_decode($value, true) : (is_array($value) ? $value : []);
-                } elseif ($key === 'redirectManagerEvents') {
-                    // Already an array from checkbox fields
-                    $settings->redirectManagerEvents = is_array($value) ? $value : [];
-                } elseif ($key === 'seomaticTrackingEvents') {
-                    // Already an array from checkbox fields
-                    $settings->seomaticTrackingEvents = is_array($value) ? $value : [];
-                } else {
-                    // Check for setter method first (handles array conversions, etc.)
-                    $setterMethod = 'set' . ucfirst($key);
-                    if (method_exists($settings, $setterMethod)) {
-                        $settings->$setterMethod($value);
-                    } else {
-                        $settings->$key = $value;
-                    }
-                }
-            }
-        }
 
         // Validate only fields belonging to the current settings section.
-        $attributesToValidate = $this->_validationAttributesForSection($section);
-        $attributesToValidate = array_values(array_filter(
-            $attributesToValidate,
-            fn(string $attribute): bool => !$settings->isOverriddenByConfig($attribute),
-        ));
-        if (!$settings->validate($attributesToValidate)) {
+        $result = SettingsPostHelper::apply(
+            model: $settings,
+            postedValues: $settingsData,
+            allowedAttributes: $this->_validationAttributesForSection($section),
+            isOverridden: fn(string $attribute): bool => $settings->isOverriddenByConfig($attribute),
+            adapters: [
+                'enabledIntegrations' => static fn(mixed $value): array => is_string($value)
+                    ? (json_decode($value, true) ?: [])
+                    : (is_array($value) ? $value : []),
+                'redirectManagerEvents' => static fn(mixed $value): array => is_array($value) ? $value : [],
+                'seomaticTrackingEvents' => static fn(mixed $value): array => is_array($value) ? $value : [],
+            ],
+        );
+        $attributesToValidate = $result->attributesToValidate;
+
+        if ($result->hasErrors || !$settings->validate($attributesToValidate)) {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save settings.'));
 
             return $this->renderTemplate("shortlink-manager/settings/{$section}", [
@@ -593,14 +571,15 @@ class SettingsController extends Controller
                 'slugPrefix',
                 'qrPrefix',
                 'shortlinkBaseUrl',
+                'codeLength',
                 'redirectTemplate',
                 'expiredTemplate',
                 'qrTemplate',
+                'expiredMessage',
                 'logLevel',
             ],
             'behavior' => [
                 'notFoundRedirectUrl',
-                'expiredMessage',
                 'defaultHttpCode',
                 'passQueryParams',
                 'directRedirect',
@@ -629,7 +608,6 @@ class SettingsController extends Controller
                 'geoApiKey',
                 'anonymizeIpAddress',
                 'analyticsRetention',
-                'ipHashSalt',
             ],
             'integrations' => [
                 'enabledIntegrations',
@@ -638,9 +616,7 @@ class SettingsController extends Controller
                 'redirectManagerEvents',
             ],
             'interface' => [
-                'codeLength',
                 'itemsPerPage',
-                'reservedCodes',
                 'timeFormat',
                 'monthFormat',
                 'dateOrder',
@@ -653,7 +629,10 @@ class SettingsController extends Controller
             ],
             'cache' => [
                 'cacheStorageMethod',
+                'enableQrCodeCache',
                 'qrCodeCacheDuration',
+                'cacheDeviceDetection',
+                'deviceDetectionCacheDuration',
             ],
             default => [],
         };

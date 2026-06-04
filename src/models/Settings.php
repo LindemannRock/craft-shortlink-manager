@@ -442,7 +442,7 @@ class Settings extends Model
             [['qrPrefix'], 'match', 'pattern' => '/^[a-zA-Z0-9\-\_\/]+$/', 'message' => Craft::t('shortlink-manager', 'Only letters, numbers, hyphens, underscores, and slashes are allowed.')],
             [['qrPrefix'], RoutePrefixValidator::class, 'translationCategory' => 'shortlink-manager'],
             [['qrPrefix'], 'validateQrPrefix'],
-            [['enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrLogo', 'enableQrDownload', 'passQueryParams', 'directRedirect'], 'boolean'],
+            [['enableAnalytics', 'enableGeoDetection', 'anonymizeIpAddress', 'enableQrCodeCache', 'cacheDeviceDetection', 'enableQrLogo', 'enableQrDownload', 'passQueryParams', 'directRedirect'], 'boolean'],
             [['enabledSites', 'enabledIntegrations', 'redirectManagerEvents', 'seomaticTrackingEvents'], 'safe'],
             [['enabledSites'], 'each', 'rule' => ['integer']],
             [['seomaticTrackingEvents'], 'each', 'rule' => ['string']],

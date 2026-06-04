@@ -368,6 +368,7 @@
             disabled: settings.isOverriddenByConfig('expiredMessage'),
             warning: settings.isOverriddenByConfig('expiredMessage') ?
                 "This is being overridden by the <code>expiredMessage</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
+            errors: settings.getErrors('expiredMessage'),
         }) }}
 
 		<hr>

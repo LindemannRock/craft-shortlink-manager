@@ -143,6 +143,12 @@ Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFA
 
 The download format is controlled by the `defaultQrFormat` setting (`png` or `svg`) and can be overridden per link. If you request a format via the URL parameter (e.g., `?format=svg`), ensure the QR URL includes that parameter.
 
+## Settings Save Shows Numeric Field Errors
+
+Numeric settings such as QR cache duration, device detection cache duration, QR size, and logo size must be whole numbers within the range shown in the field instructions.
+
+If a settings save fails, keep the submitted form open and check the inline field errors. ShortLink Manager validates the posted values before saving and does not partially save invalid settings.
+
 ## Custom Short Domain Not Working
 
 1. **Does DNS resolve?** The domain must point to your Craft server.
