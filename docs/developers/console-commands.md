@@ -2,6 +2,21 @@
 
 ShortLink Manager provides console commands for security and maintenance tasks.
 
+## Console Help
+
+Use the plugin-level help command to see the available ShortLink Manager commands and focused guidance for each workflow:
+
+```bash title="DDEV"
+ddev craft shortlink-manager/help
+ddev craft shortlink-manager/help security/generate-salt
+```
+
+Craft's native command help is still available when you need the exact Yii option signature:
+
+```bash title="DDEV"
+ddev craft help shortlink-manager/security/generate-salt
+```
+
 ## Security
 
 ### `shortlink-manager/security/generate-salt`
