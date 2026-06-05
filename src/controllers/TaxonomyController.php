@@ -16,9 +16,8 @@ class TaxonomyController extends Controller
     /**
      * List folders and tags.
      *
-     * Follows the canonical CP table index-page pattern (in-memory variant) —
-     * see plugins/base/docs/template-guides/cp-table-index-pattern.md.
-     * Controller owns query-param parsing, allowlist validation, filter, and
+     * Follows the canonical CP table index-page pattern (in-memory variant):
+     * the controller owns query-param parsing, allowlist validation, filter, and
      * pagination; the Twig template stays presentational.
      */
     public function actionIndex(): Response
