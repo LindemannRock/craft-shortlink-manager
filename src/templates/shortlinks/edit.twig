@@ -169,6 +169,8 @@
         {% endfor %}
     {% endif %}
 
+    {% include 'lindemannrock-base/_components/plugin-credit' %}
+
     {# Analytics tab #}
     {% if canViewAnalytics and plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
         <div id="analytics" class="hidden">
