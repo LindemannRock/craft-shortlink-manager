@@ -330,7 +330,7 @@ class ImportExportController extends Controller
                     'rowNumber' => $rowNumber,
                     'code' => '-',
                     'destinationUrl' => $item['destinationUrl'] ?: '-',
-                    'error' => 'Missing required field: code',
+                    'error' => Craft::t('shortlink-manager', 'Missing required field: code'),
                 ];
                 continue;
             }
@@ -345,7 +345,7 @@ class ImportExportController extends Controller
                         'rowNumber' => $rowNumber,
                         'code' => $item['code'],
                         'destinationUrl' => $item['destinationUrl'] ?: '-',
-                        'error' => 'Field-managed shortlinks require elementId',
+                        'error' => Craft::t('shortlink-manager', 'Field-managed shortlinks require elementId'),
                     ];
                     continue;
                 }
@@ -357,7 +357,7 @@ class ImportExportController extends Controller
                         'rowNumber' => $rowNumber,
                         'code' => $item['code'],
                         'destinationUrl' => $item['destinationUrl'] ?: '-',
-                        'error' => 'Linked element not found for field-managed shortlink',
+                        'error' => Craft::t('shortlink-manager', 'Linked element not found for field-managed shortlink'),
                     ];
                     continue;
                 }
@@ -368,7 +368,7 @@ class ImportExportController extends Controller
                         'rowNumber' => $rowNumber,
                         'code' => $item['code'],
                         'destinationUrl' => $item['destinationUrl'] ?: '-',
-                        'error' => 'Linked element has no URL',
+                        'error' => Craft::t('shortlink-manager', 'Linked element has no URL'),
                     ];
                     continue;
                 }
@@ -386,7 +386,7 @@ class ImportExportController extends Controller
                         'rowNumber' => $rowNumber,
                         'code' => $item['code'],
                         'destinationUrl' => '-',
-                        'error' => 'Missing required field: destinationUrl',
+                        'error' => Craft::t('shortlink-manager', 'Missing required field: destinationUrl'),
                     ];
                     continue;
                 }
@@ -396,7 +396,7 @@ class ImportExportController extends Controller
                         'rowNumber' => $rowNumber,
                         'code' => $item['code'],
                         'destinationUrl' => $item['destinationUrl'],
-                        'error' => 'Invalid destination URL (must start with https://, http://, or /)',
+                        'error' => Craft::t('shortlink-manager', 'Invalid destination URL (must start with https://, http://, or /)'),
                     ];
                     continue;
                 }
@@ -407,7 +407,7 @@ class ImportExportController extends Controller
                 $duplicateRows[] = [
                     'code' => $item['code'],
                     'destinationUrl' => $item['destinationUrl'],
-                    'reason' => 'Code/slug already exists',
+                    'reason' => Craft::t('shortlink-manager', 'Code/slug already exists'),
                 ];
                 continue;
             }
@@ -417,7 +417,7 @@ class ImportExportController extends Controller
                 $duplicateRows[] = [
                     'code' => $item['code'],
                     'destinationUrl' => $item['destinationUrl'],
-                    'reason' => 'Duplicate row for same code and site',
+                    'reason' => Craft::t('shortlink-manager', 'Duplicate row for same code and site'),
                 ];
                 continue;
             }
