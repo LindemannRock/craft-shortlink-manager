@@ -147,6 +147,33 @@ abstract class TestCase extends IntegrationTestCase
     }
 
     /**
+     * Temporarily override plugin settings on the live settings model.
+     *
+     * @param array<string, mixed> $overrides
+     * @template T
+     * @param callable(): T $callback
+     * @return T
+     */
+    protected function withSettings(array $overrides, callable $callback): mixed
+    {
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $previous = [];
+
+        foreach ($overrides as $attribute => $value) {
+            $previous[$attribute] = $settings->{$attribute};
+            $settings->{$attribute} = $value;
+        }
+
+        try {
+            return $callback();
+        } finally {
+            foreach ($previous as $attribute => $value) {
+                $settings->{$attribute} = $value;
+            }
+        }
+    }
+
+    /**
      * DELETE FROM {%shortlinkmanager} WHERE slug LIKE 'sl-test-%' —
      * the FK CASCADE on the analytics + content + element tables drains
      * the rest. The slug column is the only place the marker is guaranteed
