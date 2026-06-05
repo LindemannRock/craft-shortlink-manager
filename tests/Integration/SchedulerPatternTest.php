@@ -54,6 +54,22 @@ final class SchedulerPatternTest extends TestCase
         $this->assertSame(2, $this->countQueueRows('CleanupAnalyticsJob'));
     }
 
+    public function testAnalyticsCleanupBootstrapDoesNotDuplicateExistingDelayedCleanupRow(): void
+    {
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $settings->enableAnalytics = true;
+        $settings->analyticsRetention = 30;
+
+        Craft::$app->getQueue()->delay(300)->push(new CleanupAnalyticsJob([
+            'reschedule' => true,
+        ]));
+        $this->assertSame(1, $this->countQueueRows('CleanupAnalyticsJob'));
+
+        $this->invokePrivate(ShortLinkManager::$plugin, 'scheduleAnalyticsCleanup');
+
+        $this->assertSame(1, $this->countQueueRows('CleanupAnalyticsJob'));
+    }
+
     private function invokePrivate(object $object, string $method): void
     {
         $reflection = new ReflectionMethod($object, $method);

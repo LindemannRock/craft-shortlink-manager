@@ -713,33 +713,43 @@ class ShortLinkManager extends Plugin
     {
         $settings = $this->getSettings();
 
-        // Only schedule cleanup if analytics is enabled and retention is set
-        if ($settings->enableAnalytics && $settings->analyticsRetention > 0) {
-            // Check if a cleanup job is already scheduled
-            $existingJob = (new \craft\db\Query())
-                ->from('{{%queue}}')
-                ->where(['like', 'job', 'shortlinkmanager'])
-                ->andWhere(['like', 'job', 'CleanupAnalyticsJob'])
-                ->exists();
-
-            if (!$existingJob) {
-                $initialDelay = 5 * 60;
-                $initialRun = (clone DateFormatHelper::now())->modify("+{$initialDelay} seconds");
-                $job = new CleanupAnalyticsJob([
-                    'reschedule' => true,
-                    'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
-                        $initialRun,
-                        $settings,
-                        false,
-                        false,
-                    ),
-                ]);
-
-                Craft::$app->queue->delay($initialDelay)->push($job);
-
-                $this->logInfo('Scheduled initial analytics cleanup job', ['interval' => '24 hours']);
-            }
+        if (!$settings->enableAnalytics || $settings->analyticsRetention <= 0) {
+            return;
         }
+
+        if ($this->hasPendingAnalyticsCleanupJob()) {
+            return;
+        }
+
+        $initialDelay = 5 * 60;
+        $initialRun = (clone DateFormatHelper::now())->modify("+{$initialDelay} seconds");
+        $job = new CleanupAnalyticsJob([
+            'reschedule' => true,
+            'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
+                $initialRun,
+                $settings,
+                false,
+                false,
+            ),
+        ]);
+
+        Craft::$app->queue->delay($initialDelay)->push($job);
+
+        $this->logInfo('Scheduled initial analytics cleanup job', ['interval' => '24 hours']);
+    }
+
+    /**
+     * Check whether an analytics cleanup job is already pending.
+     */
+    private function hasPendingAnalyticsCleanupJob(): bool
+    {
+        return (new \craft\db\Query())
+            ->from('{{%queue}}')
+            ->where(['like', 'job', 'shortlinkmanager'])
+            ->andWhere(['like', 'job', 'CleanupAnalyticsJob'])
+            ->andWhere(['fail' => false])
+            ->andWhere(['timeUpdated' => null])
+            ->exists();
     }
 
     /**
