@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use craft\elements\Asset;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
@@ -70,6 +71,34 @@ class QrCodeServiceTest extends TestCase
         $this->assertStringStartsWith("\x89PNG\r\n\x1a\n", $qrCode);
     }
 
+    public function testGeneratesPngQrCodeWithLogoOverlayWhenImageAssetIsAvailable(): void
+    {
+        if (!class_exists(\Imagick::class) || !class_exists(ImagickImageBackEnd::class)) {
+            $this->markTestSkipped('Imagick is not available.');
+        }
+        if (!function_exists('imagecreatefromstring')) {
+            $this->markTestSkipped('GD image functions are not available.');
+        }
+
+        $logoId = $this->findImageAssetId();
+        if ($logoId === null) {
+            $this->markTestSkipped('No image asset is available for logo overlay smoke testing.');
+        }
+
+        $options = [
+            'format' => 'png',
+            'size' => 220,
+            'margin' => 2,
+            'logoSize' => 18,
+        ];
+
+        $withoutLogo = $this->generateWithoutCache($options);
+        $withLogo = $this->generateWithoutCache($options + ['logo' => $logoId]);
+
+        $this->assertStringStartsWith("\x89PNG\r\n\x1a\n", $withLogo);
+        $this->assertNotSame($withoutLogo, $withLogo, 'Logo overlay should modify the generated PNG bytes.');
+    }
+
     /**
      * @param array<string, mixed> $options
      */
@@ -100,5 +129,14 @@ class QrCodeServiceTest extends TestCase
         } finally {
             $settings->enableQrCodeCache = $originalCacheSetting;
         }
+    }
+
+    private function findImageAssetId(): ?int
+    {
+        $asset = Asset::find()
+            ->kind('image')
+            ->one();
+
+        return $asset ? (int) $asset->id : null;
     }
 }
