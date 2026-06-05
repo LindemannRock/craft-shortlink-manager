@@ -19,6 +19,8 @@ use craft\db\ActiveRecord;
  * @property \DateTime $dateCreated
  * @property \DateTime $dateUpdated
  * @property string $uid
+ *
+ * @since 5.15.0
  */
 class ShortLinkTagRecord extends ActiveRecord
 {

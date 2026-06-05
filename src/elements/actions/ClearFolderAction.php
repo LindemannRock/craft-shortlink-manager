@@ -8,6 +8,11 @@ namespace lindemannrock\shortlinkmanager\elements\actions;
 use Craft;
 use craft\base\ElementAction;
 
+/**
+ * Bulk element action: remove the selected short links from their folder.
+ *
+ * @since 5.15.0
+ */
 class ClearFolderAction extends ElementAction
 {
     public function getTriggerLabel(): string

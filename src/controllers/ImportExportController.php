@@ -22,6 +22,11 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
+/**
+ * Handles CSV import/export of short links with history tracking.
+ *
+ * @since 5.15.0
+ */
 class ImportExportController extends Controller
 {
     use LoggingTrait;

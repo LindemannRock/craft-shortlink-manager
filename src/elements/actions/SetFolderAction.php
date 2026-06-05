@@ -9,6 +9,11 @@ use Craft;
 use craft\base\ElementAction;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
+/**
+ * Bulk element action: move the selected short links into a folder.
+ *
+ * @since 5.15.0
+ */
 class SetFolderAction extends ElementAction
 {
     public function getTriggerLabel(): string

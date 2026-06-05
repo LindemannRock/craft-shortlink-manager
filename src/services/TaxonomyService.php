@@ -18,6 +18,8 @@ use lindemannrock\shortlinkmanager\records\TagRecord;
 
 /**
  * Taxonomy service for plugin-internal folders/tags.
+ *
+ * @since 5.15.0
  */
 class TaxonomyService extends Component
 {

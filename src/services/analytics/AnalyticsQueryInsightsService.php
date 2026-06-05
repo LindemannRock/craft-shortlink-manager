@@ -37,65 +37,76 @@ class AnalyticsQueryInsightsService
      */
     public function getClickStats(int $shortLinkId, array $filters = []): array
     {
+        // Apply the requested date window to every query (totals AND each
+        // breakdown), so a 7-day request doesn't return all-time breakdowns.
+        $applyDateFilters = static function(Query $query) use ($filters): void {
+            if (isset($filters['days'])) {
+                $date = new \DateTime();
+                $date->modify('-' . (int) $filters['days'] . ' days');
+                $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($date)]);
+            }
+
+            if (isset($filters['startDate'])) {
+                $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($filters['startDate'])]);
+            }
+
+            if (isset($filters['endDate'])) {
+                $query->andWhere(['<=', 'dateCreated', Db::prepareDateForDb($filters['endDate'])]);
+            }
+        };
+
+        // Get total clicks
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId]);
-
-        // Apply filters
-        if (isset($filters['days'])) {
-            $date = new \DateTime();
-            $date->modify('-' . $filters['days'] . ' days');
-            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($date)]);
-        }
-
-        if (isset($filters['startDate'])) {
-            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($filters['startDate'])]);
-        }
-
-        if (isset($filters['endDate'])) {
-            $query->andWhere(['<=', 'dateCreated', Db::prepareDateForDb($filters['endDate'])]);
-        }
-
-        // Get total clicks
+        $applyDateFilters($query);
         $totalClicks = $query->count();
 
         // Get clicks over time
         $localDate = DateFormatHelper::localDateExpression('dateCreated');
-        $clicksByDate = (new Query())
+        $clicksByDateQuery = (new Query())
             ->select(['date' => $localDate, 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $shortLinkId])
+            ->where(['linkId' => $shortLinkId]);
+        $applyDateFilters($clicksByDateQuery);
+        $clicksByDate = $clicksByDateQuery
             ->groupBy($localDate)
             ->orderBy(['date' => SORT_ASC])
             ->all();
 
         // Get device breakdown
-        $deviceBreakdown = (new Query())
+        $deviceQuery = (new Query())
             ->select(['deviceType', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId])
-            ->andWhere(['not', ['deviceType' => null]])
+            ->andWhere(['not', ['deviceType' => null]]);
+        $applyDateFilters($deviceQuery);
+        $deviceBreakdown = $deviceQuery
             ->groupBy('deviceType')
             ->orderBy(['count' => SORT_DESC])
             ->all();
 
         // Get browser breakdown
-        $browserBreakdown = (new Query())
+        $browserQuery = (new Query())
             ->select(['browser', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId])
-            ->andWhere(['not', ['browser' => null]])
+            ->andWhere(['not', ['browser' => null]]);
+        $applyDateFilters($browserQuery);
+        $browserBreakdown = $browserQuery
             ->groupBy('browser')
             ->orderBy(['count' => SORT_DESC])
             ->limit(10)
             ->all();
 
         // Get referrer breakdown
-        $referrerBreakdown = (new Query())
+        $referrerQuery = (new Query())
             ->select(['referrer', 'COUNT(*) as count'])
             ->from('{{%shortlinkmanager_analytics}}')
             ->where(['linkId' => $shortLinkId])
-            ->andWhere(['not', ['referrer' => null]])
+            ->andWhere(['not', ['referrer' => null]]);
+        $applyDateFilters($referrerQuery);
+        $referrerBreakdown = $referrerQuery
             ->groupBy('referrer')
             ->orderBy(['count' => SORT_DESC])
             ->limit(10)
@@ -104,11 +115,13 @@ class AnalyticsQueryInsightsService
         // Get geo breakdown if enabled
         $geoBreakdown = [];
         if (ShortLinkManager::$plugin->getSettings()->enableGeoDetection) {
-            $geoBreakdown = (new Query())
+            $geoQuery = (new Query())
                 ->select(['country', 'COUNT(*) as count'])
                 ->from('{{%shortlinkmanager_analytics}}')
                 ->where(['linkId' => $shortLinkId])
-                ->andWhere(['not', ['country' => null]])
+                ->andWhere(['not', ['country' => null]]);
+            $applyDateFilters($geoQuery);
+            $geoBreakdown = $geoQuery
                 ->groupBy('country')
                 ->orderBy(['count' => SORT_DESC])
                 ->limit(20)

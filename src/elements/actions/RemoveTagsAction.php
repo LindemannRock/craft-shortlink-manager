@@ -9,6 +9,11 @@ use Craft;
 use craft\base\ElementAction;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
+/**
+ * Bulk element action: remove tags from the selected short links.
+ *
+ * @since 5.15.0
+ */
 class RemoveTagsAction extends ElementAction
 {
     public function getTriggerLabel(): string

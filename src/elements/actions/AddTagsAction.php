@@ -9,6 +9,11 @@ use Craft;
 use craft\base\ElementAction;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
+/**
+ * Bulk element action: add tags to the selected short links.
+ *
+ * @since 5.15.0
+ */
 class AddTagsAction extends ElementAction
 {
     public function getTriggerLabel(): string

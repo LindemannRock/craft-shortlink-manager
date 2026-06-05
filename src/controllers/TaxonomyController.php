@@ -11,6 +11,11 @@ use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
+/**
+ * Manages plugin-internal folders and tags in the Control Panel.
+ *
+ * @since 5.15.0
+ */
 class TaxonomyController extends Controller
 {
     /**

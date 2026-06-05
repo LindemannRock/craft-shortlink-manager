@@ -3,7 +3,7 @@
  * ShortLink Manager plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\shortlinkmanager\integrations;
@@ -97,8 +97,9 @@ class ShortLinkType extends BaseElementLinkType
             }
         }
 
-        // Get site for the field
-        $currentSite = Craft::$app->sites->getSiteById($siteId);
+        // Get site for the field, falling back to the current site if the requested
+        // site id is stale/deleted (avoids a fatal on the null dereferences below).
+        $currentSite = Craft::$app->sites->getSiteById($siteId) ?? Craft::$app->sites->getCurrentSite();
 
         // If site is not enabled, show warning
         if (!$siteEnabled) {

@@ -8,6 +8,11 @@ namespace lindemannrock\shortlinkmanager\elements\actions;
 use Craft;
 use craft\base\ElementAction;
 
+/**
+ * Bulk element action: clear all tags from the selected short links.
+ *
+ * @since 5.15.0
+ */
 class ClearTagsAction extends ElementAction
 {
     public function getTriggerLabel(): string
