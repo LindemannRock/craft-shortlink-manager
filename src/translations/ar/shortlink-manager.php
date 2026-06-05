@@ -44,6 +44,8 @@ return [
     'Manage settings' => 'إدارة الإعدادات',
 
     // Common
+    'Yes' => 'نعم',
+    'No' => 'لا',
     'Actions' => 'الإجراءات',
     'Cancel' => 'إلغاء',
     'Code' => 'Code',
@@ -700,6 +702,9 @@ return [
     'Deleted {count} tag(s).' => 'تم حذف {count} علامة.',
 
     // Import/Export
+    'Import {count} shortlink(s)?' => 'استيراد {count} رابط قصير؟',
+    'Required fields not mapped: {fields}' => 'الحقول المطلوبة غير معيّنة: {fields}',
+    'You cannot map multiple CSV columns to the same field' => 'لا يمكنك تعيين عدة أعمدة CSV إلى الحقل نفسه',
     'Import/Export' => 'استيراد/تصدير',
     'The maximum file size is {size} and the import is limited to {rows} rows per file.' => 'الحجم الأقصى للملف هو {size} ويقتصر الاستيراد على {rows} صفاً لكل ملف.',
     'CSV Format' => 'تنسيق CSV',

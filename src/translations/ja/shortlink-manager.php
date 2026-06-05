@@ -44,6 +44,8 @@ return [
     'Manage settings' => '設定を管理する',
 
     // Common
+    'Yes' => 'はい',
+    'No' => 'いいえ',
     'Actions' => 'アクション',
     'Cancel' => 'キャンセル',
     'Code' => 'コード',
@@ -700,6 +702,9 @@ return [
     'Deleted {count} tag(s).' => '{count} 件のタグを削除しました。',
 
     // Import/Export
+    'Import {count} shortlink(s)?' => '{count} 件のショートリンクをインポートしますか？',
+    'Required fields not mapped: {fields}' => '必須フィールドがマッピングされていません: {fields}',
+    'You cannot map multiple CSV columns to the same field' => '複数の CSV 列を同じフィールドにマッピングすることはできません',
     'Import/Export' => 'インポート/エクスポート',
     'The maximum file size is {size} and the import is limited to {rows} rows per file.' => '最大ファイルサイズは {size} で、インポートはファイルあたり {rows} 行までです。',
     'CSV Format' => 'CSV フォーマット',

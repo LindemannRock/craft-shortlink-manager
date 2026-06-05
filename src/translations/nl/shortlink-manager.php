@@ -44,6 +44,8 @@ return [
     'Manage settings' => 'Instellingen beheren',
 
     // Common
+    'Yes' => 'Ja',
+    'No' => 'Nee',
     'Actions' => 'Acties',
     'Cancel' => 'Annuleren',
     'Code' => 'Code',
@@ -700,6 +702,9 @@ return [
     'Deleted {count} tag(s).' => '{count} tag(s) verwijderd.',
 
     // Import/Export
+    'Import {count} shortlink(s)?' => '{count} shortlinks importeren?',
+    'Required fields not mapped: {fields}' => 'Vereiste velden niet toegewezen: {fields}',
+    'You cannot map multiple CSV columns to the same field' => 'U kunt niet meerdere CSV-kolommen aan hetzelfde veld toewijzen',
     'Import/Export' => 'Import/Export',
     'The maximum file size is {size} and the import is limited to {rows} rows per file.' => 'De maximale bestandsgrootte is {size} en de import is beperkt tot {rows} rijen per bestand.',
     'CSV Format' => 'CSV-indeling',

@@ -44,6 +44,8 @@ return [
     'Manage settings' => 'Hantera inställningar',
 
     // Common
+    'Yes' => 'Ja',
+    'No' => 'Nej',
     'Actions' => 'Åtgärder',
     'Cancel' => 'Avbryt',
     'Code' => 'Kod',
@@ -700,6 +702,9 @@ return [
     'Deleted {count} tag(s).' => '{count} tagg(ar) borttagna.',
 
     // Import/Export
+    'Import {count} shortlink(s)?' => 'Importera {count} shortlinks?',
+    'Required fields not mapped: {fields}' => 'Obligatoriska fält är inte mappade: {fields}',
+    'You cannot map multiple CSV columns to the same field' => 'Du kan inte mappa flera CSV-kolumner till samma fält',
     'Import/Export' => 'Import/Export',
     'The maximum file size is {size} and the import is limited to {rows} rows per file.' => 'Den maximala filstorleken är {size} och importen är begränsad till {rows} rader per fil.',
     'CSV Format' => 'CSV-format',

@@ -44,6 +44,8 @@ return [
     'Manage settings' => 'Gerir definições',
 
     // Common
+    'Yes' => 'Sim',
+    'No' => 'Não',
     'Actions' => 'Ações',
     'Cancel' => 'Cancelar',
     'Code' => 'Código',
@@ -700,6 +702,9 @@ return [
     'Deleted {count} tag(s).' => 'Eliminada(s) {count} etiqueta(s).',
 
     // Import/Export
+    'Import {count} shortlink(s)?' => 'Importar {count} shortlinks?',
+    'Required fields not mapped: {fields}' => 'Campos obrigatórios não mapeados: {fields}',
+    'You cannot map multiple CSV columns to the same field' => 'Não pode mapear várias colunas CSV para o mesmo campo',
     'Import/Export' => 'Importação/Exportação',
     'The maximum file size is {size} and the import is limited to {rows} rows per file.' => 'O tamanho máximo do ficheiro é {size} e a importação está limitada a {rows} linhas por ficheiro.',
     'CSV Format' => 'Formato CSV',

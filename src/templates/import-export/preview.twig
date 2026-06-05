@@ -53,7 +53,7 @@
                             </td>
                             <td>{{ row.linkType }}</td>
                             <td>{{ row.httpCode }}</td>
-                            <td>{{ row.enabled ? 'Yes' : 'No' }}</td>
+                            <td>{{ row.enabled ? 'Yes'|t('shortlink-manager') : 'No'|t('shortlink-manager') }}</td>
                             <td>
                                 {% if row.siteId %}
                                     {% set importSite = craft.app.sites.getSiteById(row.siteId) %}
@@ -168,7 +168,8 @@ const importForm = document.getElementById('importForm');
 if (importForm) {
     importForm.addEventListener('submit', function(e) {
         const count = {{ summary.validRows }};
-        if (!confirm('Import ' + count + ' shortlink(s)?')) {
+        const message = {{ 'Import {count} shortlink(s)?'|t('shortlink-manager')|json_encode|raw }}.replace('{count}', count);
+        if (!confirm(message)) {
             e.preventDefault();
         }
     });

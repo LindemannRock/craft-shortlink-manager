@@ -44,6 +44,8 @@ return [
     'Manage settings' => 'Administrer indstillinger',
 
     // Common
+    'Yes' => 'Ja',
+    'No' => 'Nej',
     'Actions' => 'Handlinger',
     'Cancel' => 'Annuller',
     'Code' => 'Kode',
@@ -700,6 +702,9 @@ return [
     'Deleted {count} tag(s).' => '{count} tag(s) slettet.',
 
     // Import/Export
+    'Import {count} shortlink(s)?' => 'Importér {count} shortlinks?',
+    'Required fields not mapped: {fields}' => 'Påkrævede felter er ikke tilknyttet: {fields}',
+    'You cannot map multiple CSV columns to the same field' => 'Du kan ikke tilknytte flere CSV-kolonner til det samme felt',
     'Import/Export' => 'Import/Eksport',
     'The maximum file size is {size} and the import is limited to {rows} rows per file.' => 'Den maksimale filstørrelse er {size}, og importen er begrænset til {rows} rækker pr. fil.',
     'CSV Format' => 'CSV-format',

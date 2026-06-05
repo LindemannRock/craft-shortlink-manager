@@ -148,6 +148,13 @@
 const mappingForm = document.getElementById('mapping-form');
 const mappingErrorDiv = document.getElementById('mappingErrors');
 const mappingErrorText = document.getElementById('mappingErrorText');
+const fieldLabels = {
+    code: {{ 'Code'|t('shortlink-manager')|json_encode|raw }},
+};
+const mappingMessages = {
+    requiredFields: {{ 'Required fields not mapped: {fields}'|t('shortlink-manager')|json_encode|raw }},
+    duplicateFields: {{ 'You cannot map multiple CSV columns to the same field'|t('shortlink-manager')|json_encode|raw }},
+};
 
 mappingForm?.addEventListener('submit', function(e) {
     const mappings = Array.from(document.querySelectorAll('.column-mapping')).map(m => m.value);
@@ -156,7 +163,7 @@ mappingForm?.addEventListener('submit', function(e) {
     if (!hasCode) {
         e.preventDefault();
         mappingErrorDiv.style.display = 'block';
-        mappingErrorText.innerHTML = '<strong>Required field not mapped: Code</strong>';
+        mappingErrorText.textContent = mappingMessages.requiredFields.replace('{fields}', fieldLabels.code);
         mappingErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return false;
     }
@@ -165,7 +172,7 @@ mappingForm?.addEventListener('submit', function(e) {
     if (nonEmpty.length !== new Set(nonEmpty).size) {
         e.preventDefault();
         mappingErrorDiv.style.display = 'block';
-        mappingErrorText.innerHTML = '<strong>Error: You cannot map multiple CSV columns to the same field</strong>';
+        mappingErrorText.textContent = mappingMessages.duplicateFields;
         mappingErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return false;
     }
