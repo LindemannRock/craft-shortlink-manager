@@ -25,7 +25,10 @@ final class HelpController extends AbstractHelpController
         return [
             'title' => 'ShortLink Manager',
             'pluginHandle' => 'shortlink-manager',
-            'commandPrefix' => 'ddev craft',
+            'commandPrefixes' => [
+                'php craft',
+                'ddev craft',
+            ],
             'summary' => 'Use these commands to generate the IP hash salt used for privacy-safe shortlink analytics.',
             'common' => [
                 'security/generate-salt',
