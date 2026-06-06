@@ -49,8 +49,6 @@ abstract class TestCase extends IntegrationTestCase
     protected ShortLinksService $shortLinks;
     protected AnalyticsService $analytics;
 
-    private int $seedCounter = 0;
-
     /**
      * Slug + id pairs for every shortlink seeded in this test. Used by
      * {@see cleanupExternalState()} to invalidate the per-link Craft cache
@@ -69,15 +67,13 @@ abstract class TestCase extends IntegrationTestCase
         parent::setUp();
         $this->shortLinks = ShortLinkManager::$plugin->shortLinks;
         $this->analytics = ShortLinkManager::$plugin->analytics;
-        $this->seedCounter = 0;
         $this->purgeTestShortLinks();
     }
 
     protected function tearDown(): void
     {
-        $this->purgeTestShortLinks();
-        // Parent restores swapped components and clears external state after
-        // our DB cleanup runs against the real backend.
+        // Parent clears external cache state, deletes tracked elements, and
+        // restores swapped components.
         parent::tearDown();
     }
 
@@ -97,7 +93,7 @@ abstract class TestCase extends IntegrationTestCase
 
     /**
      * Seed a saved {@see ShortLink} element with a marker code. The marker
-     * pattern is `sl-test-<n>-<random>` so the element survives the unique
+     * pattern is `sl-test-link-<n>-<random>` so the element survives the unique
      * slug index and `purgeTestShortLinks()` can wipe it by LIKE prefix on
      * either `slug` or `code` (the two columns mirror each other for vanity
      * links, since the marker is already normalized).
@@ -111,8 +107,7 @@ abstract class TestCase extends IntegrationTestCase
      */
     protected function seedShortLink(array $overrides = []): ShortLink
     {
-        $this->seedCounter++;
-        $marker = self::MARKER . $this->seedCounter . '-' . substr(uniqid('', true), -8);
+        $marker = str_replace('_', '-', $this->nextTestMarker(self::MARKER, 'link'));
 
         $element = new ShortLink();
         $element->code = $overrides['code'] ?? $marker;
@@ -129,7 +124,10 @@ abstract class TestCase extends IntegrationTestCase
             'Seeded shortlink must save — errors: ' . json_encode($element->getErrors()),
         );
 
-        $this->seededLinks[] = ['id' => (int) $element->id, 'slug' => (string) $element->slug];
+        if ($element->id !== null) {
+            $this->trackElementForCleanup((int) $element->id);
+            $this->seededLinks[] = ['id' => (int) $element->id, 'slug' => (string) $element->slug];
+        }
 
         return $element;
     }
