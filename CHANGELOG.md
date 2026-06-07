@@ -1,5 +1,45 @@
 # Changelog
 
+## [5.20.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.19.0...v5.20.0) - 2026-06-07
+
+
+### Added
+
+* add act-static-analysis script for CI integration ([c33dc89](https://github.com/LindemannRock/craft-shortlink-manager/commit/c33dc892537aed93d23d840f2612ed5b0aa2358f))
+* add plugin credit component to edit forms ([3db94a2](https://github.com/LindemannRock/craft-shortlink-manager/commit/3db94a2b10fd167eaed7e3e1660ab802aeff6c3a))
+* add plugin handle to device detection configuration ([cb8b9cd](https://github.com/LindemannRock/craft-shortlink-manager/commit/cb8b9cd88fd1b16da693acb60d2f9d4b790ce995))
+* **cli:** add HelpController for cli command assistance ([35f72c2](https://github.com/LindemannRock/craft-shortlink-manager/commit/35f72c238e35827cb5dccf6e55d952354f9524bf))
+* expand default date range options for analytics ([e8ad1a1](https://github.com/LindemannRock/craft-shortlink-manager/commit/e8ad1a1a5e6b612d65ab1007af22bf5e32fe20d2))
+* **i18n:** add cache location and Redis configuration messages ([9fdb397](https://github.com/LindemannRock/craft-shortlink-manager/commit/9fdb397cb66ae3c58a86f84b9e9a265ed635c3da))
+* **i18n:** add new translation keys for user notifications ([a05dca0](https://github.com/LindemannRock/craft-shortlink-manager/commit/a05dca0fba4511edc343cb650fffd58c779a2b47))
+* **i18n:** add new translation keys for user notifications ([d52638e](https://github.com/LindemannRock/craft-shortlink-manager/commit/d52638e301bad99cb907eae2362645dba51d67c1))
+* **i18n:** update analytics strings to improve clarity in translations ([c19a220](https://github.com/LindemannRock/craft-shortlink-manager/commit/c19a2201f51dd159a9257f9e37917c000e12b3e4))
+* **import-export:** add docblocks for ImportExportController and related actions ([c89cf24](https://github.com/LindemannRock/craft-shortlink-manager/commit/c89cf24c5ce0d592278f822a8498afbf7dd63ccf))
+* **import-export:** add field labels and mapping messages to form validation ([c711f0a](https://github.com/LindemannRock/craft-shortlink-manager/commit/c711f0a5f29a47dd1aa394bbe22ff4a13a24eeb2))
+* **jobs:** schedule initial analytics cleanup job with dynamic next run time ([e49600f](https://github.com/LindemannRock/craft-shortlink-manager/commit/e49600f7ad985afb5a97576ce84606ab54a629cb))
+* **settings:** add method to resolve notFoundRedirectUrl with env vars ([4ab835e](https://github.com/LindemannRock/craft-shortlink-manager/commit/4ab835e9ccfcf41fded60d7d029d5beb322b7015))
+* **settings:** add new settings for QR code and analytics features ([fa55b86](https://github.com/LindemannRock/craft-shortlink-manager/commit/fa55b86aa08e0873963b522825edda37e3f4705c))
+* **tests:** add integration tests for direct redirects and URL generation ([3a1ae9e](https://github.com/LindemannRock/craft-shortlink-manager/commit/3a1ae9e2d1a5ac4b4adf4e0c1cfcdf335ea66ee2))
+* **tests:** add integration tests for short link types ([16be560](https://github.com/LindemannRock/craft-shortlink-manager/commit/16be560ef2d3f2a981490a60e97ef1e7272fc4bc))
+* **tests:** add test for generating PNG QR code with logo overlay ([c20ca54](https://github.com/LindemannRock/craft-shortlink-manager/commit/c20ca543c023545aebf6523f6d74e72be28385e9))
+* **tests:** add withSettings method to temporarily override plugin settings ([4c6471c](https://github.com/LindemannRock/craft-shortlink-manager/commit/4c6471ce82843f729e7ec4cb200683a84faf4ded))
+
+
+### Fixed
+
+* **i18n:** correct cache storage and analytics translation strings ([5690899](https://github.com/LindemannRock/craft-shortlink-manager/commit/5690899392a77cb2161815254782d9ddaf90e45a))
+* **i18n:** correct Dutch translation for QR Codes ([d6c99c9](https://github.com/LindemannRock/craft-shortlink-manager/commit/d6c99c9cd46453f157cef6c77f7aace954910f02))
+* **i18n:** correct German translations for analytics terms ([c25ca5a](https://github.com/LindemannRock/craft-shortlink-manager/commit/c25ca5ae8144eca89386aece2b1f03b3cb7e8e2b))
+* **i18n:** correct permission error messages for import and export actions ([73bc5c2](https://github.com/LindemannRock/craft-shortlink-manager/commit/73bc5c2ec2459559ea1173c4d0e6d60a13d471eb))
+* **i18n:** correct Portuguese confirmation messages for deletion actions ([cc6351c](https://github.com/LindemannRock/craft-shortlink-manager/commit/cc6351c914cf2967302f1cc8b035c1bfc6c02b0f))
+* **i18n:** correct Portuguese translations for logs and status messages ([c8abaef](https://github.com/LindemannRock/craft-shortlink-manager/commit/c8abaefe00b7794ad18115d145fdde8a24887bbb))
+* **i18n:** correct Portuguese translations for OS and browser terms ([4a1e358](https://github.com/LindemannRock/craft-shortlink-manager/commit/4a1e35809ca900cd48f491f06552d215988e3ede))
+* **i18n:** correct punctuation in Japanese translation strings ([32bda70](https://github.com/LindemannRock/craft-shortlink-manager/commit/32bda701b21a8f94456b739de988383ab929d0f2))
+* **i18n:** correct translation for CSV import and site settings ([2d7aadd](https://github.com/LindemannRock/craft-shortlink-manager/commit/2d7aaddef3eb38e97582b54889eca2445981d57f))
+* **i18n:** remove 'Live' string from multiple translation files ([b6b9a10](https://github.com/LindemannRock/craft-shortlink-manager/commit/b6b9a1008314b92172d0dcd283124deb0a653cf2))
+* **i18n:** remove slug display from translation strings ([b3c5c79](https://github.com/LindemannRock/craft-shortlink-manager/commit/b3c5c79dd579befe263537b293e2cebcdbc0c2cc))
+* **i18n:** update error messages for CSV import validation ([0f4065a](https://github.com/LindemannRock/craft-shortlink-manager/commit/0f4065ace027bf8a6b98ae7ca19a306b7281c9c8))
+
 ## [5.19.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.18.1...v5.19.0) - 2026-05-21
 
 
