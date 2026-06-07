@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.20.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.1...v5.20.2) - 2026-06-07
+
+
+### Fixed
+
+* plugin credit in edit template ([5eeaf43](https://github.com/LindemannRock/craft-shortlink-manager/commit/5eeaf43f6f60fa1bda1a0d8bb2f5c53966b371d1))
+
 ## [5.20.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.0...v5.20.1) - 2026-06-07
 
 
