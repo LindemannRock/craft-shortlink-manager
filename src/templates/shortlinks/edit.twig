@@ -167,6 +167,8 @@
                 {% for element in tab.getElements() %}
                     {{ element.formHtml(link, shortLink.getIsRevision())|raw }}
                 {% endfor %}
+
+                {% include 'lindemannrock-base/_components/plugin-credit' %}
             </div>
         {% endfor %}
     {% endif %}
@@ -175,6 +177,8 @@
     {% if canViewAnalytics and plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
         <div id="analytics" class="hidden">
             {% include "shortlink-manager/shortlinks/_partials/analytics" %}
+
+            {% include 'lindemannrock-base/_components/plugin-credit' %}
         </div>
     {% endif %}
 {% endblock %}
