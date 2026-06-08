@@ -1,0 +1,7 @@
+code,destinationUrl,httpCode,enabled
+missing-dest,,302,1
+,https://example.com,302,1
+bare-domain,example.com,302,1
+protocol-relative,//evil.com,302,1
+mailto-dest,mailto:test@example.com,302,1
+ftp-dest,ftp://example.com/file,302,1

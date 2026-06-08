@@ -1,0 +1,5 @@
+code,destinationUrl,httpCode,enabled
+simple-https,https://example.com,302,1
+relative-path,/landing-page,302,1
+https-query,https://example.com/search?q=test,301,1
+http-link,http://example.com/page,302,1

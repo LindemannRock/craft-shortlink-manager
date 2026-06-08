@@ -1,0 +1,8 @@
+code,destinationUrl,httpCode,enabled
+js-dest,javascript:alert(1),302,1
+js-obfuscated,javascript://%0aalert(1),302,1
+js-leading-space," javascript:alert(1)",302,1
+data-dest,"data:text/html,<script>alert(1)</script>",302,1
+vbscript-dest,vbscript:msgbox(1),302,1
+file-dest,file:///etc/passwd,302,1
+=cmd|'/c calc',https://example.com,302,1
