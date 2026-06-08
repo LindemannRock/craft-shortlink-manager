@@ -15,6 +15,7 @@ use lindemannrock\base\helpers\CsvImportHelper;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\base\helpers\SlugHandleHelper;
+use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ImportHistoryRecord;
@@ -391,7 +392,7 @@ class ImportExportController extends Controller
                     continue;
                 }
 
-                if (!preg_match('#^https?://|^/#i', (string)$item['destinationUrl'])) {
+                if (!$this->isValidDestinationUrl((string)$item['destinationUrl'])) {
                     $errorRows[] = [
                         'rowNumber' => $rowNumber,
                         'code' => $item['code'],
@@ -686,6 +687,20 @@ class ImportExportController extends Controller
     private function generateSlugFromCode(string $code): string
     {
         return SlugHandleHelper::normalizeSlug($code, '');
+    }
+
+    /**
+     * A destination must be an http(s) URL or a relative path, and must never
+     * use an executable scheme (the dangerous-scheme guard also covers obfuscated
+     * variants that the allowlist regex alone would not see).
+     */
+    private function isValidDestinationUrl(string $url): bool
+    {
+        if (UrlSafetyHelper::hasDangerousScheme($url)) {
+            return false;
+        }
+
+        return (bool) preg_match('#^https?://|^/#i', $url);
     }
 
     private function normalizeShortLinkType(string $value): string
