@@ -15,7 +15,7 @@
     <p>{{ "Your CSV has {count} rows. Map each CSV column to a shortlink field."|t('shortlink-manager', {count: rowCount}) }}</p>
 
     <h3>{{ "Preview of CSV Data"|t('shortlink-manager') }}</h3>
-    <div style="overflow-x: auto; margin-bottom: 30px;">
+    <div class="lr-table-scroll-x lr-mb-30">
         <table class="data fullwidth">
             <thead>
                 <tr>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr>
