@@ -822,7 +822,7 @@ return [
     'Device Analytics' => 'デバイスアナリティクス',
     'Device Types' => 'デバイスタイプ',
     'Device Brands' => 'デバイスブランド',
-    'Operating Systems' => 'OS',
+    'Operating Systems' => 'オペレーティングシステム',
     'Usage Patterns' => '使用パターン',
     'Peak Usage Hours' => 'ピーク使用時間帯',
     'Geographic Distribution' => '地理的分布',

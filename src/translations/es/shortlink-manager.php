@@ -790,7 +790,7 @@ return [
     'Device Type' => 'Tipo de dispositivo',
     'Device Brand' => 'Marca del dispositivo',
     'Device Model' => 'Modelo del dispositivo',
-    'OS' => 'OS',
+    'OS' => 'Sistema operativo',
     'OS Version' => 'Versión del OS',
     'Browser' => 'Navegador',
     'Browser Version' => 'Versión del navegador',
