@@ -12,7 +12,7 @@
 {% block content %}
     <h2 class="first">{{ "Import Preview"|t('shortlink-manager') }}</h2>
 
-    <div class="lr-unified-cards cols-4" style="margin: 30px 0;">
+    <div class="lr-unified-cards cols-4 lr-mt-30 lr-mb-30">
         {% include 'lindemannrock-base/_components/unified-card' with { value: summary.totalRows, description: 'Total Rows'|t('shortlink-manager'), align: 'center' } only %}
         {% include 'lindemannrock-base/_components/unified-card' with { value: summary.validRows, description: 'Valid'|t('shortlink-manager'), palette: 'green', align: 'center' } only %}
         {% include 'lindemannrock-base/_components/unified-card' with { value: summary.duplicates, description: 'Duplicates'|t('shortlink-manager'), palette: 'amber', align: 'center' } only %}
@@ -22,9 +22,9 @@
     {% if validRows|length %}
         <hr>
         <h3>{{ "Valid Shortlinks to Import"|t('shortlink-manager') }} ({{ validRows|length }})</h3>
-        <div style="max-height: 500px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
-            <table class="data fullwidth" style="margin: 0;">
-                <thead style="position: sticky; top: 0; background: #f7f7f7; z-index: 1;">
+        <div class="lr-preview-table lr-preview-table--tall">
+            <table class="data fullwidth">
+                <thead>
                     <tr>
                         <th>{{ 'Code'|t('shortlink-manager') }}</th>
                         <th>{{ 'ShortLink Type'|t('shortlink-manager') }}</th>
@@ -41,12 +41,12 @@
                 <tbody>
                     {% for row in validRows %}
                         <tr>
-                            <td><code style="font-size: 11px;">{{ row.code }}</code></td>
+                            <td><code>{{ row.code }}</code></td>
                             <td>{{ row.shortLinkType ?? 'manual' }}</td>
-                            <td><code style="font-size: 11px;">{{ row.destinationUrl }}</code></td>
+                            <td><code>{{ row.destinationUrl }}</code></td>
                             <td>
                                 {% if row.elementId %}
-                                    <code style="font-size: 11px;">{{ row.elementType ?? 'Element' }} #{{ row.elementId }}</code>
+                                    <code>{{ row.elementType ?? 'Element' }} #{{ row.elementId }}</code>
                                 {% else %}
                                     -
                                 {% endif %}
@@ -81,9 +81,9 @@
     {% if duplicateRows|length %}
         <hr>
         <h3>{{ 'Duplicates (will be skipped)'|t('shortlink-manager') }} ({{ duplicateRows|length }})</h3>
-        <div style="max-height: 300px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
-            <table class="data fullwidth" style="margin: 0;">
-                <thead style="position: sticky; top: 0; background: #fffbf0; z-index: 1;">
+        <div class="lr-preview-table">
+            <table class="data fullwidth">
+                <thead class="is-warning">
                     <tr>
                         <th>{{ 'Code'|t('shortlink-manager') }}</th>
                         <th>{{ 'Destination URL'|t('shortlink-manager') }}</th>
@@ -93,8 +93,8 @@
                 <tbody>
                     {% for row in duplicateRows %}
                         <tr>
-                            <td><code style="font-size: 11px;">{{ row.code }}</code></td>
-                            <td><code style="font-size: 11px;">{{ row.destinationUrl }}</code></td>
+                            <td><code>{{ row.code }}</code></td>
+                            <td><code>{{ row.destinationUrl }}</code></td>
                             <td>{{ row.reason }}</td>
                         </tr>
                     {% endfor %}
@@ -106,9 +106,9 @@
     {% if errorRows|length %}
         <hr>
         <h3>{{ 'Invalid Rows (will be skipped)'|t('shortlink-manager') }} ({{ errorRows|length }})</h3>
-        <div style="max-height: 300px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 4px;">
-            <table class="data fullwidth" style="margin: 0;">
-                <thead style="position: sticky; top: 0; background: #fef2f2; z-index: 1;">
+        <div class="lr-preview-table">
+            <table class="data fullwidth">
+                <thead class="is-error">
                     <tr>
                         <th>{{ 'Row'|t('shortlink-manager') }}</th>
                         <th>{{ 'Code'|t('shortlink-manager') }}</th>
@@ -120,8 +120,8 @@
                     {% for row in errorRows %}
                         <tr>
                             <td>{{ row.rowNumber }}</td>
-                            <td><code style="font-size: 11px;">{{ row.code }}</code></td>
-                            <td><code style="font-size: 11px;">{{ row.destinationUrl }}</code></td>
+                            <td><code>{{ row.code }}</code></td>
+                            <td><code>{{ row.destinationUrl }}</code></td>
                             <td>{{ row.error }}</td>
                         </tr>
                     {% endfor %}
@@ -134,7 +134,7 @@
 
     <form method="post" action="{{ actionUrl('shortlink-manager/import-export/import') }}" id="importForm">
         {{ csrfInput() }}
-        <div style="background: #f7f7f7; padding: 20px; border-radius: 4px; margin: 20px 0;">
+        <div class="lr-import-summary">
             <h3 class="first">{{ "Ready to Import"|t('shortlink-manager') }}</h3>
             <p>
                 {% if summary.validRows > 0 %}
@@ -149,7 +149,7 @@
                     {{ "No valid shortlinks found to import."|t('shortlink-manager') }}
                 {% endif %}
             </p>
-            <div class="buttons" style="margin-top: 15px;">
+            <div class="buttons">
                 <a href="{{ url('shortlink-manager/import-export') }}" class="btn secondary">{{ 'Cancel'|t('shortlink-manager') }}</a>
                 {% if summary.validRows > 0 %}
                     <button type="submit" class="btn submit">{{ 'Import {count} Shortlinks'|t('shortlink-manager', {count: summary.validRows}) }}</button>
