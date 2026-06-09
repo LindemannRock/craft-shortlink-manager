@@ -44,7 +44,7 @@
     {% else %}
         {# After save - show the code with info #}
         <code style="font-size: 14px; background: #f3f4f6; padding: 8px 12px; border-radius: 4px; display: inline-block;">{{ shortLink.code }}</code>
-        <p class="light" style="margin-top: 8px;">
+        <p class="light lr-mt-8">
             {% set status = shortLink.getStatus() %}
             {% if status == 'disabled' %}
                 {% include 'lindemannrock-base/_components/status-dot' with {

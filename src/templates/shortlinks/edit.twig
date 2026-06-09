@@ -358,7 +358,7 @@
                     <div class="heading">
                         <label>{{ "Preview"|t('shortlink-manager') }}</label>
                     </div>
-                    <div class="input" style="text-align: center;">
+                    <div class="input lr-text-center">
                         <a href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
                             <img id="qr-preview"
                                  src="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, size: 150 }) }}"

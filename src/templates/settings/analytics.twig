@@ -63,7 +63,7 @@
                 "This is being overridden by the <code>enableGeoDetection</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
         }) }}
 
-        <div id="geo-provider-settings" class="{{ not (settings.enableGeoDetection ?? false) ? 'hidden' }}" style="margin-top: 24px;">
+        <div id="geo-provider-settings" class="lr-mt-24 {{ not (settings.enableGeoDetection ?? false) ? 'hidden' }}">
             {% include 'lindemannrock-base/_partials/cascade-geo-settings' with {
                 settings: settings,
                 pluginHandle: 'shortlink-manager'
@@ -110,7 +110,7 @@
         }) }}
 
         {% if (settings.analyticsRetention ?? 90) > 0 %}
-            <div class="field" style="margin-top: 20px;">
+            <div class="field lr-mt-20">
                 <div class="heading">
                     <label>{{ "Analytics Cleanup"|t('shortlink-manager') }}</label>
                     <div class="instructions">
@@ -122,7 +122,7 @@
                 </button>
             </div>
         {% elseif (settings.analyticsRetention ?? 90) == 0 %}
-            <div class="field" style="margin-top: 20px;">
+            <div class="field lr-mt-20">
                 <div class="heading">
                     <label>{{ "Unlimited Retention Warning"|t('shortlink-manager') }}</label>
                     <div class="instructions" style="color: #da5a47;">

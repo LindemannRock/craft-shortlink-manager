@@ -52,7 +52,7 @@
                     <button type="button" id="regenerate-code-btn" class="btn" data-icon="refresh" aria-label="{{ 'Generate New Code'|t('shortlink-manager') }}" title="{{ 'Generate New Code'|t('shortlink-manager') }}"></button>
                 </div>
                 <input type="hidden" id="codeAuto" name="code" value="{{ shortLink.code }}">
-                <p class="light" style="margin-top: 8px;">{{ "Auto-generated code for linked element"|t('shortlink-manager') }}</p>
+                <p class="light lr-mt-8">{{ "Auto-generated code for linked element"|t('shortlink-manager') }}</p>
             </div>
         </div>
     {% else %}
@@ -130,7 +130,7 @@
             {% endif %}
             <input type="text" class="text fullwidth" readonly value="{{ shortLink.destinationUrl ?? '' }}" style="background: #f9fafb;">
             <input type="hidden" name="destinationUrl" value="{{ shortLink.destinationUrl ?? '' }}">
-            <p class="light" style="margin-top: 8px;">{{ "Automatically synced from linked element's URL"|t('shortlink-manager') }}</p>
+            <p class="light lr-mt-8">{{ "Automatically synced from linked element's URL"|t('shortlink-manager') }}</p>
         </div>
     </div>
 {% else %}
