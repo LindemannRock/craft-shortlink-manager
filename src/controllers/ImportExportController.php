@@ -690,17 +690,14 @@ class ImportExportController extends Controller
     }
 
     /**
-     * A destination must be an http(s) URL or a relative path, and must never
-     * use an executable scheme (the dangerous-scheme guard also covers obfuscated
-     * variants that the allowlist regex alone would not see).
+     * A destination must be an http(s) URL or a single-slash relative path, never
+     * protocol-relative `//host` or any other scheme. Uses the same rule the
+     * runtime redirect enforces ({@see UrlSafetyHelper::isSafeRedirectUrl()}) so
+     * what import accepts is exactly what the redirect will honor.
      */
     private function isValidDestinationUrl(string $url): bool
     {
-        if (UrlSafetyHelper::hasDangerousScheme($url)) {
-            return false;
-        }
-
-        return (bool) preg_match('#^https?://|^/#i', $url);
+        return UrlSafetyHelper::isSafeRedirectUrl($url);
     }
 
     private function normalizeShortLinkType(string $value): string

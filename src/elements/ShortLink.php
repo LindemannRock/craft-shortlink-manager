@@ -21,6 +21,7 @@ use craft\helpers\Html;
 use craft\models\FieldLayout;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\SlugHandleHelper;
+use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\actions\AddTagsAction;
 use lindemannrock\shortlinkmanager\elements\actions\ClearFolderAction;
@@ -1277,13 +1278,10 @@ class ShortLink extends Element
                 return;
             }
 
-            // Allow paths starting with /
-            if (str_starts_with($url, '/')) {
-                return;
-            }
-
-            // Require full URLs to have a valid scheme
-            if (!preg_match('/^https?:\/\/.+/', $url)) {
+            // Same rule the runtime redirect enforces: an http(s) URL or a
+            // single-slash relative path, never protocol-relative //host (which
+            // resolves off-site) or any other scheme.
+            if (!UrlSafetyHelper::isSafeRedirectUrl((string)$url)) {
                 $this->addError($attribute, Craft::t('shortlink-manager', 'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)'));
             }
         }];

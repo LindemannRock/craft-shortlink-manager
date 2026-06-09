@@ -46,12 +46,21 @@ final class ImportUrlValidationTest extends TestCase
     {
         self::assertTrue($this->isValidDestinationUrl('https://example.com'));
         self::assertTrue($this->isValidDestinationUrl('http://example.com/path'));
+        // Single-slash relative paths stay valid.
         self::assertTrue($this->isValidDestinationUrl('/relative/path'));
+    }
+
+    public function testRejectsProtocolRelativeHost(): void
+    {
+        // `//host` resolves off-site; the runtime already blocks it, so import
+        // must reject it too rather than store a destination that won't be honored.
+        self::assertFalse($this->isValidDestinationUrl('//evil.com'));
+        self::assertFalse($this->isValidDestinationUrl('//evil.com/phishing'));
     }
 
     public function testRejectsBareWordsAndOtherSchemes(): void
     {
-        // Pre-existing allowlist behavior: only http(s)/relative are accepted.
+        // Allowlist: only http(s) / single-slash relative are accepted.
         self::assertFalse($this->isValidDestinationUrl('mailto:x@y.com'));
         self::assertFalse($this->isValidDestinationUrl('not a url'));
         self::assertFalse($this->isValidDestinationUrl(''));

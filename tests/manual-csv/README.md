@@ -25,7 +25,7 @@ Should be blocked/neutralized:
 - Missing `destinationUrl` (required → error)
 - Empty `code` (required → error)
 - Bare `example.com` (no scheme, no leading `/` → rejected)
-- `//evil.com` (matches `^/` → **accepted**; resolves to an external origin — acceptable since short links redirect externally by design)
+- `//evil.com` (protocol-relative → **rejected**; it resolves off-site, and the runtime redirect refuses it anyway, so input rejects it too)
 - `mailto:` and `ftp:` destinations (**rejected** here — note the contrast with SmartLink/Redirect)
 
 ## How to run a pass
@@ -42,7 +42,7 @@ Should be blocked/neutralized:
 | `javascript:` / `vbscript:` / `data:` / `file:` (+ obfuscated) | Rejected |
 | `https://…`, `http://…`, relative `/path` | Accepted |
 | Bare `domain.com` | Rejected (no scheme/leading slash) |
-| `//host` | Accepted (resolves external — by design for short links) |
+| `//host` | Rejected (protocol-relative resolves off-site; runtime refuses it too) |
 | `mailto:` / `tel:` / `ftp:` | Rejected (not in the http(s)/relative allowlist) |
 | Leading `=`/`@`/etc. in `code` | Formula prefix stripped, then slugified |
 | Missing `code` or `destinationUrl` | Rejected with a clear error |
