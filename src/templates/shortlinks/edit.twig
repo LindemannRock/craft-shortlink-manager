@@ -281,19 +281,13 @@
     </div>
 
     {% if shortLink.id %}
-        <fieldset>
-            <legend class="h6">{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
-            <div class="meta" style="padding-inline: 0;">
-                <div class="flex" style="gap: 8px;">
-                    <div class="textwrapper" style="flex-grow: 1;">
-                        <input type="text" class="text fullwidth" readonly value="{{ shortLink.getUrl() }}" id="shortlink-url" style="border: none; padding-inline: var(--m) var(--s);">
-                    </div>
-                    <button type="button" class="btn" id="copy-url-btn" style="border-start-start-radius: 0; border-end-start-radius: 0;">
-                        {{ "Copy"|t('shortlink-manager') }}
-                    </button>
-                </div>
-            </div>
-        </fieldset>
+        {% include 'lindemannrock-base/_components/copy-input' with {
+            legend: "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}),
+            value: shortLink.getUrl(),
+            id: 'shortlink-url',
+            copyLabel: 'Copy'|t('shortlink-manager'),
+            copiedMessage: 'URL copied to clipboard'|t('shortlink-manager'),
+        } only %}
     {% endif %}
 
     <div class="meta">
@@ -546,16 +540,6 @@
 {% endcss %}
 
 {% js %}
-    // Copy URL button
-    $('#copy-url-btn').on('click', function() {
-        const urlInput = document.getElementById('shortlink-url');
-        if (urlInput) {
-            urlInput.select();
-            document.execCommand('copy');
-            Craft.cp.displayNotice('{{ "URL copied to clipboard"|t('shortlink-manager')|e('js') }}');
-        }
-    });
-
     // Set platform-specific keyboard shortcut
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const saveShortcut = document.getElementById('save-shortcut');

@@ -2,24 +2,13 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 
 {# ShortLink URL #}
-<fieldset>
-	<legend class='h6'>{{ "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}) }}</legend>
-	<div class='meta' style='padding-inline: 0;'>
-		<div class='flex' style='gap: 8px;'>
-			<div class='textwrapper' style='flex-grow: 1;'>
-				<input type='text' class='text fullwidth' readonly value='{{ shortLink.getUrl() }}' id='shortlink-url-sidebar' style='border: none; padding-inline: var(--m) var(--s);'>
-			</div>
-			<button
-				type='button'
-				class='btn'
-				onclick="navigator.clipboard.writeText('{{ shortLink.getUrl()|e('js') }}'); Craft.cp.displayNotice('{{ 'Copied to clipboard!'|t('shortlink-manager')|e('js') }}');"
-				style='border-start-start-radius: 0; border-end-start-radius: 0;'
-			>
-				{{ "Copy"|t('shortlink-manager') }}
-			</button>
-		</div>
-	</div>
-</fieldset>
+{% include 'lindemannrock-base/_components/copy-input' with {
+	legend: "{pluginName} URL"|t('shortlink-manager', {pluginName: shortlinkHelper.displayName}),
+	value: shortLink.getUrl(),
+	id: 'shortlink-url-sidebar',
+	copyLabel: 'Copy'|t('shortlink-manager'),
+	copiedMessage: 'Copied to clipboard!'|t('shortlink-manager'),
+} only %}
 
 {# Status Section - Consolidated #}
 <fieldset>
