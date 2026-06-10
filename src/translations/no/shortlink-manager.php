@@ -762,7 +762,7 @@ return [
     'Comma (,)' => 'Komma (,)',
     'Semicolon (;)' => 'Semikolon (;)',
     'Tab' => 'Tabulator',
-    'Pipe (|)' => 'Pipe (|)',
+    'Pipe (|)' => 'Loddrett strek (|)',
     'Are you sure you want to clear all import logs? This action cannot be undone.' => 'Er du sikker på at du vil tømme alle importlogger? Denne handlingen kan ikke angres.',
     'Failed to clear history.' => 'Kunne ikke fjerne historikken.',
     'Map Columns' => 'Tilordne kolonner',

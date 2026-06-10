@@ -761,7 +761,7 @@ return [
     'Auto (detect)' => 'Auto (erkennen)',
     'Comma (,)' => 'Komma (,)',
     'Semicolon (;)' => 'Semikolon (;)',
-    'Tab' => 'Tab',
+    'Tab' => 'Tabstopp',
     'Pipe (|)' => 'Pipe (|)',
     'Are you sure you want to clear all import logs? This action cannot be undone.' => 'Möchten Sie wirklich alle Import-Protokolle löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
     'Failed to clear history.' => 'Verlauf konnte nicht gelöscht werden.',

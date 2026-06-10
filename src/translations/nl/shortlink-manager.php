@@ -762,7 +762,7 @@ return [
     'Comma (,)' => 'Komma (,)',
     'Semicolon (;)' => 'Puntkomma (;)',
     'Tab' => 'Tab',
-    'Pipe (|)' => 'Pijp (|)',
+    'Pipe (|)' => 'Verticale lijn (|)',
     'Are you sure you want to clear all import logs? This action cannot be undone.' => 'Weet u zeker dat u alle importlogboeken wilt wissen? Deze actie kan niet ongedaan worden gemaakt.',
     'Failed to clear history.' => 'Geschiedenis kon niet worden gewist.',
     'Map Columns' => 'Kolommen toewijzen',
