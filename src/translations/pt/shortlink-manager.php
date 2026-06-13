@@ -681,7 +681,7 @@ return [
     'Delete this tag?' => 'Eliminar esta etiqueta?',
     'New Folder' => 'Nova pasta',
     'Edit Folder' => 'Editar pasta',
-    'Create a folder and assign it when this {singularName} is saved.' => 'Criar uma pasta e atribuí-la quando este {singularName} for salvo.',
+    'Create a folder and assign it when this {singularName} is saved.' => 'Criar uma pasta e atribuí-la quando este {singularName} for guardado.',
     'New Tag' => 'Nova etiqueta',
     'Edit Tag' => 'Editar etiqueta',
     'Tag Name' => 'Nome da etiqueta',
