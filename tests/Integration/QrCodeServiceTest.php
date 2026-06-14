@@ -56,6 +56,21 @@ class QrCodeServiceTest extends TestCase
         $this->assertStringContainsString('<svg', $decoded);
     }
 
+    public function testClampsSvgQrCodeSizeToSettingsBounds(): void
+    {
+        $tooSmall = $this->generateWithoutCache([
+            'format' => 'svg',
+            'size' => 50,
+        ]);
+        $tooLarge = $this->generateWithoutCache([
+            'format' => 'svg',
+            'size' => 2000,
+        ]);
+
+        $this->assertMatchesRegularExpression('/<svg[^>]+width="100"[^>]+height="100"/', $tooSmall);
+        $this->assertMatchesRegularExpression('/<svg[^>]+width="1000"[^>]+height="1000"/', $tooLarge);
+    }
+
     public function testGeneratesPngQrCodeWhenImagickIsAvailable(): void
     {
         if (!class_exists(\Imagick::class) || !class_exists(ImagickImageBackEnd::class)) {
