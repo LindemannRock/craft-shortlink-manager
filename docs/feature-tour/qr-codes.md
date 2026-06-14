@@ -26,11 +26,11 @@ QR code appearance is set globally in **Settings → QR Codes** and can be overr
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `defaultQrSize` | `int` | `256` | Output size in pixels (50–2000) |
+| `defaultQrSize` | `int` | `256` | Output size in pixels (100–1000) |
 | `defaultQrColor` | `string` | `'#000000'` | Module foreground color (hex) |
 | `defaultQrBgColor` | `string` | `'#FFFFFF'` | Background color (hex) |
 | `defaultQrFormat` | `string` | `'png'` | Output format: `'png'` or `'svg'` |
-| `defaultQrMargin` | `int` | `4` | Quiet zone in modules (0–50) |
+| `defaultQrMargin` | `int` | `4` | Quiet zone in modules (0–10) |
 | `defaultQrErrorCorrection` | `string` | `'M'` | Error correction: `'L'` (7%), `'M'` (15%), `'Q'` (25%), `'H'` (30%) |
 | `qrModuleStyle` | `string` | `'square'` | Module shape: `'square'`, `'dots'`, `'rounded'` |
 | `qrEyeStyle` | `string` | `'square'` | Finder pattern shape: `'square'`, `'rounded'`, `'leaf'` |
@@ -58,7 +58,7 @@ Enable `enableQrLogo` in settings to add a brand logo to the center of QR codes.
 
 - Set a **default logo** (a Craft asset) applied to all QR codes unless overridden per link
 - Optionally restrict which asset volume logos can come from (`qrLogoVolumeUid`)
-- Control the **logo size** as a percentage of the QR code width (5–50%, default 20%)
+- Control the **logo size** as a percentage of the QR code width (10–30%, default 20%)
 
 Per-link logo overrides use the `qrLogoId` field on the short link edit page.
 
@@ -67,7 +67,7 @@ Per-link logo overrides use the `qrLogoId` field on the short link edit page.
 | `enableQrLogo` | `bool` | `false` | Enable logo overlay |
 | `qrLogoVolumeUid` | `?string` | `null` | Restrict logo selection to this asset volume |
 | `defaultQrLogoId` | `?int` | `null` | Default logo asset ID |
-| `qrLogoSize` | `int` | `20` | Logo size as percentage of QR code (5–50) |
+| `qrLogoSize` | `int` | `20` | Logo size as percentage of QR code (10–30) |
 
 > [!WARNING]
 > A logo reduces the scannable area. Use `defaultQrErrorCorrection: 'H'` (30% recovery) when adding a logo to ensure reliable scanning.

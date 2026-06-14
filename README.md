@@ -1,3 +1,5 @@
+![ShortLink Manager](docs/images/hero.webp)
+
 # ShortLink Manager for Craft CMS
 
 [![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-shortlink-manager.svg)](https://packagist.org/packages/lindemannrock/craft-shortlink-manager)
