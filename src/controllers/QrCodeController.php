@@ -213,8 +213,7 @@ class QrCodeController extends Controller
 
             // Handle download request
             if ($request->getQueryParam('download') && $shortLink && $settings->enableQrDownload) {
-                $filename = strtr($settings->qrDownloadFilename ?? '{slug}-qr-{size}', [
-                    '{slug}' => $shortLink->slug,
+                $filename = strtr($settings->qrDownloadFilename ?? '{code}-qr-{size}', [
                     '{code}' => $shortLink->code,
                     '{size}' => $options['size'] ?? $settings->defaultQrSize,
                     '{format}' => $format,
