@@ -30,6 +30,8 @@ use craft\web\UrlManager;
 use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\RecurringQueueHelper;
+use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
@@ -717,39 +719,28 @@ class ShortLinkManager extends Plugin
             return;
         }
 
-        if ($this->hasPendingAnalyticsCleanupJob()) {
+        $nextRun = ScheduleHelper::calculateNext('daily');
+        if ($nextRun === null) {
             return;
         }
 
-        $initialDelay = 5 * 60;
-        $initialRun = (clone DateFormatHelper::now())->modify("+{$initialDelay} seconds");
-        $job = new CleanupAnalyticsJob([
-            'reschedule' => true,
-            'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
-                $initialRun,
-                $settings,
-                false,
-                false,
-            ),
-        ]);
+        $delay = max(0, $nextRun->getTimestamp() - DateFormatHelper::now()->getTimestamp());
+        $nextRunTime = DateFormatHelper::formatCompactDatetimeFromSettings(
+            $nextRun,
+            $settings,
+            false,
+            false,
+        );
 
-        Craft::$app->queue->delay($initialDelay)->push($job);
-
-        $this->logInfo('Scheduled initial analytics cleanup job', ['interval' => '24 hours']);
-    }
-
-    /**
-     * Check whether an analytics cleanup job is already pending.
-     */
-    private function hasPendingAnalyticsCleanupJob(): bool
-    {
-        return (new \craft\db\Query())
-            ->from('{{%queue}}')
-            ->where(['like', 'job', 'shortlinkmanager'])
-            ->andWhere(['like', 'job', 'CleanupAnalyticsJob'])
-            ->andWhere(['fail' => false])
-            ->andWhere(['timeUpdated' => null])
-            ->exists();
+        RecurringQueueHelper::ensurePending(
+            pluginToken: 'shortlinkmanager',
+            jobClass: CleanupAnalyticsJob::class,
+            delay: $delay,
+            jobFactory: fn() => new CleanupAnalyticsJob([
+                'reschedule' => true,
+                'nextRunTime' => $nextRunTime,
+            ]),
+        );
     }
 
     /**
