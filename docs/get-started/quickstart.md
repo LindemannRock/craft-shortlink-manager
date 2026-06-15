@@ -1,10 +1,10 @@
 # Quickstart
 
-Get ShortLink Manager running in under 5 minutes. By the end of this guide you'll have a working short link that redirects to a destination URL and a QR code you can scan.
+Create a working short link and scan its QR code — entirely in the Control Panel, no code required.
 
-## 1. Install the Plugin
+## 1. Install the plugin
 
-See [Installation](installation.md) for full details including DDEV and manual options.
+See [Installation](installation.md) for full details.
 
 ```bash title="Composer"
 composer require lindemannrock/craft-shortlink-manager && php craft plugin/install shortlink-manager
@@ -14,26 +14,30 @@ composer require lindemannrock/craft-shortlink-manager && php craft plugin/insta
 ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin/install shortlink-manager
 ```
 
-## 2. Create Your First Short Link
+## 2. Create your first short link
 
-1. In the control panel, go to **ShortLink Manager**
+1. In the Control Panel, go to **ShortLink Manager**
 2. Click **New Short Link**
 3. Enter a destination URL (e.g., `https://example.com/my-page`)
 4. Leave the code on **Auto-generated** — the plugin creates a unique code for you
 5. Click **Save**
 
-## 3. Test the Redirect
+![The new short link form with destination URL filled in and code set to Auto-generated](images/quickstart-new-link.webp)
 
-Copy the short URL shown in the sidebar (e.g., `https://yoursite.com/s/abc123XY`) and open it in your browser. You should be redirected to the destination URL.
+The short URL and its QR code appear in the sidebar immediately after saving.
 
-The QR code is displayed in the sidebar — scan it with your phone to verify it also redirects correctly.
+## 3. Test the redirect
 
-## 4. Check Analytics
+Copy the short URL shown in the sidebar (e.g., `https://yoursite.com/s/abc123XY`) and open it in your browser. You should land on the destination URL.
 
-Go to **ShortLink Manager → Analytics**. Your test click should appear in the dashboard with device type, referrer, and timestamp.
+Scan the QR code with your phone to confirm it also redirects correctly.
+
+## 4. Check analytics
+
+Go to **ShortLink Manager → Analytics**. Your test click appears with device type, referrer, and timestamp.
 
 > [!TIP]
-> For unique visitor tracking, generate an IP hash salt:
+> For unique visitor tracking, generate an IP hash salt. The command writes `SHORTLINK_MANAGER_IP_SALT` to your `.env` file automatically.
 
 ```bash title="PHP"
 php craft shortlink-manager/security/generate-salt
@@ -43,7 +47,7 @@ php craft shortlink-manager/security/generate-salt
 ddev craft shortlink-manager/security/generate-salt
 ```
 
-## What's Next
+## What's next
 
-- [Configuration](configuration.md) — customize slug prefix, enable geolocation, set up a custom short domain
-- [Feature Tour](../feature-tour/overview.md) — explore QR codes, analytics, direct redirect, and more
+- [Configuration](configuration.md) — customize the slug prefix, enable geolocation, or point links at a custom short domain
+- [Feature Tour](../feature-tour/overview.md) — explore QR code styles, analytics, direct redirect, folders, and more

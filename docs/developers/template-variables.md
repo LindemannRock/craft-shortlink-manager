@@ -1,8 +1,8 @@
-# Template Variables
+# Template variables
 
-ShortLink Manager provides a Twig variable at `craft.shortLinkManager` with methods for querying, creating, and inspecting short links.
+Access short links, create them on the fly, and pull analytics data from any Twig template via `craft.shortLinkManager`. The variable is available globally — no import needed.
 
-## Querying Short Links
+## Querying short links
 
 ### `shortLinks(criteria)` @since(5.0.0)
 
@@ -29,7 +29,7 @@ Get a `ShortLinkQuery` for querying short links. Supports all standard Craft ele
 
 **Returns:** `ShortLinkQuery` — chainable query object. Call `.one()`, `.all()`, `.count()`, etc.
 
-See [Element Queries](element-queries.md) for all available query parameters.
+See [Element queries](element-queries.md) for all available query parameters.
 
 ---
 
@@ -56,7 +56,7 @@ Get all short links matching the given criteria.
 
 ---
 
-## Getting or Creating Short Links
+## Getting or creating short links
 
 ### `get(options)` @since(5.0.0)
 
@@ -168,7 +168,7 @@ Get click statistics for a specific short link.
 
 ---
 
-## Complete Example
+## Complete example
 
 ```twig
 {# Display a short link for the current entry #}

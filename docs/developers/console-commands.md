@@ -1,17 +1,26 @@
-# Console Commands
+# Console commands
 
-ShortLink Manager provides console commands for security and maintenance tasks.
+Run ShortLink Manager's console commands to generate the IP hash salt used for privacy-safe analytics — no CP visit required.
 
-## Console Help
+## Getting help @since(5.20.0)
 
-Use the plugin-level help command to see the available ShortLink Manager commands and focused guidance for each workflow:
+The plugin-level help command lists available commands and their context-specific notes:
+
+```bash title="PHP"
+php craft shortlink-manager/help
+php craft shortlink-manager/help security/generate-salt
+```
 
 ```bash title="DDEV"
 ddev craft shortlink-manager/help
 ddev craft shortlink-manager/help security/generate-salt
 ```
 
-Craft's native command help is still available when you need the exact Yii option signature:
+Craft's native help is still available when you need the exact Yii option signature:
+
+```bash title="PHP"
+php craft help shortlink-manager/security/generate-salt
+```
 
 ```bash title="DDEV"
 ddev craft help shortlink-manager/security/generate-salt

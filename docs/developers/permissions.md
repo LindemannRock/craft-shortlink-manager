@@ -1,10 +1,12 @@
 # Permissions
 
-ShortLink Manager registers granular permissions that can be assigned to user groups via **Settings → Users → User Groups → [Group Name] → ShortLink Manager**.
+Control what each user group can see and do in ShortLink Manager. Assign permissions via **Settings → Users → User Groups → [Group Name] → ShortLink Manager**.
 
-## Permission Structure
+ShortLink Manager registers 20 permissions across 7 areas.
 
-### Short Links
+## Permission structure
+
+### Short links
 
 | Permission | Description |
 |------------|-------------|
@@ -12,6 +14,15 @@ ShortLink Manager registers granular permissions that can be assigned to user gr
 | └─ `shortLinkManager:createLinks` | Create new short links |
 | └─ `shortLinkManager:editLinks` | Edit existing short links |
 | └─ `shortLinkManager:deleteLinks` | Delete short links |
+
+### Folders & tags
+
+| Permission | Description |
+|------------|-------------|
+| **`shortLinkManager:manageTaxonomy`** | Parent — access the Folders & Tags CP section |
+| └─ `shortLinkManager:createTaxonomy` | Create folders and tags |
+| └─ `shortLinkManager:editTaxonomy` | Rename folders and tags |
+| └─ `shortLinkManager:deleteTaxonomy` | Delete folders and tags |
 
 ### Analytics
 
@@ -21,7 +32,7 @@ ShortLink Manager registers granular permissions that can be assigned to user gr
 | └─ `shortLinkManager:exportAnalytics` | Export analytics data to CSV or JSON |
 | └─ `shortLinkManager:clearAnalytics` | Clear all analytics data |
 
-### Import / Export
+### Import / export
 
 | Permission | Description |
 |------------|-------------|
@@ -50,7 +61,7 @@ ShortLink Manager registers granular permissions that can be assigned to user gr
 |------------|-------------|
 | `shortLinkManager:manageSettings` | Access and modify plugin settings |
 
-## Checking Permissions
+## Checking permissions
 
 In Twig:
 
@@ -75,7 +86,7 @@ if (Craft::$app->getUser()->checkPermission('shortLinkManager:manageLinks')) {
 $this->requirePermission('shortLinkManager:editLinks');
 ```
 
-## Nested Permission Pattern
+## Nested permission pattern
 
 Craft's nested permissions are a UI convenience — the parent permission does not automatically grant child permissions at runtime.
 
@@ -89,3 +100,5 @@ To give a user **full access**, grant `manageLinks`, `createLinks`, `editLinks`,
 The same pattern applies to analytics: `viewAnalytics` grants access to the analytics dashboard, while `exportAnalytics` and `clearAnalytics` are optional write operations.
 
 The same pattern applies to import/export: `manageImportExport` grants access to the Import/Export CP section and import history. Individual child permissions (`importLinks`, `exportLinks`, `clearImportHistory`) control specific operations.
+
+The same pattern applies to folders & tags: `manageTaxonomy` grants access to the Folders & Tags CP section. Child permissions (`createTaxonomy`, `editTaxonomy`, `deleteTaxonomy`) control write operations on the taxonomy entries themselves.

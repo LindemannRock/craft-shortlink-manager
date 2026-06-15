@@ -1,6 +1,13 @@
-# Import & Export
+# Import & export
 
-Migrate short links in bulk using CSV. Export your entire short link library, edit it offline, and re-import — or use it to migrate links from another system.
+Move short links in bulk using CSV. Export your entire library, edit it offline, and re-import — or use a CSV to migrate links from another system. A four-step wizard walks you through upload, column mapping, preview, and import, with a history log of every past run.
+
+## What you'll use it for
+
+- Migrating a batch of links from another URL shortener or spreadsheet
+- Bulk-editing destination URLs, QR settings, or folder/tag assignments offline
+- Seeding a new Craft site with links that already exist in another environment
+- Auditing your link library by exporting to CSV and reviewing in a spreadsheet
 
 ## Access
 
@@ -10,7 +17,7 @@ Navigate to **ShortLink Manager → Import/Export**. The page shows three sectio
 - **Import** — upload a CSV file and map columns to short link fields (requires `shortLinkManager:importLinks`)
 - **Import History** — log of past imports (requires `shortLinkManager:manageImportExport`)
 
-## Exporting Short Links
+## Exporting short links
 
 Click **Export CSV** to download all short links across all sites. The CSV includes the following columns:
 
@@ -43,9 +50,11 @@ Click **Export CSV** to download all short links across all sites. The CSV inclu
 
 The export filename is generated automatically using the plugin's standard filename pattern (e.g., `shortlink-manager-export-2026-01-15-143000.csv`).
 
-## Importing Short Links
+## Importing short links
 
 Import uses a four-step wizard:
+
+![Import wizard showing column mapping screen with CSV preview rows](images/import-export-wizard.webp)
 
 ### Step 1: Upload
 
@@ -55,7 +64,7 @@ Select your CSV file and click **Upload**. The importer accepts:
 - Auto-detected delimiter (comma, semicolon, or tab) — or specify a delimiter manually
 - Maximum 5,000 rows and 5 MB per file (base plugin defaults)
 
-### Step 2: Map Columns
+### Step 2: Map columns
 
 After upload, a column mapping screen shows the first 5 rows of your CSV as a preview. For each column in your file, select the corresponding short link field from a dropdown.
 
@@ -75,13 +84,13 @@ Confirm to import. The importer creates new short links from all valid rows. Eac
 
 After import, a notice shows how many links were imported and how many failed. The import is recorded in the import history.
 
-## Multi-Site Imports
+## Multi-site imports
 
 For multi-site setups, include both `siteId` and/or `siteHandle` columns. If both are present, `siteHandle` is used to resolve the site ID. If neither is mapped, all links are imported into the current (default) site.
 
 To import the same short link code across multiple sites, include one row per site with the same `code` value and different `siteId`/`siteHandle` values.
 
-## Import Validation Rules
+## Import validation rules
 
 | Rule | Detail |
 |------|--------|
@@ -97,7 +106,7 @@ To import the same short link code across multiple sites, include one row per si
 | Hex colors | Auto-normalized to uppercase `#RRGGBB` format; invalid values are cleared |
 | `qrCodeSize` | Clamped to 100–1000 pixels |
 
-## Import History
+## Import history
 
 The **Import History** table shows the last 20 imports with:
 

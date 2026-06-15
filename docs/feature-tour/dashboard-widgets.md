@@ -1,47 +1,33 @@
-# Dashboard Widgets
+# Dashboard widgets
 
-ShortLink Manager provides two Craft dashboard widgets for at-a-glance analytics without leaving the dashboard.
+Keep an eye on short link performance without leaving the Craft dashboard. ShortLink Manager adds two widgets that surface click data at a glance — no need to open the analytics section for a quick status check.
 
-## Adding Widgets
+## What you'll use them for
 
-Add widgets via **Dashboard → New Widget** and selecting either widget from the ShortLink Manager section. Both widgets require the `shortLinkManager:viewAnalytics` permission to display data.
+- Spot a sudden drop (or spike) in clicks first thing in the morning
+- See which link is your current top performer while editing other content
+- Share a focused view of link activity with team members who don't need the full analytics section
+- Monitor a time-limited campaign link across different date windows
 
-## Analytics Summary Widget
+![Both ShortLink Manager dashboard widgets side by side](images/dashboard-widgets-cp.webp)
 
-The Analytics Summary widget shows an overview of click activity across your short links over a configurable time period.
+## Adding widgets
 
-### What It Shows
+Go to **Dashboard → New Widget** and choose either widget from the ShortLink Manager section. Both widgets require the `shortLinkManager:viewAnalytics` permission to show data — without it, users see a "You don't have permission to view analytics" message instead.
 
-- **Total clicks** — all recorded click events in the selected date range
-- **Top device types** — breakdown of phone, tablet, desktop, and other device categories
-- **Top countries** — most common visitor countries (requires geo-detection enabled)
-- **Click trend** — daily click counts as a sparkline or mini chart
+Admins always have access regardless of permission settings.
 
-### Configuration
+## Analytics Summary widget
 
-Click the widget's settings icon to configure:
+Get a four-stat snapshot of click activity for your links over a configurable time period.
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| **Date Range** | `string` | `'last7days'` | Time period to summarize: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
+### What it shows
 
-### Analytics Disabled
-
-If analytics are disabled in plugin settings, the widget displays "Analytics are disabled in plugin settings" instead of data.
-
-### Multi-Site
-
-In a multi-site setup, the widget automatically scopes analytics to the sites the current user has edit access to.
-
-## Top Links Widget
-
-The Top Links widget shows which short links received the most clicks during the selected period.
-
-### What It Shows
-
-- **Link title** — the short link's title, linked to its edit page
-- **Click count** — total clicks in the selected period
-- **Trend indicator** — whether clicks are increasing or decreasing compared to the previous equivalent period
+- **Total interactions** — all recorded click events in the selected date range
+- **Unique visitors** — distinct visitors in the period
+- **Active links** — links with at least one click in the period
+- **Engagement rate** — percentage of links that received clicks
+- **Top performer** — the single highest-traffic link with its code and destination domain
 
 ### Configuration
 
@@ -49,21 +35,43 @@ Click the widget's settings icon to configure:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| **Date Range** | `string` | `'last7days'` | Time period: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
-| **Limit** | `int` | `5` | Maximum number of links to display (1–20) |
+| `dateRange` | `string` | `'last7days'` | Time period to summarize: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
 
-### Analytics Disabled
+### When analytics are disabled
 
-If analytics are disabled in plugin settings, the widget displays "Analytics are disabled in plugin settings" instead of data.
+If analytics tracking is off in plugin settings, the widget shows "Analytics are disabled in plugin settings" instead of stats.
 
-### Multi-Site
+### Multi-site
+
+The widget automatically scopes results to the sites the current user has edit access to — no configuration needed. Users only see data for their own accessible sites.
+
+## Top Links widget
+
+See a ranked list of your most-clicked short links for the selected period.
+
+### What it shows
+
+- **Short code** — the link's code, linked to its edit page in ShortLink Manager
+- **Destination domain** — abbreviated domain of the target URL
+- **Interactions** — total click count for the period
+
+### Configuration
+
+Click the widget's settings icon to configure:
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `dateRange` | `string` | `'last7days'` | Time period: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
+| `limit` | `int` | `5` | Maximum number of links to display (1–20) |
+
+### When analytics are disabled
+
+If analytics tracking is off in plugin settings, the widget shows "Analytics are disabled in plugin settings" instead of data.
+
+### Multi-site
 
 The Top Links widget automatically scopes results to the sites the current user has edit access to.
 
 ## Permissions
 
-Both widgets require the `shortLinkManager:viewAnalytics` permission. Users without this permission will see a "You don't have permission to view analytics" message in place of widget content.
-
-Admins always have access regardless of permission settings.
-
-See [Permissions](../developers/permissions.md) for the full permission reference.
+Both widgets require the `shortLinkManager:viewAnalytics` permission. See [Permissions](../developers/permissions.md) for the full permission reference.

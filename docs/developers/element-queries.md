@@ -1,8 +1,8 @@
-# ShortLink Queries
+# ShortLink queries
 
-ShortLink Manager registers a custom element type (`ShortLink`) that supports Craft's standard element query API. Use `ShortLink::find()` in PHP or `craft.shortLinkManager.shortLinks()` in Twig to query short links.
+Query short links in PHP or Twig to power dynamic link listings, per-entry QR panels, and analytics dashboards. ShortLink Manager registers a custom element type (`ShortLink`) that supports Craft's standard element query API — use `ShortLink::find()` in PHP or `craft.shortLinkManager.shortLinks()` in Twig.
 
-## Basic Queries
+## Basic queries
 
 ```twig
 {# All enabled short links #}
@@ -18,9 +18,9 @@ ShortLink Manager registers a custom element type (`ShortLink`) that supports Cr
 {% set count = craft.shortLinkManager.shortLinks().status('expired').count() %}
 ```
 
-## Query Parameters
+## Query parameters
 
-### Standard Craft Parameters
+### Standard Craft parameters
 
 All standard `ElementQuery` parameters work:
 
@@ -33,7 +33,7 @@ All standard `ElementQuery` parameters work:
 | `offset` | `int` | Offset for pagination |
 | `orderBy` | `string` | Column to sort by |
 
-### ShortLink-Specific Parameters
+### ShortLink-specific parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -44,8 +44,10 @@ All standard `ElementQuery` parameters work:
 | `expired` | `bool` | Filter expired links (`true` / `false`) |
 | `httpCode` | `int\|int[]` | Redirect status code(s) |
 | `trackAnalytics` | `bool` | Filter by analytics tracking enabled |
+| `folderId` | `int\|int[]` | Filter by folder ID (use `0` for "No Folder") |
+| `tagSlug` | `string\|string[]` | Filter by tag slug(s) |
 
-## Status Values
+## Status values
 
 | Status | Description |
 |--------|-------------|
@@ -62,7 +64,7 @@ All standard `ElementQuery` parameters work:
 {% set links = craft.shortLinkManager.shortLinks().status(['enabled', 'expired']).all() %}
 ```
 
-## Filtering by Link Type
+## Filtering by link type
 
 ```twig
 {# Only auto-generated links #}
@@ -72,7 +74,7 @@ All standard `ElementQuery` parameters work:
 {% set vanityLinks = craft.shortLinkManager.shortLinks({linkType: 'vanity'}).all() %}
 ```
 
-## Filtering by Linked Element
+## Filtering by linked element
 
 ```twig
 {# Get the short link for this entry #}
@@ -117,7 +119,7 @@ Available order columns: `slug`, `shortlinkmanager.hits`, `shortlinkmanager.date
 {% endpaginate %}
 ```
 
-## ShortLink Element Properties
+## ShortLink element properties
 
 Properties available on a `ShortLink` element in Twig:
 
@@ -153,7 +155,7 @@ Properties available on a `ShortLink` element in Twig:
 | `status` | `string` | Current status |
 | `url` | `string` | The full short link URL |
 
-## ShortLink Element Methods
+## ShortLink element methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
@@ -168,7 +170,7 @@ Properties available on a `ShortLink` element in Twig:
 | `getAnalytics(filters)` | `array` | Click statistics |
 | `renderSeomaticTracking(eventType)` @since(5.1.0) | `Markup\|null` | SEOmatic tracking HTML |
 
-## PHP Example
+## PHP example
 
 ```php
 use lindemannrock\shortlinkmanager\elements\ShortLink;

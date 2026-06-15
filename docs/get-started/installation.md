@@ -1,7 +1,7 @@
 # Installation & Setup
 
 > [!NOTE]
-> Pre-Release: ShortLink Manager is in active development and not yet available on the Craft Plugin Store. Install via Composer for now.
+> ShortLink Manager is in active development and not yet available on the Craft Plugin Store. Install via Composer for now.
 
 ## Composer
 

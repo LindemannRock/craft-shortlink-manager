@@ -1,6 +1,6 @@
-# Twig Globals
+# Twig globals
 
-ShortLink Manager provides the following global variables in your Twig templates.
+Use `shortlinkHelper` to access the plugin's display name strings and cache paths in any Twig template — useful for building CP UI components that need to reference the plugin by name or locate its cache directories.
 
 ## `shortlinkHelper` @since(5.0.0)
 

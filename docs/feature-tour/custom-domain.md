@@ -1,10 +1,16 @@
-# Custom Domain
+# Custom domain
 
-By default, ShortLink Manager generates short link URLs using each site's base URL. You can override this with a dedicated custom domain using a single setting: `shortlinkBaseUrl`.
+Serve your short links from a branded domain — `short.example.com` instead of your main site's URL — with a single config setting. No separate Craft site is required; your existing installation handles the routing.
 
-## Single-Site URLs
+## What you'll use it for
 
-Use `shortlinkBaseUrl` to serve all short links from your custom domain:
+- Branding short links with a dedicated domain (e.g., `short.example.com/s/abc123`)
+- Giving each Craft site in a multisite its own URL path segment
+- Keeping dev/local environments on the default site URL while production uses the custom domain
+
+## Setting your custom domain
+
+Add `shortlinkBaseUrl` to your config file and set the value via an environment variable:
 
 ```php
 // config/shortlink-manager.php
@@ -31,18 +37,14 @@ https://short.example.com/s/qr/abc123
 
 This overrides the site's own base URL when generating shortlink URLs, but does **not** require a separate Craft site. Your existing Craft site handles the routing — `shortlinkBaseUrl` only changes what URL is displayed and encoded in QR codes.
 
-## Multisite Site-Aware URLs
+![Custom domain field in ShortLink Manager settings](images/custom-domain-settings.webp)
 
-For a Craft multisite where each site needs its own URL path segment, use `shortlinkBaseUrl` with a site token:
+> [!TIP]
+> Rule of thumb: Single-site → `shortlinkBaseUrl` as a plain URL. Multisite where each site needs its own path → `shortlinkBaseUrl` with a `{siteHandle}` token.
 
-```php
-// config/shortlink-manager.php
-return [
-    '*' => [
-        'shortlinkBaseUrl' => App::env('SHORTLINK_BASE_URL'),
-    ],
-];
-```
+## Multisite site-aware URLs
+
+For a Craft multisite where each site needs its own URL path segment, include a site token in the `.env` value:
 
 ```bash
 # .env
@@ -62,7 +64,7 @@ With `https://short.example.com/{siteHandle}`, links generate URLs like:
 - English site: `https://short.example.com/en/s/abc123`
 - German site: `https://short.example.com/de/s/abc123`
 
-## Site-Aware Routes
+## Site-aware routes
 
 When a `{siteHandle}` token is present in `shortlinkBaseUrl`, ShortLink Manager automatically registers site-aware routes in addition to the standard routes:
 
@@ -75,7 +77,7 @@ When a `{siteHandle}` token is present in `shortlinkBaseUrl`, ShortLink Manager 
 
 The site-aware routes allow the redirect controller to resolve which Craft site to look up the short link in, based on the `{siteHandle}` in the URL path.
 
-## How URLs Are Built
+## How URLs are built
 
 The `Settings::buildPublicUrl()` method resolves the correct base URL in this order:
 
@@ -84,11 +86,12 @@ The `Settings::buildPublicUrl()` method resolves the correct base URL in this or
 
 This method is called when generating `ShortLink::getUrl()`, `getQrCodeUrl()`, and `getQrCodeDisplayUrl()`.
 
-## Server Configuration
+## Server configuration
 
 Your web server must point `short.example.com` to your Craft installation. The plugin handles routing internally — no additional server config beyond a standard Craft vhost is needed.
 
 If you use a true separate domain (not a subdomain of your main site), ensure:
+
 - The domain resolves to the same server as your Craft installation
 - Your server vhost serves Craft from that domain
 - SSL is configured for the domain
@@ -99,7 +102,7 @@ If you use a true separate domain (not a subdomain of your main site), ensure:
 
 If `{...}` tokens are used in `shortlinkBaseUrl`, only `{siteHandle}`, `{siteId}`, and `{siteUid}` are supported. Using `{siteName}` or any other unsupported token triggers a validation error.
 
-## Multi-Environment Example
+## Multi-environment example
 
 ```php
 // config/shortlink-manager.php

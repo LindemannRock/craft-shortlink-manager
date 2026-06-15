@@ -1,8 +1,8 @@
 # Translations
 
-ShortLink Manager includes full translations for 12 languages out of the box.
+ShortLink Manager ships with translations for 12 languages. The Control Panel automatically uses the user's preferred language from their Craft account settings — no extra configuration required.
 
-## Supported Languages
+## Supported languages
 
 | Language | Code |
 |----------|------|
@@ -19,17 +19,9 @@ ShortLink Manager includes full translations for 12 languages out of the box.
 | Danish | `da` |
 | Norwegian | `no` |
 
-Translations are automatically applied based on the user's preferred language in Craft's Control Panel settings.
+## Overriding translations
 
-## Language Notes
-
-- **Arabic**: Uses Modern Standard Arabic (MSA) with RTL support. Craft handles the RTL layout automatically.
-- **Japanese**: Uses polite form (です/ます) with katakana for adopted technical terms.
-- **All languages**: Technical terms (URL, API, HTTP, Cache, Plugin, etc.) remain in English as is standard in software localization.
-
-## Overriding Translations
-
-You can override any translation string by creating a static translation file in your project:
+To replace any translation string, create a static translation file in your project:
 
 ```
 translations/
@@ -45,20 +37,20 @@ return [
 ];
 ```
 
-Only the keys you include in your override file will be replaced — all other strings will use the plugin's built-in translations.
+Only the keys you include are replaced — all other strings use the plugin's built-in translations.
 
-See [Craft's Static Translation Strings](https://craftcms.com/docs/5.x/system/sites.html#static-message-translations) for more details.
+See [Craft's Static Translation Strings](https://craftcms.com/docs/5.x/system/sites.html#static-message-translations) for details.
 
 ### Using Translation Manager
 
-If you have [Translation Manager](https://github.com/LindemannRock/craft-translation-manager) installed, you can override translations directly from the Control Panel:
+If you have [Translation Manager](https://github.com/LindemannRock/craft-translation-manager) installed, you can manage overrides directly from the Control Panel:
 
 1. Add a new translation category using the plugin handle (`shortlink-manager`)
 2. Edit translations through the Translation Manager interface
 
 Available languages are based on the site languages active in your Craft installation.
 
-## Contributing Translations
+## Contributing translations
 
 If you find a translation error or want to improve a translation, please [open an issue](https://github.com/LindemannRock/craft-shortlink-manager/issues) with:
 

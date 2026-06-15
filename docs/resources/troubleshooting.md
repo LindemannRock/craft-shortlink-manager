@@ -1,8 +1,8 @@
 # Troubleshooting
 
-Common issues and solutions for ShortLink Manager.
+Solutions to common ShortLink Manager issues.
 
-## Short Link Returns 404 or Redirects to the Wrong Page
+## Short link returns 404 or redirects to the wrong page
 
 **Check the basics first:**
 
@@ -22,14 +22,14 @@ Common issues and solutions for ShortLink Manager.
 
 8. **If Redis caching is enabled, check the logs.** When `cacheStorageMethod` is set to `redis` but Craft's `cache` component is not Redis-backed, ShortLink Manager logs a cache-component warning and skips Redis-specific cache operations until the component is fixed.
 
-## Short Link Creates a Loop or Doesn't Redirect
+## Short link creates a loop or doesn't redirect
 
 If visiting a short link URL doesn't redirect but instead loads a Craft template or error:
 
 - Your site may have a matching Craft URL (section, entry) that intercepts the request before the shortlink route. Check if there's a section or entry with the same slug.
 - Clear all caches: Craft route caches can be stale after changing `slugPrefix`.
 
-## Analytics Are Not Recording
+## Analytics are not recording
 
 1. **Is analytics enabled?** Check `enableAnalytics` is `true` in settings.
 
@@ -45,7 +45,7 @@ php craft shortlink-manager/security/generate-salt
 ddev craft shortlink-manager/security/generate-salt
 ```
 
-4. **Check plugin logs:** Enable debug logging in `config/shortlink-manager.php` (`'logLevel' => 'debug'`) and check **ShortLink Manager → Logs**.
+4. **Check plugin logs.** Enable debug logging in `config/shortlink-manager.php` (`'logLevel' => 'debug'`) and check **ShortLink Manager → Logs**.
 
 5. **Check whether Direct Redirect is enabled.** In Direct Redirect mode, analytics only record when the short URL request reaches Craft. If a browser, CDN, Blitz, or platform static cache serves the short URL before PHP runs, repeat-hit analytics can be bypassed.
 
@@ -55,7 +55,7 @@ ddev craft shortlink-manager/security/generate-salt
 
 7. **Clear stale redirect caches after changes.** If you changed a link from `301`/`308` to `302`/`307`, or changed the redirect mode, clear browser/CDN/static caches before retesting. Previously cached permanent redirects can keep masking the new behavior.
 
-## Scheduled Analytics Cleanup Does Not Reappear
+## Scheduled analytics cleanup does not reappear
 
 ShortLink Manager schedules a recurring queue job for analytics cleanup. If the queue is empty after the cleanup job runs:
 
@@ -66,7 +66,7 @@ ShortLink Manager schedules a recurring queue job for analytics cleanup. If the 
 
 The queued job description shows when that specific queued row is due to run.
 
-## Date Format Changes Do Not Appear in the Short Links Index
+## Date format changes do not appear in the short links index
 
 The ShortLink Manager index uses the plugin date/time settings for its date columns, including **Post Date**, **Expiry Date**, **Date Created**, and **Date Updated**.
 
@@ -77,7 +77,7 @@ If a date-format setting does not appear to change the index:
 3. Clear caches and reload the index.
 4. Confirm the relevant column is enabled in the index column settings.
 
-## Analytics Record Once, Then Stop Under Static Cache
+## Analytics record once, then stop under static cache
 
 This symptom almost always means the short URL response is being cached before it reaches Craft on later requests.
 
@@ -109,7 +109,7 @@ Always clear:
 
 Old `301`/`308` responses can remain cached even after your plugin settings or link settings are updated.
 
-## Geolocation Shows No Country / City Data
+## Geolocation shows no country or city data
 
 1. **Is `enableGeoDetection` set to `true`?** Check **ShortLink Manager → Settings → Analytics**.
 
@@ -123,11 +123,11 @@ Old `301`/`308` responses can remain cached even after your plugin settings or l
 
 Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFAULT_CITY`.
 
-3. **Check plugin logs instead of the queue.** Geolocation now runs inline during the analytics write path, so a queue backlog is not the cause. If geo fields are blank, enable debug logging and inspect the ShortLink Manager logs for hash-salt, provider, or persistence errors.
+3. **Check plugin logs instead of the queue.** Geolocation runs inline during the analytics write path, so a queue backlog is not the cause. If geo fields are blank, enable debug logging and inspect the ShortLink Manager logs for hash-salt, provider, or persistence errors.
 
 4. **Check your geo provider rate limits.** Free tiers have request limits (ip-api.com: 45/min, ipapi.co: 1000/day). If you exceed the limit, lookups fail silently. Consider a paid API key or switch providers.
 
-## QR Code Shows as Broken Image
+## QR code shows as broken image
 
 1. **Is the QR prefix configured correctly?** The QR URL pattern is `/{qrPrefix}/{code}`. The default is an empty string (no prefix), but a common configuration is `s/qr`, giving URLs like `/s/qr/abc123`. Check the `qrPrefix` setting.
 
@@ -139,17 +139,17 @@ Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFA
 
 5. **Check file permissions.** If using file-based QR caching, ensure `storage/runtime/shortlink-manager/qr/` is writable by the web server.
 
-## QR Code Downloads as Wrong File Type
+## QR code downloads as wrong file type
 
 The download format is controlled by the `defaultQrFormat` setting (`png` or `svg`) and can be overridden per link. If you request a format via the URL parameter (e.g., `?format=svg`), ensure the QR URL includes that parameter.
 
-## Settings Save Shows Numeric Field Errors
+## Settings save shows numeric field errors
 
 Numeric settings such as QR cache duration, device detection cache duration, QR size, and logo size must be whole numbers within the range shown in the field instructions.
 
 If a settings save fails, keep the submitted form open and check the inline field errors. ShortLink Manager validates the posted values before saving and does not partially save invalid settings.
 
-## Custom Short Domain Not Working
+## Custom short domain not working
 
 1. **Does DNS resolve?** The domain must point to your Craft server.
 
@@ -159,7 +159,7 @@ If a settings save fails, keep the submitted form open and check the inline fiel
 
 4. **Does the URL validate?** `shortlinkBaseUrl` must pass URL validation (starts with `http://` or `https://`). Check for trailing slashes or extra whitespace.
 
-## Headless / Decoupled Craft Setup — Wrong Short Link Domain
+## Headless / decoupled Craft setup — wrong short link domain
 
 In a headless setup, the site's `baseUrl` typically points to the frontend application (e.g., `https://frontend.example.com`), not the Craft backend where shortlink routes are served. Without configuration, generated short link and QR code URLs point to the frontend domain — where the `/s/{code}` routes don't exist.
 
@@ -177,7 +177,7 @@ SHORTLINK_BASE_URL=https://links.example.com
 
 This only changes generated URLs (copy buttons, QR codes, exports). The actual routes still need to be served by Craft — ensure the short domain points to your Craft installation.
 
-## Multisite Short Links All Resolve to the Same Site
+## Multisite short links all resolve to the same site
 
 If you use `shortlinkBaseUrl` on a multisite install, all sites produce the same URL (e.g., `https://short.ly/s/abc123` for EN, AR, and FR). When a request arrives, Craft resolves the site from the hostname — which maps to only one site. The other sites' versions of that short link are unreachable.
 
@@ -195,7 +195,7 @@ This produces site-specific URLs (`https://short.ly/en/s/abc123`, `https://short
 
 See [Custom Domain](../feature-tour/custom-domain.md) for full configuration details.
 
-## `shortlinkBaseUrl` Token Validation Error
+## `shortlinkBaseUrl` token validation error
 
 ```text
 Unsupported token in shortlink base URL.
@@ -203,7 +203,7 @@ Unsupported token in shortlink base URL.
 
 Only `{siteHandle}`, `{siteId}`, and `{siteUid}` are supported tokens. Check that your `shortlinkBaseUrl` does not use `{siteName}`, `{locale}`, or any other custom tokens.
 
-## SEOmatic Tracking Events Not Firing
+## SEOmatic tracking events not firing
 
 SEOmatic tracking requires the redirect template to render. When `directRedirect` is `true` (globally or per link), the template is bypassed and no client-side events fire.
 
@@ -213,7 +213,7 @@ To enable SEOmatic tracking:
 
 See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../developers/integrations.md).
 
-## Custom Redirect Template Still Skips Tracking
+## Custom redirect template still skips tracking
 
 If you override `templates/shortlink-manager/redirect.twig`, make sure it redirects to the internal `goUrl` variable, not directly to `destinationUrl`.
 
@@ -225,7 +225,7 @@ For non-direct redirects, the tracked flow is:
 
 If your custom template redirects straight to `destinationUrl`, the tracking hop is bypassed.
 
-## Redirect Manager Integration Not Creating Redirects
+## Redirect Manager integration not creating redirects
 
 1. **Is the integration enabled?** Check `enabledIntegrations` includes `'redirect-manager'` in settings.
 
@@ -233,15 +233,15 @@ If your custom template redirects straight to `destinationUrl`, the tracking hop
 
 3. **Are the trigger events configured?** Check `redirectManagerEvents`. The default is `['slug-change']`, which creates a redirect when a short link's code is changed. This is currently the only supported event.
 
-## `debug` Log Level Not Working
+## `debug` log level not working
 
 Debug logging requires `devMode` to be enabled. If you set `logLevel = 'debug'` in config but `devMode` is `false`, the plugin automatically falls back to `'info'` and logs a warning. Enable `devMode` in `config/general.php` for debug logging.
 
-## Slug Prefix Conflicts with Another Plugin
+## Slug prefix conflicts with another plugin
 
 ShortLink Manager validates `slugPrefix` and `qrPrefix` against Smart Links (if installed). If you get a conflict warning, change one of the prefixes in settings to a value the other plugin does not use.
 
-## Performance: Slow Redirects
+## Performance: slow redirects
 
 If redirects feel slow:
 
@@ -249,7 +249,7 @@ If redirects feel slow:
 - **Check the queue.** Analytics processing runs synchronously in the redirect flow before the response is sent. If the analytics write is slow, the redirect is slow. Ensure your database is performing well.
 - **Enable QR code caching** (`enableQrCodeCache = true`) if QR scans are slow
 
-## Getting Help
+## Getting help
 
 - Check plugin logs: **ShortLink Manager → Logs**
 - Enable debug logging: `'logLevel' => 'debug'` in `config/shortlink-manager.php` (requires `devMode`)

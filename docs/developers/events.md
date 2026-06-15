@@ -1,14 +1,14 @@
 # Events
 
-ShortLink Manager dispatches events that let you hook into settings changes from your own plugin or module.
+Hook into ShortLink Manager's lifecycle to clear caches, update external services, or react to configuration changes in your own plugin or module.
 
 ## Overview
 
-| Model | Event | Use Case |
+| Model | Event | Use case |
 |-------|-------|----------|
 | `Settings` | `EVENT_AFTER_SAVE_SETTINGS` | React to settings changes (cache clearing, re-registration of routes, notifications) |
 
-## Settings Events
+## Settings events
 
 ### `EVENT_AFTER_SAVE_SETTINGS`
 

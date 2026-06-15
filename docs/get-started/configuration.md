@@ -1,18 +1,18 @@
 # Configuration
 
-Configure ShortLink Manager by creating a config file in your `config/` directory. You can also override most settings from the control panel via **ShortLink Manager → Settings**.
+Most settings can be managed from **ShortLink Manager → Settings** in the Control Panel — no config file needed for typical setups. A config file gives you per-environment overrides and lets you lock settings so they cannot be changed from the CP.
 
-## Config File
+## Config file
 
-Copy the sample config to get started:
+Create `config/shortlink-manager.php` in your project (copy the sample template to start):
 
 ```bash
 cp vendor/lindemannrock/craft-shortlink-manager/src/config.php config/shortlink-manager.php
 ```
 
-The file supports multi-environment configuration using Craft's standard environment key convention (`'*'`, `'dev'`, `'production'`, etc.).
+The file supports Craft's standard multi-environment key convention (`'*'`, `'dev'`, `'production'`, etc.). Settings in the config file always take priority over the database. When a setting is overridden by a config file, the CP field shows a warning and is disabled.
 
-## Settings Reference
+## Settings reference
 
 Settings are grouped below by their functional area, matching the CP settings pages.
 
@@ -26,7 +26,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 
 ---
 
-### Site Settings
+### Site settings
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -34,7 +34,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 
 ---
 
-### URL Settings
+### URL settings
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -50,7 +50,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 
 ---
 
-### Template Settings
+### Template settings
 
 These templates must exist in your site's `templates/` folder. Copy the reference templates from `vendor/lindemannrock/craft-shortlink-manager/src/templates/` to `templates/shortlink-manager/` and customize as needed.
 
@@ -68,7 +68,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 ---
 
-### Redirect Behavior
+### Redirect behavior
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -104,7 +104,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 ---
 
-### QR Codes
+### QR codes
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -122,7 +122,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `defaultQrLogoId` | `int\|null` | `null` | Default QR logo asset ID |
 | `qrLogoSize` | `int` | `20` | Logo size as a percentage of the QR code (10–30) |
 | `enableQrDownload` | `bool` | `true` | Allow QR code downloads |
-| `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{slug}`, `{code}`, `{size}`, `{format}` |
+| `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{code}`, `{size}`, `{format}` |
 
 ---
 
@@ -158,7 +158,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 ---
 
-## Environment Variables
+## Environment variables
 
 Several settings read from environment variables automatically, with no config file entry required:
 
@@ -190,7 +190,7 @@ return [
 
 ---
 
-## Example Configuration
+## Example configuration
 
 A complete multi-environment config file:
 
@@ -260,7 +260,7 @@ return [
 
 ---
 
-## Settings Precedence
+## Settings precedence
 
 Settings are resolved in this order (later sources override earlier ones):
 
@@ -269,13 +269,11 @@ Settings are resolved in this order (later sources override earlier ones):
 3. Config file settings (`config/shortlink-manager.php`)
 4. Environment-specific config overrides
 
-Config file settings always take priority over the database. When a setting is overridden by a config file, the CP field shows a warning and is disabled.
-
 ---
 
-## Custom Short Domain
+## Custom short domain
 
-To serve all shortlinks from a dedicated short domain (e.g., `https://short.example.com`), use the `shortlinkBaseUrl` setting:
+To serve all short links from a dedicated short domain (e.g., `https://short.example.com`), use the `shortlinkBaseUrl` setting:
 
 ```php
 // config/shortlink-manager.php
@@ -293,7 +291,7 @@ SHORTLINK_BASE_URL=https://short.example.com
 
 This overrides the base URL used when generating shortlink and QR URLs, without requiring a separate Craft site.
 
-### Multisite Short Domains
+### Multisite short domains
 
 For a Craft multisite where each site needs its own short domain, use `shortlinkBaseUrl` with a `{siteHandle}` token:
 

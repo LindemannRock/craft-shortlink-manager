@@ -1,30 +1,49 @@
-# QR Codes
+# QR codes
 
-Every short link in ShortLink Manager can have a QR code. Each QR code encodes the short link's public URL, so if you update the destination, the QR code continues working without reprinting. Scanning triggers the same redirect flow as clicking — including analytics tracking.
+Every short link comes with a scannable QR code — no extra setup. Because the QR code encodes the short URL (not the destination), you can update where a link points any time without reprinting.
 
-> [!TIP]
-> QR scans follow the same redirect mode as normal clicks. If `directRedirect` is enabled, repeat scan analytics can be bypassed by browser/CDN/static caching unless those routes bypass cache. If you need analytics-safe QR scans under caching, keep `directRedirect = false`.
+## What you'll use it for
 
-## How It Works
+- **Print campaigns** — place a QR code on a flyer, poster, or business card that still works after you update the destination.
+- **Branded scannables** — add your logo to the center of a QR code and match colors to your brand palette.
+- **Flexible delivery** — embed QR codes directly in Twig templates as data URIs (useful for email), or link to the hosted image endpoint.
+- **Bulk downloads** — generate and download QR codes as PNG or SVG for use in design assets.
 
-QR codes are generated dynamically by the `bacon/bacon-qr-code` library and cached to avoid regenerating on every request. Each QR code encodes the short link's public URL (e.g., `https://example.com/s/qr/abc123`).
+## Turn on and customize QR codes
 
-When QR code generation is enabled on a short link, two endpoints become available:
+### Enable per link
 
-| URL | Returns |
-|-----|---------|
-| `/{qrPrefix}/{code}` | Raw QR code image (PNG or SVG) |
-| `/{qrPrefix}/{code}/view` | Display page with title, image, and download button |
+On the short link edit page, toggle **QR Code Enabled** to activate the QR endpoints for that link. When disabled, both the image and display-page endpoints return a 404.
 
-## Enabling QR Codes Per Link
+### Set global defaults
 
-On the short link edit page, toggle **QR Code Enabled** to activate QR endpoints for that link. When disabled, both endpoints return a 404.
+Go to **Settings → QR Codes** to configure appearance defaults for all links.
 
-## Customization Options
+![Settings → QR Codes page showing size, color, module style, and eye style options](images/qr-codes-settings.webp)
 
-QR code appearance is set globally in **Settings → QR Codes** and can be overridden per link on the short link edit page. Per-link values left at `null` inherit from the global defaults.
+Per-link values left at `null` inherit from these global defaults.
 
-| Option | Type | Default | Description |
+### Choose a visual style
+
+Module style and eye style combine to give your QR codes a distinct look:
+
+![Grid comparing module styles (square, rounded, dots) and eye styles (square, rounded, leaf)](images/qr-codes-styles.webp)
+
+| Option | Values | Default |
+|--------|--------|---------|
+| Module style | `'square'`, `'dots'`, `'rounded'` | `'square'` |
+| Eye style | `'square'`, `'rounded'`, `'leaf'` | `'square'` |
+
+> [!WARNING]
+> The `dots` module style may not scan reliably at very small sizes. Use at least 200 px when choosing `dots`.
+
+---
+
+## Customization reference
+
+### Appearance settings
+
+| Setting | Type | Default | Description |
 |--------|------|---------|-------------|
 | `defaultQrSize` | `int` | `256` | Output size in pixels (100–1000) |
 | `defaultQrColor` | `string` | `'#000000'` | Module foreground color (hex) |
@@ -36,29 +55,13 @@ QR code appearance is set globally in **Settings → QR Codes** and can be overr
 | `qrEyeStyle` | `string` | `'square'` | Finder pattern shape: `'square'`, `'rounded'`, `'leaf'` |
 | `qrEyeColor` | `?string` | `null` | Eye color override (hex). Falls back to foreground color |
 
-### Module Styles
-
-| Value | Appearance |
-|-------|-----------|
-| `square` | Classic square modules (default) |
-| `dots` | Circular dots |
-| `rounded` | Rounded square corners |
-
-### Eye Styles
-
-| Value | Appearance |
-|-------|-----------|
-| `square` | Classic square finder pattern (default) |
-| `rounded` | Rounded finder pattern |
-| `leaf` | Leaf-shaped finder pattern |
-
-## Logo Overlay
+### Logo overlay
 
 Enable `enableQrLogo` in settings to add a brand logo to the center of QR codes. When enabled:
 
-- Set a **default logo** (a Craft asset) applied to all QR codes unless overridden per link
-- Optionally restrict which asset volume logos can come from (`qrLogoVolumeUid`)
-- Control the **logo size** as a percentage of the QR code width (10–30%, default 20%)
+- Set a **default logo** (a Craft asset) applied to all QR codes unless overridden per link.
+- Optionally restrict which asset volume logos can come from (`qrLogoVolumeUid`).
+- Control the **logo size** as a percentage of the QR code width (10–30%, default 20%).
 
 Per-link logo overrides use the `qrLogoId` field on the short link edit page.
 
@@ -72,14 +75,14 @@ Per-link logo overrides use the `qrLogoId` field on the short link edit page.
 > [!WARNING]
 > A logo reduces the scannable area. Use `defaultQrErrorCorrection: 'H'` (30% recovery) when adding a logo to ensure reliable scanning.
 
-## QR Code URLs
+## QR code URLs
 
-QR codes are available at two URL patterns:
+When QR code generation is enabled on a short link, two endpoints become available:
 
-| URL | Description |
-|-----|-------------|
-| `/{qrPrefix}/{code}` | Raw QR image (PNG or SVG) returned directly |
-| `/{qrPrefix}/{code}/view` | Display page showing the QR code with title and download |
+| URL | Returns |
+|-----|---------|
+| `/{qrPrefix}/{code}` | Raw QR code image (PNG or SVG) |
+| `/{qrPrefix}/{code}/view` | Display page with title, image, and download button |
 
 With a common configuration (`qrPrefix` = `s/qr`):
 
@@ -100,20 +103,21 @@ The QR image URL accepts query parameters to customize on the fly:
 | `eyeColor` | `?eyeColor=0000ff` | Eye color override |
 | `download` | `?download=1` | Trigger file download instead of inline display |
 
-## Downloading QR Codes
+## Downloading QR codes
 
 When `enableQrDownload` is `true` (default), QR codes can be downloaded. The download filename follows the `qrDownloadFilename` pattern with these tokens:
 
 | Token | Replaced with |
 |-------|--------------|
 | `{code}` | The short link's code |
-| `{slug}` | The short link's slug |
 | `{size}` | The QR code size in pixels |
 | `{format}` | The format: `png` or `svg` |
 
 Default pattern: `{code}-qr-{size}` produces filenames like `abc123-qr-256.png`.
 
-## In Templates
+---
+
+## Using QR codes in templates
 
 The `ShortLink` element provides methods for embedding QR codes in Twig templates:
 
@@ -147,7 +151,7 @@ The `ShortLink` element provides methods for embedding QR codes in Twig template
 
 All methods accept an `options` array with any of the customization options listed above. When called without arguments (or as properties like `link.qrCodeUrl`), global defaults are used.
 
-## The Display Page
+## The display page
 
 The `/{qrPrefix}/{code}/view` endpoint renders a styled page containing the QR code with context. A custom template can be set via the `qrTemplate` setting.
 
@@ -180,7 +184,7 @@ return [
 ];
 ```
 
-## Global vs Per-Link Settings
+## Global vs per-link settings
 
 Global QR defaults are set in **Settings → QR Codes**. Per-link overrides are set on the short link edit page. Any per-link option left `null` inherits from the global setting.
 
@@ -199,9 +203,12 @@ return [
 ];
 ```
 
+> [!TIP]
+> QR scans follow the same redirect mode as normal clicks. If `directRedirect` is enabled, repeat scan analytics can be bypassed by browser/CDN/static caching unless those routes bypass cache. If you need analytics-safe QR scans under caching, keep `directRedirect = false`.
+
 ## Limitations
 
-- Logo overlays require the Imagick PHP extension
-- SVG output does not support logo overlays (logos are PNG only)
-- The `dots` module style may not scan reliably at very small sizes — use at least 200px
-- QR codes always encode the short link's public URL — the destination URL cannot be encoded directly
+- Logo overlays require the Imagick PHP extension.
+- SVG output does not support logo overlays (logos are PNG only).
+- The `dots` module style may not scan reliably at very small sizes — use at least 200 px.
+- QR codes always encode the short link's public URL — the destination URL cannot be encoded directly.

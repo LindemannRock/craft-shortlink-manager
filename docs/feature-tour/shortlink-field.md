@@ -1,38 +1,45 @@
 # ShortLink Field
 
-The ShortLink Field is a custom Craft field type that attaches a short link directly to any element (entries, products, categories, etc.). It appears in the element editor and keeps the short link's destination URL in sync with the element automatically.
+Attach a short link directly to any entry, product, or category — and have its destination URL stay in sync with that element automatically.
 
-## What It Does
+When you add a ShortLink Field to a field layout, editors can see the short URL, copy it, and access the QR code from inside the element editor, without opening ShortLink Manager separately. When the element's URL changes, the short link's destination updates to match.
 
-When you add a ShortLink Field to an entry's field layout, the entry editor shows a ShortLink panel. Editors can see the short URL, copy it, scan the QR code, and manage the link — all without leaving the entry.
+![ShortLink Field panel inside an entry editor](images/shortlink-field-entry.webp)
 
-When the entry's URL changes (slug update, section change, draft propagation), ShortLink Manager detects the change and updates the short link's destination URL automatically.
+## What you'll use it for
 
-## Adding the Field
+- Automatically create a trackable short link for every new product, article, or landing page
+- Keep short link destinations current when entries are reorganized or slugs change
+- Let editors copy the short URL or scan the QR code while editing, without switching apps
+- Use a QR code in print materials that always resolves to the current version of the page
+
+## Adding the field
 
 1. Go to **Settings → Fields → New Field**
 2. Choose **ShortLink** as the field type
-3. Configure field settings:
-   - **Link Type** — `code` (auto-generated) or `vanity` (custom code)
-   - **Default HTTP Code** — `301`, `302`, `307`, or `308`
+3. Configure the field settings (see below)
 4. Add the field to the desired field layout via **Settings → [Entry Type] → Field Layout**
 
-## Field Settings
+## Field settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `linkType` | `code` | Whether the short code is auto-generated or requires a custom code |
+| `linkType` | `'code'` | Whether the short code is auto-generated (`code`) or requires a custom code (`vanity`) |
 | `defaultHttpCode` | `302` | Default redirect status for links created via this field |
 
-## How Destination URL Sync Works
+## How destination URL sync works
 
-ShortLink Manager listens for `Elements::EVENT_AFTER_SAVE_ELEMENT`. When a non-new element is saved and it has a short link attached (via the field or programmatically), the plugin checks whether the element's URL has changed.
+When an element with the ShortLink Field is saved, the field's `afterElementSave` hook fires. If the element already has a short link attached, the plugin updates the destination URL to match the element's current URL.
 
-If the URL changed, the short link's destination URL is updated for the element's site. For multisite setups, each site's destination URL resolves from the element's URL on that specific site.
+Sync runs for:
+- Elements with a URL (requires the element's site to have URLs enabled)
+- Canonical saves (not drafts, revisions, or propagation saves from Craft's multi-site sync)
 
-This sync only happens for `shortLinkType = 'auto'` links (links created and managed by the field). Standalone/manual links are not automatically updated.
+For `linkType = 'vanity'`, a code must be set before the first save — the field will not create the link if no code is provided. For `linkType = 'code'`, the short code is auto-generated on first save.
 
-## Multi-Site Behavior
+Sync only applies to `shortLinkType = 'auto'` links — links created and managed by the field. Standalone links you create manually in ShortLink Manager are not affected.
+
+## Multi-site behavior
 
 The ShortLink Field is site-aware. When an element is saved:
 
@@ -42,9 +49,9 @@ The ShortLink Field is site-aware. When an element is saved:
 
 If you translate an entry to multiple sites, each site's short link points to that site's version of the entry.
 
-## Accessing Field Values in Templates
+## Accessing field values in templates
 
-The ShortLink Field stores the short link element. Access it like any element-linked relationship in Twig:
+The ShortLink Field stores the short link element. Access it by querying for the element's attached short link:
 
 ```twig
 {# Get the shortlink attached to this entry via the field #}
@@ -69,7 +76,7 @@ You can also query by element directly from `ShortLink::find()`:
 
 ShortLink Manager also registers as a link type in Craft's native Link field (Craft CMS 5.3+). See [Integrations](integrations.md) for details.
 
-## Sidebar Panel
+## Sidebar panel
 
 When a short link is attached to an entry (via the field or a manual link with `elementId` set), an info panel appears in the entry editor's right sidebar. The panel shows:
 

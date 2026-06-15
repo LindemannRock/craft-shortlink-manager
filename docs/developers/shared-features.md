@@ -1,6 +1,6 @@
-# Shared Features
+# Shared features
 
-ShortLink Manager uses the following shared libraries and features.
+ShortLink Manager builds on two shared libraries — `lindemannrock/base` and `lindemannrock/logging-library` — rather than reimplementing common infrastructure. This page lists the specific features used and what each one does.
 
 ## `lindemannrock/base`
 
@@ -23,7 +23,7 @@ ShortLink Manager uses the following shared libraries and features.
 
 **PluginHelper::bootstrap()**
 
-Provides plugin name helpers in Twig templates (see [Twig Globals](twig-globals.md)) and configures logging.
+Provides plugin name helpers in Twig templates (see [Twig globals](twig-globals.md)) and configures logging.
 
 **PluginHelper::applyPluginNameFromConfig()**
 
@@ -72,19 +72,19 @@ ISO 3166-1 alpha-2 country code utilities, used in analytics breakdown and expor
 | Feature | Description |
 |---------|-------------|
 | `LoggingLibrary::configure()` | Dedicated plugin logging configuration |
-| `LoggingTrait` | Convenient logging methods (logInfo, logWarning, logError, logDebug) |
+| `LoggingTrait` | Convenient logging methods (`logInfo`, `logWarning`, `logError`, `logDebug`) |
 | `LoggingLibrary::addLogsNav()` | Adds "Logs" subnav to plugin CP navigation |
 
 ### Details
 
 **LoggingLibrary::configure()**
 
-Enables dedicated log files at storage/logs/{plugin-handle}-{date}.log
+Enables dedicated log files at `storage/logs/{plugin-handle}-{date}.log`.
 
 **LoggingTrait**
 
-Provides standardized logging to dedicated plugin log files
+Provides standardized logging to dedicated plugin log files.
 
 **LoggingLibrary::addLogsNav()**
 
-View plugin logs directly in the Control Panel
+View plugin logs directly in the Control Panel.
