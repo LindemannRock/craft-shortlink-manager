@@ -120,6 +120,7 @@ return [
     'Date Range' => 'Datumintervall',
     'interactions' => 'interaktioner',
     'View full analytics' => 'Visa fullständig analys',
+    'View all analytics' => 'Visa alla analyser',
     'Total Interactions' => 'Totala interaktioner',
     'Active Links' => 'Aktiva länkar',
     'Engagement Rate' => 'Engagemangsgrad',

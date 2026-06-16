@@ -120,6 +120,7 @@ return [
     'Date Range' => '期間',
     'interactions' => 'インタラクション',
     'View full analytics' => 'アナリティクスの全体を表示する',
+    'View all analytics' => 'すべてのアナリティクスを表示',
     'Total Interactions' => '総インタラクション数',
     'Active Links' => 'アクティブなリンク',
     'Engagement Rate' => 'エンゲージメント率',

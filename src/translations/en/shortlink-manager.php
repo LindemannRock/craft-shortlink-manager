@@ -120,6 +120,7 @@ return [
     'Date Range' => 'Date Range',
     'interactions' => 'interactions',
     'View full analytics' => 'View full analytics',
+    'View all analytics' => 'View all analytics',
     'Total Interactions' => 'Total Interactions',
     'Active Links' => 'Active Links',
     'Engagement Rate' => 'Engagement Rate',

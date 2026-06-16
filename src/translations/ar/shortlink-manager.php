@@ -120,6 +120,7 @@ return [
     'Date Range' => 'نطاق التاريخ',
     'interactions' => 'تفاعلات',
     'View full analytics' => 'عرض التحليلات الكاملة',
+    'View all analytics' => 'عرض جميع التحليلات',
     'Total Interactions' => 'إجمالي التفاعلات',
     'Active Links' => 'الروابط النشطة',
     'Engagement Rate' => 'معدل التفاعل',

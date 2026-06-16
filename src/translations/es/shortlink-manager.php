@@ -120,6 +120,7 @@ return [
     'Date Range' => 'Rango de fechas',
     'interactions' => 'interacciones',
     'View full analytics' => 'Ver analíticas completas',
+    'View all analytics' => 'Ver todas las analíticas',
     'Total Interactions' => 'Total de interacciones',
     'Active Links' => 'Enlaces activos',
     'Engagement Rate' => 'Tasa de participación',

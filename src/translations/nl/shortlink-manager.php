@@ -120,6 +120,7 @@ return [
     'Date Range' => 'Datumbereik',
     'interactions' => 'interacties',
     'View full analytics' => 'Volledige analyses bekijken',
+    'View all analytics' => 'Alle analyses bekijken',
     'Total Interactions' => 'Totaal interacties',
     'Active Links' => 'Actieve links',
     'Engagement Rate' => 'Betrokkenheidspercentage',
