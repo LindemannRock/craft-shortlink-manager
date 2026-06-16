@@ -1,146 +1,32 @@
-<div class="shortlink-manager-widget">
-    <div class="widget-stats">
-        <div class="stat-item">
-            <div class="stat-value">{{ data.totalClicks|number }}</div>
-            <div class="stat-label">{{ "Total Interactions"|t('shortlink-manager') }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">{{ data.uniqueVisitors|number }}</div>
-            <div class="stat-label">{{ "Unique Visitors"|t('shortlink-manager') }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">{{ data.activeLinks|number }}</div>
-            <div class="stat-label">{{ "Active Links"|t('shortlink-manager') }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value">{{ data.linksUsedPercentage ?? 0 }}%</div>
-            <div class="stat-label">{{ "Engagement Rate"|t('shortlink-manager') }}</div>
-        </div>
-    </div>
+{% if data.topLinks|length > 0 %}
+    {% set topLink = data.topLinks|first %}
+    {% set domain = topLink.destinationUrl|split('://')|last|split('/')|first %}
+    {% set topMeta %}
+        <a href="{{ topLink.destinationUrl }}" target="_blank" rel="noopener" title="{{ topLink.destinationUrl }}">{{ domain }}</a>
+        <span class="lr-dashboard-widget-meta__separator">•</span>
+        <span>{{ topLink.clicks|number }} {{ "interactions"|t('shortlink-manager') }}</span>
+    {% endset %}
 
-    {% if data.topLinks|length > 0 %}
-        {% set topLink = data.topLinks|first %}
-        <div class="top-link">
-            <div class="top-link-header">
-                <span class="label">{{ "Top Performer"|t('shortlink-manager') }}</span>
-            </div>
-            <div class="top-link-content">
-                <div class="link-info">
-                    <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ topLink.id) }}" class="link-title">
-                        <code>{{ topLink.code }}</code>
-                    </a>
-                    <div class="link-meta">
-                        {% set domain = topLink.destinationUrl|split('://')|last|split('/')|first %}
-                        <a href="{{ topLink.destinationUrl }}" target="_blank" class="destination-link" title="{{ topLink.destinationUrl }}">{{ domain }}</a>
-                        <span class="separator">•</span>
-                        <span>{{ topLink.clicks|number }} {{ "interactions"|t('shortlink-manager') }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
+    {% set topItem = {
+        label: "Top Performer"|t('shortlink-manager'),
+        title: topLink.code,
+        url: cpUrl('shortlink-manager/shortlinks/' ~ topLink.id),
+        metaHtml: topMeta,
+    } %}
+{% else %}
+    {% set topItem = null %}
+{% endif %}
 
-    <div class="widget-footer">
-        <a href="{{ cpUrl('shortlink-manager/analytics') }}" class="go">{{ "View full analytics"|t('shortlink-manager') }}</a>
-    </div>
-</div>
-
-<style>
-.shortlink-manager-widget {
-    padding: 0;
-}
-
-.widget-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.stat-item {
-    text-align: center;
-    padding: 16px;
-    background: #f9fafb;
-    border-radius: 4px;
-}
-
-.stat-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: #0d78f2;
-    margin-bottom: 4px;
-}
-
-.stat-label {
-    font-size: 12px;
-    color: #596673;
-}
-
-.top-link {
-    background: #fff;
-    border: 1px solid #e3e5e8;
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 16px;
-}
-
-.top-link-header {
-    margin-bottom: 12px;
-}
-
-.top-link-header .label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #596673;
-    letter-spacing: 0.5px;
-}
-
-.link-title {
-    font-weight: 600;
-    font-size: 14px;
-    color: #0d78f2;
-    text-decoration: none;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.link-title:hover {
-    text-decoration: underline;
-}
-
-.link-title code {
-    background: transparent;
-    padding: 0;
-    font-size: 14px;
-}
-
-.link-meta {
-    font-size: 12px;
-    color: #8b95a1;
-}
-
-.link-meta .destination-link {
-    color: #6b7280;
-    text-decoration: none;
-}
-
-.link-meta .destination-link:hover {
-    text-decoration: underline;
-    color: #0d78f2;
-}
-
-.link-meta .separator {
-    margin: 0 6px;
-}
-
-.widget-footer {
-    text-align: center;
-    padding-top: 12px;
-    border-top: 1px solid #e3e5e8;
-}
-
-.widget-footer .go {
-    font-size: 13px;
-}
-</style>
+{% include 'lindemannrock-base/_components/dashboard-widget-stats' with {
+    stats: [
+        {value: data.totalClicks, label: "Total Interactions"|t('shortlink-manager')},
+        {value: data.uniqueVisitors, label: "Unique Visitors"|t('shortlink-manager')},
+        {value: data.activeLinks, label: "Active Links"|t('shortlink-manager')},
+        {value: data.linksUsedPercentage ?? 0, suffix: '%', label: "Engagement Rate"|t('shortlink-manager')},
+    ],
+    topItem: topItem,
+    footer: {
+        url: cpUrl('shortlink-manager/analytics'),
+        label: "View full analytics"|t('shortlink-manager'),
+    },
+} only %}

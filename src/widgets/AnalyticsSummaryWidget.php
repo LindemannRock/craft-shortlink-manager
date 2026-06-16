@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\widgets;
 
 use Craft;
 use craft\base\Widget;
+use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -19,6 +20,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  */
 class AnalyticsSummaryWidget extends Widget
 {
+    use SiteFilterTrait;
+
     /**
      * @var string Date range for analytics
      */
@@ -30,8 +33,10 @@ class AnalyticsSummaryWidget extends Widget
     public function rules(): array
     {
         $rules = parent::rules();
-        $rules[] = [['dateRange'], 'string'];
+        $rules[] = [['dateRange'], 'in', 'range' => array_keys(DateRangeHelper::getOptions('assoc'))];
+        $rules[] = [['siteId'], 'in', 'range' => array_column($this->siteOptions(), 'value')];
         $rules[] = [['dateRange'], 'default', 'value' => 'last7days'];
+        $rules[] = [['siteId'], 'default', 'value' => 'all'];
         return $rules;
     }
 
@@ -58,7 +63,7 @@ class AnalyticsSummaryWidget extends Widget
      */
     public static function icon(): ?string
     {
-        return '@app/icons/chart-line.svg';
+        return '@lindemannrock/shortlinkmanager/icon-mask.svg';
     }
 
     /**
@@ -83,16 +88,9 @@ class AnalyticsSummaryWidget extends Widget
      */
     public function getSubtitle(): ?string
     {
-        $labels = [
-            'today' => Craft::t('shortlink-manager', 'Today'),
-            'yesterday' => Craft::t('shortlink-manager', 'Yesterday'),
-            'last7days' => Craft::t('shortlink-manager', 'Last 7 days'),
-            'last30days' => Craft::t('shortlink-manager', 'Last 30 days'),
-            'last90days' => Craft::t('shortlink-manager', 'Last 90 days'),
-            'all' => Craft::t('shortlink-manager', 'All time'),
-        ];
+        $labels = DateRangeHelper::getOptions('assoc');
 
-        return $labels[$this->dateRange] ?? Craft::t('shortlink-manager', 'Last 7 days');
+        return $labels[$this->dateRange] ?? $labels['last7days'];
     }
 
     /**
@@ -102,6 +100,7 @@ class AnalyticsSummaryWidget extends Widget
     {
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/analytics-summary/settings', [
             'widget' => $this,
+            'siteOptions' => $this->siteOptions(),
         ]);
     }
 
@@ -120,9 +119,7 @@ class AnalyticsSummaryWidget extends Widget
             return '<p class="light">' . Craft::t('shortlink-manager', 'Analytics are disabled in plugin settings.') . '</p>';
         }
 
-        // Get analytics data scoped to user's editable sites
-        $editableSiteIds = Craft::$app->getSites()->getEditableSiteIds();
-        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $editableSiteIds);
+        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $this->effectiveSiteId());
 
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/analytics-summary/body', [
             'widget' => $this,

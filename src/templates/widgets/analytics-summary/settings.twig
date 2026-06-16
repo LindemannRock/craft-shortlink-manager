@@ -5,12 +5,13 @@
     id: 'dateRange',
     name: 'dateRange',
     value: widget.dateRange,
-    options: {
-        'today': 'Today'|t('shortlink-manager'),
-        'yesterday': 'Yesterday'|t('shortlink-manager'),
-        'last7days': 'Last 7 days'|t('shortlink-manager'),
-        'last30days': 'Last 30 days'|t('shortlink-manager'),
-        'last90days': 'Last 90 days'|t('shortlink-manager'),
-        'all': 'All time'|t('shortlink-manager'),
-    }
+    options: lrDateRangeOptions('assoc')
+}) }}
+
+{{ forms.selectField({
+    label: 'Site'|t('shortlink-manager'),
+    id: 'siteId',
+    name: 'siteId',
+    value: widget.siteId,
+    options: siteOptions,
 }) }}

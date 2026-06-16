@@ -1,128 +1,28 @@
-{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set rows = [] %}
 
-<div class="top-links-widget">
-    {% if shortLinks|length > 0 %}
-        <table class="data fullwidth">
-            <thead>
-                <tr>
-                    <th>{{ "Link"|t('shortlink-manager') }}</th>
-                    <th>{{ "Interactions"|t('shortlink-manager') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for shortLink in shortLinks %}
-                    <tr>
-                        <td>
-                            <div class="link-cell">
-                                <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}" class="link-name">
-                                    {{ shortLink.code }}
-                                </a>
-                                <div class="link-destination">
-                                    {% set domain = shortLink.destinationUrl|split('://')|last|split('/')|first %}
-                                    <a href="{{ shortLink.destinationUrl }}" target="_blank" title="{{ shortLink.destinationUrl }}">
-                                        {{ domain }}
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="interactions-cell">
-                            <span class="badge">{{ shortLink.clicks|number }}</span>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% for shortLink in shortLinks %}
+    {% set domain = shortLink.destinationUrl|split('://')|last|split('/')|first %}
+    {% set meta %}
+        <a href="{{ shortLink.destinationUrl }}" target="_blank" rel="noopener" title="{{ shortLink.destinationUrl }}">{{ domain }}</a>
+    {% endset %}
+    {% set rows = rows|merge([{
+        primary: shortLink.code,
+        primaryUrl: cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id),
+        metaHtml: meta,
+        value: shortLink.clicks|number,
+    }]) %}
+{% endfor %}
 
-        <div class="widget-footer">
-            <a href="{{ cpUrl('shortlink-manager/shortlinks') }}" class="go">{{ "View all {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</a>
-        </div>
-    {% else %}
-        <div class="zilch">
-            <p>{{ "No {pluginName} yet"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) }}</p>
-            <p class="light">{{ "Create your first {singularName} to see it here."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}) }}</p>
-        </div>
-    {% endif %}
-</div>
-
-<style>
-.top-links-widget {
-    padding: 0;
-}
-
-.top-links-widget table {
-    margin-bottom: 0;
-}
-
-.top-links-widget table td {
-    vertical-align: top;
-}
-
-.link-cell {
-    min-width: 0;
-}
-
-.link-name {
-    font-weight: 600;
-    font-size: 13px;
-    color: #0d78f2;
-    background: #eff6ff;
-    padding: 4px 8px;
-    border-radius: 3px;
-    display: inline-block;
-    margin-bottom: 4px;
-    text-decoration: none;
-}
-
-.link-name:hover {
-    text-decoration: underline;
-}
-
-.link-destination {
-    font-size: 11px;
-}
-
-.link-destination a {
-    color: #6b7280;
-    text-decoration: none;
-}
-
-.link-destination a:hover {
-    text-decoration: underline;
-    color: #0d78f2;
-}
-
-.interactions-cell {
-    text-align: left;
-    white-space: nowrap;
-}
-
-.interactions-cell .badge {
-    background: #eff6ff;
-    color: #0d78f2;
-    padding: 10px;
-    border-radius: 3px;
-    font-size: 13px;
-    font-weight: 600;
-    display: inline-block;
-    line-height: 0;
-}
-
-.widget-footer {
-    text-align: center;
-    padding: 12px;
-    border-top: 1px solid #e3e5e8;
-}
-
-.widget-footer .go {
-    font-size: 13px;
-}
-
-.zilch {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.zilch p {
-    margin-bottom: 8px;
-}
-</style>
+{% include 'lindemannrock-base/_components/dashboard-widget-list' with {
+    primaryHeader: "Link"|t('shortlink-manager'),
+    valueHeader: "Interactions"|t('shortlink-manager'),
+    rows: rows,
+    empty: {
+        title: "No {pluginName} yet"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+        message: "Create your first {singularName} to see it here."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+    },
+    footer: {
+        url: cpUrl('shortlink-manager/shortlinks'),
+        label: "View all {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+    },
+} only %}

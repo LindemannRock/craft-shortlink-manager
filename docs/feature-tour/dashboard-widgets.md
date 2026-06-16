@@ -36,6 +36,7 @@ Click the widget's settings icon to configure:
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `dateRange` | `string` | `'last7days'` | Time period to summarize: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
+| `siteId` | `string` | `All Sites` | Site scope for the summary. `All Sites` includes the plugin-enabled sites available to the current user. |
 
 ### When analytics are disabled
 
@@ -43,7 +44,7 @@ If analytics tracking is off in plugin settings, the widget shows "Analytics are
 
 ### Multi-site
 
-The widget automatically scopes results to the sites the current user has edit access to — no configuration needed. Users only see data for their own accessible sites.
+Choose **All Sites** for a cross-site summary or select one site for a focused dashboard view. The site options follow ShortLink Manager's enabled-site configuration and the current user's site access.
 
 ## Top Links widget
 
@@ -62,6 +63,7 @@ Click the widget's settings icon to configure:
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `dateRange` | `string` | `'last7days'` | Time period: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
+| `siteId` | `string` | `All Sites` | Site scope for the ranked list. `All Sites` includes the plugin-enabled sites available to the current user. |
 | `limit` | `int` | `5` | Maximum number of links to display (1–20) |
 
 ### When analytics are disabled
@@ -70,7 +72,7 @@ If analytics tracking is off in plugin settings, the widget shows "Analytics are
 
 ### Multi-site
 
-The Top Links widget automatically scopes results to the sites the current user has edit access to.
+Like the Analytics Summary widget, Top Links can show **All Sites** or one selected site.
 
 ## Permissions
 

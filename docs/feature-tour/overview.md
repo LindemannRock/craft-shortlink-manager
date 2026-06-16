@@ -44,7 +44,7 @@ ShortLink Manager registers two Craft dashboard widgets. Add them via **Dashboar
 | **ShortLink Manager - Analytics** | Click totals, unique visitors, top referrers for a configurable date range |
 | **ShortLink Manager - Top Links** | Most-clicked links for a date range. Configurable limit (1–20) |
 
-Both widgets require the `shortLinkManager:viewAnalytics` permission.
+Both widgets require the `shortLinkManager:viewAnalytics` permission and can be scoped to **All Sites** or one selected site.
 
 ## CP utility
 
