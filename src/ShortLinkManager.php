@@ -728,8 +728,9 @@ class ShortLinkManager extends Plugin
         $nextRunTime = DateFormatHelper::formatCompactDatetimeFromSettings(
             $nextRun,
             $settings,
+            null,
             false,
-            false,
+            pluginHandle: 'shortlink-manager',
         );
 
         RecurringQueueHelper::ensurePending(
