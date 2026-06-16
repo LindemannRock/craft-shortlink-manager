@@ -125,9 +125,13 @@
 
 {% block bulkActions %}
     {% if canDelete %}
-        <button type="button" class="btn secondary" id="lr-bulk-delete-btn">
-            {{ 'Delete'|t('shortlink-manager') }} (<span class="lr-bulk-count">0</span>)
-        </button>
+        {% include 'lindemannrock-base/_components/bulk-actions-menu' with {
+            label: 'Actions'|t('shortlink-manager'),
+            countId: 'lr-bulk-actions-count',
+            items: [
+                {id: 'lr-bulk-delete-btn', label: 'Delete'|t('shortlink-manager'), class: 'error'},
+            ],
+        } only %}
     {% endif %}
 {% endblock %}
 
@@ -265,16 +269,6 @@
             T.tagDeleted,
             T.deleteTagFailed
         );
-    });
-
-    // ---------------------------------------------------------------------
-    // Bulk actions: mirror selection count, then dispatch via sendActionRequest.
-    // ---------------------------------------------------------------------
-    document.addEventListener('lr:selectionChanged', function(e) {
-        const count = e.detail && typeof e.detail.count === 'number' ? e.detail.count : 0;
-        document.querySelectorAll('.lr-bulk-count').forEach(function(el) {
-            el.textContent = count;
-        });
     });
 
     document.getElementById('lr-bulk-delete-btn')?.addEventListener('click', function() {
