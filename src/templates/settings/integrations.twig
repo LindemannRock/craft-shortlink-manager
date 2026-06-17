@@ -73,8 +73,9 @@
                 {% endif %}
 
                 {% if settings.isOverriddenByConfig('enabledIntegrations') %}
-                    <p class="warning lr-config-override-note">
-                        {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                    <p class="warning has-icon lr-config-override-note">
+                        <span class="icon" aria-hidden="true"></span>
+                        <span>{{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}</span>
                     </p>
                 {% endif %}
 
@@ -147,8 +148,9 @@
                         </div>
 
                         {% if isOverridden %}
-                            <p class="warning lr-config-override-note">
-                                {{ "This is being overridden by the <code>seomaticTrackingEvents</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                            <p class="warning has-icon lr-config-override-note">
+                                <span class="icon" aria-hidden="true"></span>
+                                <span>{{ "This is being overridden by the <code>seomaticTrackingEvents</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}</span>
                             </p>
                         {% endif %}
 
@@ -287,8 +289,9 @@
                 {% import "_includes/forms" as forms %}
 
                 {% if settings.isOverriddenByConfig('enabledIntegrations') %}
-                    <p class="warning lr-config-override-note">
-                        {{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                    <p class="warning has-icon lr-config-override-note">
+                        <span class="icon" aria-hidden="true"></span>
+                        <span>{{ "This is being overridden by the <code>enabledIntegrations</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}</span>
                     </p>
                 {% endif %}
 
@@ -307,8 +310,9 @@
                         </div>
 
                         {% if isOverridden %}
-                            <p class="warning lr-config-override-note">
-                                {{ "This is being overridden by the <code>redirectManagerEvents</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}
+                            <p class="warning has-icon lr-config-override-note">
+                                <span class="icon" aria-hidden="true"></span>
+                                <span>{{ "This is being overridden by the <code>redirectManagerEvents</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw }}</span>
                             </p>
                         {% endif %}
 
