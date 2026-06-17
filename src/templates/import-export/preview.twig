@@ -41,7 +41,7 @@
                 <tbody>
                     {% for row in validRows %}
                         <tr>
-                            <td><code>{{ row.code }}</code></td>
+                            <td><code>{{ row.normalizedCode ?? row.code }}</code></td>
                             <td>{{ row.shortLinkType ?? 'manual' }}</td>
                             <td><code>{{ row.destinationUrl }}</code></td>
                             <td>
@@ -93,7 +93,7 @@
                 <tbody>
                     {% for row in duplicateRows %}
                         <tr>
-                            <td><code>{{ row.code }}</code></td>
+                            <td><code>{{ row.normalizedCode ?? row.code }}</code></td>
                             <td><code>{{ row.destinationUrl }}</code></td>
                             <td>{{ row.reason }}</td>
                         </tr>

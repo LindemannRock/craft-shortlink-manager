@@ -6,7 +6,7 @@ ShortLink imports a **`destinationUrl`** that becomes a redirect target. Validat
 
 - Must match `^https?://` **or** `^/` — i.e. an absolute http(s) URL **or a relative path**.
 - Executable schemes (`javascript:`, `vbscript:`, `data:`, `file:`) are rejected up front by `UrlSafetyHelper::hasDangerousScheme()`, including whitespace/`//`-obfuscated variants.
-- **`mailto:` / `tel:` / `ftp:` are rejected** here (they don't match the allowlist) — this differs from SmartLink (which accepts `mailto:`/`ftp:`) and from Redirect Manager (which accepts `mailto:`/`tel:`). Relative paths, conversely, **are** allowed here but rejected by SmartLink.
+- **`mailto:` / `tel:` / `ftp:` are rejected** here (they don't match the allowlist) — SmartLink rejects these schemes too; Redirect Manager has its own redirect-rule validation. Relative paths, conversely, **are** allowed here but rejected by SmartLink.
 
 All files share the header: `code,destinationUrl,httpCode,enabled`. Rows default to a manual short link (`shortLinkType=manual`, `linkType=vanity`); `code` and `destinationUrl` are required.
 
@@ -26,7 +26,7 @@ Should be blocked/neutralized:
 - Empty `code` (required → error)
 - Bare `example.com` (no scheme, no leading `/` → rejected)
 - `//evil.com` (protocol-relative → **rejected**; it resolves off-site, and the runtime redirect refuses it anyway, so input rejects it too)
-- `mailto:` and `ftp:` destinations (**rejected** here — note the contrast with SmartLink/Redirect)
+- `mailto:` and `ftp:` destinations (**rejected** here and in SmartLink; Redirect Manager has its own redirect-rule validation)
 
 ## How to run a pass
 

@@ -404,9 +404,11 @@ class ImportExportController extends Controller
             }
 
             $slug = $this->generateSlugFromCode((string)$item['code']);
+            $item['normalizedCode'] = $slug;
             if (isset($existingLookup[strtolower($slug)])) {
                 $duplicateRows[] = [
                     'code' => $item['code'],
+                    'normalizedCode' => $slug,
                     'destinationUrl' => $item['destinationUrl'],
                     'reason' => Craft::t('shortlink-manager', 'Code/slug already exists'),
                 ];
@@ -417,6 +419,7 @@ class ImportExportController extends Controller
             if (isset($seenImportRows[$importRowKey])) {
                 $duplicateRows[] = [
                     'code' => $item['code'],
+                    'normalizedCode' => $slug,
                     'destinationUrl' => $item['destinationUrl'],
                     'reason' => Craft::t('shortlink-manager', 'Duplicate row for same code and site'),
                 ];
