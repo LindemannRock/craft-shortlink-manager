@@ -101,6 +101,7 @@
                         <th>{{ "Site"|t('shortlink-manager') }}</th>
                         <th>{{ "Source"|t('shortlink-manager') }}</th>
                         <th>{{ "Destination"|t('shortlink-manager') }}</th>
+                        <th>{{ "Agent"|t('shortlink-manager') }}</th>
                         <th>{{ "Device"|t('shortlink-manager') }}</th>
                         <th>{{ "Browser"|t('shortlink-manager') }}</th>
                         <th>{{ "OS"|t('shortlink-manager') }}</th>
@@ -111,7 +112,7 @@
                 </thead>
                 <tbody id="recent-clicks-body">
                     <tr>
-                        <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '10' : '9' }}" class="thin light lr-text-center">
+                        <td colspan="{{ craft.app.plugins.getPlugin('shortlink-manager').settings.enableGeoDetection ? '11' : '10' }}" class="thin light lr-text-center">
                             <div class="spinner"></div>
                         </td>
                     </tr>

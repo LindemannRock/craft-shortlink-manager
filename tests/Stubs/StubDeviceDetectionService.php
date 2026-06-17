@@ -49,6 +49,12 @@ final class StubDeviceDetectionService extends DeviceDetectionService
             'isRobot' => false,
             'isMobileApp' => false,
             'botName' => null,
+            'botCategory' => null,
+            'botUrl' => null,
+            'botProducerName' => null,
+            'botProducerUrl' => null,
+            'isSystemAgent' => false,
+            'trafficType' => 'human',
             'language' => 'en',
         ];
     }

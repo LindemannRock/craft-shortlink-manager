@@ -47,11 +47,22 @@ class AnalyticsExportService
      */
     public function getExportData(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
+        $columns = $this->_analyticsColumns();
+        $optionalColumns = array_values(array_intersect([
+            'isSystemAgent',
+            'trafficType',
+            'isRobot',
+            'botName',
+            'botCategory',
+            'botProducerName',
+        ], $columns));
+        $optionalSelect = array_map(static fn(string $column): string => "a.{$column}", $optionalColumns);
+
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}} a')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
-            ->select([
+            ->select(array_merge([
                 'a.dateCreated',
                 'a.linkId',
                 'a.siteId',
@@ -63,13 +74,14 @@ class AnalyticsExportService
                 'a.osVersion',
                 'a.browser',
                 'a.browserVersion',
+                'a.browserEngine',
                 'a.country',
                 'a.city',
                 'a.language',
                 'a.referrer',
                 'a.userAgent',
                 'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
-            ])
+            ], $optionalSelect))
             ->orderBy(['a.dateCreated' => SORT_DESC]);
 
         // Apply date range filter
@@ -162,7 +174,14 @@ class AnalyticsExportService
                 'osVersion' => $row['osVersion'] ?? '',
                 'browser' => $row['browser'] ?? '',
                 'browserVersion' => $row['browserVersion'] ?? '',
+                'browserEngine' => $row['browserEngine'] ?? '',
                 'language' => $row['language'] ?? '',
+                'trafficType' => $row['trafficType'] ?? 'human',
+                'isSystemAgent' => !empty($row['isSystemAgent']) ? 'Yes' : 'No',
+                'isRobot' => !empty($row['isRobot']) ? 'Yes' : 'No',
+                'botName' => $row['botName'] ?? '',
+                'botCategory' => $row['botCategory'] ?? '',
+                'botProducerName' => $row['botProducerName'] ?? '',
                 'userAgent' => $row['userAgent'] ?? '',
             ];
 
@@ -201,5 +220,13 @@ class AnalyticsExportService
         $this->logInfo('Cleaned up old analytics', ['deleted' => $deleted]);
 
         return $deleted;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function _analyticsColumns(): array
+    {
+        return Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
     }
 }

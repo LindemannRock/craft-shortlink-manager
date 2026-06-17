@@ -109,6 +109,12 @@ class AnalyticsTrackingService
             'isRobot' => $deviceInfo['isRobot'],
             'isMobileApp' => $deviceInfo['isMobileApp'],
             'botName' => $deviceInfo['botName'],
+            'botCategory' => $deviceInfo['botCategory'] ?? null,
+            'botUrl' => $deviceInfo['botUrl'] ?? null,
+            'botProducerName' => $deviceInfo['botProducerName'] ?? null,
+            'botProducerUrl' => $deviceInfo['botProducerUrl'] ?? null,
+            'isSystemAgent' => $deviceInfo['isSystemAgent'] ?? false,
+            'trafficType' => $deviceInfo['trafficType'] ?? 'human',
             'country' => $location['countryCode'] ?? null,
             'city' => $location['city'] ?? null,
             'region' => $location['region'] ?? null,
@@ -119,6 +125,7 @@ class AnalyticsTrackingService
             'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
             'uid' => StringHelper::UUID(),
         ];
+        $data = array_intersect_key($data, array_flip($db->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? []));
 
         try {
             $db->createCommand()

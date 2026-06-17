@@ -210,9 +210,15 @@ class AnalyticsQueryInsightsService
         }
 
         // Get recent clicks for this link
+        $columns = Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
+        $optionalSelect = array_map(
+            static fn(string $column): string => "a.{$column}",
+            array_values(array_intersect(['botCategory', 'botProducerName', 'isSystemAgent', 'trafficType'], $columns)),
+        );
+
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $recentClicksQuery = (new Query())
-            ->select([
+            ->select(array_merge([
                 'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referrer', 'a.metadata',
                 'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
                 'a.browserEngine', 'a.osName', 'a.osVersion', 'a.clientType', 'a.isRobot',
@@ -220,7 +226,7 @@ class AnalyticsQueryInsightsService
                 'a.latitude', 'a.longitude', 'a.dateCreated', 'a.dateUpdated',
                 'l.code as linkCode', 'l.slug',
                 'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
-            ])
+            ], $optionalSelect))
             ->from('{{%shortlinkmanager_analytics}} a')
             ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
@@ -266,9 +272,15 @@ class AnalyticsQueryInsightsService
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, int|array|null $siteId = null): array
     {
+        $columns = Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
+        $optionalSelect = array_map(
+            static fn(string $column): string => "a.{$column}",
+            array_values(array_intersect(['botCategory', 'botProducerName', 'isSystemAgent', 'trafficType'], $columns)),
+        );
+
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
-            ->select([
+            ->select(array_merge([
                 'a.id', 'a.linkId', 'a.siteId', 'a.ip', 'a.userAgent', 'a.referrer', 'a.metadata',
                 'a.deviceType', 'a.deviceBrand', 'a.deviceModel', 'a.browser', 'a.browserVersion',
                 'a.browserEngine', 'a.osName', 'a.osVersion', 'a.clientType', 'a.isRobot',
@@ -276,7 +288,7 @@ class AnalyticsQueryInsightsService
                 'a.latitude', 'a.longitude', 'a.dateCreated', 'a.dateUpdated',
                 'l.code as linkCode', 'l.slug',
                 'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
-            ])
+            ], $optionalSelect))
             ->from('{{%shortlinkmanager_analytics}} a')
             ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')

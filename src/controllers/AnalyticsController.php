@@ -84,7 +84,7 @@ class AnalyticsController extends Controller
         $dateRange = $request->getBodyParam('dateRange', DateRangeHelper::getDefaultDateRange(ShortLinkManager::$plugin->id));
         $type = $request->getBodyParam('type', 'summary');
 
-        $validTypes = ['summary', 'clicks', 'devices', 'device-brands', 'os-breakdown', 'browsers', 'hourly', 'top-countries', 'top-cities', 'recent-clicks'];
+        $validTypes = ['summary', 'clicks', 'devices', 'device-brands', 'traffic-types', 'top-agents', 'os-breakdown', 'browsers', 'hourly', 'top-countries', 'top-cities', 'recent-clicks'];
         if (!in_array($type, $validTypes, true)) {
             throw new \yii\web\BadRequestHttpException('Invalid data type.');
         }
@@ -112,6 +112,14 @@ class AnalyticsController extends Controller
 
                 case 'device-brands':
                     $data = ShortLinkManager::$plugin->analytics->getDeviceBrandBreakdown($linkId, $dateRange, $resolvedSiteId);
+                    break;
+
+                case 'traffic-types':
+                    $data = ShortLinkManager::$plugin->analytics->getTrafficTypeBreakdown($linkId, $dateRange, $resolvedSiteId);
+                    break;
+
+                case 'top-agents':
+                    $data = ShortLinkManager::$plugin->analytics->getTopAgents($linkId, $dateRange, 10, $resolvedSiteId);
                     break;
 
                 case 'os-breakdown':
@@ -241,7 +249,14 @@ class AnalyticsController extends Controller
             'osVersion' => Craft::t('shortlink-manager', 'OS Version'),
             'browser' => Craft::t('shortlink-manager', 'Browser'),
             'browserVersion' => Craft::t('shortlink-manager', 'Browser Version'),
-            'language' => Craft::t('shortlink-manager', 'Language'),
+            'browserEngine' => Craft::t('shortlink-manager', 'Browser Engine'),
+            'language' => Craft::t('shortlink-manager', 'Detected Language'),
+            'trafficType' => Craft::t('shortlink-manager', 'Traffic Type'),
+            'isSystemAgent' => Craft::t('shortlink-manager', 'System Agent'),
+            'isRobot' => Craft::t('shortlink-manager', 'Is Bot'),
+            'botName' => Craft::t('shortlink-manager', 'Bot Name'),
+            'botCategory' => Craft::t('shortlink-manager', 'Bot Category'),
+            'botProducerName' => Craft::t('shortlink-manager', 'Bot Producer'),
             'userAgent' => Craft::t('shortlink-manager', 'User Agent'),
         ];
 
@@ -338,6 +353,10 @@ class AnalyticsController extends Controller
                 'deviceType' => $click['deviceType'] ?? null,
                 'browser' => $click['browser'] ?? null,
                 'osName' => $click['osName'] ?? null,
+                'trafficType' => $click['trafficType'] ?? 'human',
+                'botName' => $click['botName'] ?? null,
+                'botCategory' => $click['botCategory'] ?? null,
+                'botProducerName' => $click['botProducerName'] ?? null,
             ];
 
             if ($geoEnabled) {

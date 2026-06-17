@@ -120,6 +120,101 @@ class AnalyticsBreakdownService
     }
 
     /**
+     * Get traffic type breakdown.
+     *
+     * @param int|null $shortLinkId
+     * @param string $dateRange
+     * @param int|int[]|null $siteId
+     * @return array
+     */
+    public function getTrafficTypeBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
+    {
+        if (!$this->_hasAnalyticsColumn('trafficType')) {
+            return [
+                'labels' => [],
+                'types' => [],
+                'values' => [],
+            ];
+        }
+
+        $query = (new Query())
+            ->select(['trafficType', 'COUNT(*) as clicks'])
+            ->from('{{%shortlinkmanager_analytics}}')
+            ->groupBy('trafficType')
+            ->orderBy(['clicks' => SORT_DESC]);
+
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
+        }
+
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
+        }
+
+        $this->applyDateRangeFilter($query, $dateRange);
+
+        $results = $query->all();
+
+        return [
+            'labels' => array_map(static fn($type) => ucfirst((string)($type ?: 'human')), array_column($results, 'trafficType')),
+            'types' => array_map(static fn($type) => (string)($type ?: 'human'), array_column($results, 'trafficType')),
+            'values' => array_map('intval', array_column($results, 'clicks')),
+        ];
+    }
+
+    /**
+     * Get top non-human agents.
+     *
+     * @param int|null $shortLinkId
+     * @param string $dateRange
+     * @param int $limit
+     * @param int|int[]|null $siteId
+     * @return array
+     */
+    public function getTopAgents(?int $shortLinkId, string $dateRange, int $limit = 10, int|array|null $siteId = null): array
+    {
+        if (!$this->_hasAnalyticsColumn('trafficType') || !$this->_hasAnalyticsColumn('botCategory') || !$this->_hasAnalyticsColumn('botProducerName')) {
+            return [];
+        }
+
+        $query = (new Query())
+            ->select([
+                'botName',
+                'trafficType',
+                'botCategory',
+                'botProducerName',
+                'COUNT(*) as clicks',
+            ])
+            ->from('{{%shortlinkmanager_analytics}}')
+            ->where([
+                'or',
+                ['trafficType' => ['system', 'bot']],
+                ['not', ['botName' => null]],
+            ])
+            ->groupBy(['botName', 'trafficType', 'botCategory', 'botProducerName'])
+            ->orderBy(['clicks' => SORT_DESC])
+            ->limit($limit);
+
+        if ($shortLinkId) {
+            $query->andWhere(['linkId' => $shortLinkId]);
+        }
+
+        if ($siteId) {
+            $query->andWhere(['siteId' => $siteId]);
+        }
+
+        $this->applyDateRangeFilter($query, $dateRange);
+
+        return $query->all();
+    }
+
+    private function _hasAnalyticsColumn(string $column): bool
+    {
+        $columns = \Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
+        return in_array($column, $columns, true);
+    }
+
+    /**
      * Get browser breakdown
      *
      * @param int|null $shortLinkId

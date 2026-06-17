@@ -86,6 +86,19 @@ final class ClickTrackingTest extends TestCase
         $this->assertSame('https://example.com/dest', $row['destinationUrl']);
         $this->assertSame('Mozilla/5.0 (Test) LindemannRockStub/1.0', $row['userAgent']);
         $this->assertSame('https://example.com/some/page', $row['referrer']);
+        if (array_key_exists('trafficType', $row)) {
+            $this->assertSame('human', $row['trafficType']);
+            $this->assertSame('0', (string)$row['isSystemAgent']);
+            $this->assertSame('0', (string)$row['isRobot']);
+            $this->assertNull($row['botCategory']);
+            $this->assertNull($row['botProducerName']);
+        }
+
+        $exportRows = $this->analytics->getExportData($link->id, 'today', $link->siteId);
+        $this->assertCount(1, $exportRows);
+        $this->assertSame('No', $exportRows[0]['isRobot']);
+        $this->assertArrayHasKey('browserEngine', $exportRows[0]);
+        $this->assertArrayHasKey('language', $exportRows[0]);
 
         // Source is stored inside the metadata JSON blob.
         $this->assertNotEmpty($row['metadata']);

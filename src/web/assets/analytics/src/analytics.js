@@ -207,6 +207,23 @@
                 renderEmptyState('device-chart', strings.noDevice || 'No device data available.', prefix);
             });
 
+            requestData('traffic-types', baseParams, function(data) {
+                var hasData = Array.isArray(data.values) && data.values.some(function(v) { return Number(v) > 0; });
+                if (data.types && data.types.length > 0 && hasData) {
+                    renderTrafficTypeChart(data);
+                } else {
+                    renderEmptyState('traffic-type-chart', strings.noTrafficType || 'No traffic type data available.', prefix);
+                }
+            }, function() {
+                renderEmptyState('traffic-type-chart', strings.noTrafficType || 'No traffic type data available.', prefix);
+            });
+
+            requestData('top-agents', baseParams, function(data) {
+                renderTopAgents(Array.isArray(data) ? data : []);
+            }, function() {
+                renderTopAgents([]);
+            });
+
             requestData('device-brands', baseParams, function(data) {
                 var hasData = Array.isArray(data.values) && data.values.some(function(v) { return Number(v) > 0; });
                 if (data.labels && data.labels.length > 0 && hasData) {
@@ -262,7 +279,7 @@
                 renderRecentClicks(data);
             }, function() {
                 var geoEnabled = strings.geoEnabled || false;
-                renderTableEmpty('recent-clicks-body', geoEnabled ? 10 : 9, strings.noRecentClicks || 'No interactions recorded yet');
+                renderTableEmpty('recent-clicks-body', geoEnabled ? 11 : 10, strings.noRecentClicks || 'No interactions recorded yet');
             });
         }
 
@@ -289,7 +306,7 @@
 
             var clicks = data.clicks || [];
             var geoEnabled = data.geoEnabled || false;
-            var colSpan = geoEnabled ? 10 : 9;
+            var colSpan = geoEnabled ? 11 : 10;
 
             if (clicks.length === 0) {
                 renderTableEmpty('recent-clicks-body', colSpan, strings.noRecentClicks || 'No interactions recorded yet');
@@ -324,6 +341,7 @@
                     html += '\u2014';
                 }
                 html += '</td>';
+                html += '<td>' + esc(agentLabel(c)) + '</td>';
                 html += '<td>' + esc(c.deviceType ? c.deviceType.charAt(0).toUpperCase() + c.deviceType.slice(1) : '\u2014') + '</td>';
                 html += '<td>' + esc(c.browser || '\u2014') + '</td>';
                 html += '<td>' + esc(c.osName || '\u2014') + '</td>';
@@ -334,6 +352,17 @@
             }
 
             tbody.innerHTML = html;
+        }
+
+        function trafficTypeLabel(type) {
+            if (type === 'system') return strings.system || 'System';
+            if (type === 'bot') return strings.bot || 'Bot';
+            return strings.human || 'Human';
+        }
+
+        function agentLabel(row) {
+            if (row.botName) return row.botName;
+            return trafficTypeLabel(row.trafficType || 'human');
         }
 
         function renderTopCountries(data) {
@@ -411,6 +440,41 @@
             }, {
                 plugins: { legend: { position: 'bottom' } }
             });
+        }
+
+        function renderTrafficTypeChart(data) {
+            var ctx = document.getElementById('traffic-type-chart');
+            if (!ctx) return;
+            resetChartState(ctx);
+            window.lrCreateChart('traffic-type-chart', 'doughnut', {
+                labels: (data.types || []).map(trafficTypeLabel),
+                datasets: [{ data: data.values, backgroundColor: chartColors.slice(0, 3) }]
+            }, {
+                plugins: { legend: { position: 'bottom' } }
+            });
+        }
+
+        function renderTopAgents(agents) {
+            var tbody = document.getElementById('top-agents-body');
+            if (!tbody) return;
+
+            if (!agents.length) {
+                renderTableEmpty('top-agents-body', 5, strings.noAgentData || 'No agent data available');
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < agents.length; i++) {
+                var agent = agents[i];
+                html += '<tr>' +
+                    '<td>' + esc(agent.botName || '\u2014') + '</td>' +
+                    '<td>' + esc(trafficTypeLabel(agent.trafficType || 'human')) + '</td>' +
+                    '<td>' + esc(agent.botCategory || '\u2014') + '</td>' +
+                    '<td>' + esc(agent.botProducerName || '\u2014') + '</td>' +
+                    '<td>' + Number(agent.clicks || 0).toLocaleString() + '</td>' +
+                    '</tr>';
+            }
+            tbody.innerHTML = html;
         }
 
         function renderBrandChart(data) {

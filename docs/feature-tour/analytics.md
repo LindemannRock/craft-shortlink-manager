@@ -19,6 +19,8 @@ Go to **ShortLink Manager → Analytics**. The dashboard shows:
 - **Clicks Over Time** — time-series chart
 - **Top Links** — most-clicked links in the date range
 - **Device Breakdown** — Desktop / Tablet / Mobile split
+- **Traffic Type** — human, system, and bot traffic split
+- **Top Agents** — known bots and first-party system agents such as cache warmers
 - **Top Countries** — requires geolocation to be enabled
 - **Top Referrers** — most common referring pages
 
@@ -26,7 +28,7 @@ Go to **ShortLink Manager → Analytics**. The dashboard shows:
 
 **Date range options:** Today, Yesterday, This week, Last week, Last 7 days, Last 14 days, Last 30 days, Last 90 days, This month, Last month, This quarter, Last quarter, This year, Last year, Last 12 months, All time.
 
-Analytics can be exported to CSV, Excel, or JSON from the export button (requires `shortLinkManager:exportAnalytics` permission).
+Analytics can be exported to CSV, Excel, or JSON from the export button (requires `shortLinkManager:exportAnalytics` permission). Exports include device brand/model, browser version and engine, detected language, traffic type, system-agent flag, bot flag, bot name, bot category, and bot producer when those values are available.
 
 ## What gets tracked
 
@@ -36,6 +38,8 @@ Every click records:
 - **Timestamp** — exact date and time
 - **Device type** — Desktop, Tablet, or Mobile, detected from the user-agent string
 - **OS / Browser** — parsed from the user-agent
+- **Detected language** — detected language code from request/browser fallback logic
+- **Traffic type and agent** — whether the click was human, system, or bot traffic, with bot/system-agent metadata when detected
 - **Referrer** — the page the visitor came from (if the browser sends it)
 - **Country and City** — from IP geolocation (if `enableGeoDetection` is enabled)
 - **IP Hash** — a privacy-preserving one-way hash of the visitor's IP for unique visitor counting; requires `ipHashSalt` to be set

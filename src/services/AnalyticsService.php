@@ -116,6 +116,16 @@ class AnalyticsService extends Component
         return $this->_breakdown->getDeviceBrandBreakdown($shortLinkId, $dateRange, $siteId);
     }
 
+    public function getTrafficTypeBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
+    {
+        return $this->_breakdown->getTrafficTypeBreakdown($shortLinkId, $dateRange, $siteId);
+    }
+
+    public function getTopAgents(?int $shortLinkId, string $dateRange, int $limit = 10, int|array|null $siteId = null): array
+    {
+        return $this->_breakdown->getTopAgents($shortLinkId, $dateRange, $limit, $siteId);
+    }
+
     public function getBrowserBreakdown(?int $shortLinkId, string $dateRange, int|array|null $siteId = null): array
     {
         return $this->_breakdown->getBrowserBreakdown($shortLinkId, $dateRange, $siteId);

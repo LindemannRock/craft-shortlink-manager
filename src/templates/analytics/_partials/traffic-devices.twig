@@ -9,12 +9,40 @@
     </div>
 
     <div class="lr-chart-container">
-        <h3>{{ "Device Brands"|t('shortlink-manager') }}</h3>
-        <canvas id="brand-chart"></canvas>
+        <h3>{{ "Traffic Type"|t('shortlink-manager') }}</h3>
+        <canvas id="traffic-type-chart"></canvas>
+    </div>
+</div>
+
+<div class="lr-analytics-charts lr-mt-30">
+    <div class="lr-chart-container full-width">
+        <h3>{{ "Top Agents"|t('shortlink-manager') }}</h3>
+        <div class="lr-table-scroll">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ "Agent"|t('shortlink-manager') }}</th>
+                        <th>{{ "Traffic Type"|t('shortlink-manager') }}</th>
+                        <th>{{ "Category"|t('shortlink-manager') }}</th>
+                        <th>{{ "Producer"|t('shortlink-manager') }}</th>
+                        <th>{{ "Interactions"|t('shortlink-manager') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="top-agents-body">
+                    <tr>
+                        <td colspan="5" class="thin light lr-text-center">{{ "No agent data available"|t('shortlink-manager') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <div class="lr-analytics-charts two-columns lr-mt-30">
+    <div class="lr-chart-container">
+        <h3>{{ "Device Brands"|t('shortlink-manager') }}</h3>
+        <canvas id="brand-chart"></canvas>
+    </div>
     <div class="lr-chart-container">
         <h3>{{ "Operating Systems"|t('shortlink-manager') }}</h3>
         <canvas id="os-chart"></canvas>
