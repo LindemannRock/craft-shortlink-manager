@@ -42,6 +42,7 @@ return [
     'View system logs' => 'Systemprotokolle anzeigen',
     'Download system logs' => 'Systemprotokolle herunterladen',
     'Manage settings' => 'Einstellungen verwalten',
+    'Query {name} data' => '{name} Daten abfragen',
 
     // Common
     'Yes' => 'Ja',

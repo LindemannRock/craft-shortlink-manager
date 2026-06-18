@@ -14,14 +14,19 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\ElementEvent;
+use craft\events\ExecuteGqlQueryEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlSchemaComponentsEvent;
+use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\Link as LinkField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Gql;
 use craft\services\UserPermissions;
 use craft\services\Utilities;
 use craft\utilities\ClearCaches;
@@ -34,6 +39,8 @@ use lindemannrock\base\helpers\RecurringQueueHelper;
 use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
+use lindemannrock\shortlinkmanager\gql\types\ShortLinkType as GqlShortLinkType;
 use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
 use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\models\Settings;
@@ -133,6 +140,8 @@ class ShortLinkManager extends Plugin
 
         // Schedule analytics cleanup if retention is enabled
         $this->scheduleAnalyticsCleanup();
+
+        $this->registerGraphql();
 
         // Register variables
         Event::on(
@@ -311,6 +320,90 @@ class ShortLinkManager extends Plugin
         }
 
         // DO NOT log in init() - it's called on every request
+    }
+
+    /**
+     * Register GraphQL types, queries, and schema permissions.
+     *
+     * @return void
+     * @since 5.21.0
+     */
+    private function registerGraphql(): void
+    {
+        $graphqlCacheSetting = null;
+
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_TYPES,
+            static function(RegisterGqlTypesEvent $event) {
+                $event->types[] = GqlShortLinkType::class;
+            }
+        );
+
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_QUERIES,
+            static function(RegisterGqlQueriesEvent $event) {
+                foreach (ShortLinkQuery::getQueries() as $key => $value) {
+                    $event->queries[$key] = $value;
+                }
+            }
+        );
+
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS,
+            static function(RegisterGqlSchemaComponentsEvent $event) {
+                if (self::$plugin === null) {
+                    return;
+                }
+
+                $pluginName = self::$plugin->getSettings()->getFullName();
+
+                $event->queries[$pluginName]['shortlinkManager.all:read'] = [
+                    'label' => Craft::t('shortlink-manager', 'Query {name} data', ['name' => $pluginName]),
+                ];
+            }
+        );
+
+        Event::on(
+            Gql::class,
+            Gql::EVENT_BEFORE_EXECUTE_GQL_QUERY,
+            static function(ExecuteGqlQueryEvent $event) use (&$graphqlCacheSetting) {
+                if (!self::queryResolvesShortlink($event->query)) {
+                    return;
+                }
+
+                $generalConfig = Craft::$app->getConfig()->getGeneral();
+                $graphqlCacheSetting = $generalConfig->enableGraphqlCaching;
+                $generalConfig->enableGraphqlCaching = false;
+            }
+        );
+
+        Event::on(
+            Gql::class,
+            Gql::EVENT_AFTER_EXECUTE_GQL_QUERY,
+            static function(ExecuteGqlQueryEvent $event) use (&$graphqlCacheSetting) {
+                if ($graphqlCacheSetting === null || !self::queryResolvesShortlink($event->query)) {
+                    return;
+                }
+
+                Craft::$app->getConfig()->getGeneral()->enableGraphqlCaching = $graphqlCacheSetting;
+                $graphqlCacheSetting = null;
+            }
+        );
+    }
+
+    /**
+     * Return whether a GraphQL operation includes the side-effecting resolver.
+     *
+     * @param string $query
+     * @return bool
+     * @since 5.21.0
+     */
+    private static function queryResolvesShortlink(string $query): bool
+    {
+        return str_contains($query, 'shortlinkManagerResolveShortlink');
     }
 
     /**

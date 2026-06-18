@@ -42,6 +42,7 @@ return [
     'View system logs' => 'Visualizza log di sistema',
     'Download system logs' => 'Scarica log di sistema',
     'Manage settings' => 'Gestisci impostazioni',
+    'Query {name} data' => 'Interroga i dati di {name}',
 
     // Common
     'Yes' => 'Sì',

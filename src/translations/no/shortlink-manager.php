@@ -42,6 +42,7 @@ return [
     'View system logs' => 'Vis systemlogger',
     'Download system logs' => 'Last ned systemlogger',
     'Manage settings' => 'Administrer innstillinger',
+    'Query {name} data' => 'Spørr {name}-data',
 
     // Common
     'Yes' => 'Ja',

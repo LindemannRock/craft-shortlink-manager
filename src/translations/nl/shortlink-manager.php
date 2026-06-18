@@ -42,6 +42,7 @@ return [
     'View system logs' => 'Systeemlogboeken bekijken',
     'Download system logs' => 'Systeemlogboeken downloaden',
     'Manage settings' => 'Instellingen beheren',
+    'Query {name} data' => '{name}-gegevens opvragen',
 
     // Common
     'Yes' => 'Ja',

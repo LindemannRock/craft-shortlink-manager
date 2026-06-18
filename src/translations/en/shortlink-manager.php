@@ -42,6 +42,7 @@ return [
     'View system logs' => 'View system logs',
     'Download system logs' => 'Download system logs',
     'Manage settings' => 'Manage settings',
+    'Query {name} data' => 'Query {name} data',
 
     // Common
     'Yes' => 'Yes',

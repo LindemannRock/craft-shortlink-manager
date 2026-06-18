@@ -42,6 +42,7 @@ return [
     'View system logs' => 'عرض سجلات النظام',
     'Download system logs' => 'تنزيل سجلات النظام',
     'Manage settings' => 'إدارة الإعدادات',
+    'Query {name} data' => 'الاستعلام عن بيانات {name}',
 
     // Common
     'Yes' => 'نعم',

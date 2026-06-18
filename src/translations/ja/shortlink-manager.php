@@ -42,6 +42,7 @@ return [
     'View system logs' => 'システムログを表示する',
     'Download system logs' => 'システムログをダウンロードする',
     'Manage settings' => '設定を管理する',
+    'Query {name} data' => '{name} データを照会する',
 
     // Common
     'Yes' => 'はい',
