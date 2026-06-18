@@ -18,16 +18,20 @@
 } %}
 
 {# Add tabs from field layout #}
+{% set fieldLayoutTabs = [] %}
 {% set fieldLayout = shortLink.getFieldLayout() %}
 {% if fieldLayout %}
     {% for tab in fieldLayout.getTabs() %}
-        {% set tabId = 'tab-' ~ tab.id %}
-        {% set tabs = tabs|merge({
-            (tabId): {
-                label: tab.name,
-                url: '#' ~ tabId,
-            }
-        }) %}
+        {% if tab.getElements() %}
+            {% set fieldLayoutTabs = fieldLayoutTabs|merge([tab]) %}
+            {% set tabId = 'tab-' ~ tab.id %}
+            {% set tabs = tabs|merge({
+                (tabId): {
+                    label: tab.name,
+                    url: '#' ~ tabId,
+                }
+            }) %}
+        {% endif %}
     {% endfor %}
 {% endif %}
 
@@ -173,19 +177,16 @@
     </div>
 
     {# Custom field layout tabs #}
-    {% set fieldLayout = shortLink.getFieldLayout() %}
-    {% if fieldLayout %}
-        {% for tab in fieldLayout.getTabs() %}
-            {% set tabId = 'tab-' ~ tab.id %}
-            <div id="{{ tabId }}" class="hidden">
-                {% for element in tab.getElements() %}
-                    {{ element.formHtml(shortLink, shortLink.getIsRevision())|raw }}
-                {% endfor %}
+    {% for tab in fieldLayoutTabs %}
+        {% set tabId = 'tab-' ~ tab.id %}
+        <div id="{{ tabId }}" class="hidden">
+            {% for element in tab.getElements() %}
+                {{ element.formHtml(shortLink, shortLink.getIsRevision())|raw }}
+            {% endfor %}
 
-                {% include 'lindemannrock-base/_components/plugin-credit' %}
-            </div>
-        {% endfor %}
-    {% endif %}
+            {% include 'lindemannrock-base/_components/plugin-credit' %}
+        </div>
+    {% endfor %}
 
     {# Analytics tab #}
     {% if canViewAnalytics and plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}

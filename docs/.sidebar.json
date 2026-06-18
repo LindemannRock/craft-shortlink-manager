@@ -16,6 +16,7 @@
         "children": [
             "feature-tour/overview",
             "feature-tour/shortlinks",
+            "feature-tour/field-layout",
             "feature-tour/custom-domain",
             "feature-tour/qr-codes",
             "feature-tour/analytics",
