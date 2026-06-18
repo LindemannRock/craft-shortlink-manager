@@ -1,6 +1,6 @@
 # Changelog
 
-## [5.21.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.2...v5.21.0) (2026-06-18)
+## [5.21.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.2...v5.21.0) - 2026-06-18
 
 
 ### Added
