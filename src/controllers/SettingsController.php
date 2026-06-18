@@ -13,8 +13,10 @@ use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\helpers\SettingsPostHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -27,12 +29,32 @@ class SettingsController extends Controller
     use LoggingTrait;
 
     /**
+     * @var bool
+     */
+    private bool $readOnly = false;
+
+    /**
      * @inheritdoc
      */
     public function init(): void
     {
         parent::init();
         $this->setLoggingHandle(ShortLinkManager::$plugin->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action): bool
+    {
+        if ($action->id === 'save-field-layout' && !Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException(Craft::t('shortlink-manager', 'Administrative changes are disallowed in this environment.'));
+        }
+
+        $this->readOnly = ($action->id === 'field-layout' || $action->id === 'save-field-layout')
+            && !Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
+
+        return parent::beforeAction($action);
     }
 
     /**
@@ -159,6 +181,103 @@ class SettingsController extends Controller
         return $this->renderTemplate('shortlink-manager/settings/cache', [
             'settings' => $settings,
         ]);
+    }
+
+    /**
+     * Field Layout settings
+     *
+     * @return Response
+     * @since 5.21.0
+     */
+    public function actionFieldLayout(): Response
+    {
+        $this->requirePermission('shortLinkManager:manageSettings');
+
+        $fieldLayouts = Craft::$app->getProjectConfig()->get('shortlink-manager.fieldLayouts') ?? [];
+        $fieldLayout = null;
+
+        if (!empty($fieldLayouts)) {
+            $fieldLayoutUid = array_key_first($fieldLayouts);
+            $fieldLayout = Craft::$app->getFields()->getLayoutByUid($fieldLayoutUid);
+        }
+
+        if (!$fieldLayout) {
+            $oldUid = Craft::$app->getProjectConfig()->get('shortlink-manager.fieldLayout');
+            if ($oldUid) {
+                $fieldLayout = Craft::$app->getFields()->getLayoutByUid($oldUid);
+            }
+        }
+
+        if (!$fieldLayout) {
+            $fieldLayout = Craft::$app->getFields()->getLayoutByType(ShortLink::class);
+        }
+
+        if (!$fieldLayout) {
+            $fieldLayout = new \craft\models\FieldLayout([
+                'type' => ShortLink::class,
+            ]);
+
+            Craft::$app->getFields()->saveLayout($fieldLayout);
+
+            if (!$this->readOnly) {
+                $fieldLayoutConfig = $fieldLayout->getConfig();
+                if ($fieldLayoutConfig) {
+                    Craft::$app->getProjectConfig()->set(
+                        "shortlink-manager.fieldLayouts.{$fieldLayout->uid}",
+                        $fieldLayoutConfig,
+                        "Create ShortLink Manager field layout"
+                    );
+                }
+            }
+        }
+
+        $this->logDebug('Field Layout debug info', [
+            'id' => $fieldLayout->id ?? 'null',
+            'uid' => $fieldLayout->uid ?? 'null',
+            'type' => $fieldLayout->type ?? 'null',
+            'class' => get_class($fieldLayout),
+        ]);
+
+        return $this->renderTemplate('shortlink-manager/settings/field-layout', [
+            'fieldLayout' => $fieldLayout,
+            'readOnly' => $this->readOnly,
+        ]);
+    }
+
+    /**
+     * Save field layout
+     *
+     * @return Response|null
+     * @since 5.21.0
+     */
+    public function actionSaveFieldLayout(): ?Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:manageSettings');
+
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout->type = ShortLink::class;
+
+        if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Couldn\'t save field layout.'));
+            return null;
+        }
+
+        $fieldLayoutConfig = $fieldLayout->getConfig();
+        if ($fieldLayoutConfig) {
+            Craft::$app->getProjectConfig()->set(
+                "shortlink-manager.fieldLayouts.{$fieldLayout->uid}",
+                $fieldLayoutConfig,
+                "Save ShortLink Manager field layout"
+            );
+
+            if (Craft::$app->getProjectConfig()->get('shortlink-manager.fieldLayout')) {
+                Craft::$app->getProjectConfig()->remove('shortlink-manager.fieldLayout');
+            }
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('shortlink-manager', 'Field layout saved.'));
+        return $this->redirectToPostedUrl();
     }
 
     /**
@@ -553,7 +672,7 @@ class SettingsController extends Controller
      */
     private function _validSettingsSection(string $section): string
     {
-        $allowed = ['general', 'behavior', 'qr-code', 'analytics', 'integrations', 'interface', 'cache'];
+        $allowed = ['general', 'behavior', 'qr-code', 'analytics', 'integrations', 'interface', 'cache', 'field-layout'];
 
         return in_array($section, $allowed, true) ? $section : 'general';
     }

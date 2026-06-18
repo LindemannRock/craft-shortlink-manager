@@ -20,6 +20,7 @@ return [
     'Logs' => 'Logfiler',
     'Settings' => 'Indstillinger',
     'Dashboard' => 'Oversigt',
+    'Field Layout' => 'Feltlayout',
 
     // Permissions
     'Manage {plural}' => 'Administrer {plural}',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'Ingen analysedata at eksportere.',
     'Settings saved.' => 'Indstillinger gemt.',
     'Could not save settings.' => 'Kunne ikke gemme indstillingerne.',
+    'Administrative changes are disallowed in this environment.' => 'Administrative ændringer er ikke tilladt i dette miljø.',
+    'Field layout saved.' => 'Feltlayout gemt.',
+    'Couldn\'t save field layout.' => 'Kunne ikke gemme feltlayoutet.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'Oprydningsjobbet for analytics er sat i kø og kører i baggrunden.',
     'QR code cache cleared successfully.' => 'QR-kode cache ryddet.',
     'Cleared {count} QR code caches.' => '{count} QR-kode caches ryddet.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} er ikke aktiveret for sitet "{site}". Aktiver det i plugin-indstillingerne for at bruge {pluginNameLower} her.',
     'Invalid {pluginName} format.' => 'Ugyldigt {pluginName}-format.',
     '{pluginName} not found.' => '{pluginName} ikke fundet.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Tilføj brugerdefinerede felter til {singularName}-elementer. Felter, du tilføjer her, vises på redigeringsskærmen for {singularName}.',
+    'No field layout available.' => 'Intet feltlayout tilgængeligt.',
 
     // Shortlinks: Index
     'New {name}' => 'Ny {name}',

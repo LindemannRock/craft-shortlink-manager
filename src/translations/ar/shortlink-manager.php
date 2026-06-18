@@ -20,6 +20,7 @@ return [
     'Logs' => 'السجلات',
     'Settings' => 'الإعدادات',
     'Dashboard' => 'لوحة المعلومات',
+    'Field Layout' => 'تخطيط الحقول',
 
     // Permissions
     'Manage {plural}' => 'إدارة {plural}',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'لا توجد بيانات تحليلية للتصدير.',
     'Settings saved.' => 'تم حفظ الإعدادات.',
     'Could not save settings.' => 'تعذّر حفظ الإعدادات.',
+    'Administrative changes are disallowed in this environment.' => 'التغييرات الإدارية غير مسموح بها في هذه البيئة.',
+    'Field layout saved.' => 'تم حفظ تخطيط الحقول.',
+    'Couldn\'t save field layout.' => 'تعذّر حفظ تخطيط الحقول.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'تمت إضافة مهمة تنظيف Analytics إلى قائمة الانتظار. ستُنفَّذ في الخلفية.',
     'QR code cache cleared successfully.' => 'تم مسح Cache QR codes بنجاح.',
     'Cleared {count} QR code caches.' => 'تم مسح {count} من Cache QR codes.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} غير مُفعَّل للموقع "{site}". فعّله في إعدادات الإضافة لاستخدام {pluginNameLower} هنا.',
     'Invalid {pluginName} format.' => 'صيغة {pluginName} غير صالحة.',
     '{pluginName} not found.' => '{pluginName} غير موجود.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'إضافة حقول مخصصة إلى عناصر {singularName}. ستظهر أي حقول تضيفها هنا في شاشة تعديل {singularName}.',
+    'No field layout available.' => 'لا يتوفر تخطيط حقول.',
 
     // Shortlinks: Index
     'New {name}' => '{name} جديد',

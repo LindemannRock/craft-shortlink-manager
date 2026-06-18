@@ -141,6 +141,8 @@ class ShortLinkManager extends Plugin
         // Schedule analytics cleanup if retention is enabled
         $this->scheduleAnalyticsCleanup();
 
+        $this->registerProjectConfigEventHandlers();
+
         $this->registerGraphql();
 
         // Register variables
@@ -634,6 +636,8 @@ class ShortLinkManager extends Plugin
             'shortlink-manager/settings/integrations' => 'shortlink-manager/settings/integrations',
             'shortlink-manager/settings/interface' => 'shortlink-manager/settings/interface',
             'shortlink-manager/settings/cache' => 'shortlink-manager/settings/cache',
+            'shortlink-manager/settings/field-layout' => 'shortlink-manager/settings/field-layout',
+            'shortlink-manager/settings/save-field-layout' => 'shortlink-manager/settings/save-field-layout',
             'shortlink-manager/settings/cleanup-analytics' => 'shortlink-manager/settings/cleanup-analytics',
 
             // QR Code generation for preview
@@ -897,5 +901,56 @@ class ShortLinkManager extends Plugin
         );
 
         // TODO: Add support for other element types (Category, Asset, etc.)
+    }
+
+    /**
+     * Register project config event handlers.
+     *
+     * @return void
+     */
+    private function registerProjectConfigEventHandlers(): void
+    {
+        Craft::$app->getProjectConfig()
+            ->onAdd('shortlink-manager.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
+            ->onUpdate('shortlink-manager.fieldLayouts.{uid}', [$this, 'handleChangedFieldLayout'])
+            ->onRemove('shortlink-manager.fieldLayouts.{uid}', [$this, 'handleDeletedFieldLayout']);
+    }
+
+    /**
+     * Handle field layout changes from project config.
+     *
+     * @param \craft\events\ConfigEvent $event
+     * @return void
+     * @since 5.21.0
+     */
+    public function handleChangedFieldLayout(\craft\events\ConfigEvent $event): void
+    {
+        $uid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $fieldLayout = \craft\models\FieldLayout::createFromConfig($data);
+        $fieldLayout->uid = $uid;
+        $fieldLayout->type = \lindemannrock\shortlinkmanager\elements\ShortLink::class;
+
+        Craft::$app->getFields()->saveLayout($fieldLayout, false);
+
+        $this->logInfo('Applied ShortLink Manager field layout from project config', ['uid' => $uid]);
+    }
+
+    /**
+     * Handle field layout deletion from project config.
+     *
+     * @param \craft\events\ConfigEvent $event
+     * @return void
+     * @since 5.21.0
+     */
+    public function handleDeletedFieldLayout(\craft\events\ConfigEvent $event): void
+    {
+        $uid = $event->tokenMatches[0];
+        $fieldLayout = Craft::$app->getFields()->getLayoutByUid($uid);
+
+        if ($fieldLayout) {
+            Craft::$app->getFields()->deleteLayoutById($fieldLayout->id);
+        }
     }
 }

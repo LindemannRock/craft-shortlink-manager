@@ -20,6 +20,7 @@ return [
     'Logs' => 'Registos',
     'Settings' => 'Definições',
     'Dashboard' => 'Painel',
+    'Field Layout' => 'Esquema de campos',
 
     // Permissions
     'Manage {plural}' => 'Gerir {plural}',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'Nenhum dado de análise para exportar.',
     'Settings saved.' => 'Definições guardadas.',
     'Could not save settings.' => 'Não foi possível guardar as definições.',
+    'Administrative changes are disallowed in this environment.' => 'As alterações administrativas não são permitidas neste ambiente.',
+    'Field layout saved.' => 'Esquema de campos guardado.',
+    'Couldn\'t save field layout.' => 'Não foi possível guardar o esquema de campos.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'A tarefa de limpeza de análise foi colocada em fila. Será executada em segundo plano.',
     'QR code cache cleared successfully.' => 'Cache dos QR Codes limpa com sucesso.',
     'Cleared {count} QR code caches.' => 'Limpas {count} caches de QR Codes.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} não está ativo para o site "{site}". Ative-o nas definições do plugin para utilizar {pluginNameLower} aqui.',
     'Invalid {pluginName} format.' => 'Formato de {pluginName} inválido.',
     '{pluginName} not found.' => '{pluginName} não encontrado.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Adicionar campos personalizados aos elementos {singularName}. Os campos adicionados aqui aparecerão no ecrã de edição de {singularName}.',
+    'No field layout available.' => 'Nenhum esquema de campos disponível.',
 
     // Shortlinks: Index
     'New {name}' => 'Novo {name}',

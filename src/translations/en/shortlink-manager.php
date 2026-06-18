@@ -20,6 +20,7 @@ return [
     'Logs' => 'Logs',
     'Settings' => 'Settings',
     'Dashboard' => 'Dashboard',
+    'Field Layout' => 'Field Layout',
 
     // Permissions
     'Manage {plural}' => 'Manage {plural}',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'No analytics data to export.',
     'Settings saved.' => 'Settings saved.',
     'Could not save settings.' => 'Could not save settings.',
+    'Administrative changes are disallowed in this environment.' => 'Administrative changes are disallowed in this environment.',
+    'Field layout saved.' => 'Field layout saved.',
+    'Couldn\'t save field layout.' => 'Couldn\'t save field layout.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'Analytics cleanup job has been queued. It will run in the background.',
     'QR code cache cleared successfully.' => 'QR code cache cleared successfully.',
     'Cleared {count} QR code caches.' => 'Cleared {count} QR code caches.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.',
     'Invalid {pluginName} format.' => 'Invalid {pluginName} format.',
     '{pluginName} not found.' => '{pluginName} not found.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.',
+    'No field layout available.' => 'No field layout available.',
 
     // Shortlinks: Index
     'New {name}' => 'New {name}',

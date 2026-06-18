@@ -29,6 +29,8 @@ Turn any URL into a short, trackable link — and a scannable QR code — withou
 
 - **[ShortLink field](shortlink-field.md)** — a custom field type that attaches a short link to any element. The destination URL syncs automatically when the element URL changes.
 
+- **Custom fields** — add a ShortLink field layout from **Settings → Field Layout** when the link itself needs campaign metadata, UTM planning, ownership notes, approval details, or other editor-managed fields. These fields render as extra tabs on the ShortLink edit screen.
+
 - **[Integrations](integrations.md)** — SEOmatic pushes GTM/GA4 data layer events on redirect and QR scan. Redirect Manager auto-creates 301s when slugs change. Craft Link Field lets editors pick short links in any Link field.
 
 - **Folders & tags** — organize short links using plugin-internal folders (one per link) and tags (many per link). Manage them at **ShortLink Manager → Folders & Tags**. Use bulk actions on the element index to assign or clear folders and tags across multiple links at once.

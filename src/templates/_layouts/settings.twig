@@ -56,6 +56,11 @@
                     {{ 'Integrations'|t('shortlink-manager') }}
                 </a>
             </li>
+            <li>
+                <a href="{{ url('shortlink-manager/settings/field-layout') }}" {% if selectedSettingsItem == 'field-layout' %}class="sel"{% endif %}>
+                    {{ 'Field Layout'|t('shortlink-manager') }}
+                </a>
+            </li>
         </ul>
     </nav>
 {% endblock %}

@@ -20,6 +20,7 @@ return [
     'Logs' => 'Logboeken',
     'Settings' => 'Instellingen',
     'Dashboard' => 'Dashboard',
+    'Field Layout' => 'Veldindeling',
 
     // Permissions
     'Manage {plural}' => '{plural} beheren',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'Geen analysegegevens om te exporteren.',
     'Settings saved.' => 'Instellingen opgeslagen.',
     'Could not save settings.' => 'Instellingen konden niet worden opgeslagen.',
+    'Administrative changes are disallowed in this environment.' => 'Beheerwijzigingen zijn niet toegestaan in deze omgeving.',
+    'Field layout saved.' => 'Veldindeling opgeslagen.',
+    'Couldn\'t save field layout.' => 'Veldindeling kon niet worden opgeslagen.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'De opschoontaak voor analyses is in de wachtrij geplaatst. Deze wordt op de achtergrond uitgevoerd.',
     'QR code cache cleared successfully.' => 'QR-code cache succesvol gewist.',
     'Cleared {count} QR code caches.' => '{count} QR-code caches gewist.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} is niet ingeschakeld voor site "{site}". Schakel het in via de plugininstellingen om {pluginNameLower} hier te gebruiken.',
     'Invalid {pluginName} format.' => 'Ongeldig {pluginName} formaat.',
     '{pluginName} not found.' => '{pluginName} niet gevonden.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Voeg aangepaste velden toe aan {singularName}-elementen. Alle hier toegevoegde velden verschijnen in het bewerkingsscherm van {singularName}.',
+    'No field layout available.' => 'Geen veldindeling beschikbaar.',
 
     // Shortlinks: Index
     'New {name}' => 'Nieuw {name}',

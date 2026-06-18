@@ -20,6 +20,7 @@ return [
     'Logs' => 'Protokolle',
     'Settings' => 'Einstellungen',
     'Dashboard' => 'Dashboard',
+    'Field Layout' => 'Feldlayout',
 
     // Permissions
     'Manage {plural}' => '{plural} verwalten',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'Keine Analysedaten zum Exportieren vorhanden.',
     'Settings saved.' => 'Einstellungen gespeichert.',
     'Could not save settings.' => 'Einstellungen konnten nicht gespeichert werden.',
+    'Administrative changes are disallowed in this environment.' => 'Administrative Änderungen sind in dieser Umgebung nicht erlaubt.',
+    'Field layout saved.' => 'Feldlayout gespeichert.',
+    'Couldn\'t save field layout.' => 'Feldlayout konnte nicht gespeichert werden.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'Der Bereinigungs-Job wurde in die Warteschlange gestellt. Er wird im Hintergrund ausgeführt.',
     'QR code cache cleared successfully.' => 'QR Code Cache erfolgreich geleert.',
     'Cleared {count} QR code caches.' => '{count} QR Code Caches geleert.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} ist für die Website „{site}" nicht aktiviert. Aktivieren Sie es in den Plugin-Einstellungen, um {pluginNameLower} hier zu verwenden.',
     'Invalid {pluginName} format.' => 'Ungültiges {pluginName} Format.',
     '{pluginName} not found.' => '{pluginName} nicht gefunden.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Benutzerdefinierte Felder zu {singularName} Elementen hinzufügen. Alle hier hinzugefügten Felder erscheinen im Bearbeitungsbildschirm der {singularName}.',
+    'No field layout available.' => 'Kein Feldlayout verfügbar.',
 
     // Shortlinks: Index
     'New {name}' => 'Neuer {name}',

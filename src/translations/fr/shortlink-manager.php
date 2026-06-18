@@ -20,6 +20,7 @@ return [
     'Logs' => 'Journaux',
     'Settings' => 'Paramètres',
     'Dashboard' => 'Tableau de bord',
+    'Field Layout' => 'Disposition des champs',
 
     // Permissions
     'Manage {plural}' => 'Gérer les {plural}',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'Aucune donnée analytique à exporter.',
     'Settings saved.' => 'Paramètres enregistrés.',
     'Could not save settings.' => 'Impossible d\'enregistrer les paramètres.',
+    'Administrative changes are disallowed in this environment.' => 'Les modifications administratives ne sont pas autorisées dans cet environnement.',
+    'Field layout saved.' => 'Disposition des champs enregistrée.',
+    'Couldn\'t save field layout.' => 'Impossible d\'enregistrer la disposition des champs.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'La tâche de nettoyage des analytics a été mise en file d\'attente. Elle s\'exécutera en arrière-plan.',
     'QR code cache cleared successfully.' => 'Le cache des QR codes a été vidé avec succès.',
     'Cleared {count} QR code caches.' => '{count} caches de QR codes vidés.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} n\'est pas activé pour le site "{site}". Activez-le dans les paramètres du plugin pour utiliser {pluginNameLower} ici.',
     'Invalid {pluginName} format.' => 'Format {pluginName} invalide.',
     '{pluginName} not found.' => '{pluginName} introuvable.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Ajoutez des champs personnalisés aux éléments {singularName}. Tous les champs ajoutés ici apparaîtront dans l\'écran de modification du {singularName}.',
+    'No field layout available.' => 'Aucune disposition de champs disponible.',
 
     // Shortlinks: Index
     'New {name}' => 'Nouveau {name}',

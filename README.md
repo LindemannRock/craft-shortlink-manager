@@ -29,6 +29,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **GraphQL** — Resolve/list shortlinks and expose field-managed links for headless or SPA frontends
 - **Integrations** — SEOmatic (GTM/GA4 events), Redirect Manager (auto-301 on slug change)
 - **ShortLink Field** — Custom field type for attaching shortlinks to entries
+- **Custom Fields** — Add editor-managed fields to ShortLink elements via a configurable field layout
 - **Multi-Site** — Per-site destination URLs, optional custom domain
 - **Dashboard Widgets** — Analytics Summary and Top Links widgets
 - **Folders & Tags** — Organize short links with plugin-internal folders and tags; bulk-assign via element index actions

@@ -20,6 +20,7 @@ return [
     'Logs' => 'ログ',
     'Settings' => '設定',
     'Dashboard' => 'ダッシュボード',
+    'Field Layout' => 'フィールドレイアウト',
 
     // Permissions
     'Manage {plural}' => '{plural} を管理する',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'エクスポートするアナリティクスデータがありません。',
     'Settings saved.' => '設定を保存しました。',
     'Could not save settings.' => '設定を保存できませんでした。',
+    'Administrative changes are disallowed in this environment.' => 'この環境では管理者による変更は許可されていません。',
+    'Field layout saved.' => 'フィールドレイアウトを保存しました。',
+    'Couldn\'t save field layout.' => 'フィールドレイアウトを保存できませんでした。',
     'Analytics cleanup job has been queued. It will run in the background.' => 'アナリティクスの整理ジョブをキューに追加しました。バックグラウンドで実行されます。',
     'QR code cache cleared successfully.' => 'QR コードのキャッシュを正常に削除しました。',
     'Cleared {count} QR code caches.' => '{count} 件の QR コードキャッシュを削除しました。',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} はサイト "{site}" で有効になっていません。こちらで {pluginNameLower} を使用するにはプラグイン設定で有効にしてください。',
     'Invalid {pluginName} format.' => '{pluginName} のフォーマットが無効です。',
     '{pluginName} not found.' => '{pluginName} が見つかりません。',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => '{singularName} 要素にカスタムフィールドを追加してください。ここで追加したフィールドは {singularName} の編集画面に表示されます。',
+    'No field layout available.' => 'フィールドレイアウトがありません。',
 
     // Shortlinks: Index
     'New {name}' => '新しい {name}',

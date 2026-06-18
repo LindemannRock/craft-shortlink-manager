@@ -20,6 +20,7 @@ return [
     'Logs' => 'Loggar',
     'Settings' => 'Inställningar',
     'Dashboard' => 'Instrumentpanel',
+    'Field Layout' => 'Fältlayout',
 
     // Permissions
     'Manage {plural}' => 'Hantera {plural}',
@@ -135,6 +136,9 @@ return [
     'No analytics data to export.' => 'Inga analysdata att exportera.',
     'Settings saved.' => 'Inställningar sparade.',
     'Could not save settings.' => 'Det gick inte att spara inställningarna.',
+    'Administrative changes are disallowed in this environment.' => 'Administrativa ändringar är inte tillåtna i denna miljö.',
+    'Field layout saved.' => 'Fältlayout sparad.',
+    'Couldn\'t save field layout.' => 'Det gick inte att spara fältlayouten.',
     'Analytics cleanup job has been queued. It will run in the background.' => 'Rensningsjobbet för analys har ställts i kö och körs i bakgrunden.',
     'QR code cache cleared successfully.' => 'QR-kodscache rensad.',
     'Cleared {count} QR code caches.' => '{count} QR-kodscacher rensade.',
@@ -467,6 +471,10 @@ return [
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} är inte aktiverat för webbplatsen "{site}". Aktivera det i pluginets inställningar för att använda {pluginNameLower} här.',
     'Invalid {pluginName} format.' => 'Ogiltigt {pluginName}-format.',
     '{pluginName} not found.' => '{pluginName} hittades inte.',
+
+    // Settings: Field Layout
+    'Add custom fields to {singularName} elements. Any fields you add here will appear in the {singularName} edit screen.' => 'Lägg till anpassade fält i {singularName}-element. Fält som läggs till här visas på redigeringsskärmen för {singularName}.',
+    'No field layout available.' => 'Ingen fältlayout tillgänglig.',
 
     // Shortlinks: Index
     'New {name}' => 'Ny {name}',

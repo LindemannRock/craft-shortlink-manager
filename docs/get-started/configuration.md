@@ -158,6 +158,16 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 ---
 
+### Field layout
+
+Use **ShortLink Manager → Settings → Field Layout** to add custom fields to ShortLink elements. Fields added there appear as extra tabs on each short link's edit screen, which is useful for campaign notes, ownership details, UTM planning, internal approval fields, or other metadata that belongs with the short link itself.
+
+This is different from the **ShortLink Field** field type. The ShortLink Field lets entries and other elements own a short link whose destination can follow the element URL; the Field Layout settings page adds fields directly to ShortLink elements.
+
+Field layouts are saved to Craft project config, so they follow Craft's normal administrative-change rules. In environments where `allowAdminChanges` is disabled, the Field Layout page is read-only. The other ShortLink Manager settings remain database-backed and editable from the CP unless you lock individual settings with `config/shortlink-manager.php`.
+
+---
+
 ## Environment variables
 
 Several settings read from environment variables automatically, with no config file entry required:

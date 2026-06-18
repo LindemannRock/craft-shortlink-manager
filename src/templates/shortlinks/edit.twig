@@ -17,6 +17,20 @@
     },
 } %}
 
+{# Add tabs from field layout #}
+{% set fieldLayout = shortLink.getFieldLayout() %}
+{% if fieldLayout %}
+    {% for tab in fieldLayout.getTabs() %}
+        {% set tabId = 'tab-' ~ tab.id %}
+        {% set tabs = tabs|merge({
+            (tabId): {
+                label: tab.name,
+                url: '#' ~ tabId,
+            }
+        }) %}
+    {% endfor %}
+{% endif %}
+
 {# Add analytics tab if globally enabled, permitted, shortLink exists, AND tracking is enabled for this shortLink #}
 {% if canViewAnalytics and plugin.settings.enableAnalytics and shortLink.id and (shortLink.trackAnalytics ?? true) %}
     {% set tabs = tabs|merge({
@@ -165,7 +179,7 @@
             {% set tabId = 'tab-' ~ tab.id %}
             <div id="{{ tabId }}" class="hidden">
                 {% for element in tab.getElements() %}
-                    {{ element.formHtml(link, shortLink.getIsRevision())|raw }}
+                    {{ element.formHtml(shortLink, shortLink.getIsRevision())|raw }}
                 {% endfor %}
 
                 {% include 'lindemannrock-base/_components/plugin-credit' %}
