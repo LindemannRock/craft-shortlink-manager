@@ -1,5 +1,36 @@
 # Changelog
 
+## [5.21.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.2...v5.21.0) (2026-06-18)
+
+
+### Added
+
+* add field layout support ([e281503](https://github.com/LindemannRock/craft-shortlink-manager/commit/e281503d5de9d6f2def6699e2f240642a7c4d384))
+* enrich shortlink analytics traffic exports ([bd20c75](https://github.com/LindemannRock/craft-shortlink-manager/commit/bd20c75cbeca5ea0b4d071ce256f182130bfc31b))
+* **gql:** add GraphQL support ([60f2a50](https://github.com/LindemannRock/craft-shortlink-manager/commit/60f2a500d3fbaf8aa40bc57a5d8527400130730e))
+* **gql:** add GraphQL support for resolving and listing shortlinks ([e514705](https://github.com/LindemannRock/craft-shortlink-manager/commit/e5147053e031b0183c4cce7bcd57818b8bca1957))
+* **i18n:** add "View all analytics" translation key across locales ([f175a79](https://github.com/LindemannRock/craft-shortlink-manager/commit/f175a79d7f9c8fb1085c81f671a345d850696c18))
+* **tests:** add integration tests for ShortLinkField and NativeLinkField ([dfc1e3e](https://github.com/LindemannRock/craft-shortlink-manager/commit/dfc1e3ec5ed4510939406398ce7825e152bc989f))
+* **tests:** add manual CSV fixtures for testing import flow ([a5f3baf](https://github.com/LindemannRock/craft-shortlink-manager/commit/a5f3baf50733147a61d4c2f5528b3607731c1eef))
+
+
+### Fixed
+
+* **i18n:** correct OS translations in Arabic, Spanish, French, Japanese, and Dutch ([14c4fbb](https://github.com/LindemannRock/craft-shortlink-manager/commit/14c4fbba08a2c1b15c1c60fa425309b25c0ee988))
+* **i18n:** correct Portuguese translation for 'saved' ([b6ac06b](https://github.com/LindemannRock/craft-shortlink-manager/commit/b6ac06b05eea4a7d64cfbec2fdc8611cb0dfc6ca))
+* **i18n:** correct Swedish translations for various strings ([bdcf221](https://github.com/LindemannRock/craft-shortlink-manager/commit/bdcf22111b5fdb22c28fab026b215e98bec89099))
+* **i18n:** correct translation for 'Tab' and 'Pipe' in multiple locales ([099623b](https://github.com/LindemannRock/craft-shortlink-manager/commit/099623b2eb1e0e3f6094fb62bd2af3804b4007b4))
+* **i18n:** update Norwegian, Portuguese, and Swedish translations ([271cbce](https://github.com/LindemannRock/craft-shortlink-manager/commit/271cbcef8347c9d09e009b14ca16470e2cdd265f))
+* **import-export:** highlight error messages in import preview table ([51ffbb1](https://github.com/LindemannRock/craft-shortlink-manager/commit/51ffbb13e941e57fe8c498b8784d6ffa9f35fb21))
+* normalize shortlink import preview codes ([03ba6d7](https://github.com/LindemannRock/craft-shortlink-manager/commit/03ba6d7d7d683e7e53781822452bf34b9b9700ee))
+* **qrcode:** clamp QR code size and margin to defined limits ([9a9ad0e](https://github.com/LindemannRock/craft-shortlink-manager/commit/9a9ad0e2df65a11fe874af686a247c642b097121))
+* **qrcode:** correct QR code download filename format ([d4b75a4](https://github.com/LindemannRock/craft-shortlink-manager/commit/d4b75a4acd303fe53aad16801a6e5bd072f0ed98))
+
+
+### Security
+
+* block dangerous URL schemes in validation ([52d50a8](https://github.com/LindemannRock/craft-shortlink-manager/commit/52d50a8b4776654df9c92a67ec3d6d5ba6804464))
+
 ## [5.20.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.1...v5.20.2) - 2026-06-07
 
 
