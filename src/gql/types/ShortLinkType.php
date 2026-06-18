@@ -13,6 +13,8 @@ use craft\gql\GqlEntityRegistry;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use lindemannrock\base\helpers\GqlHelper;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\gql\resolvers\ShortLinkResolver;
 
 /**
  * GraphQL object type for ShortLink Manager shortlinks.
@@ -178,11 +180,15 @@ class ShortLinkType extends ObjectType
     {
         $fieldName = $resolveInfo->fieldName;
 
-        if ($fieldName === 'site') {
-            return GqlHelper::siteHandle(isset($source['siteId']) ? (int)$source['siteId'] : null);
+        if ($source instanceof ShortLink) {
+            $source = ShortLinkResolver::toArray($source, $source->destinationUrl);
         }
 
         if (is_array($source)) {
+            if ($fieldName === 'site') {
+                return GqlHelper::siteHandle(isset($source['siteId']) ? (int)$source['siteId'] : null);
+            }
+
             return GqlHelper::nullIfEmptyString($source[$fieldName] ?? null);
         }
 

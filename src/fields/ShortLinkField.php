@@ -12,7 +12,11 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
+use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\gql\resolvers\ShortLinkResolver;
+use lindemannrock\shortlinkmanager\gql\types\ShortLinkType as GqlShortLinkType;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -62,7 +66,7 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml($value, ?ElementInterface $element = null): string
     {
         // Get existing shortlink for this element if it exists
         $shortLink = null;
@@ -226,7 +230,27 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function normalizeValue($value, ElementInterface $element = null): mixed
+    public function getContentGqlType(): Type|array
+    {
+        return [
+            'name' => $this->handle,
+            'type' => GqlShortLinkType::getType(),
+            'description' => $this->instructions,
+            'resolve' => function(
+                ElementInterface $source,
+                array $arguments = [],
+                mixed $context = null,
+                ?ResolveInfo $resolveInfo = null,
+            ): ?array {
+                return $this->resolveGqlValue($source);
+            },
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function normalizeValue($value, ?ElementInterface $element = null): mixed
     {
         // Just return the string value
         return is_string($value) ? $value : '';
@@ -235,9 +259,30 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function serializeValue($value, ElementInterface $element = null): mixed
+    public function serializeValue($value, ?ElementInterface $element = null): mixed
     {
         // Just return the string value
         return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Resolve the field-managed shortlink for entry/element GraphQL output.
+     *
+     * @param ElementInterface $element
+     * @return array<string, mixed>|null
+     */
+    private function resolveGqlValue(ElementInterface $element): ?array
+    {
+        if (!$element->id) {
+            return null;
+        }
+
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByElement($element, $element->siteId);
+
+        if (!$shortLink) {
+            return null;
+        }
+
+        return ShortLinkResolver::toArray($shortLink, $shortLink->destinationUrl);
     }
 }

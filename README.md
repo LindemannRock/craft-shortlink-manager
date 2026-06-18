@@ -26,7 +26,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Direct Redirect** — Optional server-side HTTP redirect for maximum performance
 - **Link Expiration** — Expiry dates with custom expired message or redirect URL
 - **Query Pass-Through** — Forward query parameters from shortlink to destination
-- **GraphQL** — Resolve shortlinks and list enabled links for headless or SPA frontends
+- **GraphQL** — Resolve/list shortlinks and expose field-managed links for headless or SPA frontends
 - **Integrations** — SEOmatic (GTM/GA4 events), Redirect Manager (auto-301 on slug change)
 - **ShortLink Field** — Custom field type for attaching shortlinks to entries
 - **Multi-Site** — Per-site destination URLs, optional custom domain

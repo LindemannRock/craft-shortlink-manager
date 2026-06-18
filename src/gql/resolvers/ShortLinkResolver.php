@@ -211,7 +211,7 @@ class ShortLinkResolver extends Resolver
     /**
      * @return array<string, mixed>
      */
-    private static function toArray(ShortLink $shortLink, ?string $resolvedDestinationUrl = null): array
+    public static function toArray(ShortLink $shortLink, ?string $resolvedDestinationUrl = null): array
     {
         return [
             'id' => $shortLink->id,

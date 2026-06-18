@@ -14,7 +14,9 @@ use craft\fields\Link;
 use craft\fields\linktypes\BaseElementLinkType;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use GraphQL\Type\Definition\Type;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\gql\types\ShortLinkType as GqlShortLinkType;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -39,6 +41,14 @@ class ShortLinkType extends BaseElementLinkType
     public static function elementType(): string
     {
         return ShortLink::class;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function elementGqlType(): Type
+    {
+        return GqlShortLinkType::getType();
     }
 
     /**
