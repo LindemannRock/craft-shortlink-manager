@@ -156,8 +156,10 @@
         tagDeleted: {{ 'Tag deleted.'|t('shortlink-manager')|json_encode|raw }},
         deleteFolderFailed: {{ 'Could not delete folder.'|t('shortlink-manager')|json_encode|raw }},
         deleteTagFailed: {{ 'Could not delete tag.'|t('shortlink-manager')|json_encode|raw }},
-        bulkDeleteFoldersConfirm: {{ 'Delete {count} folder(s)? This will also unassign them from linked shortlinks.'|t('shortlink-manager')|json_encode|raw }},
-        bulkDeleteTagsConfirm: {{ 'Delete {count} tag(s)?'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteFoldersConfirmSingular: {{ 'Delete {count} folder? This will also unassign it from linked shortlinks.'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteFoldersConfirmPlural: {{ 'Delete {count} folders? This will also unassign them from linked shortlinks.'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteTagsConfirmSingular: {{ 'Delete {count} tag?'|t('shortlink-manager')|json_encode|raw }},
+        bulkDeleteTagsConfirmPlural: {{ 'Delete {count} tags?'|t('shortlink-manager')|json_encode|raw }},
         bulkDeleteFoldersFailed: {{ 'Could not delete folders.'|t('shortlink-manager')|json_encode|raw }},
         bulkDeleteTagsFailed: {{ 'Could not delete tags.'|t('shortlink-manager')|json_encode|raw }},
         deleteCompleted: {{ 'Delete completed.'|t('shortlink-manager')|json_encode|raw }},
@@ -276,7 +278,8 @@
         if (!ids.length) return;
 
         if (currentView === 'folders') {
-            if (!confirm(T.bulkDeleteFoldersConfirm.replace('{count}', ids.length))) return;
+            const confirmTemplate = ids.length === 1 ? T.bulkDeleteFoldersConfirmSingular : T.bulkDeleteFoldersConfirmPlural;
+            if (!confirm(confirmTemplate.replace('{count}', ids.length))) return;
             sendBulkDeleteRequest(
                 'shortlink-manager/taxonomy/bulk-delete-folders',
                 'folderIds',
@@ -286,7 +289,8 @@
             return;
         }
 
-        if (!confirm(T.bulkDeleteTagsConfirm.replace('{count}', ids.length))) return;
+        const confirmTemplate = ids.length === 1 ? T.bulkDeleteTagsConfirmSingular : T.bulkDeleteTagsConfirmPlural;
+        if (!confirm(confirmTemplate.replace('{count}', ids.length))) return;
         sendBulkDeleteRequest(
             'shortlink-manager/taxonomy/bulk-delete-tags',
             'tagIds',

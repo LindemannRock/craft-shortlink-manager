@@ -597,7 +597,7 @@ return [
     'Direct' => 'مباشر',
 
     // Taxonomy
-    'Folder' => 'مجلد',
+    'Folder' => 'المجلد',
     'Organize this {singularName} in one folder.' => 'نظّم هذا {singularName} في مجلد واحد.',
     'Choose an existing folder for this {singularName}.' => 'اختر مجلدًا موجودًا لهذا {singularName}.',
     'Create new folder...' => 'إنشاء مجلد جديد...',
@@ -671,8 +671,10 @@ return [
     'tags' => 'علامات',
     'folders' => 'مجلدات',
     'Delete completed.' => 'اكتمل الحذف.',
-    'Delete {count} folder(s)? This will also unassign them from linked shortlinks.' => 'حذف {count} مجلد؟ سيؤدي هذا أيضًا إلى إلغاء تعيينها من الروابط القصيرة المرتبطة.',
-    'Delete {count} tag(s)?' => 'حذف {count} علامة؟',
+    'Delete {count} folder? This will also unassign it from linked shortlinks.' => 'حذف {count} مجلد؟ سيؤدي هذا أيضًا إلى إلغاء تعيينه من الروابط القصيرة المرتبطة.',
+    'Delete {count} folders? This will also unassign them from linked shortlinks.' => 'حذف {count} مجلدات؟ سيؤدي هذا أيضًا إلى إلغاء تعيينها من الروابط القصيرة المرتبطة.',
+    'Delete {count} tag?' => 'حذف {count} علامة؟',
+    'Delete {count} tags?' => 'حذف {count} علامات؟',
     'Used by' => 'مستخدم بواسطة',
     'Search folders...' => 'البحث في المجلدات...',
     'Search tags...' => 'البحث في العلامات...',
