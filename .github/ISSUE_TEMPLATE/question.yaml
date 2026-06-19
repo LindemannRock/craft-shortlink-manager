@@ -1,6 +1,6 @@
 name: Question
-description: Ask a question about ShortLink Manager. Not for bug reports.
-labels: 'question'
+description: "Ask a question about ShortLink Manager. Not for bug reports."
+labels: ['type: question', 'status: needs triage']
 body:
   - type: markdown
     attributes:
@@ -16,7 +16,7 @@ body:
     attributes:
       label: Question
       description: What would you like to know?
-      placeholder: "Is it possible to..."
+      placeholder: Is it possible to...
     validations:
       required: true
 
