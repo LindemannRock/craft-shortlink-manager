@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.21.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.21.0...v5.21.1) - 2026-06-20
+
+
+### Fixed
+
+* **i18n:** correct translations across multiple locales ([73539aa](https://github.com/LindemannRock/craft-shortlink-manager/commit/73539aa108c57a7b9c429f5245705a770a6f20b7))
+
 ## [5.21.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.20.2...v5.21.0) - 2026-06-18
 
 
