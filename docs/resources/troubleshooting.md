@@ -131,7 +131,7 @@ Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFA
 
 ## QR code shows as broken image
 
-1. **Is the QR prefix configured correctly?** The QR URL pattern is `/{qrPrefix}/{code}`. The default is an empty string (no prefix), but a common configuration is `s/qr`, giving URLs like `/s/qr/abc123`. Check the `qrPrefix` setting.
+1. **Is the QR prefix configured correctly?** The QR URL pattern is `/{qrPrefix}/{code}`. The `qrPrefix` setting defaults to an empty string, but when it is left empty the route falls back to `qr` — so default QR URLs are `/qr/abc123`. A common configuration is `s/qr`, giving URLs like `/s/qr/abc123`. Check the `qrPrefix` setting.
 
 2. **Is the route registered?** Clear caches and reload after changing `qrPrefix`.
 

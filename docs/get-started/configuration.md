@@ -41,7 +41,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 | `usePrefix` | `bool` | `true` | Whether short links include `slugPrefix` in generated URLs (`true` => `/s/abc123`, `false` => `/abc123`) |
 | `slugPrefix` | `string` | `'s'` | URL prefix for generated short links (e.g., `'s'` creates `/s/abc123`) |
 | `shortlinkBaseUrl` | `string\|null` | `null` | Optional absolute base URL for generated shortlink and QR URLs (e.g., `https://short.example.com`). Supports tokens `{siteHandle}`, `{siteId}`, `{siteUid}` and env vars. Leave empty to use each site's base URL. |
-| `qrPrefix` | `string` | `''` | URL prefix for QR code pages. When empty, the CP auto-suggests `{slugPrefix}/qr` (e.g., `s/qr`). Supports standalone (`'qr'`) or nested (`'s/qr'`) patterns |
+| `qrPrefix` | `string` | `''` | URL prefix for QR code pages. When empty, the runtime route falls back to `qr` (QR URLs are `/qr/{code}`), while the CP auto-suggests `{slugPrefix}/qr` (e.g., `s/qr`). Supports standalone (`'qr'`) or nested (`'s/qr'`) patterns |
 | `codeLength` | `int` | `8` | Length of generated short codes (min: 4, max: 32) |
 | `reservedCodes` | `array` | `['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings']` | Codes that cannot be used for short links |
 

@@ -97,7 +97,7 @@ To import the same short link code across multiple sites, include one row per si
 | `code` required | Rows without a code are skipped as errors |
 | Unique code | Codes that already exist in the database are skipped as duplicates |
 | `destinationUrl` required for manual links | `shortLinkType: manual` rows without a destination URL are skipped as errors |
-| URL format | Destination URL must start with `https://`, `http://`, or `/` |
+| URL format | Destination URL must start with `https://`, `http://`, or `/`. Dangerous schemes (e.g. `javascript:`, `data:`), including obfuscated variants, are always rejected. |
 | QR format | `qrCodeFormat` must be `png`, `svg`, or empty |
 | Element must exist | `shortLinkType: auto` rows require a valid `elementId` pointing to a Craft element with a URL |
 | `folder` | Creates the folder automatically if it doesn't exist |

@@ -35,7 +35,7 @@ Click the widget's settings icon to configure:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `dateRange` | `string` | `'last7days'` | Time period to summarize: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
+| `dateRange` | `string` | `'last7days'` | Time period to summarize. Any of the 16 standard date ranges: `today`, `yesterday`, `thisWeek`, `lastWeek`, `last7days`, `last14days`, `last30days`, `last90days`, `thisMonth`, `lastMonth`, `thisQuarter`, `lastQuarter`, `thisYear`, `lastYear`, `last12months`, `all` |
 | `siteId` | `string` | `All Sites` | Site scope for the summary. `All Sites` includes the plugin-enabled sites available to the current user. |
 
 ### When analytics are disabled
@@ -62,7 +62,7 @@ Click the widget's settings icon to configure:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `dateRange` | `string` | `'last7days'` | Time period: `'today'`, `'yesterday'`, `'last7days'`, `'last30days'`, `'last90days'`, `'all'` |
+| `dateRange` | `string` | `'last7days'` | Time period. Any of the 16 standard date ranges: `today`, `yesterday`, `thisWeek`, `lastWeek`, `last7days`, `last14days`, `last30days`, `last90days`, `thisMonth`, `lastMonth`, `thisQuarter`, `lastQuarter`, `thisYear`, `lastYear`, `last12months`, `all` |
 | `siteId` | `string` | `All Sites` | Site scope for the ranked list. `All Sites` includes the plugin-enabled sites available to the current user. |
 | `limit` | `int` | `5` | Maximum number of links to display (1–20) |
 

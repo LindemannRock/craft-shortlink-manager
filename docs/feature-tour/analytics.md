@@ -12,19 +12,32 @@ Know exactly who's clicking your short links — device, location, referrer, and
 
 ## The analytics dashboard
 
-Go to **ShortLink Manager → Analytics**. The dashboard shows:
+Go to **ShortLink Manager → Analytics**. Across the top sits a row of summary cards — **Total Interactions**, **Unique Visitors** (based on IP hashing — requires `ipHashSalt`), **Active Links**, and **Engagement Rate** — followed by tabs that group the detail.
 
-- **Total Clicks** — all-time and for the selected date range
-- **Unique Visitors** — based on IP hashing (requires `ipHashSalt`)
-- **Clicks Over Time** — time-series chart
-- **Top Links** — most-clicked links in the date range
-- **Device Breakdown** — Desktop / Tablet / Mobile split
+![Analytics dashboard showing summary cards, device breakdown, and top links chart](images/analytics-dashboard.webp)
+
+### Overview
+
+- **Daily Interactions** — time-series chart of activity over the selected date range
+- **Top ShortLinks (Top 20)** — most-clicked links in the range
+- **Interactions (Last 20)** — the most recent individual clicks
+
+### Traffic & Devices
+
+- **Device Types** — Desktop / Tablet / Mobile split
 - **Traffic Type** — human, system, and bot traffic split
 - **Top Agents** — known bots and first-party system agents such as cache warmers
-- **Top Countries** — requires geolocation to be enabled
-- **Top Referrers** — most common referring pages
+- **Device Brands** — most common device manufacturers
+- **Operating Systems** — OS share, parsed from the user-agent
+- **Browser Usage** — browser share, parsed from the user-agent
+- **Peak Usage Hours** — when clicks happen across the day
 
-![Analytics dashboard showing click totals, device breakdown, and top links chart](images/analytics-dashboard.webp)
+### Geographic
+
+Shown only when geolocation is enabled (`enableGeoDetection`):
+
+- **Top Countries** — most common visitor countries
+- **Top Cities** — most common visitor cities
 
 **Date range options:** Today, Yesterday, This week, Last week, Last 7 days, Last 14 days, Last 30 days, Last 90 days, This month, Last month, This quarter, Last quarter, This year, Last year, Last 12 months, All time.
 

@@ -62,7 +62,7 @@ Enable the integration in **Settings → Integrations → SEOmatic**. The integr
 To fire a tracking event when a user interacts with a specific element on your page, call `renderSeomaticTracking()` in your template:
 
 ```twig
-<a href="{{ shortLink.getRedirectUrl() }}" {{ shortLink.renderSeomaticTracking('redirect')|raw }}>
+<a href="{{ shortLink.url }}" {{ shortLink.renderSeomaticTracking('redirect')|raw }}>
     Visit Link
 </a>
 ```

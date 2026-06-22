@@ -43,7 +43,7 @@ When `allowAdminChanges` is disabled, the Field Layout settings page is read-onl
 Custom fields are available on the ShortLink element like any other Craft element field:
 
 ```twig
-{% set link = craft.shortLinks.get({ code: 'summer-sale' }) %}
+{% set link = craft.shortLinkManager.get({ code: 'summer-sale' }) %}
 
 {% if link.campaignOwner ?? null %}
     <p>Owner: {{ link.campaignOwner }}</p>
