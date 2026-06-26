@@ -114,6 +114,17 @@ class QrCodeServiceTest extends TestCase
         $this->assertNotSame($withoutLogo, $withLogo, 'Logo overlay should modify the generated PNG bytes.');
     }
 
+    public function testLogoOverlayCleanupIsFinallyGuarded(): void
+    {
+        $source = (string) file_get_contents((string) (new \ReflectionClass(QrCodeService::class))->getFileName());
+
+        $this->assertStringContainsString('finally {', $source);
+        $this->assertStringContainsString('while (ob_get_level() > $bufferLevel)', $source);
+        $this->assertStringContainsString('if (is_string($logoPath) && is_file($logoPath))', $source);
+        $this->assertStringContainsString('@unlink($logoPath);', $source);
+        $this->assertStringNotContainsString("\n            unlink(\$logoPath);", $source);
+    }
+
     /**
      * @param array<string, mixed> $options
      */
