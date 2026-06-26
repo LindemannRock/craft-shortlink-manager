@@ -30,8 +30,8 @@ use craft\db\ActiveRecord;
  * @property string|null $osName
  * @property string|null $osVersion
  * @property string|null $clientType
- * @property bool $isRobot
- * @property bool $isMobileApp
+ * @property bool|null $isRobot
+ * @property bool|null $isMobileApp
  * @property string|null $botName
  * @property string|null $botCategory
  * @property string|null $botUrl
