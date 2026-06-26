@@ -737,11 +737,12 @@
 
                     // Get the format - use selected value or default
                     const formatValue = formatSelect ? formatSelect.value : '';
-                    const format = formatValue || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
+                    const format = formatValue || {{ (plugin.settings.defaultQrFormat ?? 'png')|json_encode|raw }};
+                    const margin = {{ (plugin.settings.defaultQrMargin ?? 1)|json_encode|raw }};
 
                     // Build parameters
-                    let params = `size=150&color=${color}&bg=${bgColor}&format=${format}&margin={{ plugin.settings.defaultQrMargin }}`;
-                    let fullSizeParams = `size=${size}&color=${color}&bg=${bgColor}&format=${format}&margin={{ plugin.settings.defaultQrMargin }}`;
+                    let params = `size=150&color=${color}&bg=${bgColor}&format=${format}&margin=${margin}`;
+                    let fullSizeParams = `size=${size}&color=${color}&bg=${bgColor}&format=${format}&margin=${margin}`;
 
                     // Add eye color if set
                     if (eyeColor) {
@@ -762,8 +763,9 @@
                     }
 
                     // If no specific logo selected, use default logo from settings
-                    if (!logoId && {{ plugin.settings.defaultQrLogoId ?? 'null' }}) {
-                        logoId = {{ plugin.settings.defaultQrLogoId ?? 'null' }};
+                    const defaultLogoId = {{ (plugin.settings.defaultQrLogoId ?? null)|json_encode|raw }};
+                    if (!logoId && defaultLogoId) {
+                        logoId = defaultLogoId;
                     }
 
                     if (logoId) {
@@ -948,7 +950,7 @@
         const color = ($('#qrCodeColor').val() || '000000').replace(/^#/, '');
         const bgColor = ($('#qrCodeBgColor').val() || 'FFFFFF').replace(/^#/, '');
         const eyeColor = $('#qrCodeEyeColor').val() ? $('#qrCodeEyeColor').val().replace(/^#/, '') : '';
-        const format = $('#qrCodeFormat').val() || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
+        const format = $('#qrCodeFormat').val() || {{ (plugin.settings.defaultQrFormat ?? 'png')|json_encode|raw }};
 
         // Build download URL using the public QR URL
         let downloadUrl = {{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId)|json_encode|raw }} +
@@ -991,11 +993,11 @@
             return;
         }
 
-        $('#qrCodeSize').val({{ plugin.settings.defaultQrSize }});
-        $('#qrCodeColor').val('{{ plugin.settings.defaultQrColor }}');
-        $('#qrCodeBgColor').val('{{ plugin.settings.defaultQrBgColor }}');
-        $('#qrCodeEyeColor').val('{{ plugin.settings.qrEyeColor ?? '' }}');
-        $('#qrCodeFormat').val('{{ plugin.settings.defaultQrFormat ?? '' }}');
+        $('#qrCodeSize').val({{ (plugin.settings.defaultQrSize ?? 256)|json_encode|raw }});
+        $('#qrCodeColor').val({{ (plugin.settings.defaultQrColor ?? '#000000')|json_encode|raw }});
+        $('#qrCodeBgColor').val({{ (plugin.settings.defaultQrBgColor ?? '#FFFFFF')|json_encode|raw }});
+        $('#qrCodeEyeColor').val({{ (plugin.settings.qrEyeColor ?? '')|json_encode|raw }});
+        $('#qrCodeFormat').val({{ (plugin.settings.defaultQrFormat ?? '')|json_encode|raw }});
 
         Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('shortlink-manager')|e('js') }}');
     });
