@@ -62,6 +62,11 @@ abstract class TestCase extends IntegrationTestCase
      */
     private array $seededLinks = [];
 
+    /**
+     * @var list<callable(): void>
+     */
+    private array $settingsOverrideRestorers = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -72,9 +77,13 @@ abstract class TestCase extends IntegrationTestCase
 
     protected function tearDown(): void
     {
-        // Parent clears external cache state, deletes tracked elements, and
-        // restores swapped components.
-        parent::tearDown();
+        try {
+            $this->restoreSettingsOverrides();
+        } finally {
+            // Parent clears external cache state, deletes tracked elements, and
+            // restores swapped components.
+            parent::tearDown();
+        }
     }
 
     /**
@@ -154,6 +163,59 @@ abstract class TestCase extends IntegrationTestCase
      */
     protected function withSettings(array $overrides, callable $callback): mixed
     {
+        $restore = $this->createSettingsOverride($overrides);
+
+        try {
+            return $callback();
+        } finally {
+            $restore();
+        }
+    }
+
+    /**
+     * Apply a settings override for the rest of the current test.
+     *
+     * Use this from setUp() when every test in the class needs the same
+     * override. The override is restored automatically in tearDown().
+     *
+     * @param array<string, mixed> $overrides
+     */
+    protected function applySettingsForTest(array $overrides): void
+    {
+        $this->settingsOverrideRestorers[] = $this->createSettingsOverride($overrides);
+    }
+
+    /**
+     * Create a scoped override that beats both DB-backed settings and the
+     * workspace's config/shortlink-manager.php file.
+     *
+     * The plugin intentionally ignores setSettings() and reapplies config-file
+     * overrides on every getSettings() call, so tests must provide a temporary
+     * config file rather than mutating only the in-memory model.
+     *
+     * @param array<string, mixed> $overrides
+     * @return callable(): void
+     */
+    private function createSettingsOverride(array $overrides): callable
+    {
+        $config = Craft::$app->getConfig();
+        $previousConfigDir = $config->configDir;
+        $originalConfig = $config->getConfigFromFile('shortlink-manager');
+        $testConfig = array_merge(is_array($originalConfig) ? $originalConfig : [], $overrides);
+
+        $tempDir = Craft::$app->getPath()->getTempPath()
+            . DIRECTORY_SEPARATOR
+            . 'shortlink-manager-test-config-' . bin2hex(random_bytes(4));
+
+        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true) && !is_dir($tempDir)) {
+            throw new \RuntimeException("Unable to create temporary config directory: {$tempDir}");
+        }
+
+        file_put_contents(
+            $tempDir . DIRECTORY_SEPARATOR . 'shortlink-manager.php',
+            "<?php\nreturn " . var_export($testConfig, true) . ";\n",
+        );
+
         $settings = ShortLinkManager::$plugin->getSettings();
         $previous = [];
 
@@ -162,12 +224,39 @@ abstract class TestCase extends IntegrationTestCase
             $settings->{$attribute} = $value;
         }
 
-        try {
-            return $callback();
-        } finally {
+        $config->configDir = $tempDir;
+        \lindemannrock\base\helpers\DateFormatHelper::clearConfigCache('shortlink-manager');
+
+        $restored = false;
+
+        return static function() use (
+            $config,
+            $previousConfigDir,
+            $settings,
+            $previous,
+            $tempDir,
+            &$restored,
+        ): void {
+            if ($restored) {
+                return;
+            }
+
+            $config->configDir = $previousConfigDir;
+
             foreach ($previous as $attribute => $value) {
                 $settings->{$attribute} = $value;
             }
+
+            \lindemannrock\base\helpers\DateFormatHelper::clearConfigCache('shortlink-manager');
+            \craft\helpers\FileHelper::removeDirectory($tempDir);
+            $restored = true;
+        };
+    }
+
+    private function restoreSettingsOverrides(): void
+    {
+        while ($restore = array_pop($this->settingsOverrideRestorers)) {
+            $restore();
         }
     }
 

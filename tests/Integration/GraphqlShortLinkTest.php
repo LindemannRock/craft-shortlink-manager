@@ -17,8 +17,6 @@ use lindemannrock\base\testing\StubConsoleRequest;
 use lindemannrock\base\testing\StubWebRequest;
 use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\gql\resolvers\ShortLinkResolver;
-use lindemannrock\shortlinkmanager\models\Settings;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 use yii\base\Request as YiiRequest;
@@ -34,14 +32,6 @@ final class GraphqlShortLinkTest extends TestCase
 
     private ?YiiRequest $savedRequest = null;
 
-    private ?string $savedSalt = null;
-
-    private bool $savedEnableAnalytics = true;
-
-    private bool $savedEnableGeo = false;
-
-    private bool $savedAnonymize = false;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,17 +41,12 @@ final class GraphqlShortLinkTest extends TestCase
 
         $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
 
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $this->savedSalt = $settings->ipHashSalt;
-        $this->savedEnableAnalytics = $settings->enableAnalytics;
-        $this->savedEnableGeo = $settings->enableGeoDetection;
-        $this->savedAnonymize = $settings->anonymizeIpAddress;
-
-        $settings->ipHashSalt = self::TEST_SALT;
-        $settings->enableAnalytics = true;
-        $settings->enableGeoDetection = false;
-        $settings->anonymizeIpAddress = false;
+        $this->applySettingsForTest([
+            'ipHashSalt' => self::TEST_SALT,
+            'enableAnalytics' => true,
+            'enableGeoDetection' => false,
+            'anonymizeIpAddress' => false,
+        ]);
     }
 
     protected function tearDown(): void
@@ -69,13 +54,6 @@ final class GraphqlShortLinkTest extends TestCase
         if ($this->savedRequest !== null) {
             Craft::$app->set('request', $this->savedRequest);
         }
-
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $settings->ipHashSalt = $this->savedSalt;
-        $settings->enableAnalytics = $this->savedEnableAnalytics;
-        $settings->enableGeoDetection = $this->savedEnableGeo;
-        $settings->anonymizeIpAddress = $this->savedAnonymize;
 
         parent::tearDown();
     }

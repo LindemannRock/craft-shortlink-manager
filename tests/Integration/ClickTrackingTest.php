@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use craft\helpers\Json;
-use lindemannrock\shortlinkmanager\models\Settings;
-use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\base\testing\StubWebRequest;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
@@ -32,45 +30,22 @@ final class ClickTrackingTest extends TestCase
 {
     private const TEST_SALT = '0123456789abcdef0123456789abcdef'; // 32-char fixed salt for determinism
 
-    /** Track + restore settings mutations across tests. */
-    private ?string $savedSalt = null;
-    private bool $savedEnableAnalytics = true;
-    private bool $savedAnonymize = false;
-    private bool $savedEnableGeo = false;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $this->savedSalt = $settings->ipHashSalt;
-        $this->savedEnableAnalytics = $settings->enableAnalytics;
-        $this->savedAnonymize = $settings->anonymizeIpAddress;
-        $this->savedEnableGeo = $settings->enableGeoDetection;
-
-        $settings->ipHashSalt = self::TEST_SALT;
-        $settings->enableAnalytics = true;
-        $settings->anonymizeIpAddress = false;
-        $settings->enableGeoDetection = false;
+        $this->applySettingsForTest([
+            'ipHashSalt' => self::TEST_SALT,
+            'enableAnalytics' => true,
+            'anonymizeIpAddress' => false,
+            'enableGeoDetection' => false,
+        ]);
 
         // The real DeviceDetection chain calls `getQueryParam()` on the request,
         // which only exists on the web Request — the test bootstrap loads the
         // console Request. Swap to a deterministic stub for the duration of
         // each test; auto-restored by the base TestCase.
         $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
-    }
-
-    protected function tearDown(): void
-    {
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $settings->ipHashSalt = $this->savedSalt;
-        $settings->enableAnalytics = $this->savedEnableAnalytics;
-        $settings->anonymizeIpAddress = $this->savedAnonymize;
-        $settings->enableGeoDetection = $this->savedEnableGeo;
-
-        parent::tearDown();
     }
 
     public function testTrackClickWritesAnalyticsRowWithExpectedFields(): void
@@ -139,58 +114,49 @@ final class ClickTrackingTest extends TestCase
 
     public function testTrackClickAnonymizesIpv4BeforeHashing(): void
     {
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $settings->anonymizeIpAddress = true;
+        $this->withSettings(['anonymizeIpAddress' => true], function(): void {
+            $link = $this->seedShortLink();
+            // Two IPs in the same /24 must collapse to the same anonymised form
+            // (192.168.1.0), then hash to the same value.
+            $this->analytics->trackClick($link, new StubWebRequest(userIp: '192.168.1.42'));
+            $this->analytics->trackClick($link, new StubWebRequest(userIp: '192.168.1.99'));
 
-        $link = $this->seedShortLink();
-        // Two IPs in the same /24 must collapse to the same anonymised form
-        // (192.168.1.0), then hash to the same value.
-        $this->analytics->trackClick($link, new StubWebRequest(userIp: '192.168.1.42'));
-        $this->analytics->trackClick($link, new StubWebRequest(userIp: '192.168.1.99'));
+            $hashes = (new \craft\db\Query())
+                ->from('{{%shortlinkmanager_analytics}}')
+                ->where(['linkId' => $link->id])
+                ->select(['ip'])
+                ->column();
 
-        $hashes = (new \craft\db\Query())
-            ->from('{{%shortlinkmanager_analytics}}')
-            ->where(['linkId' => $link->id])
-            ->select(['ip'])
-            ->column();
-
-        $this->assertCount(2, $hashes);
-        $expected = hash('sha256', '192.168.1.0' . self::TEST_SALT);
-        $this->assertSame($expected, $hashes[0]);
-        $this->assertSame($expected, $hashes[1], 'IP anonymisation must run BEFORE hashing, so /24 neighbours share a hash.');
+            $this->assertCount(2, $hashes);
+            $expected = hash('sha256', '192.168.1.0' . self::TEST_SALT);
+            $this->assertSame($expected, $hashes[0]);
+            $this->assertSame($expected, $hashes[1], 'IP anonymisation must run BEFORE hashing, so /24 neighbours share a hash.');
+        });
     }
 
     public function testTrackClickSkipsInsertWhenAnalyticsDisabled(): void
     {
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        $settings->enableAnalytics = false;
+        $this->withSettings(['enableAnalytics' => false], function(): void {
+            $link = $this->seedShortLink();
+            $this->analytics->trackClick($link, new StubWebRequest());
 
-        $link = $this->seedShortLink();
-        $this->analytics->trackClick($link, new StubWebRequest());
-
-        $this->assertSame(
-            0,
-            $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]),
-            'trackClick must short-circuit when enableAnalytics is false.',
-        );
+            $this->assertSame(
+                0,
+                $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]),
+                'trackClick must short-circuit when enableAnalytics is false.',
+            );
+        });
     }
 
     public function testTrackClickWithUnconfiguredSaltStillWritesRowButNullsTheIp(): void
     {
-        /** @var Settings $settings */
-        $settings = ShortLinkManager::$plugin->getSettings();
-        // Mirror the production "not configured" sentinel value defined in
-        // AnalyticsTrackingService::hashIpWithSalt() — these two strings
-        // both trigger the hash-error branch in AnalyticsIpHelper::prepare().
-        $settings->ipHashSalt = '$SHORTLINK_MANAGER_IP_SALT';
+        $this->withSettings(['ipHashSalt' => '$SHORTLINK_MANAGER_IP_SALT'], function(): void {
+            $link = $this->seedShortLink();
+            $this->analytics->trackClick($link, new StubWebRequest(userIp: '203.0.113.42'));
 
-        $link = $this->seedShortLink();
-        $this->analytics->trackClick($link, new StubWebRequest(userIp: '203.0.113.42'));
-
-        $row = $this->fetchRow('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]);
-        $this->assertNotNull($row, 'A missing salt must not crash trackClick — the row should still land.');
-        $this->assertNull($row['ip'], 'Without a salt, the IP must be persisted as null rather than an unsalted hash.');
+            $row = $this->fetchRow('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]);
+            $this->assertNotNull($row, 'A missing salt must not crash trackClick — the row should still land.');
+            $this->assertNull($row['ip'], 'Without a salt, the IP must be persisted as null rather than an unsalted hash.');
+        });
     }
 }
