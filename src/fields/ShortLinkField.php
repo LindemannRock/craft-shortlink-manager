@@ -133,9 +133,8 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
         // Check if shortlink already exists for this element (pass siteId explicitly)
         $existingLink = ShortLinkManager::$plugin->shortLinks->getByElement($element, $element->siteId);
 
-        // Debug logging
         $this->setLoggingHandle(ShortLinkManager::$plugin->id);
-        $this->logInfo('afterElementSave called', [
+        $this->logDebug('afterElementSave called', [
             'elementId' => $element->id,
             'siteId' => $element->siteId,
             'existingLink' => $existingLink ? $existingLink->id : 'null',
