@@ -29,6 +29,11 @@ class AnalyticsBreakdownService
     use GeoLookupTrait;
 
     /**
+     * @var string[]|null
+     */
+    private ?array $_analyticsColumns = null;
+
+    /**
      * Get device breakdown for a specific link
      *
      * @param int $shortLinkId
@@ -210,8 +215,19 @@ class AnalyticsBreakdownService
 
     private function _hasAnalyticsColumn(string $column): bool
     {
-        $columns = \Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
-        return in_array($column, $columns, true);
+        return in_array($column, $this->_analyticsColumns(), true);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function _analyticsColumns(): array
+    {
+        if ($this->_analyticsColumns !== null) {
+            return $this->_analyticsColumns;
+        }
+
+        return $this->_analyticsColumns = \Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}')?->columnNames ?? [];
     }
 
     /**

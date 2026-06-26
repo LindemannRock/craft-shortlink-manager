@@ -125,7 +125,7 @@ class AnalyticsTrackingService
             'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
             'uid' => StringHelper::UUID(),
         ];
-        $data = array_intersect_key($data, array_flip($db->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? []));
+        $data = array_intersect_key($data, array_flip($db->getTableSchema('{{%shortlinkmanager_analytics}}')?->columnNames ?? []));
 
         try {
             $db->createCommand()

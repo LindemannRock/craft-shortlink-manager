@@ -227,6 +227,6 @@ class AnalyticsExportService
      */
     private function _analyticsColumns(): array
     {
-        return Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
+        return Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}')?->columnNames ?? [];
     }
 }

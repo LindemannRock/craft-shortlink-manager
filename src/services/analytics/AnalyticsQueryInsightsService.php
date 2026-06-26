@@ -29,6 +29,11 @@ class AnalyticsQueryInsightsService
     use AnalyticsQueryTrait;
 
     /**
+     * @var string[]|null
+     */
+    private ?array $_analyticsColumns = null;
+
+    /**
      * Get click statistics for a link
      *
      * @param int $shortLinkId
@@ -210,10 +215,9 @@ class AnalyticsQueryInsightsService
         }
 
         // Get recent clicks for this link
-        $columns = Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
         $optionalSelect = array_map(
             static fn(string $column): string => "a.{$column}",
-            array_values(array_intersect(['botCategory', 'botProducerName', 'isSystemAgent', 'trafficType'], $columns)),
+            array_values(array_intersect(['botCategory', 'botProducerName', 'isSystemAgent', 'trafficType'], $this->_analyticsColumns())),
         );
 
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
@@ -272,10 +276,9 @@ class AnalyticsQueryInsightsService
      */
     public function getAllRecentClicks(string $dateRange = 'last7days', int $limit = 20, int|array|null $siteId = null): array
     {
-        $columns = Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}', true)?->columnNames ?? [];
         $optionalSelect = array_map(
             static fn(string $column): string => "a.{$column}",
-            array_values(array_intersect(['botCategory', 'botProducerName', 'isSystemAgent', 'trafficType'], $columns)),
+            array_values(array_intersect(['botCategory', 'botProducerName', 'isSystemAgent', 'trafficType'], $this->_analyticsColumns())),
         );
 
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
@@ -514,5 +517,17 @@ class AnalyticsQueryInsightsService
             'peakHour' => $peakHour,
             'peakHourFormatted' => $peakHourFormatted,
         ];
+    }
+
+    /**
+     * @return string[]
+     */
+    private function _analyticsColumns(): array
+    {
+        if ($this->_analyticsColumns !== null) {
+            return $this->_analyticsColumns;
+        }
+
+        return $this->_analyticsColumns = Craft::$app->getDb()->getTableSchema('{{%shortlinkmanager_analytics}}')?->columnNames ?? [];
     }
 }
