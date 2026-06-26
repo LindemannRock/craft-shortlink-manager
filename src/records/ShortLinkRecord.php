@@ -32,8 +32,8 @@ use craft\db\ActiveRecord;
  * @property int $hits
  * @property bool $qrCodeEnabled
  * @property int $qrCodeSize
- * @property string $qrCodeColor
- * @property string $qrCodeBgColor
+ * @property string|null $qrCodeColor
+ * @property string|null $qrCodeBgColor
  * @property string|null $qrCodeEyeColor
  * @property string|null $qrCodeFormat
  * @property int|null $qrLogoId
