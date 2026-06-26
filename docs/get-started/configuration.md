@@ -99,8 +99,8 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `enableGeoDetection` | `bool` | `false` | Enable geolocation lookup from IP addresses for analytics |
 | `geoProvider` | `string` | `'ip-api.com'` | Geo IP lookup provider. Options: `'ip-api.com'`, `'ipapi.co'`, `'ipinfo.io'` |
 | `geoApiKey` @since(5.9.0) | `string\|null` | `null` | API key for paid geo provider tiers |
-| `defaultCountry` | `string\|null` | `null` | Default country code for local dev when IP is private (e.g., `'US'`). Reads from `SHORTLINK_MANAGER_DEFAULT_COUNTRY` env var |
-| `defaultCity` | `string\|null` | `null` | Default city for local dev when IP is private. Reads from `SHORTLINK_MANAGER_DEFAULT_CITY` env var |
+| `defaultCountry` | `string\|null` | `null` | Default country code for local dev when IP is private (e.g., `'US'`). Reads from `SHORTLINK_MANAGER_DEFAULT_COUNTRY` env var. Requires `defaultCity`; otherwise private/local IP geo fields stay empty |
+| `defaultCity` | `string\|null` | `null` | Default city for local dev when IP is private. Reads from `SHORTLINK_MANAGER_DEFAULT_CITY` env var. Requires `defaultCountry`; otherwise private/local IP geo fields stay empty |
 
 ---
 

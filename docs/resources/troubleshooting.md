@@ -115,7 +115,7 @@ Old `301`/`308` responses can remain cached even after your plugin settings or l
 
 1. **Is `enableGeoDetection` set to `true`?** Check **ShortLink Manager → Settings → Analytics**.
 
-2. **Private IP addresses cannot be geolocated.** In local development, IPs like `127.0.0.1` or `192.168.x.x` always fail. Set defaults:
+2. **Private IP addresses cannot be geolocated automatically.** In local development, IPs like `127.0.0.1` or `192.168.x.x` leave geo fields empty unless you set both defaults:
 
 ```php
 // config/shortlink-manager.php
@@ -123,7 +123,7 @@ Old `301`/`308` responses can remain cached even after your plugin settings or l
 'defaultCity' => 'New York',
 ```
 
-Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFAULT_CITY`.
+Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFAULT_CITY`. If either value is missing or does not match a supported location, ShortLink Manager leaves the geo fields empty instead of inventing a fallback location.
 
 3. **Check plugin logs instead of the queue.** Geolocation runs inline during the analytics write path, so a queue backlog is not the cause. If geo fields are blank, enable debug logging and inspect the ShortLink Manager logs for hash-salt, provider, or persistence errors.
 

@@ -8,6 +8,7 @@
 
 namespace lindemannrock\shortlinkmanager\services\analytics;
 
+use Craft;
 use craft\db\Query;
 use craft\helpers\App;
 use lindemannrock\base\helpers\GeoHelper;
@@ -491,8 +492,12 @@ class AnalyticsBreakdownService
     private function getDefaultLocation(): ?array
     {
         $settings = ShortLinkManager::$plugin->getSettings();
-        $defaultCountry = $settings->defaultCountry ?: (App::env('SHORTLINK_MANAGER_DEFAULT_COUNTRY') ?: 'AE');
-        $defaultCity = $settings->defaultCity ?: (App::env('SHORTLINK_MANAGER_DEFAULT_CITY') ?: 'Dubai');
+        $defaultCountry = $settings->defaultCountry ?: App::env('SHORTLINK_MANAGER_DEFAULT_COUNTRY');
+        $defaultCity = $settings->defaultCity ?: App::env('SHORTLINK_MANAGER_DEFAULT_CITY');
+
+        if (!$defaultCountry || !$defaultCity) {
+            return null;
+        }
 
         // Predefined locations for common cities worldwide
         $locations = [
@@ -546,7 +551,11 @@ class AnalyticsBreakdownService
             return $locations[$defaultCountry][$defaultCity];
         }
 
-        // If configuration not found, return null
+        Craft::warning('Configured default analytics location was not found; leaving local/private IP geo fields empty. | ' . json_encode([
+            'configuredCountry' => $defaultCountry,
+            'configuredCity' => $defaultCity,
+        ]), ShortLinkManager::$plugin->id);
+
         return null;
     }
 }

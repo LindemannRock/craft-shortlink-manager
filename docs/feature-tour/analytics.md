@@ -133,12 +133,12 @@ return [
 | `ipinfo.io` | Yes (50,000 req/month) | Yes |
 
 > [!TIP]
-> For local development, private IP addresses (127.0.0.1, 192.168.x.x) cannot be geolocated. Set defaults:
+> For local development, private IP addresses (127.0.0.1, 192.168.x.x) cannot be geolocated automatically. Set both defaults to record a local test location:
 > ```php
 > 'defaultCountry' => 'US',
 > 'defaultCity' => 'New York',
 > ```
-> Or use the `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFAULT_CITY` env vars.
+> Or use the `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFAULT_CITY` env vars. If either value is missing or unsupported, local/private IP geo fields stay empty.
 
 ## Data retention
 
