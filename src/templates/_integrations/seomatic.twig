@@ -2,34 +2,35 @@
   SEOmatic integration tracking template
   Pushes shortlink events to Google Tag Manager dataLayer
 #}
-{% macro tracking(link, eventType = 'redirect') %}
-    {% set seomaticEnabled = craft.app.plugins.isPluginEnabled('seomatic') and 'seomatic' in (craft.app.plugins.getPlugin('shortlink-manager').settings.enabledIntegrations ?? []) %}
+{% set shortlinkPlugin = craft.app.plugins.getPlugin('shortlink-manager') %}
+{% set settings = shortlinkPlugin ? shortlinkPlugin.settings : null %}
+{% set enabledIntegrations = settings.enabledIntegrations ?? [] %}
+{% set trackingEvents = settings.seomaticTrackingEvents ?? ['redirect', 'qr_scan'] %}
+{% set seomaticEnabled = settings
+    and craft.app.plugins.isPluginEnabled('seomatic')
+    and 'seomatic' in enabledIntegrations
+    and eventType in trackingEvents
+%}
 
-    {% if seomaticEnabled %}
+{% if seomaticEnabled %}
+    {% set eventPrefix = settings.seomaticEventPrefix ?? 'shortlink_manager' %}
+    {% set eventData = {
+        event: eventPrefix ~ '_' ~ eventType,
+        shortlink: {
+            code: link.code,
+            title: link.title,
+            source: craft.app.request.getParam('src', 'direct'),
+            click_type: eventType,
+        },
+    } %}
+    {% set eventDataJson = eventData|json_encode %}
     <script>
         window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({{ eventDataJson|raw }});
 
-        (function() {
-            var eventPrefix = '{{ (craft.app.plugins.getPlugin('shortlink-manager').settings.seomaticEventPrefix ?? 'shortlink_manager')|e('js') }}';
-            var eventType = '{{ eventType|e('js') }}';
-
-            var eventData = {
-                event: eventPrefix + '_' + eventType,
-                shortlink: {
-                    code: '{{ shortLink.code|e('js') }}',
-                    title: '{{ shortLink.title|e('js') }}',
-                    source: '{{ craft.app.request.getParam('src', 'direct')|e('js') }}',
-                    click_type: eventType
-                }
-            };
-
-            window.dataLayer.push(eventData);
-
-            {% if craft.app.config.general.devMode %}
-            console.log('✅ Shortlink Manager: Event pushed to dataLayer:', eventData);
-            console.log('📊 Current dataLayer length:', window.dataLayer.length);
-            {% endif %}
-        })();
+        {% if craft.app.config.general.devMode %}
+            console.log('Shortlink Manager: Event pushed to dataLayer:', {{ eventDataJson|raw }});
+            console.log('Current dataLayer length:', window.dataLayer.length);
+        {% endif %}
     </script>
-    {% endif %}
-{% endmacro %}
+{% endif %}
