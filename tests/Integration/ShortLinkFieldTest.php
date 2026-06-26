@@ -73,6 +73,23 @@ final class ShortLinkFieldTest extends TestCase
         self::assertSame('https://example.com/updated', $updated->destinationUrl);
     }
 
+    public function testFieldDoesNotCreateShortLinkForDisabledSite(): void
+    {
+        $code = $this->fieldCode('disabled-site');
+        $field = new ShortLinkField([
+            'handle' => 'shortlinkField',
+            'linkType' => 'vanity',
+        ]);
+        $element = $this->fieldElement($code, 'https://example.com/disabled-site');
+
+        $this->withSettings(['enabledSites' => [-1]], function() use ($field, $element): void {
+            $field->afterElementSave($element, true);
+        });
+
+        self::assertNull($this->shortLinks->getByElement($element, $element->siteId));
+        self::assertNull($this->shortLinks->getByCode($code, $element->siteId));
+    }
+
     public function testFieldDeletesAssociatedShortLinkWithElement(): void
     {
         $code = $this->fieldCode('delete');

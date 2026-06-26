@@ -122,6 +122,10 @@ class ShortLinkField extends Field implements PreviewableFieldInterface
             return;
         }
 
+        if (!ShortLinkManager::$plugin->getSettings()->isSiteEnabled($element->siteId)) {
+            return;
+        }
+
         $value = $element->getFieldValue($this->handle);
 
         // Value is just the code string (or empty for auto-generated)

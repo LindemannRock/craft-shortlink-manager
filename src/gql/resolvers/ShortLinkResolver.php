@@ -83,15 +83,14 @@ class ShortLinkResolver extends Resolver
         }
 
         $limit = $arguments['limit'] ?? null;
+        $limit = is_numeric($limit) && (int)$limit > 0 ? (int)$limit : 100;
 
         $query = ShortLink::find()
             ->siteId($siteId)
             ->status(ShortLink::STATUS_ENABLED)
             ->orderBy(['elements.dateCreated' => SORT_DESC]);
 
-        if (is_numeric($limit) && (int)$limit > 0) {
-            $query->limit(min((int)$limit, 500));
-        }
+        $query->limit(min($limit, 500));
 
         return array_map(
             static fn(ShortLink $shortLink): array => self::toArray($shortLink, self::resolveDestinationUrl($shortLink)),
