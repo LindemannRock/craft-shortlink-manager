@@ -707,8 +707,8 @@
             const eyeColorInput = document.getElementById('qrCodeEyeColor');
             const sizeInput = document.getElementById('qrCodeSize');
             const formatSelect = document.getElementById('qrCodeFormat');
-            const baseUrl = '{{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}) }}';
-            const publicBaseUrl = '{{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId) }}';
+            const baseUrl = {{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id})|json_encode|raw }};
+            const publicBaseUrl = {{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId)|json_encode|raw }};
             let updateTimeout;
 
             function updateQrCode() {
@@ -951,7 +951,7 @@
         const format = $('#qrCodeFormat').val() || '{{ plugin.settings.defaultQrFormat ?? 'png' }}';
 
         // Build download URL using the public QR URL
-        let downloadUrl = '{{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId) }}' +
+        let downloadUrl = {{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId)|json_encode|raw }} +
             '?size=' + size +
             '&color=' + color +
             '&bg=' + bgColor +
