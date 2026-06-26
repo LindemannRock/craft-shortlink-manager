@@ -199,10 +199,11 @@ class AnalyticsController extends Controller
         // Check for empty data
         if (empty($exportData)) {
             Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'No analytics data to export.'));
+            $encodedDateRange = urlencode((string)$dateRange);
             if ($linkId) {
-                return $this->redirect('shortlink-manager/shortlinks/' . $linkId . '?range=' . urlencode($dateRange));
+                return $this->redirect('shortlink-manager/shortlinks/' . $linkId . '?range=' . $encodedDateRange);
             }
-            return $this->redirect('shortlink-manager/analytics?dateRange=' . urlencode($dateRange));
+            return $this->redirect('shortlink-manager/analytics?dateRange=' . $encodedDateRange);
         }
 
         $settings = ShortLinkManager::$plugin->getSettings();
