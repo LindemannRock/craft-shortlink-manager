@@ -380,6 +380,9 @@ class ShortlinksController extends Controller
         }
         $shortLink->setTagNames($tagValues);
 
+        // Set custom field layout values from the standard Craft fields namespace.
+        $shortLink->setFieldValuesFromRequest('fields');
+
         // Save the link using service (handles slug change redirects)
         if (!ShortLinkManager::$plugin->shortLinks->saveShortLink($shortLink)) {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save shortlink.'));
