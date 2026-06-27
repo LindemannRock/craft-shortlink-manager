@@ -91,4 +91,44 @@ final class ShortLinkTypeTest extends TestCase
         self::assertSame(\craft\elements\Entry::class, $row['elementType']);
         self::assertSame((int) $link->id, (int) $row['elementId']);
     }
+
+    public function testCommerceProductLinkedShortLinkResolvesDestinationWhenAvailable(): void
+    {
+        $productClass = 'craft\\commerce\\elements\\Product';
+
+        if (!Craft::$app->getPlugins()->isPluginInstalled('commerce') || !class_exists($productClass)) {
+            self::markTestSkipped('Craft Commerce Product elements are not available.');
+        }
+
+        /** @var class-string<\craft\base\Element> $productClass */
+        $product = $productClass::find()
+            ->siteId(Craft::$app->getSites()->getPrimarySite()->id)
+            ->status(null)
+            ->one();
+
+        if (!$product instanceof \craft\base\ElementInterface) {
+            self::markTestSkipped('No Commerce product fixture is available.');
+        }
+
+        $productUrl = $product->getUrl();
+        if ($productUrl === null || $productUrl === '') {
+            self::markTestSkipped('The Commerce product fixture has no URL.');
+        }
+
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-commerce-product',
+            'slug' => 'sl-test-commerce-product',
+            'destinationUrl' => $productUrl,
+            'siteId' => $product->siteId,
+        ]);
+        $link->elementId = (int) $product->id;
+        $link->elementType = $productClass;
+
+        self::assertTrue(
+            $this->shortLinks->saveShortLink($link),
+            'Product-linked shortlink should save: ' . json_encode($link->getErrors()),
+        );
+
+        self::assertSame($productUrl, $link->getLinkedElement()?->getUrl());
+    }
 }

@@ -135,11 +135,33 @@
     </div>
 {% else %}
     {# MANUAL: Show destination type selector #}
-    {% set destinationType = shortLink.elementId ?
-        (shortLink.elementType ends with 'Entry' ? 'entry' :
-         shortLink.elementType ends with 'Category' ? 'category' :
-         shortLink.elementType ends with 'Asset' ? 'asset' : 'url')
-        : 'url' %}
+    {% set destinationType = 'url' %}
+    {% if shortLink.elementId %}
+        {% if shortLink.elementType ends with 'Entry' %}
+            {% set destinationType = 'entry' %}
+        {% elseif shortLink.elementType ends with 'Category' %}
+            {% set destinationType = 'category' %}
+        {% elseif shortLink.elementType ends with 'Asset' %}
+            {% set destinationType = 'asset' %}
+        {% elseif commerceElementTypesAvailable and shortLink.elementType == commerceProductElementType %}
+            {% set destinationType = 'product' %}
+        {% elseif commerceElementTypesAvailable and shortLink.elementType == commerceVariantElementType %}
+            {% set destinationType = 'variant' %}
+        {% endif %}
+    {% endif %}
+
+    {% set destinationTypeOptions = [
+        { value: 'url', label: 'Custom URL'|t('shortlink-manager') },
+        { value: 'entry', label: 'Entry'|t('shortlink-manager') },
+        { value: 'category', label: 'Category'|t('shortlink-manager') },
+        { value: 'asset', label: 'Asset'|t('shortlink-manager') },
+    ] %}
+    {% if commerceElementTypesAvailable %}
+        {% set destinationTypeOptions = destinationTypeOptions|merge([
+            { value: 'product', label: 'Product'|t('shortlink-manager') },
+            { value: 'variant', label: 'Variant'|t('shortlink-manager') },
+        ]) %}
+    {% endif %}
 
     {{ forms.selectField({
         label: "Destination Type"|t('shortlink-manager'),
@@ -147,12 +169,7 @@
         id: 'destinationType',
         name: 'destinationType',
         value: destinationType,
-        options: [
-            { value: 'url', label: 'Custom URL'|t('shortlink-manager') },
-            { value: 'entry', label: 'Entry'|t('shortlink-manager') },
-            { value: 'category', label: 'Category'|t('shortlink-manager') },
-            { value: 'asset', label: 'Asset'|t('shortlink-manager') },
-        ],
+        options: destinationTypeOptions,
     }) }}
 
     {# Custom URL field #}
@@ -226,6 +243,42 @@
         }) }}
     </div>
 
+    {% if commerceElementTypesAvailable %}
+        {# Product picker #}
+        <div id="destination-product-field" class="{{ destinationType != 'product' ? 'hidden' : '' }}">
+            {{ forms.elementSelectField({
+                label: "Select Product"|t('shortlink-manager'),
+                instructions: "Choose a product as the destination"|t('shortlink-manager'),
+                id: 'destinationElementProduct',
+                name: 'destinationElementProduct',
+                elementType: commerceProductElementType,
+                selectionLabel: "Choose a product"|t('shortlink-manager'),
+                limit: 1,
+                elements: (destinationType == 'product' and linkedElement) ? [linkedElement] : [],
+                required: destinationType == 'product',
+                showSiteMenu: true,
+                translatable: craft.app.sites.getTotalEditableSites() > 1,
+            }) }}
+        </div>
+
+        {# Variant picker #}
+        <div id="destination-variant-field" class="{{ destinationType != 'variant' ? 'hidden' : '' }}">
+            {{ forms.elementSelectField({
+                label: "Select Variant"|t('shortlink-manager'),
+                instructions: "Choose a product variant as the destination"|t('shortlink-manager'),
+                id: 'destinationElementVariant',
+                name: 'destinationElementVariant',
+                elementType: commerceVariantElementType,
+                selectionLabel: "Choose a variant"|t('shortlink-manager'),
+                limit: 1,
+                elements: (destinationType == 'variant' and linkedElement) ? [linkedElement] : [],
+                required: destinationType == 'variant',
+                showSiteMenu: true,
+                translatable: craft.app.sites.getTotalEditableSites() > 1,
+            }) }}
+        </div>
+    {% endif %}
+
     {# JavaScript to toggle destination fields #}
     {% js %}
         (function() {
@@ -238,6 +291,14 @@
                 document.getElementById('destination-entry-field').classList.toggle('hidden', type !== 'entry');
                 document.getElementById('destination-category-field').classList.toggle('hidden', type !== 'category');
                 document.getElementById('destination-asset-field').classList.toggle('hidden', type !== 'asset');
+                const productField = document.getElementById('destination-product-field');
+                if (productField) {
+                    productField.classList.toggle('hidden', type !== 'product');
+                }
+                const variantField = document.getElementById('destination-variant-field');
+                if (variantField) {
+                    variantField.classList.toggle('hidden', type !== 'variant');
+                }
 
                 // Update required attributes
                 const urlInput = document.getElementById('destinationUrl');

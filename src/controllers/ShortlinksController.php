@@ -15,6 +15,7 @@ use craft\helpers\Db;
 use craft\web\Controller;
 use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\CpNavHelper;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -166,6 +167,9 @@ class ShortlinksController extends Controller
             'folderOptions' => ShortLinkManager::$plugin->taxonomy->getFolderOptions(),
             'tagString' => implode(', ', $shortLink->tagNames ?? []),
             'allTagNames' => ShortLinkManager::$plugin->taxonomy->getAllTagNames(),
+            'commerceElementTypesAvailable' => $this->commerceElementTypesAvailable(),
+            'commerceProductElementType' => 'craft\\commerce\\elements\\Product',
+            'commerceVariantElementType' => 'craft\\commerce\\elements\\Variant',
         ]);
     }
 
@@ -244,6 +248,10 @@ class ShortlinksController extends Controller
                     'category' => \craft\elements\Category::class,
                     'asset' => \craft\elements\Asset::class,
                 ];
+                if ($this->commerceElementTypesAvailable()) {
+                    $elementTypeMap['product'] = 'craft\\commerce\\elements\\Product';
+                    $elementTypeMap['variant'] = 'craft\\commerce\\elements\\Variant';
+                }
 
                 $elementFieldName = 'destinationElement' . ucfirst($destinationType);
                 $elementIds = $this->request->getBodyParam($elementFieldName);
@@ -387,6 +395,13 @@ class ShortlinksController extends Controller
 
         // Redirect to edit page or posted URL
         return $this->redirectToPostedUrl($shortLink);
+    }
+
+    private function commerceElementTypesAvailable(): bool
+    {
+        return PluginHelper::isPluginInstalled('commerce')
+            && class_exists('craft\\commerce\\elements\\Product')
+            && class_exists('craft\\commerce\\elements\\Variant');
     }
 
     /**
