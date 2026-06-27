@@ -728,8 +728,6 @@ class ImportExportController extends Controller
             'entry' => \craft\elements\Entry::class,
             'asset' => \craft\elements\Asset::class,
             'category' => \craft\elements\Category::class,
-            'tag' => \craft\elements\Tag::class,
-            'user' => \craft\elements\User::class,
             'product' => 'craft\\commerce\\elements\\Product',
             'variant' => 'craft\\commerce\\elements\\Variant',
         ];
