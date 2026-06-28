@@ -18,9 +18,9 @@ When SEOmatic is installed and the integration is enabled, ShortLink Manager reg
 
 ### Event types
 
-Two event types are dispatched to the data layer:
+Two event types are dispatched to the data layer. The `shortlink_manager` prefix shown below is the **default** — the event name is `{seomaticEventPrefix}_{eventType}`, so if you change the [`seomaticEventPrefix`](../get-started/configuration.md) setting the names use your prefix instead (e.g. `myprefix_redirect`).
 
-| Event name | When it fires |
+| Event name (default prefix) | When it fires |
 |------------|--------------|
 | `shortlink_manager_redirect` | A visitor follows the redirect URL |
 | `shortlink_manager_qr_scan` | A visitor accesses the QR code endpoint |
