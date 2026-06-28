@@ -561,7 +561,6 @@ class ShortLink extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'slug' => ['label' => Craft::t('shortlink-manager', 'Code')],
             'linkType' => ['label' => Craft::t('shortlink-manager', 'Type')],
             'destinationUrl' => ['label' => Craft::t('shortlink-manager', 'Destination')],
             'folder' => ['label' => Craft::t('shortlink-manager', 'Folder')],
@@ -581,7 +580,6 @@ class ShortLink extends Element
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
-            'slug',
             'linkType',
             'destinationUrl',
             'folder',
