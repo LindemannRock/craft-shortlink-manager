@@ -215,7 +215,7 @@ class Install extends Migration
             $this->createTable('{{%shortlinkmanager_settings}}', [
                 'id' => $this->primaryKey(),
                 // Plugin settings
-                'pluginName' => $this->string(255)->notNull()->defaultValue('Short Links'),
+                'pluginName' => $this->string(255)->notNull()->defaultValue('ShortLink Manager'),
                 // Site settings
                 'enabledSites' => $this->text()->null()->comment('JSON array of enabled site IDs'),
                 // URL settings
