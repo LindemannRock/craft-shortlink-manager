@@ -6,13 +6,13 @@ Shorten any URL in the Control Panel — no code required. Every short link gets
 
 - Share short, readable URLs in emails, social posts, or print — instead of long slugs nobody types.
 - Create vanity links for campaigns: `/s/summer-sale` instead of `/s/abc123XY`.
-- Attach a short link to an entry so its destination stays in sync when the entry URL changes.
+- Attach a short link to an entry, category, asset, or Commerce product so its destination stays in sync when the element URL changes.
 - Schedule links with post and expiry dates: a Black Friday link that goes live at midnight and expires the next day.
 - Track per-link clicks with analytics, or disable tracking for specific links.
 
 ## Create your first short link
 
-Go to **ShortLink Manager → New Link** in the Control Panel.
+Go to **ShortLink Manager → New shortlink** in the Control Panel.
 
 ![New short link form showing code, destination, and optional fields](images/shortlinks-new-link.webp)
 
@@ -94,7 +94,7 @@ Reserved codes (configurable via `reservedCodes`) cannot be used as vanity codes
 
 ## Linking to Craft elements
 
-Instead of entering a destination URL manually, you can link a short link to any Craft element (entry, product, category, etc.). When the linked element's URL changes (slug update, section change, etc.), the short link's destination URL updates automatically.
+Instead of entering a destination URL manually, you can link a short link to a Craft element. The Control Panel picker supports entries, categories, and assets. When Craft Commerce is installed, it also supports products and variants. When the linked element's URL changes (slug update, section change, product URL update, etc.), the short link's destination URL updates automatically.
 
 To link to a Craft element, use the element picker in the edit screen. The destination URL field is populated automatically and kept in sync.
 

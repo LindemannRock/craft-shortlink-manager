@@ -147,6 +147,8 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `seomaticTrackingEvents` | `array` | `['redirect', 'qr_scan']` | SEOmatic event types to emit for GTM/GA tracking |
 | `seomaticEventPrefix` | `string` | `'shortlink_manager'` | Event name prefix for SEOmatic/GTM events (lowercase, numbers, underscores only) |
 
+Add `'seomatic'` to `enabledIntegrations` to activate both SEOmatic tracking and the SEOmatic Content SEO source for ShortLinks. When it is not enabled, ShortLink Manager does not register ShortLinks in SEOmatic.
+
 ---
 
 ### Interface

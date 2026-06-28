@@ -84,7 +84,7 @@ Get an existing short link, or create one if it does not exist. The behavior dep
 
 1. If `element` is provided: looks for an existing link attached to that element. If none found, creates one automatically.
 2. If `code` or `slug` is provided: looks up the link by slug.
-3. If `id` is provided: looks up the link by element ID.
+3. If `id` is provided: looks up the link by the ShortLink's own element ID (not the linked element's ID).
 
 | Option | Type | Description |
 |--------|------|-------------|

@@ -28,7 +28,7 @@ Click **Export CSV** to download all short links across all sites. The CSV inclu
 | `linkType` | `code` or `vanity` |
 | `destinationUrl` | The URL the short link redirects to |
 | `elementId` | Linked Craft element ID (field-managed links only) |
-| `elementType` | Linked element class (field-managed links only) |
+| `elementType` | Linked element class. Import accepts full element class names and aliases such as `entry`, `asset`, `category`, `product`, and `variant`; Commerce aliases are only useful when Craft Commerce is installed. Use `destinationUrl` for user profile or tag archive URLs. |
 | `httpCode` | HTTP redirect status (e.g., `301`, `302`) |
 | `enabled` | `1` or `0` |
 | `siteId` | Numeric site ID |

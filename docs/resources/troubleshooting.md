@@ -215,6 +215,18 @@ To enable SEOmatic tracking:
 
 See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../developers/integrations.md).
 
+## ShortLinks do not appear in SEOmatic Content SEO
+
+ShortLink Manager only registers ShortLinks with SEOmatic when SEOmatic is installed, enabled, and the ShortLink Manager SEOmatic integration is enabled.
+
+Check these items:
+
+1. Confirm SEOmatic is installed and enabled in Craft.
+2. Confirm **ShortLink Manager → Settings → Integrations → SEOmatic** is enabled, or add `'seomatic'` to `enabledIntegrations`.
+3. Clear SEOmatic metadata and sitemap caches if you recently changed integration settings.
+
+SEOmatic source-field dropdowns only list actual Craft custom fields from the ShortLink field layout, plus SEOmatic's built-in title source. For per-link SEO descriptions or images, add a SEOmatic SEO field to the ShortLink layout, or add your own text/asset fields and map those fields in SEOmatic Content SEO.
+
 ## Custom redirect template still skips tracking
 
 If you override `templates/shortlink-manager/redirect.twig`, make sure it redirects to the internal `goUrl` variable, not directly to `destinationUrl`.
@@ -226,6 +238,8 @@ For non-direct redirects, the tracked flow is:
 3. Let the internal action route record analytics and issue the final redirect
 
 If your custom template redirects straight to `destinationUrl`, the tracking hop is bypassed.
+
+When `devMode` is enabled, add `?debug=1` to a rendered short link URL to stop the browser before the second hop. The shipped redirect template logs the generated `goUrl` in the browser console, so you can confirm custom domains and multisite site parameters before the final redirect runs.
 
 ## Redirect Manager integration not creating redirects
 

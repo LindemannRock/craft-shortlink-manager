@@ -172,7 +172,7 @@ The list query:
 
 - returns enabled shortlinks for the requested site
 - accepts `site` or `siteId`
-- caps `limit` at 500
+- defaults `limit` to 100 when omitted, and caps it at 500
 - does not increment `hits`
 - does not write analytics
 
@@ -186,7 +186,7 @@ shortlinkManagerShortlinks(siteId: 1, site: "en", limit: 20)
 |---|---|---|---|
 | `siteId` | `Int` | No | Site ID to list shortlinks for |
 | `site` | `String` | No | Site handle to list shortlinks for |
-| `limit` | `Int` | No | Maximum number of shortlinks to return, capped at 500 |
+| `limit` | `Int` | No | Maximum number of shortlinks to return. Defaults to 100 when omitted; capped at 500 |
 
 ## Query a ShortLink field
 

@@ -14,7 +14,7 @@ ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft's native
 
 ## SEOmatic integration
 
-When SEOmatic is installed and the integration is enabled, ShortLink Manager pushes structured data layer events to the GTM/GA4 data layer whenever a short link is clicked or a QR code endpoint is accessed.
+When SEOmatic is installed and the integration is enabled, ShortLink Manager registers ShortLinks as a SEOmatic content source and pushes structured data layer events to the GTM/GA4 data layer whenever a short link is clicked or a QR code endpoint is accessed.
 
 ### Event types
 
@@ -27,7 +27,7 @@ Two event types are dispatched to the data layer:
 
 ### Data layer structure
 
-Each event pushes the following payload:
+Tracking is pushed **client-side**: when the redirect (or QR) page renders, ShortLink Manager outputs a small `<script>` that calls `window.dataLayer.push()` with this payload:
 
 ```json
 {
@@ -35,27 +35,42 @@ Each event pushes the following payload:
     "shortlink": {
         "code": "abc123",
         "title": "My Campaign",
-        "destination_url": "https://example.com/landing",
-        "source": "redirect",
-        "device_type": "smartphone",
-        "os": "iOS",
-        "os_version": "17.0",
-        "browser": "Safari",
-        "browser_version": "17.0",
-        "is_mobile": true,
-        "is_tablet": false,
-        "country": "US",
-        "city": "New York"
+        "source": "direct",
+        "click_type": "redirect"
     }
 }
 ```
 
+The `event` name is `{seomaticEventPrefix}_{eventType}` (e.g. `shortlink_manager_redirect` or `shortlink_manager_qr_scan`). `source` comes from the `src` query parameter on the short URL (defaults to `direct`), and `click_type` is the event type. Add your own device, geo, or campaign dimensions in GTM/GA4 from this event.
+
 ### Configuration
 
-Enable the integration in **Settings → Integrations → SEOmatic**. The integration is automatically detected — if SEOmatic is not installed, the option is not shown.
+Enable the integration in **Settings → Integrations → SEOmatic**. The integration is automatically detected — if SEOmatic is not installed, the card still appears with an **Install Plugin** link, but its enable toggle stays disabled until SEOmatic is installed.
 
 > [!WARNING]
 > SEOmatic tracking events cannot fire when [Direct Redirect](direct-redirect.md) is enabled. The redirect template is skipped, so no JavaScript runs before the browser navigates away. Use per-link Direct Redirect overrides to keep tracking for important links.
+
+### Content SEO and sitemaps
+
+When the integration is enabled, SEOmatic adds a **ShortLinks** source in **SEOmatic → Content SEO**. That source lets you manage the SEOmatic metadata bundle for rendered shortlink and QR pages, including title, robots, canonical URL, and sitemap settings.
+
+ShortLink Manager sets conservative defaults:
+
+| Setting | Default |
+|---------|---------|
+| SEO Title | From the ShortLink title |
+| Canonical URL | The short link's public URL |
+| Robots | `noindex,nofollow` |
+| Sitemap URLs | Off |
+
+If you enable sitemap URLs in SEOmatic, the generated sitemap URLs use the same public URL builder as short links and QR codes. That means `shortlinkBaseUrl`, custom domains, and multisite tokens such as `{siteHandle}`, `{siteId}`, and `{siteUid}` are respected.
+
+SEOmatic only lists actual Craft field-layout fields as **Source Field** options. To manage SEO descriptions or images for short links, use one of these approaches:
+
+- Add a SEOmatic SEO field to the ShortLink field layout and edit metadata per short link.
+- Add your own text/asset fields to the ShortLink field layout, then map those fields in SEOmatic Content SEO.
+
+Existing SEOmatic content bundles keep their saved settings. If you enabled the integration before changing defaults, resave or reset the ShortLinks source in SEOmatic to apply the current defaults.
 
 ### Using `renderSeomaticTracking()` in templates
 
@@ -67,7 +82,7 @@ To fire a tracking event when a user interacts with a specific element on your p
 </a>
 ```
 
-This renders the necessary `data-gtm-*` attributes or inline tracking markup that SEOmatic uses to push the event to the data layer.
+This outputs a `<script>` block that pushes the event object (shown above) to `window.dataLayer` — the same client-side push the redirect and QR pages emit automatically. It does not add `data-gtm-*` attributes; use it when you want to fire the event from your own markup.
 
 ## Redirect Manager integration
 
@@ -118,6 +133,6 @@ The `ShortLinkType` class is registered automatically when Link Field is install
 | Redirect Manager | `lindemannrock/craft-redirect-manager` |
 | Craft Link Field | Craft CMS 5.3+ (native Link field) |
 
-All integrations are detected automatically. If the required plugin is not installed, the integration option is hidden in settings and no integration code runs.
+All integrations are detected automatically. If the required plugin is not installed, its card still shows with an **Install Plugin** link but the enable toggle is disabled, and no integration code runs until it is installed and enabled.
 
 For the `IntegrationInterface` API reference, see [Integrations API](../developers/integrations.md).

@@ -32,8 +32,10 @@ With this configuration, a link with code `abc123` generates URLs like:
 
 ```
 https://short.example.com/s/abc123
-https://short.example.com/s/qr/abc123
+https://short.example.com/qr/abc123
 ```
+
+The link path uses `slugPrefix` (default `s`) and the QR path uses `qrPrefix` (default empty, which falls back to `qr`) — the two prefixes are independent.
 
 This overrides the site's own base URL when generating shortlink URLs, but does **not** require a separate Craft site. Your existing Craft site handles the routing — `shortlinkBaseUrl` only changes what URL is displayed and encoded in QR codes.
 

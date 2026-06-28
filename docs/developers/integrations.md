@@ -1,4 +1,4 @@
-# Integrations @since(5.1.0)
+# Integrations
 
 Wire ShortLink Manager to Redirect Manager and SEOmatic to automate link maintenance and enable client-side analytics tracking.
 
