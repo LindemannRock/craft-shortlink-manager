@@ -72,6 +72,7 @@ return [
     'Copy' => 'コピーする',
     'Author' => '作成者',
     'Content' => 'コンテンツ',
+    'Details' => '詳細',
     'Name' => '名前',
     'None' => 'なし',
     'Select site' => 'サイトを選択する',

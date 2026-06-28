@@ -72,6 +72,7 @@ return [
     'Copy' => 'Kopiera',
     'Author' => 'Författare',
     'Content' => 'Innehåll',
+    'Details' => 'Detaljer',
     'Name' => 'Namn',
     'None' => 'Ingen',
     'Select site' => 'Välj webbplats',

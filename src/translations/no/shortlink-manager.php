@@ -72,6 +72,7 @@ return [
     'Copy' => 'Kopier',
     'Author' => 'Forfatter',
     'Content' => 'Innhold',
+    'Details' => 'Detaljer',
     'Name' => 'Navn',
     'None' => 'Ingen',
     'Select site' => 'Velg nettsted',

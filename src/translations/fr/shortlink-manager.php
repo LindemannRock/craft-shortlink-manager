@@ -72,6 +72,7 @@ return [
     'Copy' => 'Copier',
     'Author' => 'Auteur',
     'Content' => 'Contenu',
+    'Details' => 'Détails',
     'Name' => 'Nom',
     'None' => 'Aucun',
     'Select site' => 'Sélectionner le site',

@@ -72,6 +72,7 @@ return [
     'Copy' => 'نسخ',
     'Author' => 'المؤلف',
     'Content' => 'المحتوى',
+    'Details' => 'التفاصيل',
     'Name' => 'الاسم',
     'None' => 'بدون',
     'Select site' => 'اختيار الموقع',
