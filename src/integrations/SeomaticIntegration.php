@@ -299,34 +299,35 @@ class SeomaticIntegration extends BaseIntegration
 
             // Check each site for tracking scripts
             if (class_exists(Seomatic::class) && isset(Seomatic::$plugin)) {
-                $currentSiteId = Craft::$app->sites->getCurrentSite()->id;
+                $currentSite = Craft::$app->sites->getCurrentSite();
 
-                foreach ($sites as $site) {
-                    // Temporarily switch to this site
-                    Craft::$app->sites->setCurrentSite($site);
+                try {
+                    foreach ($sites as $site) {
+                        // Temporarily switch to this site
+                        Craft::$app->sites->setCurrentSite($site);
 
-                    // Load SEOmatic meta containers for this specific site
-                    try {
-                        if (isset(Seomatic::$plugin->metaContainers)) {
-                            Seomatic::$plugin->metaContainers->loadMetaContainers('', $site->id);
+                        // Load SEOmatic meta containers for this specific site
+                        try {
+                            if (isset(Seomatic::$plugin->metaContainers)) {
+                                Seomatic::$plugin->metaContainers->loadMetaContainers('', $site->id);
+                            }
+                        } catch (\Throwable $e) {
+                            // Silently continue if we can't load meta containers for this site
                         }
-                    } catch (\Throwable $e) {
-                        // Silently continue if we can't load meta containers for this site
-                    }
 
-                    $scriptService = Seomatic::$plugin->script ?? null;
-                    if (!$scriptService) {
-                        continue;
-                    }
+                        $scriptService = Seomatic::$plugin->script ?? null;
+                        if (!$scriptService) {
+                            continue;
+                        }
 
-                    // Check all known tracking scripts for this site
-                    foreach ($this->_getScriptDefinitions() as $def) {
-                        $this->_checkScript($scriptService, $site, $def, $scriptsFound);
+                        // Check all known tracking scripts for this site
+                        foreach ($this->_getScriptDefinitions() as $def) {
+                            $this->_checkScript($scriptService, $site, $def, $scriptsFound);
+                        }
                     }
+                } finally {
+                    Craft::$app->sites->setCurrentSite($currentSite);
                 }
-
-                // Restore original site
-                Craft::$app->sites->setCurrentSite(Craft::$app->sites->getSiteById($currentSiteId));
             }
 
             $status['scripts'] = $scriptsFound;
