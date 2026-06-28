@@ -10,8 +10,11 @@ namespace lindemannrock\shortlinkmanager\integrations;
 
 use Craft;
 use craft\helpers\App;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\integrations\seomatic\SeoShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use nystudio107\seomatic\Seomatic;
+use nystudio107\seomatic\variables\SeomaticVariable;
 use yii\base\Event;
 
 /**
@@ -108,6 +111,46 @@ class SeomaticIntegration extends BaseIntegration
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
+            return false;
+        }
+    }
+
+    /**
+     * Prime SEOmatic's content metadata for a rendered ShortLink redirect page.
+     */
+    public function prepareMetadataForShortLink(ShortLink $shortLink): bool
+    {
+        if (!$this->isAvailable() || !$this->isEnabled()) {
+            return false;
+        }
+
+        if (!class_exists(Seomatic::class) || !isset(Seomatic::$plugin)) {
+            return false;
+        }
+
+        try {
+            if (Seomatic::$seomaticVariable === null) {
+                Seomatic::$seomaticVariable = new SeomaticVariable();
+            }
+
+            Seomatic::$plugin->seoElements->getAllSeoElementTypes();
+
+            Seomatic::setMatchedElement($shortLink);
+            Seomatic::$plugin->metaBundles->getMetaBundleBySourceId(
+                SeoShortLink::getMetaBundleType(),
+                SeoShortLink::SOURCE_ID,
+                $shortLink->siteId
+            );
+            Seomatic::$plugin->metaContainers->loadMetaContainers('', $shortLink->siteId, $shortLink);
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->logError('Failed to prepare SEOmatic metadata for ShortLink', [
+                'error' => $e->getMessage(),
+                'code' => $shortLink->code,
+                'siteId' => $shortLink->siteId,
+            ]);
+
             return false;
         }
     }

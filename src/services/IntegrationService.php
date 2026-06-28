@@ -5,6 +5,7 @@ namespace lindemannrock\shortlinkmanager\services;
 use Craft;
 use craft\base\Component;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\integrations\IntegrationInterface;
 use lindemannrock\shortlinkmanager\integrations\RedirectManagerIntegration;
 use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
@@ -230,6 +231,20 @@ class IntegrationService extends Component
     public function hasEnabledIntegrations(): bool
     {
         return !empty($this->getEnabledIntegrations());
+    }
+
+    /**
+     * Prepare SEOmatic content metadata for a rendered ShortLink page.
+     */
+    public function prepareSeomaticMetadata(ShortLink $shortLink): bool
+    {
+        $seomatic = $this->getIntegration('seomatic');
+
+        if (!$seomatic instanceof SeomaticIntegration) {
+            return false;
+        }
+
+        return $seomatic->prepareMetadataForShortLink($shortLink);
     }
 
     /**

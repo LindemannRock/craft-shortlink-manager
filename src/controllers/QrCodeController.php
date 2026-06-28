@@ -288,6 +288,8 @@ class QrCodeController extends Controller
             'currentSite' => Craft::$app->sites->getCurrentSite(),
         ];
 
+        ShortLinkManager::$plugin->integration->prepareSeomaticMetadata($shortLink);
+
         // Render the template
         try {
             return $this->renderTemplate($template, $templateVars);

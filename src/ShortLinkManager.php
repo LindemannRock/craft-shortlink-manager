@@ -41,6 +41,7 @@ use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\gql\types\ShortLinkType as GqlShortLinkType;
+use lindemannrock\shortlinkmanager\integrations\seomatic\SeoShortLink;
 use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
 use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\models\Settings;
@@ -144,6 +145,7 @@ class ShortLinkManager extends Plugin
         $this->registerProjectConfigEventHandlers();
 
         $this->registerGraphql();
+        $this->registerSeomaticSeoElement();
 
         // Register variables
         Event::on(
@@ -322,6 +324,32 @@ class ShortLinkManager extends Plugin
         }
 
         // DO NOT log in init() - it's called on every request
+    }
+
+    /**
+     * Register ShortLinks as a SEOmatic content source when SEOmatic is installed.
+     */
+    private function registerSeomaticSeoElement(): void
+    {
+        $seoElementsClass = 'nystudio107\seomatic\services\SeoElements';
+
+        if (!class_exists($seoElementsClass)) {
+            return;
+        }
+
+        $seomatic = $this->integration->getIntegration('seomatic');
+
+        if ($seomatic === null || !$seomatic->isAvailable() || !$seomatic->isEnabled()) {
+            return;
+        }
+
+        Event::on(
+            $seoElementsClass,
+            'registerSeoElementTypes',
+            static function(RegisterComponentTypesEvent $event) {
+                $event->types[] = SeoShortLink::class;
+            }
+        );
     }
 
     /**
@@ -666,6 +694,8 @@ class ShortLinkManager extends Plugin
             : '[a-zA-Z0-9\-\_]+';
 
         $priorityRules = [
+            'shortlink-manager/redirect/go/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/go',
+            '<siteHandle:' . $siteHandlePattern . '>/shortlink-manager/redirect/go/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/go',
             // QR Code routes - supports both standalone ('qr') and nested ('s/qr') patterns
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',

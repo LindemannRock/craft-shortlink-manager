@@ -505,6 +505,8 @@
     </fieldset>
 
     {% if shortLink.id %}
+        {{ shortLink.getSidebarHtml(true)|raw }}
+
         <dl class="meta read-only">
             <div class="data">
                 <dt class="heading">{{ "ID"|t('shortlink-manager') }}</dt>

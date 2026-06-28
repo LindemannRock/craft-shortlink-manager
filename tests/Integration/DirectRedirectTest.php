@@ -116,6 +116,74 @@ final class DirectRedirectTest extends TestCase
         });
     }
 
+    public function testRenderedRedirectGoUrlUsesConfiguredBaseUrlWithSiteToken(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        $this->installRequest();
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-go-token',
+            'slug' => 'sl-test-go-token',
+            'destinationUrl' => 'https://example.com/go-token',
+        ]);
+        $link->directRedirect = false;
+        $link->passQueryParams = false;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+        $site = Craft::$app->getSites()->getSiteById($link->siteId);
+        self::assertNotNull($site);
+
+        $this->withSettings([
+            'directRedirect' => true,
+            'redirectTemplate' => 'shortlink-manager/redirect',
+            'enableAnalytics' => false,
+            'shortlinkBaseUrl' => 'https://short.example/{siteHandle}',
+        ], function() use ($link, $site): void {
+            $controller = $this->controller();
+            $response = $controller->actionIndex($link->slug);
+
+            self::assertSame(200, $response->getStatusCode());
+            self::assertSame('rendered:shortlink-manager/redirect', $response->content);
+            self::assertStringStartsWith('https://short.example/' . $site->handle . '/', (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('/shortlink-manager/redirect/go/' . $link->slug, (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('src=direct', (string) $controller->lastVariables['goUrl']);
+            self::assertStringNotContainsString('site=', (string) $controller->lastVariables['goUrl']);
+            self::assertStringNotContainsString('craftcms.ddev.site', (string) $controller->lastVariables['goUrl']);
+        });
+    }
+
+    public function testRenderedRedirectGoUrlAddsSiteParamWhenConfiguredBaseUrlHasNoSiteToken(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        $this->installRequest();
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-go-shared',
+            'slug' => 'sl-test-go-shared',
+            'destinationUrl' => 'https://example.com/go-shared',
+        ]);
+        $link->directRedirect = false;
+        $link->passQueryParams = false;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+        $site = Craft::$app->getSites()->getSiteById($link->siteId);
+        self::assertNotNull($site);
+
+        $this->withSettings([
+            'directRedirect' => true,
+            'redirectTemplate' => 'shortlink-manager/redirect',
+            'enableAnalytics' => false,
+            'shortlinkBaseUrl' => 'https://short.example',
+        ], function() use ($link, $site): void {
+            $controller = $this->controller();
+            $response = $controller->actionIndex($link->slug);
+
+            self::assertSame(200, $response->getStatusCode());
+            self::assertStringStartsWith('https://short.example/shortlink-manager/redirect/go/' . $link->slug, (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('site=' . $site->handle, (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('src=direct', (string) $controller->lastVariables['goUrl']);
+            self::assertStringNotContainsString('craftcms.ddev.site', (string) $controller->lastVariables['goUrl']);
+        });
+    }
+
     private function controller(): TestRedirectController
     {
         return new TestRedirectController('redirect', ShortLinkManager::$plugin);
@@ -138,10 +206,17 @@ final class DirectRedirectTest extends TestCase
 final class TestRedirectController extends RedirectController
 {
     /**
+     * @var array<string, mixed>
+     */
+    public array $lastVariables = [];
+
+    /**
      * @param array<string, mixed> $variables
      */
     public function renderTemplate(string $template, array $variables = [], ?string $templateMode = null): Response
     {
+        $this->lastVariables = $variables;
+
         $response = new Response();
         $response->setStatusCode(200);
         $response->content = "rendered:{$template}";

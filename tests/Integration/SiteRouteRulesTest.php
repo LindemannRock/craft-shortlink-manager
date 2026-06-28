@@ -33,6 +33,8 @@ final class SiteRouteRulesTest extends TestCase
             $rules = $this->siteUrlRules();
 
             self::assertArrayHasKey('s/<code:[a-zA-Z0-9\\-\\_]+>', $rules['priority']);
+            self::assertArrayHasKey('shortlink-manager/redirect/go/<code:[a-zA-Z0-9\\-\\_]+>', $rules['priority']);
+            self::assertArrayHasKey('<siteHandle:[^>]+>/shortlink-manager/redirect/go/<code:[a-zA-Z0-9\\-\\_]+>', $this->normalizedSiteHandleRules($rules['priority']));
             self::assertSame([], $rules['fallback']);
         });
 
@@ -45,6 +47,8 @@ final class SiteRouteRulesTest extends TestCase
             $rules = $this->siteUrlRules();
 
             self::assertArrayHasKey('s/<code:[a-zA-Z0-9\\-\\_]+>', $rules['priority']);
+            self::assertArrayHasKey('shortlink-manager/redirect/go/<code:[a-zA-Z0-9\\-\\_]+>', $rules['priority']);
+            self::assertArrayHasKey('<siteHandle:[^>]+>/shortlink-manager/redirect/go/<code:[a-zA-Z0-9\\-\\_]+>', $this->normalizedSiteHandleRules($rules['priority']));
             self::assertNotEmpty($rules['fallback']);
             self::assertArrayHasKey('<code:(?!(?i:admin|api)$)[a-zA-Z0-9\\-\\_]+>', $rules['fallback']);
         });
@@ -92,5 +96,19 @@ final class SiteRouteRulesTest extends TestCase
 
         /** @var array{priority: array<string, string>, fallback: array<string, string>} */
         return $method->invoke(ShortLinkManager::$plugin);
+    }
+
+    /**
+     * @param array<string, string> $rules
+     * @return array<string, string>
+     */
+    private function normalizedSiteHandleRules(array $rules): array
+    {
+        $normalized = [];
+        foreach ($rules as $pattern => $route) {
+            $normalized[(string) preg_replace('/<siteHandle:[^>]+>/', '<siteHandle:[^>]+>', $pattern)] = $route;
+        }
+
+        return $normalized;
     }
 }

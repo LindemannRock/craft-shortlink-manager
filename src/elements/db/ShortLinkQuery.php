@@ -38,6 +38,11 @@ class ShortLinkQuery extends ElementQuery
     public mixed $linkType = null;
 
     /**
+     * @var bool Whether populated elements should expose synthetic public URLs through `uri`.
+     */
+    public bool $withSyntheticUris = false;
+
+    /**
      * @var string|string[]|null The shortlink type(s) that the resulting short links must have ('auto' or 'manual').
      */
     public mixed $shortLinkType = null;
@@ -96,6 +101,15 @@ class ShortLinkQuery extends ElementQuery
     public function linkType(mixed $value): static
     {
         $this->linkType = $value;
+        return $this;
+    }
+
+    /**
+     * Sets whether populated elements should expose synthetic public URLs through `uri`.
+     */
+    public function withSyntheticUris(bool $value = true): static
+    {
+        $this->withSyntheticUris = $value;
         return $this;
     }
 
@@ -219,6 +233,10 @@ class ShortLinkQuery extends ElementQuery
             }
 
             $element->setTagNames($tagsByLink[(int)$element->id] ?? []);
+
+            if ($this->withSyntheticUris) {
+                $element->uri = $element->getUrl();
+            }
         }
 
         return $elements;
