@@ -45,7 +45,7 @@
 {% block actionButton %}
 	{% if currentUser.can('shortLinkManager:createLinks') %}
 		<div class="btngroup">
-			<a href="{{ url('shortlink-manager/shortlinks/new') }}" class="btn submit add icon">{{ 'New {name}'|t('shortlink-manager', {name: shortlinkHelper.lowerDisplayName}) }}</a>
+			<a href="{{ url('shortlink-manager/shortlinks/new') }}" class="btn submit add icon">{{ 'New {name}'|t('shortlink-manager', {name: shortlinkHelper.displayName}) }}</a>
 		</div>
 	{% endif %}
 {% endblock %}
