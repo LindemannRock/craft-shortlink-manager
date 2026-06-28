@@ -235,6 +235,8 @@ class IntegrationService extends Component
 
     /**
      * Prepare SEOmatic content metadata for a rendered ShortLink page.
+     *
+     * @since 5.22.0
      */
     public function prepareSeomaticMetadata(ShortLink $shortLink): bool
     {
