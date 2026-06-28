@@ -808,7 +808,7 @@ return [
     'OS' => 'OS',
     'OS Version' => 'Versione OS',
     'Browser' => 'Browser',
-    'Browser Version' => 'Versione Browser',
+    'Browser Version' => 'Versione browser',
     'Browser Engine' => 'Motore del browser',
     'Detected Language' => 'Lingua rilevata',
     'Traffic Type' => 'Tipo di traffico',

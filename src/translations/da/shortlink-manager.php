@@ -772,7 +772,7 @@ return [
     'CSV File' => 'CSV-fil',
     'Select a CSV file to import shortlinks' => 'Vælg en CSV-fil for at importere shortlinks',
     'CSV Delimiter' => 'CSV-separator',
-    'Character used to separate values in your CSV (auto-detect is default)' => 'Tegnet der bruges til at adskille værdier i Deres CSV (automatisk registrering er standard)',
+    'Character used to separate values in your CSV (auto-detect is default)' => 'Tegnet der bruges til at adskille værdier i din CSV (automatisk registrering er standard)',
     'Auto (detect)' => 'Auto (registrer)',
     'Comma (,)' => 'Komma (,)',
     'Semicolon (;)' => 'Semikolon (;)',
