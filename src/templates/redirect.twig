@@ -134,7 +134,7 @@
 
             if (debugMode) {
                 console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
-                console.log('🔍 Go URL:', goUrl);
+                console.log('➡️ Go URL:', goUrl);
                 console.log('📊 Event Type:', eventType);
                 console.log('🔗 Shortlink Code:', shortlinkCode);
 
@@ -155,6 +155,12 @@
                     console.log('   - Plugin may not be installed/enabled');
                     console.log('   - Or integration may be disabled in settings');
                 {% endif %}
+
+                // Add debug indicator to page
+                var debugBanner = document.createElement('div');
+                debugBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #ff6b6b; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 9999;';
+                debugBanner.textContent = '🐛 DEBUG MODE - Check browser console for generated Go URL';
+                document.body.insertBefore(debugBanner, document.body.firstChild);
 
                 // Update the message
                 var message = document.querySelector('.message');

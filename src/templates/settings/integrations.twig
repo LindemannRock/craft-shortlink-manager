@@ -214,17 +214,12 @@
                     </summary>
                     <div class="lr-code-block">
 <pre>{
-  event: "shortlink_manager_redirect",
+  event: "{{ (settings.seomaticEventPrefix ?? 'shortlink_manager')|e('html') }}_redirect",
   shortlink: {
     code: "ABC123",
     title: "My Shortlink",
-    destination_url: "https://example.com",
     source: "qr",
-    device_type: "mobile",
-    os: "iOS 17",
-    browser: "Safari",
-    country: "United States",
-    city: "New York"
+    click_type: "redirect"
   }
 }</pre>
                     </div>
