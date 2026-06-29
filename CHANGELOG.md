@@ -1,5 +1,39 @@
 # Changelog
 
+## [5.22.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.21.1...v5.22.0) (2026-06-29)
+
+
+### Added
+
+* add commerce product element type support ([aa9ec3c](https://github.com/LindemannRock/craft-shortlink-manager/commit/aa9ec3c6eb90e424a0b35eb2a160d61d3beb1da2))
+* add smoke test and compatibility check scripts ([e00411c](https://github.com/LindemannRock/craft-shortlink-manager/commit/e00411ccc5e0ce4c3033f98d3eabc5054e8f6ef1))
+* **debug:** add debug banner and update console log messages in redirect template ([36d0277](https://github.com/LindemannRock/craft-shortlink-manager/commit/36d0277ccdd892e6b3a6fca84864c6a552b8db43))
+* **qr:** add additional QR code generation parameters ([7417243](https://github.com/LindemannRock/craft-shortlink-manager/commit/7417243fd5f6a12e8c9a1648e4d3bfe69996adcb))
+* **seomatic:** prepare SEOmatic metadata for ShortLink redirects ([8810952](https://github.com/LindemannRock/craft-shortlink-manager/commit/88109527de37081c03920ba730e510b1ebd6dc55))
+* **seomatic:** refactor tracking template to use event data object ([3f032f5](https://github.com/LindemannRock/craft-shortlink-manager/commit/3f032f59986a00ee3fe73710406c13d4e90060fe))
+
+
+### Fixed
+
+* **analytics:** ensure CSRF token is properly encoded in AJAX requests ([b32da30](https://github.com/LindemannRock/craft-shortlink-manager/commit/b32da30cd95193ed03a00bd62056f5edc6352664))
+* **analytics:** ensure date range is correctly encoded in export redirects ([146a19b](https://github.com/LindemannRock/craft-shortlink-manager/commit/146a19b80aa8a21f5f1d910900a742220cba235b))
+* clean up QR logo overlay resources ([054cd42](https://github.com/LindemannRock/craft-shortlink-manager/commit/054cd42f77df27194ac5b4f137db2cca810cad05))
+* correct display name for new shortlink button ([0fc23f5](https://github.com/LindemannRock/craft-shortlink-manager/commit/0fc23f561f63511d6fa8a3fec5cf1c91286cd660))
+* correct tab label from 'Content' to 'Details' in edit template ([38d723b](https://github.com/LindemannRock/craft-shortlink-manager/commit/38d723b627cc01fe0169469939d2791dc9a8b5ce))
+* ensure QR code settings use JSON encoding for defaults ([14d9bc8](https://github.com/LindemannRock/craft-shortlink-manager/commit/14d9bc8a4e655548c637d2e2f08092826d70d0d5))
+* handle file_get_contents failure gracefully in cache retrieval ([09e98c3](https://github.com/LindemannRock/craft-shortlink-manager/commit/09e98c3aea0ef1c760474da0a7c8c83c6a56c102))
+* **i18n:** correct Danish and Italian translations for CSV separator text ([eb94c29](https://github.com/LindemannRock/craft-shortlink-manager/commit/eb94c2905886c021a2bc70cd71963851d4ed12f5))
+* **import-export:** ensure validRows count is properly JSON encoded in preview ([7540f0d](https://github.com/LindemannRock/craft-shortlink-manager/commit/7540f0defb8fb5dccdb39edc26ee10c6278092b6))
+* remove slug attribute from table attributes in ShortLink element ([e28e731](https://github.com/LindemannRock/craft-shortlink-manager/commit/e28e73195c5922d868f3aa5ba606f7faf5f299c7))
+* rename default plugin name to ShortLink Manager in settings table ([902890d](https://github.com/LindemannRock/craft-shortlink-manager/commit/902890d925231e5bde7486c3379dab20fb2014be))
+* replace ModuleEye with PointyEye in QR code generation ([63c98f1](https://github.com/LindemannRock/craft-shortlink-manager/commit/63c98f1b58520f30e05f1547717d5fb88b4f4f6f))
+* require explicit local geo defaults ([a86cff0](https://github.com/LindemannRock/craft-shortlink-manager/commit/a86cff095826de6b62df325dee510e6b0d76abde))
+* **seomatic:** streamline site tracking script loading process ([6b473a9](https://github.com/LindemannRock/craft-shortlink-manager/commit/6b473a9715e1d67fefa1f072e084a21e09c4e336))
+* set custom field layout values from request ([7bc3e48](https://github.com/LindemannRock/craft-shortlink-manager/commit/7bc3e485823a1af5b0e714e71594ddd392cba51c))
+* **settings:** replace 'leaf' with 'pointed' in QR code eye style options ([0f7eb31](https://github.com/LindemannRock/craft-shortlink-manager/commit/0f7eb3120524d68107b9f284f9bfdbfc8688c37a))
+* **shortlinks:** add site enabled check in ShortLinkField and optimize limit handling in ShortLinkResolver ([d4d61fb](https://github.com/LindemannRock/craft-shortlink-manager/commit/d4d61fb015fe00ee0a251012dd7f863188977c63))
+* **shortlinks:** encode URLs for QR code generation and download ([8062eec](https://github.com/LindemannRock/craft-shortlink-manager/commit/8062eec48dc7ad5020de01d28b9b3e58d1f010b5))
+
 ## [5.21.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.21.0...v5.21.1) - 2026-06-20
 
 
