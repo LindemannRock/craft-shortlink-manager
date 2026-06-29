@@ -3,20 +3,12 @@
 # ShortLink Manager for Craft CMS
 
 [![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-shortlink-manager.svg)](https://packagist.org/packages/lindemannrock/craft-shortlink-manager)
-[![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.0%2B-orange.svg)](https://craftcms.com/)
+[![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.10%2B-orange.svg)](https://craftcms.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue.svg)](https://php.net/)
-[![Logging Library](https://img.shields.io/badge/Logging%20Library-5.0%2B-green.svg)](https://github.com/LindemannRock/craft-logging-library)
+[![Logging Library](https://img.shields.io/badge/Logging%20Library-5.13.1%2B-green.svg)](https://github.com/LindemannRock/craft-logging-library)
 [![License](https://img.shields.io/packagist/l/lindemannrock/craft-shortlink-manager.svg)](LICENSE)
 
 Advanced shortlink management with QR codes and analytics for Craft CMS.
-
-## License
-
-This is a commercial plugin licensed under the [Craft License](https://craftcms.github.io/license/). It will be available on the [Craft Plugin Store](https://plugins.craftcms.com) soon. See [LICENSE.md](LICENSE.md) for details.
-
-## ⚠️ Pre-Release
-
-This plugin is in active development and not yet available on the Craft Plugin Store. Features and APIs may change before the initial public release.
 
 ## Features
 
@@ -25,9 +17,10 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Analytics** — Click tracking with device, browser, OS, country, city, referrer, and bot filtering
 - **Direct Redirect** — Optional server-side HTTP redirect for maximum performance
 - **Link Expiration** — Expiry dates with custom expired message or redirect URL
+- **Element Destinations** — Link directly to entries, categories, assets, and optional Commerce products/variants
 - **Query Pass-Through** — Forward query parameters from shortlink to destination
 - **GraphQL** — Resolve/list shortlinks and expose field-managed links for headless or SPA frontends
-- **Integrations** — SEOmatic (GTM/GA4 events), Redirect Manager (auto-301 on slug change)
+- **Integrations** — SEOmatic (Content SEO source and GTM/GA4 events), Redirect Manager (auto-301 on slug change)
 - **ShortLink Field** — Custom field type for attaching shortlinks to entries
 - **Custom Fields** — Add editor-managed fields to ShortLink elements via a configurable field layout
 - **Multi-Site** — Per-site destination URLs, optional custom domain
@@ -37,38 +30,31 @@ This plugin is in active development and not yet available on the Craft Plugin S
 
 ## Requirements
 
-- Craft CMS 5.0+
+- Craft CMS 5.10+
 - PHP 8.2+
-- [Logging Library](https://github.com/LindemannRock/craft-logging-library) 5.0+ — optional, install in CP for logs
+- [Logging Library](https://github.com/LindemannRock/craft-logging-library) 5.13.1+ — optional, install in CP for logs
 - [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode) ^2.0 or ^3.0
 
 ## Installation
 
-### Via Composer
+### Composer
 
 ```bash
-composer require lindemannrock/craft-shortlink-manager
+composer require lindemannrock/craft-shortlink-manager && php craft plugin/install shortlink-manager
 ```
 
+### DDEV
+
 ```bash
-php craft plugin/install shortlink-manager
+ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin/install shortlink-manager
 ```
+
+### Post-install
+
+Generate the IP hash salt used by privacy-conscious analytics:
 
 ```bash
 php craft shortlink-manager/security/generate-salt
-```
-
-### Using DDEV
-
-```bash
-ddev composer require lindemannrock/craft-shortlink-manager
-```
-
-```bash
-ddev craft plugin/install shortlink-manager
-```
-
-```bash
 ddev craft shortlink-manager/security/generate-salt
 ```
 
