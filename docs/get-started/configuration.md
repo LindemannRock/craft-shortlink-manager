@@ -52,7 +52,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 
 ### Template settings
 
-These templates must exist in your site's `templates/` folder. Copy the reference templates from `vendor/lindemannrock/craft-shortlink-manager/src/templates/` to `templates/shortlink-manager/` and customize as needed.
+These templates must exist in your site's `templates/` folder. Copy the reference templates from `vendor/lindemannrock/craft-shortlink-manager/src/templates/` to `templates/shortlink-manager/` and customize as needed. For what each template renders and the variables available in each, see [Custom templates](../developers/custom-templates.md).
 
 All template paths support environment variables via Craft's `$ENV_VAR` syntax in the CP field, or via `App::env()` in the config file.
 
