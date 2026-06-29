@@ -227,7 +227,6 @@ class QrCodeService extends Component
     {
         switch ($eyeStyle) {
             case 'rounded':
-            case 'circle':
                 return SimpleCircleEye::instance();
             case 'pointed':
                 return PointyEye::instance();
