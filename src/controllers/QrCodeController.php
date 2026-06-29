@@ -189,8 +189,9 @@ class QrCodeController extends Controller
         // Remove null values
         $options = array_filter($options, fn($value) => $value !== null);
 
-        // Debug logging
-        $this->logInfo('Generating QR code', [
+        $mode = $isPreview && $url ? 'preview' : ($linkId ? 'cp-link' : 'public-code');
+        $this->logDebug('Generating QR code', [
+            'mode' => $mode,
             'code' => $code ?? 'N/A',
             'linkId' => $linkId ?? 'N/A',
             'fullUrl' => $fullUrl,

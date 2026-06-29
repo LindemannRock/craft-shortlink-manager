@@ -126,7 +126,7 @@ class RedirectController extends Controller
             $destinationUrl = $this->mergeQueryParams($destinationUrl);
         }
 
-        $this->logInfo('Redirecting shortlink', [
+        $this->logDebug('Redirecting shortlink', [
             'slug' => $shortLink->slug,
             'destination' => $destinationUrl,
             'httpCode' => $shortLink->httpCode,
@@ -324,7 +324,7 @@ class RedirectController extends Controller
         if ($seomatic && $seomatic->isAvailable() && $seomatic->isEnabled()) {
             $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
 
-            $this->logInfo("SEOmatic client-side tracking: {$eventType} event for '{$shortLink->code}'", [
+            $this->logDebug("SEOmatic client-side tracking: {$eventType} event for '{$shortLink->code}'", [
                 'event_type' => $eventType,
                 'code' => $shortLink->code,
                 'source' => $source,

@@ -431,12 +431,20 @@ class ShortLinksService extends Component
     {
         $shortLink = $this->getByElement($element);
 
-        if ($shortLink && $element->getUrl() && $element->getUrl() !== $shortLink->destinationUrl) {
-            $shortLink->destinationUrl = $element->getUrl();
-            $this->saveShortLink($shortLink);
+        $elementUrl = $element->getUrl();
+        if ($shortLink && $elementUrl && $elementUrl !== $shortLink->destinationUrl) {
+            $oldUrl = $shortLink->destinationUrl;
+            $shortLink->destinationUrl = $elementUrl;
 
-            $this->logInfo('Updated shortlink destination for element', [
+            if (!$this->saveShortLink($shortLink)) {
+                return;
+            }
+
+            $this->logDebug('Updated shortlink destination for element', [
+                'shortLinkId' => $shortLink->id,
                 'elementId' => $element->id,
+                'siteId' => $element->siteId ?? null,
+                'oldUrl' => $oldUrl,
                 'newUrl' => $shortLink->destinationUrl,
             ]);
         }
