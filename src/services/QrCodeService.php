@@ -351,14 +351,6 @@ class QrCodeService extends Component
             $logoX = (int)(($qrWidth - $logoWidth) / 2);
             $logoY = (int)(($qrHeight - $logoHeight) / 2);
 
-            // Add white background circle for better visibility
-            $backgroundColor = imagecolorallocate($qrImage, 255, 255, 255);
-            $circleRadius = (int)(max($logoWidth, $logoHeight) / 2) + 2;
-            $centerX = $logoX + (int)($logoWidth / 2);
-            $centerY = $logoY + (int)($logoHeight / 2);
-
-            imagefilledellipse($qrImage, $centerX, $centerY, $circleRadius * 2, $circleRadius * 2, $backgroundColor);
-
             // Overlay logo on QR code
             imagecopy($qrImage, $resizedLogo, $logoX, $logoY, 0, 0, $logoWidth, $logoHeight);
 
