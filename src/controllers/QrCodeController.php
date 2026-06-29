@@ -176,8 +176,13 @@ class QrCodeController extends Controller
                 'color' => $request->getQueryParam('color'),
                 'bg' => $request->getQueryParam('bg'),
                 'format' => $request->getQueryParam('format'),
+                'margin' => $request->getQueryParam('margin'),
+                'moduleStyle' => $request->getQueryParam('moduleStyle'),
+                'eyeStyle' => $request->getQueryParam('eyeStyle'),
                 'logo' => $logoId,
+                'logoSize' => $request->getQueryParam('logoSize'),
                 'eyeColor' => $request->getQueryParam('eyeColor'),
+                'errorCorrection' => $request->getQueryParam('errorCorrection'),
             ];
         }
 
