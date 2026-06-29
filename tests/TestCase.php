@@ -83,6 +83,12 @@ abstract class TestCase extends IntegrationTestCase
             // Parent clears external cache state, deletes tracked elements, and
             // restores swapped components.
             parent::tearDown();
+            // Also hard-delete any test shortlinks created as UNTRACKED side
+            // effects — duplicates (duplicateElement) and field-managed
+            // auto-creates aren't registered for cleanup, so without this a run
+            // leaves them (and their trashed remnants) behind. Runs after the
+            // parent restores real components so the elements service is intact.
+            $this->purgeTestShortLinks();
         }
     }
 
@@ -283,7 +289,14 @@ abstract class TestCase extends IntegrationTestCase
         // from {{%shortlinkmanager}} → {{%elements}}.id then propagates the
         // delete through the rest of the plugin's tables.
         foreach ($rows as $id) {
-            $element = ShortLink::find()->id((int) $id)->status(null)->one();
+            // trashed(null) includes soft-deleted elements: a test shortlink that
+            // got soft-deleted (e.g. the field-delete tests, or a duplicate that
+            // was trashed) still has a {{%shortlinkmanager}} row — and its slug
+            // still occupies the unique index — until it is hard-deleted. Without
+            // trashed(null), status(null)->one() returns null for those, the purge
+            // skips them, and they accumulate across runs (also bumping unique-slug
+            // suffixes, e.g. a stale sl-test-duplicate-2 forcing the next run to -3).
+            $element = ShortLink::find()->id((int) $id)->status(null)->trashed(null)->one();
             if ($element !== null) {
                 Craft::$app->elements->deleteElement($element, true);
             }
