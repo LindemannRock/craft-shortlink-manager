@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "build": "cd src/web/assets && npm run build",
-    "build:analytics": "cd src/web/assets && npm run build:analytics"
+    "build:analytics": "cd src/web/assets && npm run build:analytics",
+    "build:qr-preview": "cd src/web/assets && npm run build:qr-preview",
+    "build:edit": "cd src/web/assets && npm run build:edit"
   },
   "author": {
     "name": "Bilal Harry Lindemann",

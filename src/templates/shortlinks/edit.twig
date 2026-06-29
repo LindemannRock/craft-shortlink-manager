@@ -10,6 +10,8 @@
 {% set retainScrollOnSaveShortcut = true %}
 {% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
 
+{% do view.registerAssetBundle('lindemannrock\\shortlinkmanager\\web\\assets\\edit\\EditAsset') %}
+
 {% if shortLink.id %}
     {% do view.registerAssetBundle('lindemannrock\\shortlinkmanager\\web\\assets\\qrpreview\\QrPreviewAsset') %}
 {% endif %}
@@ -164,6 +166,36 @@
 {% endif %}
 
 {% block content %}
+    <script type="application/json" data-shortlink-edit-config>{{ {
+        newFolderFieldId: 'newFolderName'|namespaceInputId ~ '-field',
+        urls: {
+            generateCodeAction: 'shortlink-manager/shortlinks/generate-code',
+            qrPublicBaseUrl: shortLink.id ? plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId) : null,
+        },
+        defaults: {
+            qrSize: plugin.settings.defaultQrSize ?? 256,
+            qrColor: plugin.settings.defaultQrColor ?? '#000000',
+            qrBgColor: plugin.settings.defaultQrBgColor ?? '#FFFFFF',
+            qrEyeColor: plugin.settings.qrEyeColor ?? '',
+            qrFormat: plugin.settings.defaultQrFormat ?? '',
+        },
+        messages: {
+            httpStatusTips: {
+                301: "<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index."|t('shortlink-manager') ~ ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">' ~ "Learn more"|t('shortlink-manager') ~ '</a>',
+                302: "<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won't update their index."|t('shortlink-manager') ~ ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">' ~ "Learn more"|t('shortlink-manager') ~ '</a>',
+                307: "<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager') ~ ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">' ~ "Learn more"|t('shortlink-manager') ~ '</a>',
+                308: "<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager') ~ ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">' ~ "Learn more"|t('shortlink-manager') ~ '</a>',
+            },
+            generateNewCodeConfirm: "Generate a new code? This will change the shortlink URL and may break existing links."|t('shortlink-manager'),
+            newCodeGenerated: "New code generated. Save to apply changes."|t('shortlink-manager'),
+            generateCodeFailed: "Failed to generate code"|t('shortlink-manager'),
+            enterCustomSize: "Enter custom size (100-4096 pixels):"|t('shortlink-manager'),
+            invalidCustomSize: "Please enter a valid size between 100 and 4096 pixels"|t('shortlink-manager'),
+            resetQrDefaultsConfirm: "Reset QR code settings to plugin defaults?"|t('shortlink-manager'),
+            qrDefaultsReset: "QR code settings reset to defaults"|t('shortlink-manager'),
+        },
+    }|json_encode|raw }}</script>
+
     <input type="hidden" name="action" value="shortlink-manager/shortlinks/save">
     {# Default redirect goes back to index #}
     {{ redirectInput('shortlink-manager/shortlinks') }}
@@ -595,216 +627,3 @@
     }
 {% endcss %}
 
-{% js %}
-    // Set platform-specific keyboard shortcut
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const saveShortcut = document.getElementById('save-shortcut');
-    if (saveShortcut) {
-        saveShortcut.textContent = isMac ? '⌘S' : 'Ctrl+S';
-    }
-
-    // Update HTTP Status Code tip based on selection
-    const httpCodeSelect = document.getElementById('httpCode');
-    const httpCodeTipText = document.getElementById('httpCodeTipText');
-    const httpCodeWarningBox = document.getElementById('httpCodeWarningBox');
-
-    const folderSelect = document.getElementById('folderId');
-    const newFolderField = document.getElementById('{{ 'newFolderName'|namespaceInputId }}-field');
-    const newFolderInput = document.getElementById('newFolderName');
-    if (folderSelect && newFolderInput && newFolderField) {
-        const updateNewFolderField = () => {
-            const creatingNewFolder = folderSelect.value === '__new__';
-            newFolderField.classList.toggle('hidden', !creatingNewFolder);
-
-            if (!creatingNewFolder) {
-                newFolderInput.value = '';
-            }
-        };
-
-        folderSelect.addEventListener('change', updateNewFolderField);
-        updateNewFolderField();
-    }
-
-    function updateHttpCodeTip() {
-        if (!httpCodeSelect || !httpCodeTipText) return;
-
-        const code = parseInt(httpCodeSelect.value);
-        let tip = '';
-
-        switch(code) {
-            case 301:
-                tip = {{ "<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
-                break;
-            case 302:
-                tip = {{ "<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won't update their index."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
-                break;
-            case 307:
-                tip = {{ "<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
-                break;
-            case 308:
-                tip = {{ "<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
-                break;
-        }
-
-        httpCodeTipText.innerHTML = tip;
-    }
-
-    function updateHttpCodeWarning() {
-        if (!httpCodeWarningBox || !httpCodeSelect) {
-            return;
-        }
-
-        const code = parseInt(httpCodeSelect.value, 10);
-        httpCodeWarningBox.style.display = [301, 308].includes(code) ? '' : 'none';
-    }
-
-    if (httpCodeSelect) {
-        httpCodeSelect.addEventListener('change', updateHttpCodeTip);
-        httpCodeSelect.addEventListener('change', updateHttpCodeWarning);
-        updateHttpCodeTip(); // Initialize on load
-        updateHttpCodeWarning();
-    }
-
-    // Ensure typed-but-not-committed tag text is added before submit.
-    const tagsSelectEl = document.getElementById('tags');
-    if (tagsSelectEl) {
-        const $tagsSelectEl = $(tagsSelectEl);
-        const tagsSelectize = $tagsSelectEl.data('selectize');
-        const form = tagsSelectEl.closest('form');
-
-        if (tagsSelectize && form) {
-            form.addEventListener('submit', function() {
-                const raw = (tagsSelectize.$control_input && tagsSelectize.$control_input.val()) ? String(tagsSelectize.$control_input.val()) : '';
-                const pending = raw.trim();
-                if (!pending) {
-                    return;
-                }
-
-                if (!tagsSelectize.options[pending]) {
-                    tagsSelectize.addOption({value: pending, text: pending});
-                }
-                tagsSelectize.addItem(pending, true);
-                tagsSelectize.$control_input.val('');
-            });
-        }
-    }
-
-    // Toggle shortLink type fields
-    $('#linkType').on('change', function() {
-        const type = $(this).val();
-        if (type === 'code') {
-            $('#code-field-auto').removeClass('hidden');
-            $('#code-field-vanity').addClass('hidden');
-            // Disable vanity input so it doesn't override auto
-            $('#codeVanity').prop('disabled', true);
-            $('#codeAuto').prop('disabled', false);
-        } else {
-            $('#code-field-auto').addClass('hidden');
-            $('#code-field-vanity').removeClass('hidden');
-            // Disable auto input so it doesn't override vanity
-            $('#codeAuto').prop('disabled', true);
-            $('#codeVanity').prop('disabled', false);
-        }
-    }).trigger('change'); // Initialize on page load
-
-    // Regenerate code button
-    $('#regenerate-code-btn').on('click', function() {
-        if (!confirm('{{ "Generate a new code? This will change the shortlink URL and may break existing links."|t('shortlink-manager')|e('js') }}')) {
-            return;
-        }
-
-        Craft.sendActionRequest('POST', 'shortlink-manager/shortlinks/generate-code')
-            .then(function(response) {
-                if (response.data && response.data.code) {
-                    $('#current-code-display').text(response.data.code);
-                    $('#codeAuto').val(response.data.code);
-                    Craft.cp.displayNotice('{{ "New code generated. Save to apply changes."|t('shortlink-manager')|e('js') }}');
-                }
-            })
-            .catch(function(error) {
-                Craft.cp.displayError('{{ "Failed to generate code"|t('shortlink-manager')|e('js') }}');
-            });
-    });
-
-    // Initialize disclosure menu
-    if (typeof Craft !== 'undefined' && Craft.ui && Craft.ui.createDisclosureMenu) {
-        const actionBtn = document.getElementById('action-btn');
-        if (actionBtn) {
-            new Craft.ui.createDisclosureMenu(actionBtn);
-        }
-    }
-
-    // Download QR code
-    $('.download-qr').on('click', function(e) {
-        e.preventDefault();
-
-        let size = $(this).data('size');
-
-        // Handle custom size
-        if (size === 'custom') {
-            const customSize = prompt('{{ "Enter custom size (100-4096 pixels):"|t('shortlink-manager')|e('js') }}', '1024');
-            if (!customSize) return;
-
-            size = parseInt(customSize);
-            if (isNaN(size) || size < 100 || size > 4096) {
-                alert('{{ "Please enter a valid size between 100 and 4096 pixels"|t('shortlink-manager')|e('js') }}');
-                return;
-            }
-        }
-
-        const color = ($('#qrCodeColor').val() || '000000').replace(/^#/, '');
-        const bgColor = ($('#qrCodeBgColor').val() || 'FFFFFF').replace(/^#/, '');
-        const eyeColor = $('#qrCodeEyeColor').val() ? $('#qrCodeEyeColor').val().replace(/^#/, '') : '';
-        const format = $('#qrCodeFormat').val() || {{ (plugin.settings.defaultQrFormat ?? 'png')|json_encode|raw }};
-
-        // Build download URL using the public QR URL
-        let downloadUrl = {{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId)|json_encode|raw }} +
-            '?size=' + size +
-            '&color=' + color +
-            '&bg=' + bgColor +
-            '&format=' + format +
-            '&download=1';
-
-        // Add eye color if set
-        if (eyeColor) {
-            downloadUrl += '&eyeColor=' + eyeColor;
-        }
-
-        // Get logo if selected
-        {% if plugin.settings.enableQrLogo %}
-            const logoField = document.querySelector('#qrLogoId-field .elements .element');
-            if (logoField) {
-                downloadUrl += '&logo=' + logoField.dataset.id;
-            }
-        {% endif %}
-
-        // Trigger the download in a hidden iframe so Craft's unsaved-changes
-        // guard doesn't treat it as leaving the editor page.
-        let downloadFrame = document.getElementById('shortlink-qr-download-frame');
-        if (!downloadFrame) {
-            downloadFrame = document.createElement('iframe');
-            downloadFrame.id = 'shortlink-qr-download-frame';
-            downloadFrame.style.display = 'none';
-            document.body.appendChild(downloadFrame);
-        }
-
-        downloadFrame.src = downloadUrl;
-    });
-
-    // Reset QR code settings to defaults
-    $('#reset-qr-defaults').on('click', function(e) {
-        e.preventDefault();
-        if (!confirm('{{ "Reset QR code settings to plugin defaults?"|t('shortlink-manager')|e('js') }}')) {
-            return;
-        }
-
-        $('#qrCodeSize').val({{ (plugin.settings.defaultQrSize ?? 256)|json_encode|raw }});
-        $('#qrCodeColor').val({{ (plugin.settings.defaultQrColor ?? '#000000')|json_encode|raw }});
-        $('#qrCodeBgColor').val({{ (plugin.settings.defaultQrBgColor ?? '#FFFFFF')|json_encode|raw }});
-        $('#qrCodeEyeColor').val({{ (plugin.settings.qrEyeColor ?? '')|json_encode|raw }});
-        $('#qrCodeFormat').val({{ (plugin.settings.defaultQrFormat ?? '')|json_encode|raw }});
-
-        Craft.cp.displayNotice('{{ "QR code settings reset to defaults"|t('shortlink-manager')|e('js') }}');
-    });
-
-{% endjs %}
