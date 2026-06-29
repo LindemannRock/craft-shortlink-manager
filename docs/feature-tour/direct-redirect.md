@@ -1,6 +1,6 @@
 # Direct Redirect @since(5.12.0)
 
-Skip the redirect template entirely and get a faster, server-side HTTP redirect — with full per-link control over when to use it.
+Skip the redirect template entirely and get a faster, server-side HTTP redirect. Use it globally for speed, then keep selected links on the template path when they need client-side tracking.
 
 By default, ShortLink Manager renders a redirect template before issuing the final HTTP redirect. The template fires SEOmatic tracking events and gives any GTM/GA JavaScript a chance to run before the browser navigates away. Direct Redirect bypasses that template for a leaner, lower-latency response.
 
@@ -32,9 +32,11 @@ return [
 
 The global setting (`bool`, default `false`) applies to every short link that hasn't been individually overridden.
 
-## Per-link override
+## Per-link behavior
 
-Each short link has its own **Direct Redirect** toggle with three states — useful when you want the global default but need exceptions for specific links:
+When global Direct Redirect is enabled, each short link shows its own **Direct Redirect** toggle on the edit screen. Turn it off for links that should keep rendering the redirect template, for example campaign links that need SEOmatic/GTM tracking.
+
+The stored `directRedirect` value supports three states, which also matters for imports, GraphQL, and API-style element saves:
 
 | Value | Behavior |
 |-------|---------|
@@ -42,7 +44,7 @@ Each short link has its own **Direct Redirect** toggle with three states — use
 | `true` | Always use direct redirect for this link |
 | `false` | Always use the redirect template for this link |
 
-This lets you run Direct Redirect globally while keeping the template for specific links that need SEOmatic tracking.
+This lets you run Direct Redirect globally while keeping the template for specific links that need client-side tracking or custom redirect-page behavior.
 
 ## How it works
 
@@ -77,7 +79,7 @@ This matters under caching:
 If your host, CDN, or static cache stores the short URL response, Direct Redirect can appear to "work once" and then stop recording until caches expire or are cleared.
 
 > [!IMPORTANT]
-> Direct Redirect is a performance feature, not a cache bypass. If you need reliable per-hit server-side analytics in direct mode, configure your infrastructure to bypass cache for your shortlink routes.
+> Direct Redirect is a performance feature, not a cache bypass. If you need reliable per-hit server-side analytics in direct mode, configure your infrastructure to bypass cache for your [shortlink routes](custom-domain.md#site-aware-routes).
 
 ## Impact on SEOmatic integration
 
@@ -87,7 +89,7 @@ If your host, CDN, or static cache stores the short URL response, Direct Redirec
 If you rely on SEOmatic/GTM tracking:
 - Keep `directRedirect` globally set to `false`
 - Use Direct Redirect only on links where tracking is not needed
-- Or use per-link overrides to keep tracking for important links
+- Or enable Direct Redirect globally and turn it off on specific links that still need tracking
 
 See [Integrations](integrations.md) for SEOmatic configuration.
 
@@ -96,7 +98,7 @@ See [Integrations](integrations.md) for SEOmatic configuration.
 **Use Direct Redirect when:**
 - Maximum redirect speed is critical
 - You don't use GTM/GA tracking events via SEOmatic
-- You understand that cache layers may reduce repeat-hit analytics unless those routes bypass cache
+- You understand that cache layers may reduce repeat-hit analytics unless those [routes](custom-domain.md#site-aware-routes) bypass cache
 - The redirect template adds unnecessary latency (e.g., loading assets, complex layouts)
 - You're using the short links programmatically and don't need a template at all
 

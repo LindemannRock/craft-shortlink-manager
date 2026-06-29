@@ -81,7 +81,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 > Use `directRedirect` for maximum performance or when you do not need SEOmatic client-side tracking events. The redirect template is still useful when you want GTM/GA events to fire before the browser navigates away.
 
 > [!IMPORTANT]
-> `directRedirect` is the fastest path, but it only records server-side analytics when the short URL request reaches Craft/PHP. If a browser, CDN, or static cache serves that URL before Craft runs, repeat-hit analytics can be bypassed. Keep `directRedirect = false` for analytics-safe redirect pages under caching, or add cache bypass rules for your shortlink routes when direct mode must be used.
+> `directRedirect` is the fastest path, but it only records server-side analytics when the short URL request reaches Craft/PHP. If a browser, CDN, or static cache serves that URL before Craft runs, repeat-hit analytics can be bypassed. Keep `directRedirect = false` for analytics-safe redirect pages under caching, or add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes) when direct mode must be used.
 
 > [!TIP]
 > `302` is the default because it is the safest general-purpose status code for short links. `301` and `308` remain available, but they are much more likely to be cached aggressively by browsers and edge caches.
@@ -115,7 +115,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `defaultQrErrorCorrection` | `string` | `'M'` | Error correction level. Options: `'L'` (~7%), `'M'` (~15%), `'Q'` (~25%), `'H'` (~30%) |
 | `defaultQrMargin` | `int` | `4` | Quiet zone (margin) in modules (0–10) |
 | `qrModuleStyle` | `string` | `'square'` | Module shape. Options: `'square'`, `'rounded'`, `'dots'` |
-| `qrEyeStyle` | `string` | `'square'` | Eye/finder pattern style. Options: `'square'`, `'rounded'`, `'leaf'` |
+| `qrEyeStyle` | `string` | `'square'` | Eye/finder pattern style. Options: `'square'`, `'rounded'`, `'pointed'` |
 | `qrEyeColor` | `string\|null` | `null` | Eye color override (hex). `null` = match module color |
 | `enableQrLogo` | `bool` | `false` | Enable logo overlay in the center of QR codes |
 | `qrLogoVolumeUid` | `string\|null` | `null` | Asset volume UID allowed for QR logos. `null` = all volumes |

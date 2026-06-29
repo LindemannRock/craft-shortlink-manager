@@ -12,7 +12,7 @@ Shorten any URL in the Control Panel — no code required. Every short link gets
 
 ## Create your first short link
 
-Go to **ShortLink Manager → New shortlink** in the Control Panel.
+Go to **ShortLink Manager → New ShortLink** in the Control Panel.
 
 ![New short link form showing code, destination, and optional fields](images/shortlinks-new-link.webp)
 

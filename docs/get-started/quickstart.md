@@ -17,7 +17,7 @@ ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin
 ## 2. Create your first short link
 
 1. In the Control Panel, go to **ShortLink Manager**
-2. Click **New shortlink**
+2. Click **New ShortLink**
 3. Enter a destination URL (e.g., `https://example.com/my-page`)
 4. Leave the code on **Auto-generated** — the plugin creates a unique code for you
 5. Click **Save**

@@ -17,7 +17,7 @@ On the short link edit page, toggle **QR Code Enabled** to activate the QR endpo
 
 ### Set global defaults
 
-Go to **Settings → QR Codes** to configure appearance defaults for all links.
+Go to **Settings → QR Codes** to configure appearance defaults for all links. A live preview updates as you change the size, colors, and styles, so you can see the result before saving — the same preview also appears on a short link's edit page when you override QR settings per link.
 
 ![Settings → QR Codes page showing size, color, module style, and eye style options](images/qr-codes-settings.webp)
 
@@ -27,12 +27,12 @@ Per-link values left at `null` inherit from these global defaults.
 
 Module style and eye style combine to give your QR codes a distinct look:
 
-![Grid comparing module styles (square, rounded, dots) and eye styles (square, rounded, leaf)](images/qr-codes-styles.webp)
+![Grid comparing module styles (square, rounded, dots) and eye styles (square, rounded, pointed)](images/qr-codes-styles.webp)
 
 | Option | Values | Default |
 |--------|--------|---------|
 | Module style | `'square'`, `'dots'`, `'rounded'` | `'square'` |
-| Eye style | `'square'`, `'rounded'`, `'leaf'` | `'square'` |
+| Eye style | `'square'`, `'rounded'`, `'pointed'` | `'square'` |
 
 > [!WARNING]
 > The `dots` module style may not scan reliably at very small sizes. Use at least 200 px when choosing `dots`.
@@ -52,7 +52,7 @@ Module style and eye style combine to give your QR codes a distinct look:
 | `defaultQrMargin` | `int` | `4` | Quiet zone in modules (0–10) |
 | `defaultQrErrorCorrection` | `string` | `'M'` | Error correction: `'L'` (7%), `'M'` (15%), `'Q'` (25%), `'H'` (30%) |
 | `qrModuleStyle` | `string` | `'square'` | Module shape: `'square'`, `'dots'`, `'rounded'` |
-| `qrEyeStyle` | `string` | `'square'` | Finder pattern shape: `'square'`, `'rounded'`, `'leaf'` |
+| `qrEyeStyle` | `string` | `'square'` | Finder pattern shape: `'square'`, `'rounded'`, `'pointed'` |
 | `qrEyeColor` | `?string` | `null` | Eye color override (hex). Falls back to foreground color |
 
 ### Logo overlay
@@ -204,7 +204,7 @@ return [
 ```
 
 > [!TIP]
-> QR scans follow the same redirect mode as normal clicks. If `directRedirect` is enabled, repeat scan analytics can be bypassed by browser/CDN/static caching unless those routes bypass cache. If you need analytics-safe QR scans under caching, keep `directRedirect = false`.
+> QR scans follow the same redirect mode as normal clicks. If `directRedirect` is enabled, repeat scan analytics can be bypassed by browser/CDN/static caching unless those [routes](custom-domain.md#site-aware-routes) bypass cache. If you need analytics-safe QR scans under caching, keep `directRedirect = false`.
 
 ## Limitations
 

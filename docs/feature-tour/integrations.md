@@ -45,10 +45,10 @@ The `event` name is `{seomaticEventPrefix}_{eventType}` (e.g. `shortlink_manager
 
 ### Configuration
 
-Enable the integration in **Settings → Integrations → SEOmatic**. The integration is automatically detected — if SEOmatic is not installed, the card still appears with an **Install Plugin** link, but its enable toggle stays disabled until SEOmatic is installed.
+Enable the integration in **Settings → Integrations → SEOmatic**. The integration is automatically detected. (When SEOmatic isn't installed, see [Integration requirements](#integration-requirements) below for what the card shows.)
 
 > [!WARNING]
-> SEOmatic tracking events cannot fire when [Direct Redirect](direct-redirect.md) is enabled. The redirect template is skipped, so no JavaScript runs before the browser navigates away. Use per-link Direct Redirect overrides to keep tracking for important links.
+> SEOmatic tracking events cannot fire when [Direct Redirect](direct-redirect.md) is enabled for a link. The redirect template is skipped, so no JavaScript runs before the browser navigates away. If you enable Direct Redirect globally, turn it off on links that still need SEOmatic/GTM tracking.
 
 ### Content SEO and sitemaps
 

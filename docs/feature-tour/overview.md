@@ -25,7 +25,7 @@ Turn any URL into a short, trackable link — and a scannable QR code — withou
 
 - **[Custom domain](custom-domain.md)** — serve all short links from a dedicated domain (e.g., `https://short.example.com`) with site-aware URL patterns for multisite setups.
 
-- **[Direct redirect](direct-redirect.md)** — bypass the redirect template for maximum performance. Can be set globally or overridden per link. Analytics still work.
+- **[Direct redirect](direct-redirect.md)** — bypass the redirect template for maximum performance. Server-side analytics and hit counting still run when the short URL request reaches Craft; SEOmatic/GTM events need the redirect template.
 
 - **[ShortLink field](shortlink-field.md)** — a custom field type that attaches a short link to any element. The destination URL syncs automatically when the element URL changes.
 
@@ -54,7 +54,7 @@ ShortLink Manager adds a utility at **Utilities → ShortLink Manager** with sys
 
 ## Element index
 
-The main element index at **ShortLink Manager** lists all short links with sortable columns for Code, Type, Destination, Status, Interactions, and Date Created. Filter by status, link type, or search by code or destination URL.
+The main element index at **ShortLink Manager** lists each short link by its clickable code/title, with columns for Type, Destination, Status, Interactions, and Date Created. Filter by status, link type, or search by code or destination URL.
 
 **Bulk actions:** Enable, Disable, Delete, Duplicate, Set Folder, Clear Folder, Add Tags, Remove Tags, Clear Tags.
 

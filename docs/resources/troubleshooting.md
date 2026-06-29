@@ -51,7 +51,7 @@ ddev craft shortlink-manager/security/generate-salt
 
 6. **Check the redirect mode under caching.**
    - If you need analytics-safe redirects under static caching, keep `directRedirect = false`
-   - If you need `directRedirect = true`, add cache bypass rules for your shortlink routes
+   - If you need `directRedirect = true`, add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes)
 
 7. **Clear stale redirect caches after changes.** If you changed a link from `301`/`308` to `302`/`307`, or changed the redirect mode, clear browser/CDN/static caches before retesting. Previously cached permanent redirects can keep masking the new behavior.
 
@@ -99,7 +99,7 @@ Choose the mode that matches your goal:
 
 2. **Fastest direct redirect**
    - Use `directRedirect = true`
-   - Add cache bypass rules for your shortlink routes if accurate repeat-hit analytics matter
+   - Add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes) if accurate repeat-hit analytics matter
 
 ### After changing settings
 
@@ -211,7 +211,7 @@ SEOmatic tracking requires the redirect template to render. When `directRedirect
 
 To enable SEOmatic tracking:
 - Set `directRedirect` to `false` globally, or
-- Set the per-link `directRedirect` to `false` (overrides the global setting)
+- If Direct Redirect is enabled globally, set the per-link `directRedirect` override to `false`
 
 See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../developers/integrations.md).
 

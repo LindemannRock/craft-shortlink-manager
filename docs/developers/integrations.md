@@ -105,7 +105,7 @@ The `renderSeomaticTracking(eventType)` @since(5.1.0) method returns SEOmatic-co
 
 If you rely on SEOmatic/GTM tracking:
 - Keep `directRedirect = false` globally
-- Use the per-link `directRedirect` override to enable it only on links where tracking is not needed
+- Or enable Direct Redirect globally and set the per-link `directRedirect` override to `false` for links that still need tracking
 
 See [Direct Redirect](../feature-tour/direct-redirect.md) for more details.
 

@@ -17,6 +17,8 @@ Navigate to **ShortLink Manager → Import/Export**. The page shows three sectio
 - **Import** — upload a CSV file and map columns to short link fields (requires `shortLinkManager:importLinks`)
 - **Import History** — log of past imports (requires `shortLinkManager:manageImportExport`)
 
+![The Import/Export page in the ShortLink Manager Control Panel](images/import-export-main.webp)
+
 ## Exporting short links
 
 Click **Export CSV** to download all short links across all sites. The CSV includes the following columns:
@@ -54,8 +56,6 @@ The export filename is generated automatically using the plugin's standard filen
 
 Import uses a four-step wizard:
 
-![Import wizard showing column mapping screen with CSV preview rows](images/import-export-wizard.webp)
-
 ### Step 1: Upload
 
 Select your CSV file and click **Upload**. The importer accepts:
@@ -68,7 +68,9 @@ Select your CSV file and click **Upload**. The importer accepts:
 
 After upload, a column mapping screen shows the first 5 rows of your CSV as a preview. For each column in your file, select the corresponding short link field from a dropdown.
 
-The **`code`** field is required. All other fields are optional — unmapped columns are ignored.
+The **`code`** field is required. All other fields are optional — unmapped columns are ignored. Use the sample rows to catch shifted or empty values before previewing the import.
+
+![Mapping CSV columns to ShortLink Manager fields](images/import-export-map.webp)
 
 ### Step 3: Preview
 
@@ -77,6 +79,8 @@ Review the import before committing:
 - **Valid rows** — rows that will be imported
 - **Duplicate rows** — rows where the code already exists in the database or appears more than once in the file (these are skipped)
 - **Error rows** — rows with validation issues (missing required fields, invalid URLs, invalid QR format, etc.)
+
+![Import preview showing valid short links, duplicates, and error row counts](images/import-export-preview.webp)
 
 ### Step 4: Import
 
