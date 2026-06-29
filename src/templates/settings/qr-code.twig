@@ -16,6 +16,8 @@
     },
 ] %}
 
+{% do view.registerAssetBundle('lindemannrock\\shortlinkmanager\\web\\assets\\qrpreview\\QrPreviewAsset') %}
+
 {% block actionButton %}
 	<div class="btngroup">
 		<input type="submit" class="btn submit" value="{{ 'Save'|t('shortlink-manager') }}">
@@ -23,6 +25,59 @@
 {% endblock %}
 
 {% block content %}
+
+	<script type="application/json" data-shortlink-qr-preview-config>{{ {
+        generateAction: 'shortlink-manager/qr-code/generate',
+        staticParams: {
+            url: 'https://example.com/preview',
+            preview: '1',
+        },
+        fields: {
+            size: 'defaultQrSize',
+            format: 'defaultQrFormat',
+            color: 'defaultQrColor',
+            bg: 'defaultQrBgColor',
+            margin: 'defaultQrMargin',
+            errorCorrection: 'defaultQrErrorCorrection',
+            moduleStyle: 'qrModuleStyle',
+            eyeStyle: 'qrEyeStyle',
+            eyeColor: 'qrEyeColor',
+            logoSwitch: 'enableQrLogo',
+            logoSize: 'qrLogoSize',
+        },
+        defaults: {
+            size: 256,
+            format: 'png',
+            color: '#000000',
+            bg: '#FFFFFF',
+            margin: 4,
+            errorCorrection: 'M',
+            moduleStyle: 'square',
+            eyeStyle: 'square',
+            logoSize: 20,
+        },
+        preview: {
+            imageSelector: '#qr-preview',
+            loadingSelector: '#qr-preview-loading',
+            errorSelector: '#qr-preview-error',
+            warningSelector: '#qr-preview-warning',
+            containerSelector: '.qr-preview-floating',
+            headerSelector: '.qr-preview-header',
+            collapseStorageKey: 'shortlink-qr-preview-collapsed',
+        },
+        logo: {
+            enabled: true,
+            required: true,
+            fieldId: 'defaultQrLogoId-field',
+            fieldSelector: '#defaultQrLogoId-field .elements .element',
+        },
+        logoSizeMax: 30,
+        messages: {
+            logoRequired: 'A logo is required when logo overlay is enabled.'|t('shortlink-manager'),
+            failed: 'Failed to generate preview'|t('shortlink-manager'),
+            logoWarning: 'Logo requires PNG format'|t('shortlink-manager'),
+        },
+    }|json_encode|raw }}</script>
 
 	<div class="qr-preview-floating">
 		<div class="qr-preview-header">
@@ -398,390 +453,3 @@ text-align: center;
     }
 }
 {% endcss %}
-
-{% js %}
-// Handle preview collapse/expand
-(function() {
-    const previewContainer = document.querySelector('.qr-preview-floating');
-    const header = document.querySelector('.qr-preview-header');
-
-    // Only run if preview container exists (QR codes enabled)
-    if (!previewContainer || !header) return;
-
-    // Load saved state
-    const isCollapsed = localStorage.getItem('qr-preview-collapsed') === 'true';
-    if (isCollapsed) {
-        previewContainer.classList.add('collapsed');
-    }
-
-    // Toggle on click
-    header.addEventListener('click', function() {
-        previewContainer.classList.toggle('collapsed');
-        localStorage.setItem('qr-preview-collapsed', previewContainer.classList.contains('collapsed'));
-    });
-})();
-
-// Add form validation
-document.querySelector('form').addEventListener('submit', function(e) {
-    const enableLogo = document.getElementById('enableQrLogo');
-    const logoField = document.getElementById('defaultQrLogoId-field');
-
-    if (enableLogo && (enableLogo.checked || enableLogo.classList.contains('on'))) {
-        // Check if logo is selected
-        const hasLogo = logoField && logoField.querySelector('.elements .element');
-
-        if (!hasLogo) {
-            e.preventDefault();
-
-            // Remove any existing error
-            const existingError = logoField.querySelector('.errors');
-            if (existingError) {
-                existingError.remove();
-            }
-
-            // Add error message
-            const errorDiv = document.createElement('ul');
-            errorDiv.className = 'errors';
-            const errorLi = document.createElement('li');
-            errorLi.textContent = Craft.t('shortlink-manager', 'A logo is required when logo overlay is enabled.');
-            errorDiv.appendChild(errorLi);
-            logoField.appendChild(errorDiv);
-
-            // Scroll to error
-            logoField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            return false;
-        }
-    }
-});
-
-// QR Code Live Preview functionality
-(function() {
-    let previewTimeout = null;
-    let isGenerating = false;
-    const previewUrl = 'https://example.com/preview';
-
-    // Get all relevant form elements
-    const sizeField = document.getElementById('defaultQrSize');
-    const formatField = document.getElementById('defaultQrFormat');
-    const colorField = document.getElementById('defaultQrColor');
-    const bgColorField = document.getElementById('defaultQrBgColor');
-    const marginField = document.getElementById('defaultQrMargin');
-    const errorCorrectionField = document.getElementById('defaultQrErrorCorrection');
-    const moduleStyleField = document.getElementById('qrModuleStyle');
-    const eyeStyleField = document.getElementById('qrEyeStyle');
-    const eyeColorField = document.getElementById('qrEyeColor');
-    const enableLogoField = document.getElementById('enableQrLogo');
-    const logoSizeField = document.getElementById('qrLogoSize');
-
-    function updatePreview(immediate = false) {
-        // Clear existing timeout
-        if (previewTimeout) {
-            clearTimeout(previewTimeout);
-        }
-
-        // Skip if already generating
-        if (isGenerating && !immediate) {
-            return;
-        }
-
-        // Faster debounce for more responsive preview
-        const delay = immediate ? 0 : 250;
-
-        previewTimeout = setTimeout(function() {
-            generatePreview();
-        }, delay);
-    }
-
-    function generatePreview() {
-        // Prevent multiple simultaneous requests
-        if (isGenerating) {
-            return;
-        }
-
-        isGenerating = true;
-
-        const previewImg = document.getElementById('qr-preview');
-        const loadingDiv = document.getElementById('qr-preview-loading');
-        const errorDiv = document.getElementById('qr-preview-error');
-        const warningDiv = document.getElementById('qr-preview-warning');
-
-        // Show loading state with smooth transition
-        previewImg.style.opacity = '0.5';
-        errorDiv.style.display = 'none';
-        warningDiv.style.display = 'none';
-
-        // Gather current settings
-        const params = new URLSearchParams({
-            url: previewUrl,
-            size: sizeField.value || 256,
-            format: formatField.value || 'png',
-            color: (colorField.value || '#000000').replace('#', ''),
-            bg: (bgColorField.value || '#FFFFFF').replace('#', ''),
-            margin: marginField.value || 4,
-            errorCorrection: errorCorrectionField.value || 'M',
-            moduleStyle: moduleStyleField.value || 'square',
-            eyeStyle: eyeStyleField.value || 'square',
-            preview: '1'
-        });
-
-        // Add eye color if set
-        if (eyeColorField.value) {
-            params.append('eyeColor', eyeColorField.value.replace('#', ''));
-        }
-
-        // Add logo settings if enabled
-        const logoEnabled = enableLogoField.checked || enableLogoField.classList.contains('on');
-        if (logoEnabled) {
-            // Get selected logo ID
-            const logoElement = document.querySelector('#defaultQrLogoId-field .elements .element');
-            if (logoElement) {
-                const logoId = logoElement.getAttribute('data-id');
-                if (logoId) {
-                    params.append('logo', logoId);
-                    params.append('logoSize', logoSizeField.value || 20);
-                }
-            }
-        }
-
-        const qrUrl = Craft.getCpUrl('shortlink-manager/qr-code/generate?' + params.toString());
-
-        // Create new image to test loading
-        const testImg = new Image();
-        testImg.onload = function() {
-            // Update preview with smooth transition
-            previewImg.src = qrUrl;
-            previewImg.style.display = 'block';
-            previewImg.style.opacity = '1';
-            loadingDiv.style.display = 'none';
-            errorDiv.style.display = 'none';
-
-            // Show warnings based on settings
-            const logoEnabled = enableLogoField.checked || enableLogoField.classList.contains('on');
-            const format = formatField.value || 'png';
-
-            if (logoEnabled && format === 'svg') {
-                warningDiv.style.display = 'block';
-                warningDiv.querySelector('.warning-text').textContent = Craft.t('shortlink-manager', 'Logo requires PNG format');
-            } else {
-                warningDiv.style.display = 'none';
-            }
-
-            // Reset generating flag
-            isGenerating = false;
-        };
-        testImg.onerror = function(e) {
-            previewImg.style.display = 'none';
-            previewImg.style.opacity = '1';
-            loadingDiv.style.display = 'none';
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = {{ "Failed to generate preview"|t('shortlink-manager')|json_encode|raw }};
-
-            // Reset generating flag
-            isGenerating = false;
-        };
-        testImg.src = qrUrl;
-    }
-
-    // Add event listeners to all fields for live preview
-    const fields = [sizeField, formatField, colorField, bgColorField, marginField, errorCorrectionField,
-                   moduleStyleField, eyeStyleField, eyeColorField, logoSizeField];
-
-    fields.forEach(function(field) {
-        if (field) {
-            // Standard event listeners
-            field.addEventListener('change', () => updatePreview(true));
-            field.addEventListener('input', () => updatePreview());
-            field.addEventListener('keyup', () => updatePreview());
-            field.addEventListener('blur', () => updatePreview(true));
-        }
-    });
-
-    // Enforce max value on logo size field
-    if (logoSizeField) {
-        logoSizeField.addEventListener('input', function(e) {
-            const value = parseInt(this.value);
-            if (value > 30) {
-                this.value = 30;
-            }
-        });
-
-        // Also handle paste events
-        logoSizeField.addEventListener('paste', function(e) {
-            setTimeout(() => {
-                const value = parseInt(this.value);
-                if (value > 30) {
-                    this.value = 30;
-                }
-            }, 0);
-        });
-    }
-
-    // Craft CMS uses custom color fields - need to watch for their specific events
-    // Use MutationObserver to detect color changes
-    const colorFields = [colorField, bgColorField, eyeColorField];
-    colorFields.forEach(function(field) {
-        if (field && field.id.includes('Color')) {
-            const fieldContainer = field.closest('.field');
-            if (fieldContainer) {
-                // Create observer for this color field
-                const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                            updatePreview(true);
-                        }
-                    });
-                });
-
-                // Observe the input field for value changes
-                observer.observe(field, {
-                    attributes: true,
-                    attributeFilter: ['value']
-                });
-
-                // Also observe the container for any structural changes
-                const containerObserver = new MutationObserver(function(mutations) {
-                    updatePreview(true);
-                });
-
-                containerObserver.observe(fieldContainer, {
-                    childList: true,
-                    subtree: true,
-                    characterData: true
-                });
-            }
-        }
-    });
-
-    // Handle lightswitch changes (immediate update)
-    if (enableLogoField) {
-        // Method 1: Try Craft's lightswitch instance
-        const lightswitch = enableLogoField.closest('.lightswitch');
-        if (lightswitch && lightswitch.lsInstance) {
-            lightswitch.lsInstance.on('change', () => {
-                updatePreview(true);
-            });
-        }
-
-        // Method 2: Watch for class changes on the container
-        const lsContainer = enableLogoField.closest('.lightswitch');
-        if (lsContainer) {
-            const lsObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                        updatePreview(true);
-                    }
-                });
-            });
-
-            lsObserver.observe(lsContainer, {
-                attributes: true,
-                attributeFilter: ['class']
-            });
-        }
-
-        // Method 3: Watch the hidden input value
-        const lsInput = enableLogoField;
-        if (lsInput) {
-            lsInput.addEventListener('change', () => {
-                updatePreview(true);
-            });
-
-            // Also observe value changes
-            const lsInputObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                        updatePreview(true);
-                    }
-                });
-            });
-
-            lsInputObserver.observe(lsInput, {
-                attributes: true,
-                attributeFilter: ['value']
-            });
-        }
-    }
-
-    // Handle logo selection changes (immediate update)
-    const logoFieldContainer = document.getElementById('defaultQrLogoId-field');
-    if (logoFieldContainer) {
-        // Use MutationObserver to detect when logo is added/removed
-        const observer = new MutationObserver(function(mutations) {
-            let logoChanged = false;
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                    // Check if elements were added or removed
-                    if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
-                        logoChanged = true;
-                    }
-                }
-            });
-
-            if (logoChanged) {
-                updatePreview(true); // Immediate update for logo changes
-            }
-        });
-
-        const elementsContainer = logoFieldContainer.querySelector('.elements');
-        if (elementsContainer) {
-            observer.observe(elementsContainer, { childList: true, subtree: true });
-        }
-    }
-
-    // Generate initial preview on page load
-    setTimeout(() => {
-        generatePreview();
-    }, 100);
-
-    // Fallback: Poll for changes every 500ms
-    // This ensures we catch any changes that don't trigger events
-    let lastValues = {
-        color: colorField ? colorField.value : '',
-        bgColor: bgColorField ? bgColorField.value : '',
-        eyeColor: eyeColorField ? eyeColorField.value : '',
-        logoEnabled: enableLogoField ? (enableLogoField.checked || enableLogoField.closest('.lightswitch')?.classList.contains('on')) : false,
-        logoId: null
-    };
-
-    // Get initial logo ID
-    const getLogoId = () => {
-        const logoElement = document.querySelector('#defaultQrLogoId-field .elements .element');
-        return logoElement ? logoElement.getAttribute('data-id') : null;
-    };
-
-    lastValues.logoId = getLogoId();
-
-    setInterval(function() {
-        const currentValues = {
-            color: colorField ? colorField.value : '',
-            bgColor: bgColorField ? bgColorField.value : '',
-            eyeColor: eyeColorField ? eyeColorField.value : '',
-            logoEnabled: enableLogoField ? (enableLogoField.checked || enableLogoField.closest('.lightswitch')?.classList.contains('on')) : false,
-            logoId: getLogoId()
-        };
-
-        // Check if any values have changed
-        let hasChanges = false;
-
-        if (currentValues.color !== lastValues.color ||
-            currentValues.bgColor !== lastValues.bgColor ||
-            currentValues.eyeColor !== lastValues.eyeColor) {
-            hasChanges = true;
-        }
-
-        if (currentValues.logoEnabled !== lastValues.logoEnabled) {
-            hasChanges = true;
-        }
-
-        if (currentValues.logoId !== lastValues.logoId) {
-            hasChanges = true;
-        }
-
-        if (hasChanges) {
-            lastValues = {...currentValues};
-            updatePreview(true);
-        }
-    }, 500);
-})();
-{% endjs %}

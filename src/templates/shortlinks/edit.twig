@@ -10,6 +10,10 @@
 {% set retainScrollOnSaveShortcut = true %}
 {% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
 
+{% if shortLink.id %}
+    {% do view.registerAssetBundle('lindemannrock\\shortlinkmanager\\web\\assets\\qrpreview\\QrPreviewAsset') %}
+{% endif %}
+
 {% set tabs = {
     fields: {
         label: 'Details'|t('shortlink-manager'),
@@ -363,12 +367,47 @@
 
         <div class="meta">
             {% if shortLink.id %}
+                <script type="application/json" data-shortlink-qr-preview-config>{{ {
+                    generateUrl: actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}),
+                    fields: {
+                        size: 'qrCodeSize',
+                        format: 'qrCodeFormat',
+                        color: 'qrCodeColor',
+                        bg: 'qrCodeBgColor',
+                        eyeColor: 'qrCodeEyeColor',
+                    },
+                    defaults: {
+                        size: plugin.settings.defaultQrSize ?? 256,
+                        format: plugin.settings.defaultQrFormat ?? 'png',
+                        color: plugin.settings.defaultQrColor ?? '#000000',
+                        bg: plugin.settings.defaultQrBgColor ?? '#FFFFFF',
+                        margin: plugin.settings.defaultQrMargin ?? 1,
+                        moduleStyle: plugin.settings.qrModuleStyle ?? 'square',
+                        eyeStyle: plugin.settings.qrEyeStyle ?? 'square',
+                    },
+                    preview: {
+                        imageSelector: '#qr-preview',
+                        size: 150,
+                        debounce: 150,
+                    },
+                    logo: {
+                        enabled: plugin.settings.enableQrLogo,
+                        defaultLogoId: plugin.settings.defaultQrLogoId,
+                        fieldId: 'qrLogoId-field',
+                        fieldSelector: '#qrLogoId-field .elements .element',
+                    },
+                    link: {
+                        selector: '#qr-preview-link',
+                        baseUrl: plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId),
+                    },
+                }|json_encode|raw }}</script>
+
                 <div class="field">
                     <div class="heading">
                         <label>{{ "Preview"|t('shortlink-manager') }}</label>
                     </div>
                     <div class="input lr-text-center">
-                        <a href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
+                        <a id="qr-preview-link" href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
                             <img id="qr-preview"
                                  src="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, size: 150 }) }}"
                                  alt="QR Code Preview"
@@ -694,242 +733,6 @@
             new Craft.ui.createDisclosureMenu(actionBtn);
         }
     }
-
-    {% if shortLink.id %}
-        // Live QR code preview
-        (function() {
-            const qrPreview = document.getElementById('qr-preview');
-            if (!qrPreview) {
-                return;
-            }
-
-            const qrLink = qrPreview.closest('a');
-            const colorInput = document.getElementById('qrCodeColor');
-            const bgColorInput = document.getElementById('qrCodeBgColor');
-            const eyeColorInput = document.getElementById('qrCodeEyeColor');
-            const sizeInput = document.getElementById('qrCodeSize');
-            const formatSelect = document.getElementById('qrCodeFormat');
-            const baseUrl = {{ actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id})|json_encode|raw }};
-            const publicBaseUrl = {{ plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId)|json_encode|raw }};
-            let updateTimeout;
-
-            function updateQrCode() {
-                clearTimeout(updateTimeout);
-
-                updateTimeout = setTimeout(function() {
-                    // Get color values - Craft's color input doesn't include #
-                    const color = (colorInput.value || '000000').replace(/^#/, '');
-                    const bgColor = (bgColorInput.value || 'FFFFFF').replace(/^#/, '');
-                    const eyeColor = eyeColorInput.value ? eyeColorInput.value.replace(/^#/, '') : '';
-                    const size = sizeInput.value || 256;
-
-                    // Add loading state
-                    qrPreview.style.opacity = '0.5';
-
-                    // Create new image to preload
-                    const newImg = new Image();
-                    newImg.onload = function() {
-                        qrPreview.src = this.src;
-                        qrPreview.style.opacity = '1';
-                    };
-
-                    newImg.onerror = function() {
-                        qrPreview.style.opacity = '1';
-                    };
-
-                    // Get the format - use selected value or default
-                    const formatValue = formatSelect ? formatSelect.value : '';
-                    const format = formatValue || {{ (plugin.settings.defaultQrFormat ?? 'png')|json_encode|raw }};
-                    const margin = {{ (plugin.settings.defaultQrMargin ?? 1)|json_encode|raw }};
-
-                    // Build parameters
-                    let params = `size=150&color=${color}&bg=${bgColor}&format=${format}&margin=${margin}`;
-                    let fullSizeParams = `size=${size}&color=${color}&bg=${bgColor}&format=${format}&margin=${margin}`;
-
-                    // Add eye color if set
-                    if (eyeColor) {
-                        params += `&eyeColor=${eyeColor}`;
-                        fullSizeParams += `&eyeColor=${eyeColor}`;
-                    }
-
-                    {% if plugin.settings.enableQrLogo %}
-                    // Add logo parameter if one is selected OR use default logo
-                    const logoField = document.querySelector('#qrLogoId-field .elements');
-                    let logoId = null;
-
-                    if (logoField) {
-                        const selectedLogo = logoField.querySelector('.element');
-                        if (selectedLogo) {
-                            logoId = selectedLogo.dataset.id;
-                        }
-                    }
-
-                    // If no specific logo selected, use default logo from settings
-                    const defaultLogoId = {{ (plugin.settings.defaultQrLogoId ?? null)|json_encode|raw }};
-                    if (!logoId && defaultLogoId) {
-                        logoId = defaultLogoId;
-                    }
-
-                    if (logoId) {
-                        params += `&logo=${logoId}`;
-                        fullSizeParams += `&logo=${logoId}`;
-                    }
-                    {% endif %}
-
-                    // Update QR code image
-                    const newSrc = `${baseUrl}&${params}&t=${Date.now()}`;
-                    newImg.src = newSrc;
-
-                    // Update preview background immediately
-                    qrPreview.style.background = '#' + bgColor;
-
-                    // Update shortLink to full size
-                    if (qrLink) {
-                        qrLink.href = `${publicBaseUrl}?${fullSizeParams}`;
-                    }
-                }, 150); // Debounce delay
-            }
-
-            // Attach event listeners with multiple strategies for Craft's color fields
-            const inputs = [colorInput, bgColorInput, eyeColorInput];
-            inputs.forEach(input => {
-                if (!input) return;
-
-                // Standard input events
-                ['input', 'change', 'keyup', 'blur', 'paste'].forEach(event => {
-                    input.addEventListener(event, updateQrCode);
-                });
-
-                // Watch for value changes via MutationObserver
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                            updateQrCode();
-                        }
-                    });
-                });
-
-                observer.observe(input, {
-                    attributes: true,
-                    attributeFilter: ['value']
-                });
-
-                // Find the actual color picker button (Craft uses a button that opens a color picker)
-                const colorButton = input.closest('.color-field')?.querySelector('button.color-preview');
-                if (colorButton) {
-                    colorButton.addEventListener('click', () => {
-                        // Poll for changes after color picker is opened
-                        let lastValue = input.value;
-                        const checkInterval = setInterval(() => {
-                            if (input.value !== lastValue) {
-                                lastValue = input.value;
-                                updateQrCode();
-                            }
-                        }, 100);
-
-                        // Stop polling after 30 seconds
-                        setTimeout(() => clearInterval(checkInterval), 30000);
-                    });
-                }
-            });
-
-            // Size input
-            if (sizeInput) {
-                sizeInput.addEventListener('input', updateQrCode);
-                sizeInput.addEventListener('change', updateQrCode);
-            }
-
-            // Format select
-            if (formatSelect) {
-                formatSelect.addEventListener('change', updateQrCode);
-            }
-
-            // Global event delegation for any change events on our inputs
-            document.addEventListener('input', function(e) {
-                if (e.target === colorInput || e.target === bgColorInput || e.target === eyeColorInput) {
-                    updateQrCode();
-                }
-            }, true);
-
-            // Watch for Craft's custom events
-            if (typeof Craft !== 'undefined' && Craft.cp) {
-                // Hook into Craft's CP JavaScript if available
-                const checkForChanges = () => {
-                    if (colorInput && colorInput.value !== colorInput.dataset.lastValue) {
-                        colorInput.dataset.lastValue = colorInput.value;
-                        updateQrCode();
-                    }
-                    if (bgColorInput && bgColorInput.value !== bgColorInput.dataset.lastValue) {
-                        bgColorInput.dataset.lastValue = bgColorInput.value;
-                        updateQrCode();
-                    }
-                    if (eyeColorInput && eyeColorInput.value !== eyeColorInput.dataset.lastValue) {
-                        eyeColorInput.dataset.lastValue = eyeColorInput.value;
-                        updateQrCode();
-                    }
-                };
-
-                // Store initial values
-                if (colorInput) colorInput.dataset.lastValue = colorInput.value;
-                if (bgColorInput) bgColorInput.dataset.lastValue = bgColorInput.value;
-                if (eyeColorInput) eyeColorInput.dataset.lastValue = eyeColorInput.value;
-
-                // Check periodically
-                setInterval(checkForChanges, 500);
-
-                // Hook into Craft's editor events if available
-                if (typeof Craft.BaseElementEditor !== 'undefined') {
-                    Garnish.on(Craft.BaseElementEditor, 'onFieldChange', (e) => {
-                        updateQrCode();
-                    });
-                }
-
-                // Try to hook into Craft's color field specifically
-                $(document).on('change', '.color-field input[type="text"]', function() {
-                    updateQrCode();
-                });
-
-                // Also try Garnish events
-                if (typeof Garnish !== 'undefined') {
-                    $(colorInput).on('change textchange input', updateQrCode);
-                    $(bgColorInput).on('change textchange input', updateQrCode);
-                    $(eyeColorInput).on('change textchange input', updateQrCode);
-                }
-            }
-
-            // Final fallback - watch the color display elements themselves
-            const watchColorDisplay = () => {
-                const colorDisplays = document.querySelectorAll('.color-field .color-preview, .color-field .color-container');
-                colorDisplays.forEach(display => {
-                    const observer = new MutationObserver(() => {
-                        updateQrCode();
-                    });
-                    observer.observe(display, { attributes: true, attributeFilter: ['style'] });
-                });
-            };
-
-            // Wait a bit for Craft to initialize color fields
-            setTimeout(watchColorDisplay, 1000);
-
-            {% if plugin.settings.enableQrLogo %}
-            // Watch for logo field changes
-            const logoFieldContainer = document.getElementById('qrLogoId-field');
-            if (logoFieldContainer) {
-                // Watch for changes to the element field
-                const observer = new MutationObserver(() => {
-                    updateQrCode();
-                });
-
-                observer.observe(logoFieldContainer, {
-                    childList: true,
-                    subtree: true,
-                    attributes: true,
-                    characterData: true
-                });
-            }
-            {% endif %}
-        })();
-    {% endif %}
 
     // Download QR code
     $('.download-qr').on('click', function(e) {
