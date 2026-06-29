@@ -68,7 +68,7 @@ class QrCodeService extends Component
         $moduleStyle = in_array($options['moduleStyle'] ?? $settings->qrModuleStyle, ['square', 'dots', 'rounded'], true)
             ? ($options['moduleStyle'] ?? $settings->qrModuleStyle)
             : $settings->qrModuleStyle;
-        $eyeStyle = in_array($options['eyeStyle'] ?? $settings->qrEyeStyle, ['square', 'circle', 'rounded', 'leaf'], true)
+        $eyeStyle = in_array($options['eyeStyle'] ?? $settings->qrEyeStyle, ['square', 'circle', 'rounded', 'pointed'], true)
             ? ($options['eyeStyle'] ?? $settings->qrEyeStyle)
             : $settings->qrEyeStyle;
         $eyeColor = $options['eyeColor'] ?? $settings->qrEyeColor ?? null;
@@ -229,7 +229,7 @@ class QrCodeService extends Component
             case 'rounded':
             case 'circle':
                 return SimpleCircleEye::instance();
-            case 'leaf':
+            case 'pointed':
                 return PointyEye::instance();
             case 'square':
             default:

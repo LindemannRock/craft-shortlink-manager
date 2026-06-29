@@ -142,7 +142,7 @@ class Settings extends Model
     public string $qrModuleStyle = 'square';
 
     /**
-     * @var string QR code eye style (square, rounded, leaf)
+     * @var string QR code eye style (square, rounded, pointed)
      */
     public string $qrEyeStyle = 'square';
 
@@ -465,7 +465,7 @@ class Settings extends Model
             [['defaultQrErrorCorrection'], 'in', 'range' => ['L', 'M', 'Q', 'H']],
             [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
-            [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'leaf']],
+            [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'pointed']],
             [['qrDownloadFilename'], 'string'],
             [['qrDownloadFilename'], 'validateQrDownloadFilename'],
             [['qrLogoVolumeUid'], 'string'],

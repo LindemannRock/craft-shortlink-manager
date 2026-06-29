@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Arredondado',
     'Dots' => 'Pontos',
     'Shape of the position markers (corners)' => 'Forma dos marcadores de posição (cantos)',
-    'Leaf' => 'Folha',
+    'Pointed Corner' => 'Canto pontiagudo',
     'Color for position markers (leave empty to use main color)' => 'Cor para os marcadores de posição (deixe vazio para usar a cor principal)',
     'Logo Settings' => 'Definições do logótipo',
     'Enable Logo Overlay' => 'Ativar sobreposição de logótipo',

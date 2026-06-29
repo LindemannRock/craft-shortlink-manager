@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Rounded',
     'Dots' => 'Dots',
     'Shape of the position markers (corners)' => 'Shape of the position markers (corners)',
-    'Leaf' => 'Leaf',
+    'Pointed Corner' => 'Pointed Corner',
     'Color for position markers (leave empty to use main color)' => 'Color for position markers (leave empty to use main color)',
     'Logo Settings' => 'Logo Settings',
     'Enable Logo Overlay' => 'Enable Logo Overlay',

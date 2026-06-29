@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Afgerond',
     'Dots' => 'Punten',
     'Shape of the position markers (corners)' => 'Vorm van de positiemarkeerders (hoeken)',
-    'Leaf' => 'Blad',
+    'Pointed Corner' => 'Spitse hoek',
     'Color for position markers (leave empty to use main color)' => 'Kleur voor positiemarkeerders (laat leeg om de hoofdkleur te gebruiken)',
     'Logo Settings' => 'Logoinstellingen',
     'Enable Logo Overlay' => 'Logo-overlay inschakelen',

@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Arrondi',
     'Dots' => 'Points',
     'Shape of the position markers (corners)' => 'Forme des marqueurs de position (coins)',
-    'Leaf' => 'Feuille',
+    'Pointed Corner' => 'Coin pointu',
     'Color for position markers (leave empty to use main color)' => 'Couleur des marqueurs de position (laissez vide pour utiliser la couleur principale)',
     'Logo Settings' => 'Paramètres du logo',
     'Enable Logo Overlay' => 'Activer la superposition de logo',

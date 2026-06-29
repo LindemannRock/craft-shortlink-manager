@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Abgerundet',
     'Dots' => 'Punkte',
     'Shape of the position markers (corners)' => 'Form der Positionsmarkierungen (Ecken)',
-    'Leaf' => 'Blatt',
+    'Pointed Corner' => 'Spitze Ecke',
     'Color for position markers (leave empty to use main color)' => 'Farbe für Positionsmarkierungen (leer lassen, um die Hauptfarbe zu verwenden)',
     'Logo Settings' => 'Logo-Einstellungen',
     'Enable Logo Overlay' => 'Logo-Einblendung aktivieren',

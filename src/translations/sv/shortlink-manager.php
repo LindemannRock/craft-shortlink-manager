@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Rundad',
     'Dots' => 'Punkter',
     'Shape of the position markers (corners)' => 'Form på positionsmarkörerna (hörnen)',
-    'Leaf' => 'Blad',
+    'Pointed Corner' => 'Spetsigt hörn',
     'Color for position markers (leave empty to use main color)' => 'Färg för positionsmarkörer (lämna tomt för att använda huvudfärgen)',
     'Logo Settings' => 'Logotypinställningar',
     'Enable Logo Overlay' => 'Aktivera logotypöverlagring',

@@ -321,7 +321,7 @@ return [
     'Rounded' => '丸み',
     'Dots' => 'ドット',
     'Shape of the position markers (corners)' => '位置マーカー（角）の形状',
-    'Leaf' => '葉型',
+    'Pointed Corner' => '尖った角',
     'Color for position markers (leave empty to use main color)' => '位置マーカーの色（空白にするとメインカラーが使用されます）',
     'Logo Settings' => 'ロゴ設定',
     'Enable Logo Overlay' => 'ロゴオーバーレイを有効にする',

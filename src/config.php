@@ -71,7 +71,7 @@ return [
         'defaultQrBgColor' => '#FFFFFF', // Background color (default: white)
         'defaultQrMargin' => 4,        // White space around QR code (0-10 modules)
         'qrModuleStyle' => 'square',   // Module shape: 'square', 'rounded', 'dots'
-        'qrEyeStyle' => 'square',      // Eye shape: 'square', 'rounded', 'leaf'
+        'qrEyeStyle' => 'square',      // Eye shape: 'square', 'rounded', 'pointed'
         'qrEyeColor' => null,          // Eye color (null = use main color)
 
         // Logo Settings

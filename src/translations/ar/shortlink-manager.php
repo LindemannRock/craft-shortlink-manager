@@ -321,7 +321,7 @@ return [
     'Rounded' => 'مستدير',
     'Dots' => 'نقاط',
     'Shape of the position markers (corners)' => 'شكل علامات الموضع (الزوايا)',
-    'Leaf' => 'ورقة',
+    'Pointed Corner' => 'زاوية مدببة',
     'Color for position markers (leave empty to use main color)' => 'لون علامات الموضع (اتركه فارغًا لاستخدام اللون الرئيسي)',
     'Logo Settings' => 'إعدادات الشعار',
     'Enable Logo Overlay' => 'تفعيل تراكب الشعار',

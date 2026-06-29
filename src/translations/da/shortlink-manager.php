@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Afrundet',
     'Dots' => 'Punkter',
     'Shape of the position markers (corners)' => 'Form på positionsmarkørerne (hjørnerne)',
-    'Leaf' => 'Blad',
+    'Pointed Corner' => 'Spidst hjørne',
     'Color for position markers (leave empty to use main color)' => 'Farve for positionsmarkører (lad feltet være tomt for at bruge hovedfarven)',
     'Logo Settings' => 'Logoindstillinger',
     'Enable Logo Overlay' => 'Aktiver logo-overlay',

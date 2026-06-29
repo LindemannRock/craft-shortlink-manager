@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Arrotondato',
     'Dots' => 'Punti',
     'Shape of the position markers (corners)' => 'Forma degli indicatori di posizione (angoli)',
-    'Leaf' => 'Foglia',
+    'Pointed Corner' => 'Angolo appuntito',
     'Color for position markers (leave empty to use main color)' => 'Colore per gli indicatori di posizione (lasciare vuoto per usare il colore principale)',
     'Logo Settings' => 'Impostazioni logo',
     'Enable Logo Overlay' => 'Abilita sovrapposizione logo',

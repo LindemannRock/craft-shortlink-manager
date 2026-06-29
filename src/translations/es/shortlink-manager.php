@@ -321,7 +321,7 @@ return [
     'Rounded' => 'Redondeado',
     'Dots' => 'Puntos',
     'Shape of the position markers (corners)' => 'Forma de los marcadores de posición (esquinas)',
-    'Leaf' => 'Hoja',
+    'Pointed Corner' => 'Esquina puntiaguda',
     'Color for position markers (leave empty to use main color)' => 'Color para los marcadores de posición (déjelo vacío para usar el color principal)',
     'Logo Settings' => 'Configuración del logo',
     'Enable Logo Overlay' => 'Activar superposición de logo',
