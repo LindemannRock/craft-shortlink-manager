@@ -209,6 +209,10 @@ final class UtilityOverviewSiteFilterTest extends TestCase
         self::assertStringContainsString('ShortLinkManager::$plugin->getEnabledSites()', $utility);
         self::assertStringNotContainsString("Craft::t('shortlink-manager', 'All Sites')", $utility);
         self::assertStringNotContainsString('$settings->getEnabledSiteIds()', $utility);
+        self::assertStringContainsString("DbHelper::jsonExtract('metadata', 'source')", $utility);
+        self::assertStringContainsString("'directClicks' => max(0, \$totalClicks - \$qrScans)", $utility);
+        self::assertStringNotContainsString('sourceRowsQuery', $utility);
+        self::assertStringNotContainsString('json_decode($click', $utility);
     }
 
     public function testCacheCountsAndServdPurgeRemainGlobal(): void

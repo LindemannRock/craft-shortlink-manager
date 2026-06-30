@@ -13,6 +13,7 @@ use craft\base\Utility;
 use craft\db\Query;
 use craft\models\Site;
 use lindemannrock\base\helpers\CacheHelper;
+use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
@@ -158,35 +159,20 @@ class ShortLinkManagerUtility extends Utility
     private static function analyticsStats(array $siteIds): array
     {
         $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary('last7days', null, $siteIds);
-        $totalClicks = $analyticsData['totalClicks'] ?? 0;
-        $qrScans = 0;
-        $directClicks = 0;
+        $totalClicks = (int) ($analyticsData['totalClicks'] ?? 0);
 
-        $sourceRowsQuery = (new Query())
+        $qrQuery = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
-            ->select(['metadata'])
             ->where(['siteId' => $siteIds]);
-        ShortLinkManager::$plugin->analytics->applyDateRangeFilter($sourceRowsQuery, 'last7days');
-
-        foreach ($sourceRowsQuery->all() as $click) {
-            $source = 'direct';
-            if (!empty($click['metadata'])) {
-                $metadata = json_decode($click['metadata'], true);
-                if (is_array($metadata)) {
-                    $source = $metadata['source'] ?? 'direct';
-                }
-            }
-            if ($source === 'qr') {
-                $qrScans++;
-            } else {
-                $directClicks++;
-            }
-        }
+        ShortLinkManager::$plugin->analytics->applyDateRangeFilter($qrQuery, 'last7days');
+        $qrScans = (int) $qrQuery
+            ->andWhere([DbHelper::jsonExtract('metadata', 'source') => 'qr'])
+            ->count();
 
         return [
-            'totalClicks' => (int) $totalClicks,
+            'totalClicks' => $totalClicks,
             'qrScans' => $qrScans,
-            'directClicks' => $directClicks,
+            'directClicks' => max(0, $totalClicks - $qrScans),
         ];
     }
 
