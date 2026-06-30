@@ -133,6 +133,8 @@ class ShortLinkManagerUtility extends Utility
         return Craft::$app->getView()->renderTemplate('shortlink-manager/utilities/index', [
             'pluginName' => $pluginName,
             'settings' => $settings,
+            'linksName' => $settings->getPluralLowerDisplayName(),
+            'servdStaticCacheAvailable' => ShortLinkManager::$plugin->servdStaticCache->isAvailable(),
             'totalLinks' => $totalLinks,
             'activeLinks' => $activeLinks,
             'pendingLinks' => $pendingLinks,

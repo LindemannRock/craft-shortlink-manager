@@ -7,14 +7,13 @@
 {% set canClearCache = currentUser.can('shortLinkManager:clearCache') %}
 {% set canClearAnalytics = currentUser.can('shortLinkManager:clearAnalytics') %}
 
-{% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
-{% set settings = plugin.settings %}
 {% set storageMethod = settings.cacheStorageMethod %}
 
 {% set hasNavigation = canManageLinks or (settings.enableAnalytics and canViewAnalytics) or canManageSettings %}
 {% set hasCacheManagement = (settings.enableQrCodeCache or settings.cacheDeviceDetection) and canClearCache %}
+{% set hasServdStaticCacheManagement = servdStaticCacheAvailable and canClearCache %}
 {% set hasAnalyticsManagement = settings.enableAnalytics and canClearAnalytics %}
-{% set hasAnyQuickAction = hasNavigation or hasCacheManagement or hasAnalyticsManagement %}
+{% set hasAnyQuickAction = hasNavigation or hasCacheManagement or hasServdStaticCacheManagement or hasAnalyticsManagement %}
 
 {% set utilitiesConfig = {
     plugin: {
@@ -152,12 +151,24 @@
             } only %}
         {% endif %}
 
+        {# Servd Static Cache Section #}
+        {% if hasServdStaticCacheManagement %}
+            {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+                title: 'Servd Static Cache'|t('shortlink-manager'),
+                description: 'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.'|t('shortlink-manager', {linksName: linksName}),
+                showSeparator: hasNavigation or hasCacheManagement,
+                buttons: [
+                    {id: 'purge-servd-static-cache', label: 'Purge Servd static cache'|t('shortlink-manager'), class: 'btn secondary'},
+                ],
+            } only %}
+        {% endif %}
+
         {# Analytics Management Section #}
         {% if hasAnalyticsManagement %}
             {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
                 title: 'Analytics Data Management'|t('shortlink-manager'),
                 description: 'Permanently delete all analytics tracking data. This action cannot be undone!'|t('shortlink-manager'),
-                showSeparator: hasNavigation or hasCacheManagement,
+                showSeparator: hasNavigation or hasCacheManagement or hasServdStaticCacheManagement,
                 buttons: [
                     {id: 'clear-all-analytics', label: 'Clear All Analytics'|t('shortlink-manager'), class: 'btn secondary', count: totalClicks},
                 ],
@@ -190,6 +201,15 @@
     action: actionUrl('shortlink-manager/settings/clear-all-caches'),
     confirm: 'Are you sure you want to clear all {pluginName} caches?'|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}),
     errorMessage: 'Failed to clear caches'|t('shortlink-manager'),
+} only %}
+{% endif %}
+
+{% if hasServdStaticCacheManagement %}
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'purge-servd-static-cache',
+    action: actionUrl('shortlink-manager/settings/purge-servd-static-cache'),
+    confirm: 'Purge Servd static cache for all {linksName}?'|t('shortlink-manager', {linksName: linksName}),
+    errorMessage: 'Servd static cache is not available.'|t('shortlink-manager'),
 } only %}
 {% endif %}
 

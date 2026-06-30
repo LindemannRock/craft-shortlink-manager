@@ -522,6 +522,43 @@ class SettingsController extends Controller
     }
 
     /**
+     * Queue a Servd static-cache purge for all public ShortLink URLs.
+     *
+     * @return Response
+     * @since 5.25.0
+     */
+    public function actionPurgeServdStaticCache(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('shortLinkManager:clearCache');
+        $this->requireAcceptsJson();
+
+        try {
+            if (!ShortLinkManager::$plugin->servdStaticCache->isAvailable()) {
+                return $this->asJson([
+                    'success' => false,
+                    'error' => Craft::t('shortlink-manager', 'Servd static cache is not available.'),
+                ]);
+            }
+
+            ShortLinkManager::$plugin->servdStaticCache->purgeAllUrls();
+
+            return $this->asJson([
+                'success' => true,
+                'message' => Craft::t('shortlink-manager', 'Servd static cache purge queued.'),
+            ]);
+        } catch (\Exception $e) {
+            $this->logError($e->getMessage());
+            return $this->asJson([
+                'success' => false,
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('shortlink-manager', 'An unexpected error occurred.'),
+            ]);
+        }
+    }
+
+    /**
      * Clear all analytics data
      *
      * @return Response
