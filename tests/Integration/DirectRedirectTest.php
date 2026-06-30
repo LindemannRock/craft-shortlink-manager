@@ -66,7 +66,7 @@ final class DirectRedirectTest extends TestCase
         });
     }
 
-    public function testPerLinkDirectRedirectTrueOverridesGlobalFalse(): void
+    public function testGlobalDirectRedirectFalseOverridesPerLinkTrue(): void
     {
         $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
         $this->installRequest();
@@ -81,12 +81,14 @@ final class DirectRedirectTest extends TestCase
 
         $this->withSettings([
             'directRedirect' => false,
+            'redirectTemplate' => 'shortlink-manager/redirect',
             'enableAnalytics' => false,
         ], function() use ($link): void {
             $response = $this->controller()->actionIndex($link->slug);
 
-            self::assertSame(302, $response->getStatusCode());
-            self::assertSame('https://example.com/direct-link', $response->getHeaders()->get('Location'));
+            self::assertSame(200, $response->getStatusCode());
+            self::assertSame('rendered:shortlink-manager/redirect', $response->content);
+            self::assertSame(0, $this->fetchHitsFromDb((int) $link->id));
         });
     }
 

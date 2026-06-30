@@ -140,8 +140,8 @@ class RedirectController extends Controller
         $deviceInfo = ShortLinkManager::$plugin->deviceDetection->detectDevice();
         $shouldTrack = $shortLink->trackAnalytics && ShortLinkManager::$plugin->getSettings()->enableAnalytics;
 
-        // Check if direct redirect is enabled (per-link override or global setting)
-        $shouldDirectRedirect = $shortLink->directRedirect ?? $settings->directRedirect;
+        // Global Direct Redirect is the master switch; per-link values can only opt out when it is enabled.
+        $shouldDirectRedirect = $settings->directRedirect && ($shortLink->directRedirect ?? true);
 
         if ($shouldDirectRedirect) {
             return $this->executeRedirect($shortLink, $destinationUrl, $source);
