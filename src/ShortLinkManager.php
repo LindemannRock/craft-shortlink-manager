@@ -13,6 +13,7 @@ namespace lindemannrock\shortlinkmanager;
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
+use craft\events\DeleteElementEvent;
 use craft\events\ElementEvent;
 use craft\events\ExecuteGqlQueryEvent;
 use craft\events\RegisterCacheOptionsEvent;
@@ -39,6 +40,7 @@ use lindemannrock\base\helpers\RecurringQueueHelper;
 use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\gql\types\ShortLinkType as GqlShortLinkType;
 use lindemannrock\shortlinkmanager\integrations\seomatic\SeoShortLink;
@@ -50,6 +52,7 @@ use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
 use lindemannrock\shortlinkmanager\services\FrontendService;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
+use lindemannrock\shortlinkmanager\services\ServdStaticCacheService;
 use lindemannrock\shortlinkmanager\services\ShortLinksService;
 use lindemannrock\shortlinkmanager\services\TaxonomyService;
 use lindemannrock\shortlinkmanager\utilities\ShortLinkManagerUtility;
@@ -72,6 +75,7 @@ use yii\base\Event;
  * @property-read FrontendService $frontend
  * @property-read IntegrationService $integration
  * @property-read TaxonomyService $taxonomy
+ * @property-read ServdStaticCacheService $servdStaticCache
  * @property-read Settings $settings
  * @method Settings getSettings()
  */
@@ -140,6 +144,7 @@ class ShortLinkManager extends Plugin
             'frontend' => FrontendService::class,
             'integration' => IntegrationService::class,
             'taxonomy' => TaxonomyService::class,
+            'servdStaticCache' => ServdStaticCacheService::class,
         ]);
 
         // Schedule analytics cleanup if retention is enabled
@@ -313,6 +318,7 @@ class ShortLinkManager extends Plugin
                         }
 
                         $this->logInfo('Cleared cache entries', ['count' => $cleared]);
+                        $this->servdStaticCache->purgeAllShortLinks();
                     },
                 ];
             }
@@ -884,8 +890,24 @@ class ShortLinkManager extends Plugin
             Elements::class,
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function(ElementEvent $event) {
+                if ($event->element instanceof ShortLink) {
+                    $this->servdStaticCache->purgeShortLink($event->element);
+                    return;
+                }
+
                 if (!$event->isNew) {
                     $this->shortLinks->onSaveElement($event->element);
+                }
+            }
+        );
+
+        // Purge public shortlink URLs before delete while the element data is still available.
+        Event::on(
+            Elements::class,
+            Elements::EVENT_BEFORE_DELETE_ELEMENT,
+            function(DeleteElementEvent $event) {
+                if ($event->element instanceof ShortLink) {
+                    $this->servdStaticCache->purgeShortLink($event->element);
                 }
             }
         );
@@ -895,6 +917,10 @@ class ShortLinkManager extends Plugin
             Elements::class,
             Elements::EVENT_AFTER_DELETE_ELEMENT,
             function(ElementEvent $event) {
+                if ($event->element instanceof ShortLink) {
+                    return;
+                }
+
                 $this->shortLinks->onDeleteElement($event->element);
             }
         );
