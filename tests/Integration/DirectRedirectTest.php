@@ -12,6 +12,7 @@ namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use Craft;
 use craft\console\Request as ConsoleRequest;
+use craft\web\Request as WebRequest;
 use lindemannrock\shortlinkmanager\controllers\RedirectController;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
@@ -66,6 +67,33 @@ final class DirectRedirectTest extends TestCase
         });
     }
 
+    public function testDirectRedirectWithAnalyticsSendsNoStoreHeaders(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        $this->installWebRequest();
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-direct-cache',
+            'slug' => 'sl-test-direct-cache',
+            'destinationUrl' => 'https://example.com/direct-cache',
+            'trackAnalytics' => true,
+        ]);
+        $link->passQueryParams = false;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+        $this->withSettings([
+            'directRedirect' => true,
+            'enableAnalytics' => true,
+        ], function() use ($link): void {
+            $response = $this->controller()->actionIndex($link->slug);
+
+            self::assertSame(302, $response->getStatusCode());
+            self::assertSame('https://example.com/direct-cache', $response->getHeaders()->get('Location'));
+            self::assertSame('no-store, no-cache, must-revalidate, max-age=0', $response->headers->get('Cache-Control'));
+            self::assertSame('no-cache', $response->headers->get('Pragma'));
+            self::assertSame('0', $response->headers->get('Expires'));
+        });
+    }
+
     public function testGlobalDirectRedirectFalseOverridesPerLinkTrue(): void
     {
         $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
@@ -115,6 +143,35 @@ final class DirectRedirectTest extends TestCase
             self::assertSame(200, $response->getStatusCode());
             self::assertSame('rendered:shortlink-manager/redirect', $response->content);
             self::assertSame(0, $this->fetchHitsFromDb((int) $link->id));
+        });
+    }
+
+    public function testRenderedRedirectWithAnalyticsSendsNoStoreHeaders(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        $this->installRequest();
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-render-cache',
+            'slug' => 'sl-test-render-cache',
+            'destinationUrl' => 'https://example.com/render-cache',
+            'trackAnalytics' => true,
+        ]);
+        $link->directRedirect = false;
+        $link->passQueryParams = false;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+        $this->withSettings([
+            'directRedirect' => true,
+            'redirectTemplate' => 'shortlink-manager/redirect',
+            'enableAnalytics' => true,
+        ], function() use ($link): void {
+            $response = $this->controller()->actionIndex($link->slug);
+
+            self::assertSame(200, $response->getStatusCode());
+            self::assertSame('rendered:shortlink-manager/redirect', $response->content);
+            self::assertSame('no-store, no-cache, must-revalidate, max-age=0', $response->headers->get('Cache-Control'));
+            self::assertSame('no-cache', $response->headers->get('Pragma'));
+            self::assertSame('0', $response->headers->get('Expires'));
         });
     }
 
@@ -207,6 +264,19 @@ final class DirectRedirectTest extends TestCase
         Craft::$app->set('request', new TestConsoleRequest());
         Craft::$app->set('response', new \craft\web\Response());
     }
+
+    private function installWebRequest(): void
+    {
+        if ($this->originalRequest === null) {
+            $this->originalRequest = Craft::$app->get('request');
+        }
+        if ($this->originalResponse === null) {
+            $this->originalResponse = Craft::$app->get('response');
+        }
+
+        Craft::$app->set('request', new TestWebRequest());
+        Craft::$app->set('response', new \craft\web\Response());
+    }
 }
 
 final class TestRedirectController extends RedirectController
@@ -241,5 +311,46 @@ final class TestConsoleRequest extends ConsoleRequest
     public function getIsAjax(): bool
     {
         return false;
+    }
+}
+
+final class TestWebRequest extends WebRequest
+{
+    /**
+     * @param array<string, mixed> $queryParams
+     */
+    public function __construct(private readonly array $queryParams = [])
+    {
+        parent::__construct();
+    }
+
+    public function getParam($name, $defaultValue = null): mixed
+    {
+        return $this->queryParams[$name] ?? $defaultValue;
+    }
+
+    public function getQueryParams(): array
+    {
+        return $this->queryParams;
+    }
+
+    public function getIsAjax(): bool
+    {
+        return false;
+    }
+
+    public function getUserIP(int $filterOptions = 0): ?string
+    {
+        return '203.0.113.42';
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return 'Mozilla/5.0 (Test) LindemannRockStub/1.0';
+    }
+
+    public function getReferrer(): ?string
+    {
+        return 'https://example.com/some/page';
     }
 }

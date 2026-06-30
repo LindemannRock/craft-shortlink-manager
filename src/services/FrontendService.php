@@ -18,7 +18,7 @@ use Twig\Markup;
 /**
  * Frontend rendering helpers for ShortLink templates
  *
- * @since 5.23.0
+ * @since 5.24.0
  */
 class FrontendService extends Component
 {
