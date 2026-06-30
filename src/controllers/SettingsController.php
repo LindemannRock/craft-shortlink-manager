@@ -10,7 +10,6 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
-use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\helpers\SettingsPostHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -424,41 +423,11 @@ class SettingsController extends Controller
 
         try {
             $settings = ShortLinkManager::$plugin->getSettings();
-            $cleared = 0;
-
-            if ($settings->cacheStorageMethod === 'redis') {
-                // Clear Redis cache
-                $cache = PluginHelper::getRedisCacheOrLog(ShortLinkManager::$plugin->id);
-                if ($cache !== null) {
-                    $redis = $cache->redis;
-
-                    // Get all QR cache keys from tracking set
-                    $keys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]) ?: [];
-
-                    // Delete QR cache keys using Craft's cache component
-                    foreach ($keys as $key) {
-                        $cache->delete($key);
-                    }
-
-                    // Clear the tracking set
-                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]);
-                }
-            } else {
-                // Clear file cache
-                $cachePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
-                if (is_dir($cachePath)) {
-                    $files = glob($cachePath . '*.cache');
-                    foreach ($files as $file) {
-                        if (@unlink($file)) {
-                            $cleared++;
-                        }
-                    }
-                }
-            }
+            $cleared = ShortLinkManager::$plugin->localCache->clearQrCache();
 
             $message = $settings->cacheStorageMethod === 'redis'
                 ? Craft::t('shortlink-manager', 'QR code cache cleared successfully.')
-                : Craft::t('shortlink-manager', 'Cleared {count} QR code caches.', ['count' => $cleared]);
+                : Craft::t('shortlink-manager', 'Cleared {count, plural, =1{# QR code cache} other{# QR code caches}}.', ['count' => $cleared]);
 
             return $this->asJson([
                 'success' => true,
@@ -489,41 +458,11 @@ class SettingsController extends Controller
 
         try {
             $settings = ShortLinkManager::$plugin->getSettings();
-            $cleared = 0;
-
-            if ($settings->cacheStorageMethod === 'redis') {
-                // Clear Redis cache
-                $cache = PluginHelper::getRedisCacheOrLog(ShortLinkManager::$plugin->id);
-                if ($cache !== null) {
-                    $redis = $cache->redis;
-
-                    // Get all device cache keys from tracking set
-                    $keys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device')]) ?: [];
-
-                    // Delete device cache keys using Craft's cache component
-                    foreach ($keys as $key) {
-                        $cache->delete($key);
-                    }
-
-                    // Clear the tracking set
-                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device')]);
-                }
-            } else {
-                // Clear file cache
-                $cachePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
-                if (is_dir($cachePath)) {
-                    $files = glob($cachePath . '*.cache');
-                    foreach ($files as $file) {
-                        if (@unlink($file)) {
-                            $cleared++;
-                        }
-                    }
-                }
-            }
+            $cleared = ShortLinkManager::$plugin->localCache->clearDeviceCache();
 
             $message = $settings->cacheStorageMethod === 'redis'
                 ? Craft::t('shortlink-manager', 'Device cache cleared successfully.')
-                : Craft::t('shortlink-manager', 'Cleared {count} device detection caches.', ['count' => $cleared]);
+                : Craft::t('shortlink-manager', 'Cleared {count, plural, =1{# device cache} other{# device caches}}.', ['count' => $cleared]);
 
             return $this->asJson([
                 'success' => true,
@@ -554,61 +493,18 @@ class SettingsController extends Controller
 
         try {
             $settings = ShortLinkManager::$plugin->getSettings();
-            $totalCleared = 0;
 
             if ($settings->cacheStorageMethod === 'redis') {
-                // Clear Redis cache
-                $cache = PluginHelper::getRedisCacheOrLog(ShortLinkManager::$plugin->id);
-                if ($cache !== null) {
-                    $redis = $cache->redis;
-
-                    // Get all QR cache keys from tracking set
-                    $qrKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]) ?: [];
-
-                    // Delete QR cache keys using Craft's cache component
-                    foreach ($qrKeys as $key) {
-                        $cache->delete($key);
-                    }
-
-                    // Get all device cache keys from tracking set
-                    $deviceKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device')]) ?: [];
-
-                    // Delete device cache keys using Craft's cache component
-                    foreach ($deviceKeys as $key) {
-                        $cache->delete($key);
-                    }
-
-                    // Clear the tracking sets
-                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]);
-                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device')]);
-                }
+                ShortLinkManager::$plugin->localCache->clearAllCaches();
+                $message = Craft::t('shortlink-manager', 'All caches cleared successfully.');
             } else {
-                // Clear QR code file caches
-                $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
-                if (is_dir($qrPath)) {
-                    $files = glob($qrPath . '*.cache');
-                    foreach ($files as $file) {
-                        if (@unlink($file)) {
-                            $totalCleared++;
-                        }
-                    }
-                }
-
-                // Clear device detection file caches
-                $devicePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
-                if (is_dir($devicePath)) {
-                    $files = glob($devicePath . '*.cache');
-                    foreach ($files as $file) {
-                        if (@unlink($file)) {
-                            $totalCleared++;
-                        }
-                    }
-                }
+                $qrCount = ShortLinkManager::$plugin->localCache->clearQrCache();
+                $deviceCount = ShortLinkManager::$plugin->localCache->clearDeviceCache();
+                $message = Craft::t('shortlink-manager', 'Cleared {qrCount, plural, =1{# QR code cache} other{# QR code caches}} and {deviceCount, plural, =1{# device cache} other{# device caches}}.', [
+                    'qrCount' => $qrCount,
+                    'deviceCount' => $deviceCount,
+                ]);
             }
-
-            $message = $settings->cacheStorageMethod === 'redis'
-                ? Craft::t('shortlink-manager', 'All caches cleared successfully.')
-                : Craft::t('shortlink-manager', 'Cleared {count} total caches.', ['count' => $totalCleared]);
 
             return $this->asJson([
                 'success' => true,

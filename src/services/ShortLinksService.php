@@ -502,62 +502,7 @@ class ShortLinksService extends Component
     public function invalidateCaches(): void
     {
         try {
-            $settings = ShortLinkManager::$plugin->getSettings();
-            $cleared = 0;
-
-            if ($settings->cacheStorageMethod === 'redis') {
-                // Clear Redis cache
-                $cache = PluginHelper::getRedisCacheOrLog(ShortLinkManager::$plugin->id);
-                if ($cache !== null) {
-                    $redis = $cache->redis;
-
-                    // Get all keys from tracking sets
-                    $qrKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]) ?: [];
-                    $deviceKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device')]) ?: [];
-                    $cleared = count($qrKeys) + count($deviceKeys);
-
-                    // Delete QR cache keys using Craft's cache component
-                    foreach ($qrKeys as $key) {
-                        $cache->delete($key);
-                    }
-
-                    // Delete device cache keys using Craft's cache component
-                    foreach ($deviceKeys as $key) {
-                        $cache->delete($key);
-                    }
-
-                    // Clear the tracking sets
-                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr')]);
-                    $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device')]);
-                }
-            } else {
-                // Clear QR code file caches
-                $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
-                if (is_dir($qrPath)) {
-                    $files = glob($qrPath . '*.cache');
-                    if ($files) {
-                        foreach ($files as $file) {
-                            if (is_file($file) && @unlink($file)) {
-                                $cleared++;
-                            }
-                        }
-                    }
-                }
-
-                // Clear device detection file caches
-                $devicePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
-                if (is_dir($devicePath)) {
-                    $files = glob($devicePath . '*.cache');
-                    if ($files) {
-                        foreach ($files as $file) {
-                            if (is_file($file) && @unlink($file)) {
-                                $cleared++;
-                            }
-                        }
-                    }
-                }
-            }
-
+            $cleared = ShortLinkManager::$plugin->localCache->clearAllCaches();
             $this->logInfo('Invalidated ShortLink Manager caches', ['cleared' => $cleared]);
         } catch (\Exception $e) {
             $this->logError('Failed to invalidate caches', ['error' => $e->getMessage()]);

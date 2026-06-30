@@ -51,6 +51,7 @@ use lindemannrock\shortlinkmanager\services\AnalyticsService;
 use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
 use lindemannrock\shortlinkmanager\services\FrontendService;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
+use lindemannrock\shortlinkmanager\services\LocalCacheService;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\services\ServdStaticCacheService;
 use lindemannrock\shortlinkmanager\services\ShortLinksService;
@@ -74,6 +75,7 @@ use yii\base\Event;
  * @property-read DeviceDetectionService $deviceDetection
  * @property-read FrontendService $frontend
  * @property-read IntegrationService $integration
+ * @property-read LocalCacheService $localCache
  * @property-read TaxonomyService $taxonomy
  * @property-read ServdStaticCacheService $servdStaticCache
  * @property-read Settings $settings
@@ -143,6 +145,7 @@ class ShortLinkManager extends Plugin
             'deviceDetection' => DeviceDetectionService::class,
             'frontend' => FrontendService::class,
             'integration' => IntegrationService::class,
+            'localCache' => LocalCacheService::class,
             'taxonomy' => TaxonomyService::class,
             'servdStaticCache' => ServdStaticCacheService::class,
         ]);
@@ -266,57 +269,8 @@ class ShortLinkManager extends Plugin
                 $event->options[] = [
                     'key' => 'shortlink-manager-cache',
                     'label' => Craft::t('shortlink-manager', '{displayName} caches', ['displayName' => $displayName]),
-                    'action' => function() use ($settings) {
-                        $cleared = 0;
-
-                        if ($settings->cacheStorageMethod === 'redis') {
-                            // Clear Redis cache
-                            $cache = PluginHelper::getRedisCacheOrLog($this->id);
-                            if ($cache !== null) {
-                                $redis = $cache->redis;
-
-                                // Get all keys from tracking sets
-                                $qrKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet($this->id, 'qr')]) ?: [];
-                                $deviceKeys = $redis->executeCommand('SMEMBERS', [PluginHelper::getCacheKeySet($this->id, 'device')]) ?: [];
-
-                                // Delete QR cache keys using Craft's cache component
-                                foreach ($qrKeys as $key) {
-                                    $cache->delete($key);
-                                }
-
-                                // Delete device cache keys using Craft's cache component
-                                foreach ($deviceKeys as $key) {
-                                    $cache->delete($key);
-                                }
-
-                                // Clear the tracking sets
-                                $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet($this->id, 'qr')]);
-                                $redis->executeCommand('DEL', [PluginHelper::getCacheKeySet($this->id, 'device')]);
-                            }
-                        } else {
-                            // Clear QR code file caches
-                            $qrPath = PluginHelper::getCachePath(self::$plugin, 'qr');
-                            if (is_dir($qrPath)) {
-                                $files = glob($qrPath . '*.cache');
-                                foreach ($files as $file) {
-                                    if (@unlink($file)) {
-                                        $cleared++;
-                                    }
-                                }
-                            }
-
-                            // Clear device detection file caches
-                            $devicePath = PluginHelper::getCachePath(self::$plugin, 'device');
-                            if (is_dir($devicePath)) {
-                                $files = glob($devicePath . '*.cache');
-                                foreach ($files as $file) {
-                                    if (@unlink($file)) {
-                                        $cleared++;
-                                    }
-                                }
-                            }
-                        }
-
+                    'action' => function() {
+                        $cleared = $this->localCache->clearAllCaches();
                         $this->logInfo('Cleared cache entries', ['count' => $cleared]);
                         $this->servdStaticCache->purgeAllShortLinks();
                     },

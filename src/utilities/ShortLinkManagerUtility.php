@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\utilities;
 
 use Craft;
 use craft\base\Utility;
+use lindemannrock\base\helpers\CacheHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
@@ -121,17 +122,11 @@ class ShortLinkManagerUtility extends Utility
 
         if ($user->getIdentity() && $user->checkPermission('shortLinkManager:clearCache') && $settings->cacheStorageMethod === 'file') {
             if ($settings->enableQrCodeCache) {
-                $qrPath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
-                if (is_dir($qrPath)) {
-                    $qrCacheFiles = count(glob($qrPath . '*.cache'));
-                }
+                $qrCacheFiles = CacheHelper::countCacheFiles(PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr'));
             }
 
             if ($settings->cacheDeviceDetection) {
-                $devicePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device');
-                if (is_dir($devicePath)) {
-                    $deviceCacheFiles = count(glob($devicePath . '*.cache'));
-                }
+                $deviceCacheFiles = CacheHelper::countCacheFiles(PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device'));
             }
         }
 

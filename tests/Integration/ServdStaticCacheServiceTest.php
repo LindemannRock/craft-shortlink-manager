@@ -67,4 +67,18 @@ final class ServdStaticCacheServiceTest extends TestCase
             ], ShortLinkManager::$plugin->servdStaticCache->urlsForSlug('sl-test-servd-root'));
         });
     }
+
+    public function testPurgeAllSourceUsesAvailabilityCheckAndPagedSlugIteration(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $source = file_get_contents($pluginRoot . '/src/services/ServdStaticCacheService.php');
+
+        self::assertIsString($source);
+        self::assertStringContainsString('if (!$this->isAvailable())', $source);
+        self::assertStringContainsString('foreach ($this->eachSlug() as $slug)', $source);
+        self::assertStringContainsString('->batch(500)', $source);
+        self::assertStringContainsString('PURGE_URL_BATCH_SIZE = 500', $source);
+        self::assertStringNotContainsString('function allSlugs', $source);
+        self::assertStringNotContainsString('->column()', $source);
+    }
 }

@@ -25,6 +25,7 @@ class ServdStaticCacheService extends Component
 {
     use LoggingTrait;
 
+    private const PURGE_URL_BATCH_SIZE = 500;
     private const SERVD_PLUGIN_HANDLE = 'servd-asset-storage';
     private const PURGE_URLS_JOB = 'servd\\AssetStorage\\StaticCache\\Jobs\\PurgeUrlsJob';
     private const STATIC_CACHE = 'servd\\AssetStorage\\StaticCache\\StaticCache';
@@ -69,13 +70,23 @@ class ServdStaticCacheService extends Component
      */
     public function purgeAllShortLinks(): void
     {
-        $urls = [];
-
-        foreach ($this->allSlugs() as $slug) {
-            array_push($urls, ...$this->urlsForSlug($slug));
+        if (!$this->isAvailable()) {
+            return;
         }
 
-        $this->purgeUrls($urls);
+        $urls = [];
+
+        foreach ($this->eachSlug() as $slug) {
+            array_push($urls, ...$this->urlsForSlug($slug));
+
+            while (count($urls) >= self::PURGE_URL_BATCH_SIZE) {
+                $this->purgeUrls(array_splice($urls, 0, self::PURGE_URL_BATCH_SIZE));
+            }
+        }
+
+        if ($urls !== []) {
+            $this->purgeUrls($urls);
+        }
     }
 
     /**
@@ -162,18 +173,29 @@ class ServdStaticCacheService extends Component
     }
 
     /**
-     * @return list<string>
+     * @return \Generator<string>
      */
-    private function allSlugs(): array
+    private function eachSlug(): \Generator
     {
-        $slugs = (new Query())
+        $query = (new Query())
             ->select(['slug'])
+            ->distinct()
             ->from('{{%shortlinkmanager}}')
             ->where(['not', ['slug' => null]])
-            ->column();
+            ->orderBy(['slug' => SORT_ASC]);
 
-        return array_values(array_unique(array_filter(
-            array_map(static fn($slug): string => trim((string)$slug), $slugs)
-        )));
+        foreach ($query->batch(500) as $rows) {
+            $seen = [];
+
+            foreach ($rows as $row) {
+                $slug = trim((string) ($row['slug'] ?? ''));
+                if ($slug === '' || isset($seen[$slug])) {
+                    continue;
+                }
+
+                $seen[$slug] = true;
+                yield $slug;
+            }
+        }
     }
 }
