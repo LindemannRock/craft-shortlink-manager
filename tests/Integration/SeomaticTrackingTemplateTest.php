@@ -31,4 +31,20 @@ class SeomaticTrackingTemplateTest extends TestCase
         $this->assertStringContainsString('window.dataLayer.push({{ eventDataJson|raw }});', $template);
         $this->assertStringContainsString('eventData|json_encode', $template);
     }
+
+    public function testPublicTemplatesUseIntentBasedSeomaticHelpers(): void
+    {
+        $templateDir = dirname(__DIR__, 2) . '/src/templates';
+        $redirectTemplate = (string) file_get_contents($templateDir . '/redirect.twig');
+        $qrTemplate = (string) file_get_contents($templateDir . '/qr.twig');
+
+        $this->assertStringContainsString('renderRedirectSeomaticTracking()', $redirectTemplate);
+        $this->assertStringContainsString('renderQrSeomaticTracking()', $qrTemplate);
+        $this->assertStringNotContainsString('renderRedirectSeomaticTracking is defined', $redirectTemplate);
+        $this->assertStringNotContainsString('renderQrSeomaticTracking is defined', $qrTemplate);
+        $this->assertStringNotContainsString("renderSeomaticTracking('qr_scan')", $qrTemplate);
+        $this->assertStringNotContainsString('renderSeomaticTracking(eventType)', $redirectTemplate);
+        $this->assertStringNotContainsString('DEBUG MODE', $qrTemplate);
+        $this->assertStringNotContainsString('debugMode', $qrTemplate);
+    }
 }

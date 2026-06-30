@@ -148,7 +148,6 @@ class RedirectController extends Controller
         }
 
         $template = $settings->redirectTemplate ?: 'shortlink-manager/redirect';
-        $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
         $goSite = Craft::$app->getSites()->getSiteById($shortLink->siteId);
         $goParams = [
             'code' => $shortLink->slug,
@@ -162,6 +161,7 @@ class RedirectController extends Controller
             $shortLink->siteId,
             $goParams
         );
+        $shortLink->setRedirectScriptUrl($goUrl);
 
         ShortLinkManager::$plugin->integration->prepareSeomaticMetadata($shortLink);
 
@@ -170,7 +170,6 @@ class RedirectController extends Controller
             'goUrl' => $goUrl,
             'source' => $source,
             'deviceInfo' => $deviceInfo,
-            'eventType' => $eventType,
         ]);
 
         if ($shouldTrack) {

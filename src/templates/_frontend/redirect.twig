@@ -1,0 +1,22 @@
+<script>
+	(function() {
+		var goUrl = {{ goUrl|json_encode|raw }};
+		var shortlinkCode = {{ shortlinkCode|json_encode|raw }};
+
+		{% if skipDebugRedirect %}
+		var urlParams = new URLSearchParams(window.location.search);
+
+		if (urlParams.get('debug') === '1') {
+			console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
+			console.log('➡️ Go URL:', goUrl);
+			console.log('🔗 Shortlink Code:', shortlinkCode);
+
+			return;
+		}
+		{% endif %}
+
+		setTimeout(function() {
+			window.location.replace(goUrl);
+		}, 100);
+	})();
+</script>

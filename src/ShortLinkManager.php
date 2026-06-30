@@ -47,6 +47,7 @@ use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\services\AnalyticsService;
 use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
+use lindemannrock\shortlinkmanager\services\FrontendService;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\services\ShortLinksService;
@@ -68,6 +69,7 @@ use yii\base\Event;
  * @property-read AnalyticsService $analytics
  * @property-read QrCodeService $qrCode
  * @property-read DeviceDetectionService $deviceDetection
+ * @property-read FrontendService $frontend
  * @property-read IntegrationService $integration
  * @property-read TaxonomyService $taxonomy
  * @property-read Settings $settings
@@ -135,6 +137,7 @@ class ShortLinkManager extends Plugin
             'analytics' => AnalyticsService::class,
             'qrCode' => QrCodeService::class,
             'deviceDetection' => DeviceDetectionService::class,
+            'frontend' => FrontendService::class,
             'integration' => IntegrationService::class,
             'taxonomy' => TaxonomyService::class,
         ]);

@@ -132,6 +132,11 @@ class ShortLink extends Element
     public ?bool $directRedirect = null;
 
     /**
+     * @var string|null Runtime tracking hop URL prepared by the redirect controller
+     */
+    private ?string $redirectScriptUrl = null;
+
+    /**
      * @var int Total hits/clicks
      */
     public int $hits = 0;
@@ -1772,5 +1777,57 @@ class ShortLink extends Element
     public function renderSeomaticTracking(string $eventType = 'redirect'): ?\Twig\Markup
     {
         return ShortLinkManager::$plugin->integration->renderSeomaticTracking($this, $eventType);
+    }
+
+    /**
+     * Render SEOmatic redirect tracking code for this shortlink.
+     *
+     * @return \Twig\Markup|null
+     * @since 5.24.0
+     */
+    public function renderRedirectSeomaticTracking(): ?\Twig\Markup
+    {
+        $source = Craft::$app->getRequest()->getParam('src', 'direct');
+        $eventType = $source === 'qr' ? 'qr_scan' : 'redirect';
+
+        return $this->renderSeomaticTracking($eventType);
+    }
+
+    /**
+     * Render SEOmatic QR scan tracking code for this shortlink.
+     *
+     * @return \Twig\Markup|null
+     * @since 5.24.0
+     */
+    public function renderQrSeomaticTracking(): ?\Twig\Markup
+    {
+        return $this->renderSeomaticTracking('qr_scan');
+    }
+
+    /**
+     * Set the runtime tracking hop URL used by renderRedirectScript().
+     *
+     * @param string $goUrl Server-side tracking hop URL
+     * @since 5.23.0
+     */
+    public function setRedirectScriptUrl(string $goUrl): void
+    {
+        $this->redirectScriptUrl = $goUrl;
+    }
+
+    /**
+     * Render the client-side tracked redirect script for this shortlink.
+     *
+     * @param bool|null $allowDebugOverride Whether ?debug=1 should stop redirects; null limits it to devMode
+     * @return \Twig\Markup|null HTML script tag or null if rendering fails
+     * @since 5.23.0
+     */
+    public function renderRedirectScript(?bool $allowDebugOverride = null): ?\Twig\Markup
+    {
+        if ($this->redirectScriptUrl === null) {
+            return null;
+        }
+
+        return ShortLinkManager::$plugin->frontend->renderRedirectScript($this->redirectScriptUrl, (string)$this->code, $allowDebugOverride);
     }
 }
