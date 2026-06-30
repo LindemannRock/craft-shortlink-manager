@@ -1,3 +1,10 @@
+{#
+  ShortLink QR display template.
+
+  Shows a scannable QR image for the current short link. SEOmatic QR tracking is
+  rendered through `renderQrSeomaticTracking()`; the helper returns nothing when
+  the integration or QR tracking event is disabled.
+#}
 <!DOCTYPE html>
 <html lang="{{ currentSite.language }}">
 <head>
@@ -8,12 +15,7 @@
 
 	<script src="https://cdn.tailwindcss.com"></script>
 
-	{# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
-	{% set seomaticTracking = null %}
-	{% if shortLink.renderSeomaticTracking is defined %}
-		{% set seomaticTracking = shortLink.renderSeomaticTracking('qr_scan') %}
-		{{ seomaticTracking }}
-	{% endif %}
+	{{ shortLink.renderQrSeomaticTracking() }}
 </head>
 <body>
 	<div class="flex justify-center items-center min-h-screen max-w-lg mx-auto px-4 py-8">
@@ -35,48 +37,6 @@
 			</div>
 		</div>
 	</div>
-
-	{% if craft.app.config.general.devMode %}
-	{# Debug mode - Add ?debug=1 to URL to see SEOmatic tracking details (devMode only) #}
-	<script>
-		(function() {
-			// Get debug mode from URL parameter
-			var urlParams = new URLSearchParams(window.location.search);
-			var debugMode = urlParams.get('debug') === '1';
-
-			if (debugMode) {
-				console.log('🐛 DEBUG MODE ENABLED');
-				console.log('🔗 Short Link Code:', '{{ shortLink.code|e('js') }}');
-				console.log('📊 Event Type:', 'qr_scan');
-				console.log('📱 QR Code Page');
-
-				// SEOmatic tracking debug
-				console.log('\n📡 SEOmatic Integration:');
-				{% if seomaticTracking %}
-					console.log('✅ SEOmatic tracking enabled');
-					console.log('📝 Tracking script rendered (see page source for details)');
-
-					// Check if dataLayer exists
-					if (typeof window.dataLayer !== 'undefined') {
-						console.log('✅ GTM dataLayer detected:', window.dataLayer);
-					} else {
-						console.log('⚠️ GTM dataLayer not found (SEOmatic may not be configured)');
-					}
-				{% else %}
-					console.log('❌ SEOmatic tracking not available');
-					console.log('   - Plugin may not be installed/enabled');
-					console.log('   - Or integration may be disabled in settings');
-				{% endif %}
-
-				// Add debug indicator to page
-				var debugBanner = document.createElement('div');
-				debugBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #ff6b6b; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 9999;';
-				debugBanner.textContent = '🐛 DEBUG MODE - QR Code Page - Check browser console for details';
-				document.body.insertBefore(debugBanner, document.body.firstChild);
-			}
-		})();
-	</script>
-	{% endif %}
 
 </body>
 </html>

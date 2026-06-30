@@ -1,6 +1,10 @@
 {#
-  {{ shortlinkHelper.fullName }} redirect template
-  This template handles tracking and redirects for {{ shortlinkHelper.pluralLowerDisplayName }}
+  ShortLink redirect template.
+
+  Rendered only when Direct Redirect is off. Keep the manual link and redirect
+  script pointed at `goUrl`; that tracked hop records analytics before sending
+  the visitor to the final destination. SEOmatic tracking is handled by
+  `renderRedirectSeomaticTracking()`, which returns nothing when unavailable.
 #}
 <!DOCTYPE html>
 <html lang="{{ currentSite.language }}">
@@ -11,12 +15,7 @@
 
     <title>{{ shortLink.title|default('Redirecting...') }} - {{ siteName }}</title>
 
-    {# Include SEOmatic tracking - this pushes events to GTM dataLayer #}
-    {% set seomaticTracking = null %}
-    {% if shortLink.renderSeomaticTracking is defined %}
-        {% set seomaticTracking = shortLink.renderSeomaticTracking(eventType) %}
-        {{ seomaticTracking }}
-    {% endif %}
+    {{ shortLink.renderRedirectSeomaticTracking() }}
 
     <style>
         * {
@@ -120,65 +119,7 @@
         </a>
     </div>
 
-    <script>
-        (function() {
-            // Safely encode values for JS context
-            var goUrl = {{ goUrl|json_encode|raw }};
-            var eventType = {{ eventType|json_encode|raw }};
-            var shortlinkCode = {{ shortLink.code|json_encode|raw }};
-
-            {% if craft.app.config.general.devMode %}
-            // Get debug mode from URL parameter (only available in devMode)
-            var urlParams = new URLSearchParams(window.location.search);
-            var debugMode = urlParams.get('debug') === '1';
-
-            if (debugMode) {
-                console.log('🐛 DEBUG MODE ENABLED - Redirect is disabled for testing');
-                console.log('➡️ Go URL:', goUrl);
-                console.log('📊 Event Type:', eventType);
-                console.log('🔗 Shortlink Code:', shortlinkCode);
-
-                // SEOmatic tracking debug
-                console.log('\n📡 SEOmatic Integration:');
-                {% if seomaticTracking %}
-                    console.log('✅ SEOmatic tracking enabled');
-                    console.log('📝 Tracking script rendered (see page source for details)');
-
-                    // Check if dataLayer exists
-                    if (typeof window.dataLayer !== 'undefined') {
-                        console.log('✅ GTM dataLayer detected:', window.dataLayer);
-                    } else {
-                        console.log('⚠️ GTM dataLayer not found (SEOmatic may not be configured)');
-                    }
-                {% else %}
-                    console.log('❌ SEOmatic tracking not available');
-                    console.log('   - Plugin may not be installed/enabled');
-                    console.log('   - Or integration may be disabled in settings');
-                {% endif %}
-
-                // Add debug indicator to page
-                var debugBanner = document.createElement('div');
-                debugBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #ff6b6b; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 9999;';
-                debugBanner.textContent = '🐛 DEBUG MODE - Check browser console for generated Go URL';
-                document.body.insertBefore(debugBanner, document.body.firstChild);
-
-                // Update the message
-                var message = document.querySelector('.message');
-                message.textContent = 'DEBUG MODE: Redirect disabled. Check console for details.';
-                message.style.color = '#ff6b6b';
-
-                // Hide loader in debug mode
-                document.querySelector('.loader').style.display = 'none';
-
-                return; // Don't redirect in debug mode
-            }
-            {% endif %}
-
-            // Wait 100ms for GTM dataLayer to process, then redirect
-            setTimeout(function() {
-                window.location.replace(goUrl);
-            }, 100);
-        })();
-    </script>
+	{# Cache-safe redirect helper. Pass true only in custom/staging templates to allow ?debug=1 outside devMode. #}
+	{{ shortLink.renderRedirectScript() }}
 </body>
 </html>
