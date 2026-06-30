@@ -42,7 +42,7 @@
         "nystudio107/craft-seomatic": "^5.0",
         "phpunit/phpunit": "^11.0",
         "yiisoft/yii2-redis": "^2.0",
-        "lindemannrock/craft-redirect-manager": "^5.35.1"
+        "lindemannrock/craft-redirect-manager": "^5.35.2"
     },
     "autoload": {
         "psr-4": {
