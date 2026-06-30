@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.23.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.23.0...v5.23.1) - 2026-06-30
+
+
+### Fixed
+
+* **redirects:** refine direct redirect logic for shortlinks ([eb75cdd](https://github.com/LindemannRock/craft-shortlink-manager/commit/eb75cdd16d6b1ecfdbc6761baf7d685f35580156))
+
 ## [5.23.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.22.0...v5.23.0) - 2026-06-30
 
 
