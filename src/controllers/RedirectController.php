@@ -9,7 +9,6 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
-use craft\helpers\App;
 use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
@@ -152,13 +151,14 @@ class RedirectController extends Controller
         $eventType = ($source === 'qr') ? 'qr_scan' : 'redirect';
         $goSite = Craft::$app->getSites()->getSiteById($shortLink->siteId);
         $goParams = [
+            'code' => $shortLink->slug,
             'src' => $source,
         ];
-        if ($this->shouldIncludeSiteParamForTrackedUrl($settings->shortlinkBaseUrl ?? null) && $goSite !== null) {
+        if ($goSite !== null) {
             $goParams['site'] = $goSite->handle;
         }
-        $goUrl = $settings->buildPublicUrl(
-            'shortlink-manager/redirect/go/' . $shortLink->slug,
+        $goUrl = $settings->buildPublicActionUrl(
+            'shortlink-manager/redirect/go',
             $shortLink->siteId,
             $goParams
         );
@@ -265,14 +265,6 @@ class RedirectController extends Controller
         }
 
         return Craft::$app->getSites()->getCurrentSite();
-    }
-
-    private function shouldIncludeSiteParamForTrackedUrl(?string $baseUrl): bool
-    {
-        $baseUrl = trim((string) App::parseEnv($baseUrl ?? ''));
-
-        return $baseUrl !== ''
-            && !preg_match('/\{siteHandle\}|\{siteId\}|\{siteUid\}/', $baseUrl);
     }
 
     private function findShortLink(string $code, Site $site): ?ShortLink

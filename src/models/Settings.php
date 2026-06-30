@@ -741,6 +741,78 @@ class Settings extends Model
     }
 
     /**
+     * Build a public action URL on the configured ShortLink base URL.
+     *
+     * @param string $action Craft action route
+     * @param int|null $siteId Site ID for token expansion
+     * @param array<string, mixed> $params Query parameters
+     * @return string
+     * @since 5.23.0
+     */
+    public function buildPublicActionUrl(string $action, ?int $siteId = null, array $params = []): string
+    {
+        $siteId = $siteId ?: Craft::$app->getSites()->getCurrentSite()->id;
+        $actionUrl = UrlHelper::actionUrl($action, $params);
+        $baseUrl = trim((string) App::parseEnv($this->shortlinkBaseUrl ?? ''));
+
+        if ($baseUrl === '') {
+            return $actionUrl;
+        }
+
+        $parts = parse_url($actionUrl);
+        $path = ltrim((string)($parts['path'] ?? ''), '/');
+        $query = (string)($parts['query'] ?? '');
+        $url = rtrim($this->expandShortlinkBaseUrlForActions($baseUrl, $siteId), '/');
+
+        if ($path !== '') {
+            $url .= '/' . $path;
+        }
+        if ($query !== '') {
+            $url .= '?' . $query;
+        }
+
+        return $url;
+    }
+
+    private function expandShortlinkBaseUrlForActions(string $baseUrl, int $siteId): string
+    {
+        $expandedBaseUrl = $this->expandShortlinkBaseUrl($baseUrl, $siteId);
+        $expandedParts = parse_url($expandedBaseUrl);
+        $rawParts = parse_url($baseUrl);
+
+        if (!is_array($expandedParts) || empty($expandedParts['scheme']) || empty($expandedParts['host'])) {
+            return $expandedBaseUrl;
+        }
+
+        $url = $expandedParts['scheme'] . '://';
+        if (!empty($expandedParts['user'])) {
+            $url .= $expandedParts['user'];
+            if (!empty($expandedParts['pass'])) {
+                $url .= ':' . $expandedParts['pass'];
+            }
+            $url .= '@';
+        }
+        $url .= $expandedParts['host'];
+        if (!empty($expandedParts['port'])) {
+            $url .= ':' . $expandedParts['port'];
+        }
+
+        $rawPath = trim((string)($rawParts['path'] ?? ''), '/');
+        if ($rawPath !== '') {
+            $segments = array_filter(
+                explode('/', $rawPath),
+                static fn(string $segment): bool => !preg_match('/^\{siteHandle\}$|^\{siteId\}$|^\{siteUid\}$/', $segment)
+            );
+            $actionBasePath = trim(implode('/', $segments), '/');
+            if ($actionBasePath !== '') {
+                $url .= '/' . $actionBasePath;
+            }
+        }
+
+        return $url;
+    }
+
+    /**
      * The configured 404 redirect URL with any environment variable resolved,
      * falling back to "/" when empty or unset.
      *

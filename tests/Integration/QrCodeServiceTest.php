@@ -159,10 +159,75 @@ class QrCodeServiceTest extends TestCase
 
     private function findImageAssetId(): ?int
     {
-        $asset = Asset::find()
+        $assets = Asset::find()
             ->kind('image')
-            ->one();
+            ->all();
 
-        return $asset ? (int) $asset->id : null;
+        foreach ($assets as $asset) {
+            if (!$asset instanceof Asset) {
+                continue;
+            }
+
+            $extension = strtolower((string)pathinfo($asset->filename, PATHINFO_EXTENSION));
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'], true)) {
+                continue;
+            }
+
+            $path = null;
+            try {
+                $path = $asset->getCopyOfFile();
+                if (!is_string($path) || !is_file($path)) {
+                    continue;
+                }
+
+                $imageInfo = getimagesize($path);
+                if (
+                    is_array($imageInfo) &&
+                    in_array($imageInfo[2] ?? null, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF], true) &&
+                    $this->hasVisibleNonWhitePixel($path)
+                ) {
+                    return (int)$asset->id;
+                }
+            } catch (\Throwable) {
+                continue;
+            } finally {
+                if (is_string($path) && is_file($path)) {
+                    @unlink($path);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function hasVisibleNonWhitePixel(string $path): bool
+    {
+        $imageData = file_get_contents($path);
+        if ($imageData === false) {
+            return false;
+        }
+
+        $image = imagecreatefromstring($imageData);
+        if (!$image instanceof \GdImage) {
+            return false;
+        }
+
+        try {
+            $width = imagesx($image);
+            $height = imagesy($image);
+
+            for ($x = 0; $x < $width; $x += max(1, (int)floor($width / 10))) {
+                for ($y = 0; $y < $height; $y += max(1, (int)floor($height / 10))) {
+                    $rgba = imagecolorsforindex($image, imagecolorat($image, $x, $y));
+                    if (($rgba['alpha'] ?? 127) < 127 && (($rgba['red'] ?? 255) < 250 || ($rgba['green'] ?? 255) < 250 || ($rgba['blue'] ?? 255) < 250)) {
+                        return true;
+                    }
+                }
+            }
+        } finally {
+            imagedestroy($image);
+        }
+
+        return false;
     }
 }

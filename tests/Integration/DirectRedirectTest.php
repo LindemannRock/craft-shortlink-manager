@@ -143,10 +143,12 @@ final class DirectRedirectTest extends TestCase
 
             self::assertSame(200, $response->getStatusCode());
             self::assertSame('rendered:shortlink-manager/redirect', $response->content);
-            self::assertStringStartsWith('https://short.example/' . $site->handle . '/', (string) $controller->lastVariables['goUrl']);
-            self::assertStringContainsString('/shortlink-manager/redirect/go/' . $link->slug, (string) $controller->lastVariables['goUrl']);
+            self::assertStringStartsWith('https://short.example/index.php?', (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('p=actions/shortlink-manager/redirect/go', (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('code=' . $link->slug, (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('site=' . $site->handle, (string) $controller->lastVariables['goUrl']);
             self::assertStringContainsString('src=direct', (string) $controller->lastVariables['goUrl']);
-            self::assertStringNotContainsString('site=', (string) $controller->lastVariables['goUrl']);
+            self::assertStringNotContainsString('/' . $site->handle . '/index.php', (string) $controller->lastVariables['goUrl']);
             self::assertStringNotContainsString('craftcms.ddev.site', (string) $controller->lastVariables['goUrl']);
         });
     }
@@ -177,7 +179,9 @@ final class DirectRedirectTest extends TestCase
             $response = $controller->actionIndex($link->slug);
 
             self::assertSame(200, $response->getStatusCode());
-            self::assertStringStartsWith('https://short.example/shortlink-manager/redirect/go/' . $link->slug, (string) $controller->lastVariables['goUrl']);
+            self::assertStringStartsWith('https://short.example/index.php?', (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('p=actions/shortlink-manager/redirect/go', (string) $controller->lastVariables['goUrl']);
+            self::assertStringContainsString('code=' . $link->slug, (string) $controller->lastVariables['goUrl']);
             self::assertStringContainsString('site=' . $site->handle, (string) $controller->lastVariables['goUrl']);
             self::assertStringContainsString('src=direct', (string) $controller->lastVariables['goUrl']);
             self::assertStringNotContainsString('craftcms.ddev.site', (string) $controller->lastVariables['goUrl']);
