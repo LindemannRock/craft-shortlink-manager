@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.23.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.22.0...v5.23.0) - 2026-06-30
+
+
+### Added
+
+* **redirects:** build public action URL for shortlinks with site handling ([857b984](https://github.com/LindemannRock/craft-shortlink-manager/commit/857b984034c8dec8aca005f255bc8c6821c95fa9))
+
 ## [5.22.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.21.1...v5.22.0) - 2026-06-29
 
 
