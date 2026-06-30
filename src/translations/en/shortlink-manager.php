@@ -346,7 +346,6 @@ return [
     'A logo is required when logo overlay is enabled.' => 'A logo is required when logo overlay is enabled.',
     'Download Filename Pattern' => 'Download Filename Pattern',
     'Available variables: {code}, {size}, {format}' => 'Available variables: {code}, {size}, {format}',
-    'Configure QR code caching to improve performance and reduce server load.' => 'Configure QR code caching to improve performance and reduce server load.',
 
     // Settings: Analytics
     'Analytics Settings' => 'Analytics Settings',
@@ -368,9 +367,6 @@ return [
     'Clean Up Now' => 'Clean Up Now',
     'Unlimited Retention Warning' => 'Unlimited Retention Warning',
     'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.' => 'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.',
-    'Performance & Caching' => 'Performance & Caching',
-    'Configure device detection caching for better performance.' => 'Configure device detection caching for better performance.',
-    'Go to Cache Settings' => 'Go to Cache Settings',
     'Are you sure you want to clean up old analytics data now?' => 'Are you sure you want to clean up old analytics data now?',
     'Analytics cleanup job queued' => 'Analytics cleanup job queued',
     'Failed to queue cleanup job' => 'Failed to queue cleanup job',

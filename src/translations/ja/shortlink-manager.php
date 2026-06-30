@@ -346,7 +346,6 @@ return [
     'A logo is required when logo overlay is enabled.' => 'ロゴオーバーレイが有効な場合、ロゴが必要です。',
     'Download Filename Pattern' => 'ダウンロードファイル名パターン',
     'Available variables: {code}, {size}, {format}' => '利用可能な変数: {code}、{size}、{format}',
-    'Configure QR code caching to improve performance and reduce server load.' => 'パフォーマンスを向上させサーバー負荷を軽減するために QR コードキャッシュを設定してください。',
 
     // Settings: Analytics
     'Analytics Settings' => 'アナリティクス設定',
@@ -368,9 +367,6 @@ return [
     'Clean Up Now' => '今すぐ整理する',
     'Unlimited Retention Warning' => '無制限保持の警告',
     'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.' => 'アナリティクスデータは無期限に保持されます。これによりデータベースのサイズが大きくなり、パフォーマンスが低下し、時間の経過とともにストレージコストが増加する可能性があります。本番サイトでは保持期間の設定を検討してください（推奨: 90〜365 日）。',
-    'Performance & Caching' => 'パフォーマンスとキャッシュ',
-    'Configure device detection caching for better performance.' => 'パフォーマンス向上のためにデバイス検出キャッシュを設定してください。',
-    'Go to Cache Settings' => 'キャッシュ設定へ',
     'Are you sure you want to clean up old analytics data now?' => '古い アナリティクスデータを今すぐ整理しますか？',
     'Analytics cleanup job queued' => 'アナリティクスの整理ジョブをキューに追加しました',
     'Failed to queue cleanup job' => '整理ジョブのキューへの追加に失敗しました',

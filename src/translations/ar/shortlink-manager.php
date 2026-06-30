@@ -346,7 +346,6 @@ return [
     'A logo is required when logo overlay is enabled.' => 'الشعار مطلوب عند تفعيل تراكب الشعار.',
     'Download Filename Pattern' => 'نمط اسم ملف التنزيل',
     'Available variables: {code}, {size}, {format}' => 'المتغيرات المتاحة: {code}, {size}, {format}',
-    'Configure QR code caching to improve performance and reduce server load.' => 'هيّئ Cache QR code لتحسين الأداء وتقليل الحمل على الخادم.',
 
     // Settings: Analytics
     'Analytics Settings' => 'إعدادات التحليلات',
@@ -368,9 +367,6 @@ return [
     'Clean Up Now' => 'تنظيف الآن',
     'Unlimited Retention Warning' => 'تحذير الاحتفاظ غير المحدود',
     'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.' => 'سيتم الاحتفاظ ببيانات Analytics إلى أجل غير مسمى. قد يؤدي ذلك إلى حجم كبير لقاعدة البيانات وأداء أبطأ وتكاليف تخزين أعلى بمرور الوقت. ضع في اعتبارك تحديد فترة احتفاظ (يُنصح بـ 90-365 يومًا) للمواقع الإنتاجية.',
-    'Performance & Caching' => 'الأداء والتخزين المؤقت',
-    'Configure device detection caching for better performance.' => 'هيّئ Cache كشف الأجهزة لأداء أفضل.',
-    'Go to Cache Settings' => 'الانتقال إلى إعدادات Cache',
     'Are you sure you want to clean up old analytics data now?' => 'هل أنت متأكد من رغبتك في تنظيف بيانات Analytics القديمة الآن؟',
     'Analytics cleanup job queued' => 'تمت إضافة مهمة تنظيف Analytics إلى قائمة الانتظار',
     'Failed to queue cleanup job' => 'فشل إضافة مهمة التنظيف إلى قائمة الانتظار',

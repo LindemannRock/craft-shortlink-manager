@@ -346,7 +346,6 @@ return [
     'A logo is required when logo overlay is enabled.' => 'Een logo is vereist wanneer logo-overlay is ingeschakeld.',
     'Download Filename Pattern' => 'Bestandsnaampatroon voor downloads',
     'Available variables: {code}, {size}, {format}' => 'Beschikbare variabelen: {code}, {size}, {format}',
-    'Configure QR code caching to improve performance and reduce server load.' => 'Configureer QR-code caching om prestaties te verbeteren en de serverbelasting te verminderen.',
 
     // Settings: Analytics
     'Analytics Settings' => 'Analyse-instellingen',
@@ -368,9 +367,6 @@ return [
     'Clean Up Now' => 'Nu opschonen',
     'Unlimited Retention Warning' => 'Waarschuwing voor onbeperkte bewaring',
     'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.' => 'Analysegegevens worden voor onbepaalde tijd bewaard. Dit kan leiden tot een grote databaseomvang, tragere prestaties en hogere opslagkosten na verloop van tijd. Overweeg een bewaartermijn in te stellen (aanbevolen: 90-365 dagen) voor productiesites.',
-    'Performance & Caching' => 'Prestaties en caching',
-    'Configure device detection caching for better performance.' => 'Configureer apparaatdetectiecaching voor betere prestaties.',
-    'Go to Cache Settings' => 'Naar cache-instellingen',
     'Are you sure you want to clean up old analytics data now?' => 'Weet u zeker dat u nu oude analysegegevens wilt opschonen?',
     'Analytics cleanup job queued' => 'Opschoontaak voor analyses in wachtrij geplaatst',
     'Failed to queue cleanup job' => 'Opschoontaak in wachtrij plaatsen mislukt',

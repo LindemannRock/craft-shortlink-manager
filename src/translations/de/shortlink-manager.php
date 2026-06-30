@@ -346,7 +346,6 @@ return [
     'A logo is required when logo overlay is enabled.' => 'Ein Logo ist erforderlich, wenn die Logo-Einblendung aktiviert ist.',
     'Download Filename Pattern' => 'Download-Dateinamenmuster',
     'Available variables: {code}, {size}, {format}' => 'Verfügbare Variablen: {code}, {size}, {format}',
-    'Configure QR code caching to improve performance and reduce server load.' => 'QR Code Caching konfigurieren, um die Leistung zu verbessern und die Serverlast zu reduzieren.',
 
     // Settings: Analytics
     'Analytics Settings' => 'Analytics-Einstellungen',
@@ -368,9 +367,6 @@ return [
     'Clean Up Now' => 'Jetzt bereinigen',
     'Unlimited Retention Warning' => 'Warnung: Unbegrenzte Aufbewahrung',
     'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.' => 'Analysedaten werden unbegrenzt aufbewahrt. Dies kann zu einer großen Datenbankgröße, langsamerer Leistung und steigenden Speicherkosten führen. Erwägen Sie, einen Aufbewahrungszeitraum festzulegen (empfohlen: 90–365 Tage) für Produktivseiten.',
-    'Performance & Caching' => 'Performance & Caching',
-    'Configure device detection caching for better performance.' => 'Geräteerkennung-Caching für bessere Leistung konfigurieren.',
-    'Go to Cache Settings' => 'Zu den Cache-Einstellungen',
     'Are you sure you want to clean up old analytics data now?' => 'Möchten Sie alte Analysedaten jetzt wirklich bereinigen?',
     'Analytics cleanup job queued' => 'Analyse-Bereinigung in Warteschlange gestellt',
     'Failed to queue cleanup job' => 'Bereinigungs-Job konnte nicht in die Warteschlange gestellt werden',

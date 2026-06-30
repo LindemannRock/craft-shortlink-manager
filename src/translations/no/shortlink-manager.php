@@ -346,7 +346,6 @@ return [
     'A logo is required when logo overlay is enabled.' => 'En logo er påkrevd når logo-overlegg er aktivert.',
     'Download Filename Pattern' => 'Mønster for nedlastingsfilnavn',
     'Available variables: {code}, {size}, {format}' => 'Tilgjengelige variabler: {code}, {size}, {format}',
-    'Configure QR code caching to improve performance and reduce server load.' => 'Konfigurer QR Code-caching for å forbedre ytelsen og redusere serverbelastningen.',
 
     // Settings: Analytics
     'Analytics Settings' => 'Analyseinnstillinger',
@@ -368,9 +367,6 @@ return [
     'Clean Up Now' => 'Rydd opp nå',
     'Unlimited Retention Warning' => 'Advarsel om ubegrenset oppbevaring',
     'Analytics data will be retained indefinitely. This could result in large database size, slower performance, and increased storage costs over time. Consider setting a retention period (recommended: 90-365 days) for production sites.' => 'Analysedata vil beholdes på ubestemt tid. Dette kan over tid føre til stor databasestørrelse, tregere ytelse og økte lagringskostnader. Vurder å sette en oppbevaringsperiode (anbefalt: 90–365 dager) for produksjonsnettsteder.',
-    'Performance & Caching' => 'Ytelse og caching',
-    'Configure device detection caching for better performance.' => 'Konfigurer enhetsdeteksjon-caching for bedre ytelse.',
-    'Go to Cache Settings' => 'Gå til cache-innstillinger',
     'Are you sure you want to clean up old analytics data now?' => 'Er du sikker på at du vil rydde opp gammel analysedata nå?',
     'Analytics cleanup job queued' => 'Analyseoppryddingsjobb lagt i kø',
     'Failed to queue cleanup job' => 'Kunne ikke legge oppryddingsjobb i kø',
