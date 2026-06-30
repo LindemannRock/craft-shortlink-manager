@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\services;
 
 use craft\base\Component;
 use craft\db\Query;
+use craft\helpers\App;
 use craft\helpers\Queue;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -29,6 +30,14 @@ class ServdStaticCacheService extends Component
     private const SERVD_PLUGIN_HANDLE = 'servd-asset-storage';
     private const PURGE_URLS_JOB = 'servd\\AssetStorage\\StaticCache\\Jobs\\PurgeUrlsJob';
     private const STATIC_CACHE = 'servd\\AssetStorage\\StaticCache\\StaticCache';
+    private const REQUIRED_ENV_VARS = [
+        'SERVD_CACHE_ENABLED',
+        'REDIS_STATIC_CACHE_DB',
+        'REDIS_HOST',
+        'REDIS_PORT',
+        'ENVIRONMENT',
+        'SERVD_PROJECT_SLUG',
+    ];
 
     /**
      * @inheritdoc
@@ -46,7 +55,9 @@ class ServdStaticCacheService extends Component
     {
         return PluginHelper::isPluginEnabled(self::SERVD_PLUGIN_HANDLE)
             && class_exists(self::PURGE_URLS_JOB)
-            && class_exists(self::STATIC_CACHE);
+            && class_exists(self::STATIC_CACHE)
+            && extension_loaded('redis')
+            && $this->hasRequiredRuntimeConfig();
     }
 
     /**
@@ -197,5 +208,26 @@ class ServdStaticCacheService extends Component
                 yield $slug;
             }
         }
+    }
+
+    private function hasRequiredRuntimeConfig(): bool
+    {
+        foreach (self::REQUIRED_ENV_VARS as $name) {
+            $value = App::env($name);
+
+            if ($name === 'SERVD_CACHE_ENABLED') {
+                if (!$value) {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if ($value === null || $value === '' || $value === false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

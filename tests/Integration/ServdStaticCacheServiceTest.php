@@ -21,6 +21,22 @@ use lindemannrock\shortlinkmanager\tests\TestCase;
  */
 final class ServdStaticCacheServiceTest extends TestCase
 {
+    private const SERVD_ENV_VARS = [
+        'SERVD_CACHE_ENABLED',
+        'REDIS_STATIC_CACHE_DB',
+        'REDIS_HOST',
+        'REDIS_PORT',
+        'ENVIRONMENT',
+        'SERVD_PROJECT_SLUG',
+    ];
+
+    public function testIsAvailableReturnsFalseWithoutServdRuntimeEnvironment(): void
+    {
+        $this->withoutServdRuntimeEnvironment(function(): void {
+            self::assertFalse(ShortLinkManager::$plugin->servdStaticCache->isAvailable());
+        });
+    }
+
     public function testPurgeUrlsUseConfiguredBaseUrlAndEnabledSites(): void
     {
         $sites = Craft::$app->getSites()->getAllSites();
@@ -82,6 +98,26 @@ final class ServdStaticCacheServiceTest extends TestCase
         self::assertStringNotContainsString('->column()', $source);
     }
 
+    public function testIsAvailableSourceMatchesServdRuntimeGuard(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $source = file_get_contents($pluginRoot . '/src/services/ServdStaticCacheService.php');
+
+        self::assertIsString($source);
+        self::assertStringContainsString('use craft\helpers\App;', $source);
+        self::assertStringContainsString("PluginHelper::isPluginEnabled(self::SERVD_PLUGIN_HANDLE)", $source);
+        self::assertStringContainsString('class_exists(self::PURGE_URLS_JOB)', $source);
+        self::assertStringContainsString('class_exists(self::STATIC_CACHE)', $source);
+        self::assertStringContainsString("extension_loaded('redis')", $source);
+
+        foreach (self::SERVD_ENV_VARS as $name) {
+            self::assertStringContainsString("'$name'", $source);
+        }
+
+        self::assertStringContainsString('App::env($name)', $source);
+        self::assertStringNotContainsString('getenv(', $source);
+    }
+
     public function testUtilityAndControllerSourcesWireDedicatedServdStaticCachePurge(): void
     {
         $pluginRoot = dirname(__DIR__, 2);
@@ -131,5 +167,36 @@ final class ServdStaticCacheServiceTest extends TestCase
         self::assertStringNotContainsString('localCache->clearDeviceCache()', $actionSource);
         self::assertStringNotContainsString('Craft::$app->getCache()->flush', $actionSource);
         self::assertStringNotContainsString('Craft::$app->cache->flush', $actionSource);
+    }
+
+    private function withoutServdRuntimeEnvironment(callable $callback): void
+    {
+        $previousServer = [];
+        $previousEnv = [];
+
+        foreach (self::SERVD_ENV_VARS as $name) {
+            $previousServer[$name] = array_key_exists($name, $_SERVER) ? $_SERVER[$name] : null;
+            $previousEnv[$name] = getenv($name);
+            unset($_SERVER[$name]);
+            putenv($name);
+        }
+
+        try {
+            $callback();
+        } finally {
+            foreach (self::SERVD_ENV_VARS as $name) {
+                if ($previousServer[$name] === null) {
+                    unset($_SERVER[$name]);
+                } else {
+                    $_SERVER[$name] = $previousServer[$name];
+                }
+
+                if ($previousEnv[$name] === false) {
+                    putenv($name);
+                } else {
+                    putenv($name . '=' . $previousEnv[$name]);
+                }
+            }
+        }
     }
 }
