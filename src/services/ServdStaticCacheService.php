@@ -50,25 +50,25 @@ class ServdStaticCacheService extends Component
     }
 
     /**
-     * Queue purges for the public URLs for a shortlink's current slug.
+     * Queue purges for the public URLs for an element's current slug.
      */
-    public function purgeShortLink(ShortLink $shortLink): void
+    public function purgeElement(ShortLink $shortLink): void
     {
-        $this->purgeUrls($this->urlsForShortLink($shortLink));
+        $this->purgeUrls($this->urlsForElement($shortLink));
     }
 
     /**
-     * Queue purges for the public URLs for a previously-used shortlink slug.
+     * Queue purges for the public URLs for a previously-used slug.
      */
-    public function purgeShortLinkSlug(string $slug): void
+    public function purgeSlug(string $slug): void
     {
         $this->purgeUrls($this->urlsForSlug($slug));
     }
 
     /**
-     * Queue purges for every public shortlink URL known to the plugin.
+     * Queue purges for every public URL known to the plugin.
      */
-    public function purgeAllShortLinks(): void
+    public function purgeAllUrls(): void
     {
         if (!$this->isAvailable()) {
             return;
@@ -90,11 +90,11 @@ class ServdStaticCacheService extends Component
     }
 
     /**
-     * Return public URLs that can become stale for a shortlink.
+     * Return public URLs that can become stale for an element.
      *
      * @return list<string>
      */
-    public function urlsForShortLink(ShortLink $shortLink): array
+    public function urlsForElement(ShortLink $shortLink): array
     {
         return $this->urlsForSlug((string)$shortLink->slug);
     }

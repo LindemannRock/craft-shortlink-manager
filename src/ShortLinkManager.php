@@ -272,7 +272,7 @@ class ShortLinkManager extends Plugin
                     'action' => function() {
                         $cleared = $this->localCache->clearAllCaches();
                         $this->logInfo('Cleared cache entries', ['count' => $cleared]);
-                        $this->servdStaticCache->purgeAllShortLinks();
+                        $this->servdStaticCache->purgeAllUrls();
                     },
                 ];
             }
@@ -845,7 +845,7 @@ class ShortLinkManager extends Plugin
             Elements::EVENT_AFTER_SAVE_ELEMENT,
             function(ElementEvent $event) {
                 if ($event->element instanceof ShortLink) {
-                    $this->servdStaticCache->purgeShortLink($event->element);
+                    $this->servdStaticCache->purgeElement($event->element);
                     return;
                 }
 
@@ -861,7 +861,7 @@ class ShortLinkManager extends Plugin
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             function(DeleteElementEvent $event) {
                 if ($event->element instanceof ShortLink) {
-                    $this->servdStaticCache->purgeShortLink($event->element);
+                    $this->servdStaticCache->purgeElement($event->element);
                 }
             }
         );

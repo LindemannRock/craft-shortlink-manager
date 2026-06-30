@@ -251,7 +251,7 @@ class ShortLinksService extends Component
             // Handle slug changes - create redirect from old to new
             if ($oldSlug && $oldSlug !== $element->slug) {
                 $this->handleSlugChange($oldSlug, $element);
-                ShortLinkManager::$plugin->servdStaticCache->purgeShortLinkSlug($oldSlug);
+                ShortLinkManager::$plugin->servdStaticCache->purgeSlug($oldSlug);
             }
 
             // Invalidate cache
