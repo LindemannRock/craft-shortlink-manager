@@ -26,6 +26,20 @@
     },
 } %}
 
+{% block headerActions %}
+    <form method="get" style="margin: 0;">
+        <div class="select">
+            <select name="site" aria-label="{{ 'Select site'|t('shortlink-manager') }}" onchange="this.form.submit()">
+                {% for siteHandle, siteLabel in siteOptions %}
+                    <option value="{{ siteHandle }}" {{ selectedSiteHandle == siteHandle ? 'selected' : '' }}>
+                        {{ siteLabel }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+{% endblock %}
+
 {% block overview %}
     {# Links Status Card - only show if user can manage links #}
     {% if canManageLinks %}
@@ -175,6 +189,14 @@
             } only %}
         {% endif %}
     {% endif %}
+{% endblock %}
+
+{% block beforeQuickActions %}
+    {% include 'lindemannrock-base/_components/info-box' with {
+        message: '<strong>' ~ 'Site'|t('shortlink-manager') ~ ':</strong> ' ~ selectedSiteLabel,
+        margin: 'both',
+    } %}
+    <br>
 {% endblock %}
 
 {% block scripts %}
