@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.24.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.23.1...v5.24.0) - 2026-06-30
+
+
+### Added
+
+* **services:** add FrontendService for client-side rendering helpers ([c860380](https://github.com/LindemannRock/craft-shortlink-manager/commit/c8603805ff354f7678c5ec100b026bb94da66c75))
+
 ## [5.23.1](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.23.0...v5.23.1) - 2026-06-30
 
 
