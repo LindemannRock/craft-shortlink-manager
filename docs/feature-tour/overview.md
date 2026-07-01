@@ -50,7 +50,7 @@ Both widgets require the `shortLinkManager:viewAnalytics` permission and can be 
 
 ## CP utility
 
-ShortLink Manager adds a utility at **Utilities → ShortLink Manager** with system stats (total links, active, pending, expired) and maintenance actions (clear cache, cleanup analytics).
+ShortLink Manager adds a utility at **Utilities → ShortLink Manager** with system stats (total links, active, pending, expired) and maintenance actions (clear cache, cleanup analytics). The utility can show link and analytics stats for **All Sites** or one enabled site available to the current user; cache counts and Servd static-cache purge actions remain global.
 
 ## Element index
 

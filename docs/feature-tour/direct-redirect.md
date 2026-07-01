@@ -81,6 +81,9 @@ If your host, CDN, or static cache stores the short URL response, Direct Redirec
 > [!IMPORTANT]
 > Direct Redirect is a performance feature, not a cache bypass. If you need reliable per-hit server-side analytics in direct mode, configure your infrastructure to bypass cache for your [shortlink routes](custom-domain.md#site-aware-routes).
 
+> [!NOTE]
+> The direct redirect response is sent with `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, but some CDNs/edge caches cache redirects anyway — `301`/`308` most aggressively, because they're permanent. For analytics-heavy links prefer `302`/`307`, and in direct mode still add explicit cache-bypass rules for the short-link routes rather than relying on the `no-store` header alone. To check whether a CDN is serving a cached redirect (e.g. on staging, where `?debug=1` is unavailable), inspect the response headers for `x-cache: HIT` / a non-zero `age` — see [Troubleshooting](../resources/troubleshooting.md#diagnosing-on-staging-or-production-no-devmode).
+
 ## Impact on SEOmatic integration
 
 > [!WARNING]

@@ -72,17 +72,16 @@ SEOmatic only lists actual Craft field-layout fields as **Source Field** options
 
 Existing SEOmatic content bundles keep their saved settings. If you enabled the integration before changing defaults, resave or reset the ShortLinks source in SEOmatic to apply the current defaults.
 
-### Using `renderSeomaticTracking()` in templates
+### Using SEOmatic tracking helpers in templates
 
-To fire a tracking event when a user interacts with a specific element on your page, call `renderSeomaticTracking()` in your template:
+Redirect and QR templates should use the intent-based helpers:
 
 ```twig
-<a href="{{ shortLink.url }}" {{ shortLink.renderSeomaticTracking('redirect')|raw }}>
-    Visit Link
-</a>
+{{ shortLink.renderRedirectSeomaticTracking()|raw }}
+{{ shortLink.renderQrSeomaticTracking()|raw }}
 ```
 
-This outputs a `<script>` block that pushes the event object (shown above) to `window.dataLayer` — the same client-side push the redirect and QR pages emit automatically. It does not add `data-gtm-*` attributes; use it when you want to fire the event from your own markup.
+These output a `<script>` block that pushes the event object (shown above) to `window.dataLayer` when SEOmatic is enabled and the matching tracking event is selected in settings. The raw event keys (`redirect`, `qr_scan`) are internal; use the Event Prefix setting to customize the final GTM/GA event name.
 
 ## Redirect Manager integration
 
@@ -125,6 +124,16 @@ If the short link is disabled or expired, the URL returns `null` — the same be
 
 The `ShortLinkType` class is registered automatically when Link Field is installed. There is no additional configuration required.
 
+## Servd static cache
+
+When the [Servd Asset Storage](https://plugins.craftcms.com/servd-asset-storage) plugin is installed and enabled, ShortLink Manager automatically purges Servd's static cache for the affected URLs whenever a short link changes — there's no settings toggle to turn it on.
+
+- **What's purged:** the public short URL and the QR landing URL, across all enabled sites (generated with `Settings::buildPublicUrl()`, so `shortlinkBaseUrl`, custom domains, and `{siteHandle}` tokens are respected).
+- **When:** on save/update, before delete, after a slug change (the old slug is purged too), and when ShortLink Manager caches are cleared.
+- **Prerequisites:** purging only runs on Servd's hosting infrastructure with static cache enabled — the PHP `redis` extension must be loaded and Servd's runtime environment variables (`SERVD_CACHE_ENABLED`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_STATIC_CACHE_DB`, `ENVIRONMENT`, `SERVD_PROJECT_SLUG`) must be present. On a standard Servd deployment these are already set; anywhere else the purge is silently skipped.
+
+This keeps Servd from serving stale redirect/QR responses after a change. It does **not** replace cache-bypass rules for [Direct Redirect](direct-redirect.md) if every hit must reach Craft for analytics — see [Troubleshooting](../resources/troubleshooting.md#analytics-record-once-then-stop-under-static-cache).
+
 ## Integration requirements
 
 | Integration | Required plugin |
@@ -132,6 +141,7 @@ The `ShortLinkType` class is registered automatically when Link Field is install
 | SEOmatic | `nystudio107/craft-seomatic` |
 | Redirect Manager | `lindemannrock/craft-redirect-manager` |
 | Craft Link Field | Craft CMS 5.3+ (native Link field) |
+| Servd static cache | `servd/craft-asset-storage` (optional — auto-detected; Servd hosting only) |
 
 All integrations are detected automatically. If the required plugin is not installed, its card still shows with an **Install Plugin** link but the enable toggle is disabled, and no integration code runs until it is installed and enabled.
 

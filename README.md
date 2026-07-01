@@ -55,6 +55,9 @@ Generate the IP hash salt used by privacy-conscious analytics:
 
 ```bash
 php craft shortlink-manager/security/generate-salt
+```
+
+```bash
 ddev craft shortlink-manager/security/generate-salt
 ```
 

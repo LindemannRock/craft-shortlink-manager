@@ -46,7 +46,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 | `reservedCodes` | `array` | `['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings']` | Codes that cannot be used for short links |
 
 > [!NOTE]
-> If `shortlinkBaseUrl` includes `{siteHandle}`, site-aware routes (e.g., `/{siteHandle}/s/{code}`) are registered automatically alongside the standard `s/{code}` routes.
+> Site-aware routes (e.g., `/{siteHandle}/s/{code}`) are always registered alongside the standard `s/{code}` routes — independent of `shortlinkBaseUrl`. They let the redirect controller resolve the correct site when a `{siteHandle}` segment is in the URL, which is what makes the `{siteHandle}` token in `shortlinkBaseUrl` work.
 
 ---
 

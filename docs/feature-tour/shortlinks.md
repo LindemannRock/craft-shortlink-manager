@@ -49,7 +49,7 @@ ShortLink Manager has two link types:
 | **Auto-generated** | Random alphanumeric code (length controlled by `codeLength`) | `/s/abc123XY` |
 | **Vanity URL** | You provide a human-readable code | `/s/summer-sale` |
 
-The link type is set when creating a short link and cannot be changed afterwards.
+You can change the link type later by editing the short link. Switching an existing Vanity URL back to Auto-generated generates a fresh random code.
 
 ## Link statuses
 

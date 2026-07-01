@@ -68,16 +68,16 @@ With `https://short.example.com/{siteHandle}`, links generate URLs like:
 
 ## Site-aware routes
 
-When a `{siteHandle}` token is present in `shortlinkBaseUrl`, ShortLink Manager automatically registers site-aware routes in addition to the standard routes:
+ShortLink Manager always registers site-aware routes (carrying a `{siteHandle}` segment) alongside the standard routes — they don't depend on `shortlinkBaseUrl`. They let the redirect controller resolve which Craft site to look the short link up in when a `{siteHandle}` is present in the URL path (for example when `shortlinkBaseUrl` includes the `{siteHandle}` token):
 
 | Route | Controller |
 |-------|-----------|
 | `/{slugPrefix}/{code}` | Redirect controller |
 | `/{siteHandle}/{slugPrefix}/{code}` | Redirect controller (site-aware) |
-| `/{qrPrefix}/{code}` | QR code controller |
-| `/{siteHandle}/{qrPrefix}/{code}` | QR code controller (site-aware) |
-
-The site-aware routes allow the redirect controller to resolve which Craft site to look up the short link in, based on the `{siteHandle}` in the URL path.
+| `/{qrPrefix}/{code}` | QR code image |
+| `/{siteHandle}/{qrPrefix}/{code}` | QR code image (site-aware) |
+| `/{qrPrefix}/{code}/view` | QR display page |
+| `/{siteHandle}/{qrPrefix}/{code}/view` | QR display page (site-aware) |
 
 ## How URLs are built
 

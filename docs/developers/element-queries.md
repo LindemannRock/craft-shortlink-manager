@@ -168,7 +168,10 @@ Properties available on a `ShortLink` element in Twig:
 | `getAuthor()` | `User\|null` | The author user |
 | `isExpired()` | `bool` | Whether the link is expired |
 | `getAnalytics(filters)` | `array` | Click statistics |
-| `renderSeomaticTracking(eventType)` @since(5.1.0) | `Markup\|null` | SEOmatic tracking HTML |
+| `renderRedirectScript(allowDebugOverride)` @since(5.23.0) | `Markup\|null` | Tracked client-side redirect script (forwards through the `goUrl` hop). `?debug=1` is devMode-only by default; pass `true` to allow it outside devMode |
+| `renderRedirectSeomaticTracking()` @since(5.24.0) | `Markup\|null` | SEOmatic redirect tracking HTML |
+| `renderQrSeomaticTracking()` @since(5.24.0) | `Markup\|null` | SEOmatic QR scan tracking HTML |
+| `renderSeomaticTracking(eventType)` @since(5.1.0) | `Markup\|null` | Low-level compatibility helper for a specific SEOmatic event key; prefer the intent helpers above in templates |
 
 ## PHP example
 

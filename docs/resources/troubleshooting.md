@@ -88,6 +88,7 @@ This symptom almost always means the short URL response is being cached before i
 - With `directRedirect = true`, the initial short URL request is both the analytics event and the redirect response
 - If that response is cached by the browser, CDN, or a static cache layer, later requests can bypass Craft entirely
 - When Craft does not run, analytics do not run
+- ShortLink Manager marks the redirect `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, but **some CDNs/edge caches still cache redirects regardless** — a `301` or `308` is the riskiest because caches treat it as permanent. So `no-store` alone is not a guarantee; you may still need explicit cache-bypass rules.
 
 ### How to fix it
 
@@ -99,7 +100,8 @@ Choose the mode that matches your goal:
 
 2. **Fastest direct redirect**
    - Use `directRedirect = true`
-   - Add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes) if accurate repeat-hit analytics matter
+   - Prefer `302`/`307` status codes over `301`/`308` for analytics-heavy links — permanent codes are cached hardest by browsers and CDNs
+   - Add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes) if accurate repeat-hit analytics matter (even with `302`/`307`, a CDN can still cache the redirect)
 
 ### After changing settings
 
@@ -110,6 +112,26 @@ Always clear:
 - Any platform static cache
 
 Old `301`/`308` responses can remain cached even after your plugin settings or link settings are updated.
+
+If the Servd Asset Storage plugin is installed and enabled, ShortLink Manager queues targeted Servd static-cache purges for the public short URL and QR landing URL when a short link is saved, deleted, renamed, or when ShortLink Manager caches are cleared. This helps clear stale cached responses after content changes, but it does not replace cache-bypass rules for Direct Redirect mode if every hit must reach Craft for analytics.
+
+### Diagnosing on staging or production (no `devMode`)
+
+With the **shipped** redirect template, `?debug=1` only works when `devMode` is on, so it does nothing on staging or production. You have two options there:
+
+- **If you control the redirect template**, render the script as `{{ shortLink.renderRedirectScript(true) }}` to allow `?debug=1` even with `devMode` off — it stops the redirect and logs the generated `goUrl` in the browser console. Use it for staging validation and revert it for production. See [Custom templates](../developers/custom-templates.md).
+- **Otherwise**, diagnose caching from the **response headers**:
+
+```bash
+curl -sI 'https://example.com/s/abc123'
+```
+
+Look at:
+
+- `x-cache: HIT` or a non-zero `age:` — a CDN/edge served a **cached** copy, so Craft did not run and analytics were skipped for that hit.
+- `cache-control:` — ShortLink Manager sends `no-store, no-cache, must-revalidate, max-age=0`; if the response is still a cached HIT, your CDN is overriding that header and needs an explicit cache-bypass rule for the short-link routes.
+
+A fresh, uncached redirect shows `x-cache: MISS` (or no `x-cache`) and `age: 0`. To inspect the generated `goUrl` itself, use a local `devMode` environment with `?debug=1`, or temporarily switch your custom redirect template to `{{ shortLink.renderRedirectScript(true) }}` so `?debug=1` works on staging.
 
 ## Geolocation shows no country or city data
 
@@ -183,6 +205,18 @@ This only changes generated URLs (copy buttons, QR codes, exports). The actual r
 
 If you use `shortlinkBaseUrl` on a multisite install, all sites produce the same URL (e.g., `https://short.ly/s/abc123` for EN, AR, and FR). When a request arrives, Craft resolves the site from the hostname — which maps to only one site. The other sites' versions of that short link are unreachable.
 
+This can also look like the destination URL is "wrong" after editing a link. ShortLink destinations are site-specific. If the CP is showing the EN site value but the visitor opens a host that Craft resolves as a different site, ShortLink Manager will use that other site's destination row.
+
+For example:
+
+- EN site destination: `https://example.com/en-destination`
+- Dedicated short-domain site destination: `https://example.com/old-destination`
+- Opened URL: `https://short.example.com/s/abc123`
+
+If `short.example.com` is configured as the dedicated short-domain site, Craft resolves the request as that site, so the redirect uses `https://example.com/old-destination` even if the EN edit screen shows `https://example.com/en-destination`.
+
+Check the site switcher on the short link edit screen and verify the destination value for the same site that serves the public short URL. If Pass Query Params is enabled, the internal tracking action parameters such as `code`, `site`, or `src` may also be forwarded to the final destination.
+
 **Fix:** Use `shortlinkBaseUrl` with `{siteHandle}` instead:
 
 ```php
@@ -229,7 +263,7 @@ SEOmatic source-field dropdowns only list actual Craft custom fields from the Sh
 
 ## Custom redirect template still skips tracking
 
-If you override `templates/shortlink-manager/redirect.twig`, make sure it redirects to the internal `goUrl` variable, not directly to `destinationUrl`.
+If you override `templates/shortlink-manager/redirect.twig`, use `{{ shortLink.renderRedirectScript() }}` (which forwards through the tracked `goUrl` hop) rather than redirecting straight to `destinationUrl` / `shortLink.url`.
 
 For non-direct redirects, the tracked flow is:
 
@@ -239,7 +273,7 @@ For non-direct redirects, the tracked flow is:
 
 If your custom template redirects straight to `destinationUrl`, the tracking hop is bypassed.
 
-When `devMode` is enabled, add `?debug=1` to a rendered short link URL to stop the browser before the second hop. The shipped redirect template logs the generated `goUrl` in the browser console, so you can confirm custom domains and multisite site parameters before the final redirect runs.
+With the shipped template (`{{ shortLink.renderRedirectScript() }}`), `?debug=1` works **only when `devMode` is enabled** — it does nothing on staging or production. In a `devMode` environment, add `?debug=1` to a rendered short link URL to stop the browser before the second hop and log the generated `goUrl` in the browser console, so you can confirm custom domains and multisite site parameters before the final redirect runs. To debug on staging without `devMode`, switch your custom template to `{{ shortLink.renderRedirectScript(true) }}` (allows `?debug=1` regardless of `devMode`); otherwise diagnose from the response headers — see [Diagnosing on staging or production](#diagnosing-on-staging-or-production-no-devmode).
 
 ## Redirect Manager integration not creating redirects
 

@@ -2,7 +2,7 @@
     "name": "ShortLink Manager",
     "handle": "shortlink-manager",
     "description": "Advanced shortlink management with QR codes and analytics for Craft CMS.",
-    "version": "5.13.0",
+    "version": "5.24.0",
     "developer": "LindemannRock",
     "developerUrl": "https://lindemannrock.com",
     "documentationUrl": "https://lindemannrock.com/craft-plugins/shortlink-manager/docs"

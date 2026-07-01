@@ -85,18 +85,15 @@ Render the tracking HTML in your redirect template:
 {% extends '_layout' %}
 
 {% block content %}
-    {{ shortLink.renderSeomaticTracking('redirect')|raw }}
-
-    <script>
-        window.location.replace({{ goUrl|json_encode|raw }});
-    </script>
+    {{ shortLink.renderRedirectSeomaticTracking() }}
+    {{ shortLink.renderRedirectScript() }}
 {% endblock %}
 ```
 
-The `renderSeomaticTracking(eventType)` @since(5.1.0) method returns SEOmatic-compatible tracking markup, or `null` if SEOmatic is not installed or the event type is not in `seomaticTrackingEvents`.
+Use `shortLink.renderQrSeomaticTracking()` in QR display templates. These tracking helpers return SEOmatic-compatible markup, or `null` if SEOmatic is not installed, the integration is disabled, or the matching event is not selected in `seomaticTrackingEvents`.
 
 > [!IMPORTANT]
-> In a custom redirect template, redirect to `goUrl`, not directly to `shortLink.destinationUrl`. The `goUrl` action route is the server-side tracking hop that records analytics and then issues the final redirect.
+> Use `shortLink.renderRedirectScript()` for the redirect — it forwards through `goUrl`, the server-side tracking hop that records analytics before issuing the final redirect. Don't redirect directly to `shortLink.destinationUrl` / `shortLink.url`, which bypasses tracking. (For debugging on staging, `renderRedirectScript(true)` lets `?debug=1` work outside `devMode` — see [Custom templates](custom-templates.md).)
 
 ### Direct redirect warning
 
