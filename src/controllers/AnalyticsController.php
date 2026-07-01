@@ -54,7 +54,9 @@ class AnalyticsController extends Controller
         $settings = ShortLinkManager::$plugin->getSettings();
 
         // Get analytics summary (scoped to user's allowed sites)
-        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $resolvedSiteId);
+        $analyticsData = $resolvedSiteId === []
+            ? self::emptyAnalyticsSummary()
+            : ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, null, $resolvedSiteId);
 
         // Get enabled sites for site selector (respects enabledSites + user permissions)
         $sites = ShortLinkManager::$plugin->getEnabledSites();
@@ -97,6 +99,13 @@ class AnalyticsController extends Controller
         $data = [];
 
         try {
+            if ($resolvedSiteId === []) {
+                return $this->asJson([
+                    'success' => true,
+                    'data' => self::emptyAnalyticsData($type),
+                ]);
+            }
+
             switch ($type) {
                 case 'summary':
                     $data = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($dateRange, $linkId, $resolvedSiteId);
@@ -190,11 +199,13 @@ class AnalyticsController extends Controller
         }
 
         // Get export data (scoped to user's allowed sites)
-        $exportData = ShortLinkManager::$plugin->analytics->getExportData(
-            $linkId ? (int)$linkId : null,
-            $dateRange,
-            $resolvedSiteId
-        );
+        $exportData = $resolvedSiteId === []
+            ? []
+            : ShortLinkManager::$plugin->analytics->getExportData(
+                $linkId ? (int)$linkId : null,
+                $dateRange,
+                $resolvedSiteId
+            );
 
         // Check for empty data
         if (empty($exportData)) {
@@ -299,6 +310,49 @@ class AnalyticsController extends Controller
             fn($site) => $site->id,
             ShortLinkManager::$plugin->getEnabledSites()
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function emptyAnalyticsSummary(): array
+    {
+        return [
+            'totalClicks' => 0,
+            'uniqueVisitors' => 0,
+            'activeLinks' => 0,
+            'totalLinks' => 0,
+            'linksUsed' => 0,
+            'linksUsedPercentage' => 0,
+            'topLinks' => [],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|list<array<string, mixed>>
+     */
+    private static function emptyAnalyticsData(string $type): array
+    {
+        return match ($type) {
+            'clicks', 'devices' => ['labels' => [], 'values' => []],
+            'device-brands', 'os-breakdown', 'browsers' => [
+                'labels' => [],
+                'values' => [],
+                'percentages' => [],
+            ],
+            'traffic-types' => ['labels' => [], 'types' => [], 'values' => []],
+            'hourly' => [
+                'data' => array_fill(0, 24, 0),
+                'peakHour' => 0,
+                'peakHourFormatted' => '00:00',
+            ],
+            'recent-clicks' => [
+                'clicks' => [],
+                'geoEnabled' => ShortLinkManager::$plugin->getSettings()->enableGeoDetection ?? true,
+            ],
+            'top-agents', 'top-countries', 'top-cities' => [],
+            default => self::emptyAnalyticsSummary(),
+        };
     }
 
     /**

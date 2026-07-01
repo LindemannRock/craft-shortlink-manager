@@ -126,7 +126,10 @@ class TopLinksWidget extends Widget
             return '<p class="light">' . Craft::t('shortlink-manager', 'Analytics are disabled in plugin settings.') . '</p>';
         }
 
-        $analyticsData = ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $this->effectiveSiteId());
+        $siteId = $this->effectiveSiteId();
+        $analyticsData = $siteId === []
+            ? $this->emptyAnalyticsSummary()
+            : ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $siteId);
         $topLinks = array_slice($analyticsData['topLinks'] ?? [], 0, $this->limit);
 
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/top-links/body', [

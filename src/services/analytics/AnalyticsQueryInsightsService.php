@@ -158,7 +158,7 @@ class AnalyticsQueryInsightsService
             ->where(['linkId' => $shortLinkId]);
 
         // Filter by site(s) if specified
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -238,7 +238,7 @@ class AnalyticsQueryInsightsService
             ->orderBy(['a.dateCreated' => SORT_DESC])
             ->limit(20);
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $recentClicksQuery->andWhere(['a.siteId' => $siteId]);
         }
 
@@ -301,7 +301,7 @@ class AnalyticsQueryInsightsService
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
 
         // Filter by site if specified
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['a.siteId' => $siteId]);
         }
 
@@ -363,7 +363,7 @@ class AnalyticsQueryInsightsService
         $this->applyDateRangeFilter($query, $dateRange, 'a.dateCreated');
 
         // Filter by site if specified
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['a.siteId' => $siteId]);
         }
 
@@ -417,7 +417,7 @@ class AnalyticsQueryInsightsService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -494,7 +494,7 @@ class AnalyticsQueryInsightsService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 

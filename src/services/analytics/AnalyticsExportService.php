@@ -93,7 +93,7 @@ class AnalyticsExportService
         }
 
         // Filter by site if specified
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['a.siteId' => $siteId]);
         }
 

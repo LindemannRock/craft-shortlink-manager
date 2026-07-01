@@ -73,7 +73,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -111,7 +111,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -153,7 +153,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -205,7 +205,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -253,7 +253,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -295,7 +295,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -377,7 +377,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -418,7 +418,7 @@ class AnalyticsBreakdownService
             $query->andWhere(['linkId' => $shortLinkId]);
         }
 
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 

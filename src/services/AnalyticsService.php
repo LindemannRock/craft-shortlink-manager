@@ -189,7 +189,7 @@ class AnalyticsService extends Component
         }
 
         // Filter by site if specified
-        if ($siteId) {
+        if ($siteId !== null) {
             $query->andWhere(['siteId' => $siteId]);
         }
 
@@ -197,12 +197,16 @@ class AnalyticsService extends Component
         $uniqueVisitors = (int) (clone $query)->select('COUNT(DISTINCT ip)')->scalar();
 
         // Get active links count (use element query to check enabled status properly)
-        $activeLinksQuery = ShortLink::find()
-            ->status('enabled');
-        if ($siteId) {
-            $activeLinksQuery->siteId($siteId);
+        if ($siteId === []) {
+            $activeLinks = 0;
+        } else {
+            $activeLinksQuery = ShortLink::find()
+                ->status('enabled');
+            if ($siteId !== null) {
+                $activeLinksQuery->siteId($siteId);
+            }
+            $activeLinks = $activeLinksQuery->count();
         }
-        $activeLinks = $activeLinksQuery->count();
 
         // Get total links
         $totalLinksQuery = (new Query())
@@ -215,7 +219,7 @@ class AnalyticsService extends Component
             ->select('COUNT(DISTINCT linkId)');
 
         $this->applyDateRangeFilter($shortLinksQuery, $dateRange);
-        if ($siteId) {
+        if ($siteId !== null) {
             $shortLinksQuery->andWhere(['siteId' => $siteId]);
         }
         $shortLinksWithClicks = (int) $shortLinksQuery->scalar();
