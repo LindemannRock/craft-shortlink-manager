@@ -103,6 +103,22 @@ Choose the mode that matches your goal:
    - Prefer `302`/`307` status codes over `301`/`308` for analytics-heavy links — permanent codes are cached hardest by browsers and CDNs
    - Add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes) if accurate repeat-hit analytics matter (even with `302`/`307`, a CDN can still cache the redirect)
 
+Use the prefixes configured in **ShortLink Manager → Settings → URL Settings** when writing those rules. With the defaults, cache-bypass rules usually need to cover the shortlink route and any site-aware variants:
+
+```text
+/s/*
+/{siteHandle}/s/*
+```
+
+If your **ShortLink URL Prefix** is `go`, use `/go/*` and `/{siteHandle}/go/*` instead. If QR scan analytics also need every request to reach Craft, do the same for your **QR Code URL Prefix**. With the default QR prefix this is:
+
+```text
+/qr/*
+/{siteHandle}/qr/*
+```
+
+For a nested QR prefix such as `s/qr`, use `/s/qr/*` and `/{siteHandle}/s/qr/*`. Replace `{siteHandle}` with each enabled site's handle, for example `/en/s/*`, `/ar/s/*`, and `/fr/s/*`.
+
 ### After changing settings
 
 Always clear:
@@ -113,7 +129,7 @@ Always clear:
 
 Old `301`/`308` responses can remain cached even after your plugin settings or link settings are updated.
 
-If the Servd Asset Storage plugin is installed and enabled, ShortLink Manager queues targeted Servd static-cache purges for the public short URL and QR landing URL when a short link is saved, deleted, renamed, or when ShortLink Manager caches are cleared. This helps clear stale cached responses after content changes, but it does not replace cache-bypass rules for Direct Redirect mode if every hit must reach Craft for analytics.
+If the Servd Asset Storage plugin is installed and enabled, ShortLink Manager queues targeted Servd static-cache purges for the public short URL and QR landing URL when a short link is saved, deleted, renamed, or when ShortLink Manager caches are cleared. After switching Direct Redirect on or off, use **Utilities → ShortLink Manager → Servd Static Cache** to queue a purge for existing shortlink and QR URLs. Servd may briefly serve a stale response while it purges or revalidates cached entries, so allow a short delay before retesting. This helps clear stale cached responses after content changes, but it does not replace cache-bypass rules for Direct Redirect mode if every hit must reach Craft for analytics.
 
 ### Diagnosing on staging or production (no `devMode`)
 
