@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.25.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.24.0...v5.25.0) (2026-07-01)
+
+
+### Added
+
+* add site selection dropdown and update link status analytics ([285410b](https://github.com/LindemannRock/craft-shortlink-manager/commit/285410b0a2d30906ed43111d7b4ed80b003a0693))
+* **cache:** add LocalCacheService for managing local caches ([6e1eb7e](https://github.com/LindemannRock/craft-shortlink-manager/commit/6e1eb7e61f90d0388e1ee7db796085259f5291ca))
+* **i18n:** add Servd static cache messages in multiple languages ([90b7ee8](https://github.com/LindemannRock/craft-shortlink-manager/commit/90b7ee874dfb3cc9a81e8159e48b7b23fc5a5ce5))
+* **servdstaticcache:** add runtime config validation for Servd cache ([8b3d20e](https://github.com/LindemannRock/craft-shortlink-manager/commit/8b3d20e4717818115f3ab3453a44716de5b0e5d0))
+* **settings:** add action to purge Servd static cache for SmartLinks ([2813a7d](https://github.com/LindemannRock/craft-shortlink-manager/commit/2813a7d150d81f6a938520af0ff8e483664a455a))
+* **shortlinks:** purge servd static cache on shortlink save and delete ([3f3dff5](https://github.com/LindemannRock/craft-shortlink-manager/commit/3f3dff5165475f75c7789f69cceedd9019ec02c1))
+
+
+### Fixed
+
+* fail closed for empty analytics site scopes ([5d3f9bc](https://github.com/LindemannRock/craft-shortlink-manager/commit/5d3f9bc0998ed1c31073a8b6093a9a44eae8436b))
+
 ## [5.24.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.23.1...v5.24.0) - 2026-06-30
 
 
