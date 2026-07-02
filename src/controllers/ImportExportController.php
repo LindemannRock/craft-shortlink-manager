@@ -104,7 +104,10 @@ class ImportExportController extends Controller
 
         // Pre-fetch all exportable sites keyed by ID
         $sitesById = [];
-        foreach (Craft::$app->getSites()->getSitesByIds($siteIds) as $s) {
+        foreach (Craft::$app->getSites()->getAllSites() as $s) {
+            if (!in_array((int)$s->id, $siteIds, true)) {
+                continue;
+            }
             $sitesById[$s->id] = $s;
         }
 
