@@ -52,30 +52,28 @@
                 </thead>
                 <tbody>
                     {% for shortLink in analyticsData.topLinks ?? [] %}
-                        {% if (shortLink.enabled ?? true) and (shortLink.clicks > 0) %}
-                            <tr>
-                                <td>
-                                    <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
-                                        <code>{{ shortLink.code }}</code>
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if shortLink.siteId %}
-                                        {% set site = craft.app.sites.getSiteById(shortLink.siteId) %}
-                                        {{ site ? site.name : '—' }}
-                                    {% else %}
-                                        —
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <span title="{{ shortLink.destinationUrl }}">
-                                        {{ shortLink.destinationUrl|length > 50 ? shortLink.destinationUrl|slice(0, 50) ~ '...' : shortLink.destinationUrl }}
-                                    </span>
-                                </td>
-                                <td>{{ shortLink.clicks|number }}</td>
-                                <td>{{ shortLink.lastClick ? shortLink.lastClick|lrDatetime : '-' }}</td>
-                            </tr>
-                        {% endif %}
+                        <tr>
+                            <td>
+                                <a href="{{ cpUrl('shortlink-manager/shortlinks/' ~ shortLink.id) }}">
+                                    <code>{{ shortLink.code }}</code>
+                                </a>
+                            </td>
+                            <td>
+                                {% if shortLink.siteId %}
+                                    {% set site = craft.app.sites.getSiteById(shortLink.siteId) %}
+                                    {{ site ? site.name : '—' }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span title="{{ shortLink.destinationUrl }}">
+                                    {{ shortLink.destinationUrl|length > 50 ? shortLink.destinationUrl|slice(0, 50) ~ '...' : shortLink.destinationUrl }}
+                                </span>
+                            </td>
+                            <td>{{ shortLink.clicks|number }}</td>
+                            <td>{{ shortLink.lastClick ? shortLink.lastClick|lrDatetime : '-' }}</td>
+                        </tr>
                     {% else %}
                         <tr>
                             <td colspan="5" class="thin light lr-text-center">{{ "No data for selected period"|t('shortlink-manager') }}</td>

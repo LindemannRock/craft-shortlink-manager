@@ -104,6 +104,36 @@ final class AnalyticsFormattingTest extends TestCase
         self::assertSame($siteB->name, $rowsBySite[(int)$siteB->id]['siteName']);
     }
 
+    public function testTopLinksExcludeDisabledElementSiteRows(): void
+    {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://disabled.example/top-link',
+            'siteId' => (int)$site->id,
+        ]);
+
+        $tz = new \DateTimeZone(Craft::$app->getTimeZone());
+        $this->seedAnalyticsRow((int)$link->id, (int)$site->id, new \DateTime('today 11:00:00', $tz));
+
+        $rows = $this->analytics->getTopLinks(10, 'today', (int)$site->id);
+        self::assertContains((int)$link->id, array_map(static fn(array $row): int => (int)$row['id'], $rows));
+
+        Craft::$app->db->createCommand()->update('{{%elements_sites}}', [
+            'enabled' => false,
+        ], [
+            'elementId' => (int)$link->id,
+            'siteId' => (int)$site->id,
+        ])->execute();
+
+        $rows = $this->analytics->getTopLinks(10, 'today', (int)$site->id);
+        self::assertNotContains((int)$link->id, array_map(static fn(array $row): int => (int)$row['id'], $rows));
+
+        $template = file_get_contents(dirname(__DIR__, 2) . '/src/templates/analytics/_partials/overview.twig');
+        self::assertIsString($template);
+        self::assertStringNotContainsString('shortLink.enabled ?? true', $template);
+        self::assertStringNotContainsString('shortLink.clicks > 0', $template);
+    }
+
     private function seedAnalyticsRow(int $linkId, int $siteId, \DateTime $localDateTime): void
     {
         $utc = (clone $localDateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');

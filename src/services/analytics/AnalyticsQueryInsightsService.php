@@ -352,8 +352,10 @@ class AnalyticsQueryInsightsService
             ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'a.siteId', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
             ->from('{{%shortlinkmanager_analytics}} a')
             ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
+            ->innerJoin('{{%elements_sites}} es', 'es.elementId = l.id AND es.siteId = a.siteId')
             ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
             ->groupBy('l.id, l.code, l.slug, c.destinationUrl, a.siteId')
+            ->where(['es.enabled' => true])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
