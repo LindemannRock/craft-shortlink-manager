@@ -114,6 +114,15 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringContainsString('routeExamples: directRedirectRouteExamplesHtml', $source);
     }
 
+    public function testHttpStatusTipLinkLabelsAreEscapedForJavaScript(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 2) . '/src/templates/settings/behavior.twig');
+        self::assertIsString($source);
+
+        self::assertSame(4, substr_count($source, '"Learn more"|t(\'shortlink-manager\')|e(\'js\')'));
+        self::assertStringNotContainsString('{{ "Learn more"|t(\'shortlink-manager\') }}</a>\';', $source);
+    }
+
     public function testRawSettingsInfoBoxesEscapeConfiguredPluginName(): void
     {
         $pluginRoot = dirname(__DIR__, 2);

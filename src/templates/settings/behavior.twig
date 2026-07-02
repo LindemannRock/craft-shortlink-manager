@@ -182,16 +182,16 @@ function updateHttpCodeTip() {
 
     switch(code) {
         case 301:
-            tip = {{ "<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
+            tip = {{ "<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager')|e('js') }}</a>';
             break;
         case 302:
-            tip = {{ "<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
+            tip = {{ "<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager')|e('js') }}</a>';
             break;
         case 307:
-            tip = {{ "<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
+            tip = {{ "<strong>307 - Temporary Redirect:</strong> Like 302 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/307" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager')|e('js') }}</a>';
             break;
         case 308:
-            tip = {{ "<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>';
+            tip = {{ "<strong>308 - Permanent Redirect:</strong> Like 301 but guarantees the request method won't change (POST stays POST)."|t('shortlink-manager')|json_encode|raw }} + ' <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager')|e('js') }}</a>';
             break;
     }
 
