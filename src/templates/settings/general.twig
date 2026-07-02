@@ -67,9 +67,6 @@
 
 		<h2>{{ "URL Settings"|t('shortlink-manager') }}</h2>
 
-        {% set rmPlugin = craft.app.plugins.getPlugin('redirect-manager') %}
-        {% set rmActive = rmPlugin and craft.app.plugins.isPluginEnabled('redirect-manager') %}
-        {% set rmPluginName = rmPlugin ? (rmPlugin.settings.pluginName ?? 'Redirect Manager') : 'Redirect Manager' %}
         {% set smartLinkPluginForWarning = craft.app.plugins.getPlugin('smartlink-manager') ?? craft.app.plugins.getPlugin('smart-links') %}
         {% set smartLinkEnabledForWarning = (craft.app.plugins.isPluginEnabled('smartlink-manager') or craft.app.plugins.isPluginEnabled('smart-links')) and smartLinkPluginForWarning %}
         {% set smartLinkUsePrefix = smartLinkEnabledForWarning ? (smartLinkPluginForWarning.settings.usePrefix ?? true) : true %}
@@ -144,10 +141,10 @@
             {% endif %}
         {% endif %}
 
-        {% set slugTip = rmActive
-            ? "Changing will break existing URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard)"|t('shortlink-manager', {rmPluginName: rmPluginName})
-            : "Changing the URL prefix will break all existing {pluginName}. Only change this before creating your first {singularName}."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, singularName: shortlinkHelper.lowerDisplayName})
-        %}
+        {% set slugPrefixExample = '/' ~ ((settings.slugPrefix ?: 's')|trim('/')) ~ '/$1' %}
+        {% set slugTip = "Changing will break existing URLs. To migrate, redirect the old shortlink prefix to the new one in your redirect tool, CDN, or server config, for example: Source '/old-prefix/*' → Destination '{destinationExample}'."|t('shortlink-manager', {
+            destinationExample: slugPrefixExample,
+        }) %}
 
         {{ forms.lightswitchField({
             label: "Use URL Prefix"|t('shortlink-manager'),
@@ -199,11 +196,6 @@
             } %}
         {% endif %}
 
-        {% set qrTip = rmActive
-            ? "Changing will break existing QR URLs. To migrate, create wildcard redirect in {rmPluginName}: Source '/old/*' → Destination '/new/$1' (Match Type: Wildcard). Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."|t('shortlink-manager', {rmPluginName: rmPluginName})
-            : "Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns. Checked for conflicts with Smart Links."|t('shortlink-manager')
-        %}
-
 		{# Calculate smart default for qrPrefix if empty #}
         {% set qrPrefixValue = settings.qrPrefix %}
         {% set nestedDefault = (settings.slugPrefix ?: 's') ~ '/qr' %}
@@ -237,6 +229,11 @@
 
 			{% set qrPrefixValue = smartQrDefault %}
 		{% endif %}
+
+        {% set qrPrefixExample = '/' ~ (qrPrefixValue|trim('/')) ~ '/$1' %}
+        {% set qrTip = "Changing will break existing QR URLs. To migrate, redirect the old QR prefix to the new one in your redirect tool, CDN, or server config, for example: Source '/old-qr-prefix/*' → Destination '{destinationExample}'. Supports standalone (e.g., 'qr') or nested (e.g., 's/qr') patterns."|t('shortlink-manager', {
+            destinationExample: qrPrefixExample,
+        }) %}
 
 		{{ forms.textField({
             label: "QR Code URL Prefix"|t('shortlink-manager'),
