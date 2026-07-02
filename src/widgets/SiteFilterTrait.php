@@ -9,6 +9,7 @@
 namespace lindemannrock\shortlinkmanager\widgets;
 
 use Craft;
+use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -75,5 +76,21 @@ trait SiteFilterTrait
             'linksUsedPercentage' => 0,
             'topLinks' => [],
         ];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $links
+     * @return array<int, array<string, mixed>>
+     */
+    protected function withSafeDestinationUrls(array $links): array
+    {
+        foreach ($links as $index => $link) {
+            $destinationUrl = $link['destinationUrl'] ?? null;
+            $links[$index]['safeDestinationUrl'] = is_string($destinationUrl) && UrlSafetyHelper::isSafeRedirectUrl($destinationUrl)
+                ? trim($destinationUrl)
+                : null;
+        }
+
+        return $links;
     }
 }

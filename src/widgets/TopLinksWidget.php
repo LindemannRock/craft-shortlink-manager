@@ -130,7 +130,7 @@ class TopLinksWidget extends Widget
         $analyticsData = $siteId === []
             ? $this->emptyAnalyticsSummary()
             : ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $siteId);
-        $topLinks = array_slice($analyticsData['topLinks'] ?? [], 0, $this->limit);
+        $topLinks = $this->withSafeDestinationUrls(array_slice($analyticsData['topLinks'] ?? [], 0, $this->limit));
 
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/top-links/body', [
             'widget' => $this,

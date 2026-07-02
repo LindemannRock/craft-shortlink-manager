@@ -1,9 +1,15 @@
 {% set rows = [] %}
 
 {% for shortLink in shortLinks %}
-    {% set domain = shortLink.destinationUrl|split('://')|last|split('/')|first %}
+    {% set destinationUrl = shortLink.destinationUrl ?? '' %}
+    {% set safeDestinationUrl = shortLink.safeDestinationUrl ?? null %}
+    {% set domain = destinationUrl|split('://')|last|split('/')|first %}
     {% set meta %}
-        <a href="{{ shortLink.destinationUrl }}" target="_blank" rel="noopener" title="{{ shortLink.destinationUrl }}">{{ domain }}</a>
+        {% if safeDestinationUrl %}
+            <a href="{{ safeDestinationUrl }}" target="_blank" rel="noopener" title="{{ destinationUrl }}">{{ domain }}</a>
+        {% else %}
+            <span title="{{ destinationUrl }}">{{ domain }}</span>
+        {% endif %}
     {% endset %}
     {% set rows = rows|merge([{
         primary: shortLink.code,

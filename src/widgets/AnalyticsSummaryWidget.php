@@ -123,6 +123,7 @@ class AnalyticsSummaryWidget extends Widget
         $analyticsData = $siteId === []
             ? $this->emptyAnalyticsSummary()
             : ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $siteId);
+        $analyticsData['topLinks'] = $this->withSafeDestinationUrls($analyticsData['topLinks'] ?? []);
 
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/analytics-summary/body', [
             'widget' => $this,

@@ -1,8 +1,14 @@
 {% if data.topLinks|length > 0 %}
     {% set topLink = data.topLinks|first %}
-    {% set domain = topLink.destinationUrl|split('://')|last|split('/')|first %}
+    {% set destinationUrl = topLink.destinationUrl ?? '' %}
+    {% set safeDestinationUrl = topLink.safeDestinationUrl ?? null %}
+    {% set domain = destinationUrl|split('://')|last|split('/')|first %}
     {% set topMeta %}
-        <a href="{{ topLink.destinationUrl }}" target="_blank" rel="noopener" title="{{ topLink.destinationUrl }}">{{ domain }}</a>
+        {% if safeDestinationUrl %}
+            <a href="{{ safeDestinationUrl }}" target="_blank" rel="noopener" title="{{ destinationUrl }}">{{ domain }}</a>
+        {% else %}
+            <span title="{{ destinationUrl }}">{{ domain }}</span>
+        {% endif %}
         <span class="lr-dashboard-widget-meta__separator">•</span>
         <span>{{ topLink.clicks|number }} {{ "interactions"|t('shortlink-manager') }}</span>
     {% endset %}

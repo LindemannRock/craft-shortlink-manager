@@ -18,6 +18,7 @@ use lindemannrock\shortlinkmanager\controllers\ShortlinksController;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
+use lindemannrock\shortlinkmanager\widgets\TopLinksWidget;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
@@ -26,6 +27,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(ShortlinksController::class)]
 #[CoversClass(ImportExportController::class)]
 #[CoversClass(ShortLink::class)]
+#[CoversClass(TopLinksWidget::class)]
 final class ShortLinkPermissionGateTest extends TestCase
 {
     private mixed $originalUser = null;
@@ -91,6 +93,42 @@ final class ShortLinkPermissionGateTest extends TestCase
         self::assertStringContainsString("throw new \\yii\\web\\BadRequestHttpException('Invalid site.');", $source);
         self::assertStringContainsString("\$this->requirePermission('editSite:' . \$site->uid);", $source);
         self::assertStringNotContainsString("if (\$site) {\n                \$this->requirePermission('editSite:' . \$site->uid);", $source);
+    }
+
+    public function testWidgetDestinationUrlsOnlyLinkSafeTargets(): void
+    {
+        $widget = new TopLinksWidget();
+        $method = new \ReflectionMethod($widget, 'withSafeDestinationUrls');
+        $method->setAccessible(true);
+
+        $rows = $method->invoke($widget, [
+            ['destinationUrl' => 'https://example.com/path'],
+            ['destinationUrl' => ' /relative-path '],
+            ['destinationUrl' => '//evil.example/path'],
+            ['destinationUrl' => 'javascript:alert(1)'],
+        ]);
+        self::assertIsArray($rows);
+
+        self::assertIsArray($rows[0] ?? null);
+        self::assertSame('https://example.com/path', $rows[0]['safeDestinationUrl'] ?? null);
+        self::assertIsArray($rows[1] ?? null);
+        self::assertSame('/relative-path', $rows[1]['safeDestinationUrl'] ?? null);
+        self::assertIsArray($rows[2] ?? null);
+        self::assertNull($rows[2]['safeDestinationUrl'] ?? null);
+        self::assertIsArray($rows[3] ?? null);
+        self::assertNull($rows[3]['safeDestinationUrl'] ?? null);
+
+        foreach ([
+            dirname(__DIR__, 2) . '/src/templates/widgets/top-links/body.twig',
+            dirname(__DIR__, 2) . '/src/templates/widgets/analytics-summary/body.twig',
+        ] as $template) {
+            $source = file_get_contents($template);
+            self::assertIsString($source);
+            self::assertStringContainsString('safeDestinationUrl', $source);
+            self::assertStringContainsString('href="{{ safeDestinationUrl }}"', $source);
+            self::assertStringNotContainsString('href="{{ shortLink.destinationUrl }}"', $source);
+            self::assertStringNotContainsString('href="{{ topLink.destinationUrl }}"', $source);
+        }
     }
 
     public function testNativeElementActionsRequireEditableSiteForExistingLinks(): void
