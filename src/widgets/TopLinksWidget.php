@@ -127,10 +127,10 @@ class TopLinksWidget extends Widget
         }
 
         $siteId = $this->effectiveSiteId();
-        $analyticsData = $siteId === []
-            ? $this->emptyAnalyticsSummary()
-            : ShortLinkManager::$plugin->analytics->getAnalyticsSummary($this->dateRange, null, $siteId);
-        $topLinks = $this->withSafeDestinationUrls(array_slice($analyticsData['topLinks'] ?? [], 0, $this->limit));
+        $topLinks = $siteId === []
+            ? []
+            : ShortLinkManager::$plugin->analytics->getTopLinks($this->limit, $this->dateRange, $siteId);
+        $topLinks = $this->withSafeDestinationUrls($topLinks);
 
         return Craft::$app->getView()->renderTemplate('shortlink-manager/widgets/top-links/body', [
             'widget' => $this,
