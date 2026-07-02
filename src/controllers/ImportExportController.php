@@ -498,8 +498,8 @@ class ImportExportController extends Controller
                 $primaryRow = $slugRows[0];
                 $siteId = (int)($primaryRow['resolvedSiteId'] ?? $primaryRow['siteId'] ?? Craft::$app->getSites()->getCurrentSite()->id);
                 $site = Craft::$app->getSites()->getSiteById($siteId);
-                if (!$site) {
-                    $failed++;
+                if (!$this->canImportToSite($siteId)) {
+                    $failed += count($slugRows);
                     continue;
                 }
 
@@ -572,6 +572,11 @@ class ImportExportController extends Controller
                 foreach (array_slice($slugRows, 1) as $siteRow) {
                     $siteRowSiteId = (int)($siteRow['resolvedSiteId'] ?? $siteRow['siteId'] ?? 0);
                     if ($siteRowSiteId <= 0) {
+                        $failed++;
+                        continue;
+                    }
+
+                    if (!$this->canImportToSite($siteRowSiteId)) {
                         $failed++;
                         continue;
                     }
@@ -701,6 +706,20 @@ class ImportExportController extends Controller
     private function canClearHistory(): bool
     {
         return Craft::$app->getUser()->checkPermission('shortLinkManager:clearImportHistory');
+    }
+
+    private function canImportToSite(int $siteId): bool
+    {
+        $site = Craft::$app->getSites()->getSiteById($siteId);
+        if (!$site) {
+            return false;
+        }
+
+        if (!ShortLinkManager::$plugin->getSettings()->isSiteEnabled($siteId)) {
+            return false;
+        }
+
+        return !Craft::$app->getIsMultiSite() || Craft::$app->getUser()->checkPermission('editSite:' . $site->uid);
     }
 
     private function generateSlugFromCode(string $code): string
