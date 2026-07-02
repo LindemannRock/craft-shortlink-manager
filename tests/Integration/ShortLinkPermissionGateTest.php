@@ -35,6 +35,17 @@ final class ShortLinkPermissionGateTest extends TestCase
         self::assertStringNotContainsString("->from('{{%shortlinkmanager}}')\n            ->where(['id' => \$ids])", $source);
     }
 
+    public function testImportExportUsesEditablePluginSiteFilter(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 2) . '/src/controllers/ImportExportController.php');
+        self::assertIsString($source);
+
+        self::assertStringContainsString('ShortLinkManager::$plugin->getEnabledSites()', $source);
+        self::assertStringContainsString('->siteId($siteIds)', $source);
+        self::assertStringNotContainsString("ShortLink::find()->site('*')", $source);
+        self::assertStringContainsString('in_array((int)$s->id, $siteIds, true)', $source);
+    }
+
     public function testNativeElementActionsRequireEditableSiteForExistingLinks(): void
     {
         $sites = Craft::$app->getSites()->getAllSites();

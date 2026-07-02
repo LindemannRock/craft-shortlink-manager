@@ -93,13 +93,26 @@ class ImportExportController extends Controller
             'postDate', 'dateExpired',
         ];
 
-        // Pre-fetch all sites keyed by ID
+        $siteIds = array_values(array_map(
+            static fn($site): int => (int)$site->id,
+            ShortLinkManager::$plugin->getEnabledSites(),
+        ));
+        if (empty($siteIds)) {
+            Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'No shortlinks to export.'));
+            return $this->redirect('shortlink-manager/import-export');
+        }
+
+        // Pre-fetch all exportable sites keyed by ID
         $sitesById = [];
-        foreach (Craft::$app->getSites()->getAllSites() as $s) {
+        foreach (Craft::$app->getSites()->getSitesByIds($siteIds) as $s) {
             $sitesById[$s->id] = $s;
         }
 
-        $shortlinks = ShortLink::find()->site('*')->status(null)->orderBy(['elements.dateCreated' => SORT_DESC])->all();
+        $shortlinks = ShortLink::find()
+            ->siteId($siteIds)
+            ->status(null)
+            ->orderBy(['elements.dateCreated' => SORT_DESC])
+            ->all();
         foreach ($shortlinks as $shortLink) {
             $site = $sitesById[$shortLink->siteId] ?? null;
             $rows[] = [
