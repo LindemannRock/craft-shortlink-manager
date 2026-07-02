@@ -32,31 +32,74 @@
 	{{ redirectInput('shortlink-manager/settings/behavior') }}
 	{{ hiddenInput('section', 'behavior') }}
 
+    {% set shortlinkPrefix = (settings.usePrefix ?? true) ? ((settings.slugPrefix ?: 's')|trim('/')) : null %}
+    {% set shortlinkPrefix = shortlinkPrefix is not null ? (shortlinkPrefix ?: 's') : null %}
+    {% set qrPrefix = (settings.qrPrefix ?: 'qr')|trim('/') %}
+    {% set qrPrefix = qrPrefix ?: 'qr' %}
+    {% set directRedirectRouteExamples = [
+        '/' ~ qrPrefix ~ '/*',
+        '/{siteHandle}/' ~ qrPrefix ~ '/*',
+    ] %}
+    {% if shortlinkPrefix %}
+        {% set directRedirectRouteExamples = [
+            '/' ~ shortlinkPrefix ~ '/*',
+            '/{siteHandle}/' ~ shortlinkPrefix ~ '/*',
+        ]|merge(directRedirectRouteExamples) %}
+    {% endif %}
+    {% set directRedirectRouteExamplesHtml %}
+        {% for example in directRedirectRouteExamples %}<code>{{ example }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+    {% endset %}
+    {% set directRedirectCacheFollowup = servdStaticCacheAvailable
+        ? 'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.'|t('shortlink-manager')
+        : 'Clear any browser, CDN, or static cache before retesting redirect-mode changes.'|t('shortlink-manager')
+    %}
+    {% if shortlinkPrefix %}
+        {% set directRedirectCacheWarningMessage %}
+            {{ 'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}'|t('shortlink-manager', {
+                routeExamples: directRedirectRouteExamplesHtml,
+                followup: directRedirectCacheFollowup,
+            }) }}
+        {% endset %}
+    {% else %}
+        {% set directRedirectCacheWarningMessage %}
+            {{ 'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}'|t('shortlink-manager', {
+                routeExamples: directRedirectRouteExamplesHtml,
+                followup: directRedirectCacheFollowup,
+            }) }}
+        {% endset %}
+    {% endif %}
+
 		<h2 class="first">{{ "Redirect Settings"|t('shortlink-manager') }}</h2>
 
-		{{ forms.selectField({
+    {% set httpCodeInput %}
+        {{ forms.select({
+            id: 'defaultHttpCode',
+            name: 'settings[defaultHttpCode]',
+            value: settings.defaultHttpCode,
+            options: {
+                301: '301 - Permanent'|t('shortlink-manager'),
+                302: '302 - Temporary'|t('shortlink-manager'),
+                307: '307 - Temporary'|t('shortlink-manager'),
+                308: '308 - Permanent'|t('shortlink-manager'),
+            },
+            disabled: settings.isOverriddenByConfig('defaultHttpCode'),
+        }) }}
+
+        <p id="httpCodeTip" class="notice has-icon" style="margin-top: 10px;">
+            <span class="icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Tip:</span>
+            <span id="httpCodeTipText">{{ "<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL."|t('shortlink-manager')|raw }}
+                <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>
+            </span>
+        </p>
+    {% endset %}
+
+		{{ forms.field({
         label: "Default HTTP Code"|t('shortlink-manager'),
         id: 'defaultHttpCode',
-        name: 'settings[defaultHttpCode]',
-        value: settings.defaultHttpCode,
-        options: {
-            301: '301 - Permanent'|t('shortlink-manager'),
-            302: '302 - Temporary'|t('shortlink-manager'),
-            307: '307 - Temporary'|t('shortlink-manager'),
-            308: '308 - Permanent'|t('shortlink-manager'),
-        },
-        disabled: settings.isOverriddenByConfig('defaultHttpCode'),
         warning: settings.isOverriddenByConfig('defaultHttpCode') ?
             "This is being overridden by the <code>defaultHttpCode</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
-    }) }}
-
-    <p id="httpCodeTip" class="notice has-icon" style="margin-top: 10px;">
-        <span class="icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Tip:</span>
-        <span id="httpCodeTipText">{{ "<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL."|t('shortlink-manager')|raw }}
-            <a class="go" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">{{ "Learn more"|t('shortlink-manager') }}</a>
-        </span>
-    </p>
+    }, httpCodeInput) }}
 
     {% include 'lindemannrock-base/_components/info-box' with {
         boxId: 'defaultHttpCodeWarningBox',
@@ -77,10 +120,12 @@
             "This is being overridden by the <code>passQueryParams</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
     }) }}
 
-    <p class="light" style="margin-top: -10px; margin-bottom: 24px;">
-        {% set prefixExample = (settings.usePrefix ?? true) ? ((settings.slugPrefix ?: 's') ~ '/') : '' %}
-        {{ "Example: <code>{prefix}abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: prefixExample})|raw }}
-    </p>
+    {% set prefixExample = (settings.usePrefix ?? true) ? ((settings.slugPrefix ?: 's') ~ '/') : '' %}
+    {% include 'lindemannrock-base/_components/info-box' with {
+        message: "Example: <code>{prefix}abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: prefixExample}),
+        type: 'info',
+        margin: 'bottom',
+    } %}
 
     {{ forms.lightswitchField({
         label: "Direct Redirect"|t('shortlink-manager'),
@@ -92,6 +137,14 @@
         warning: settings.isOverriddenByConfig('directRedirect') ?
             "This is being overridden by the <code>directRedirect</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
     }) }}
+
+    {% include 'lindemannrock-base/_components/info-box' with {
+        boxId: 'directRedirectCacheWarningBox',
+        message: directRedirectCacheWarningMessage|trim,
+        type: 'warning',
+        margin: 'top',
+        hidden: not settings.directRedirect,
+    } %}
 
 		{{ forms.autosuggestField({
         label: "Default 404 Redirect URL"|t('shortlink-manager'),
@@ -114,6 +167,12 @@
 const httpCodeSelect = document.getElementById('defaultHttpCode');
 const httpCodeTipText = document.getElementById('httpCodeTipText');
 const httpCodeWarningBox = document.getElementById('defaultHttpCodeWarningBox');
+const directRedirectField = document.querySelector('[name="settings[directRedirect]"]');
+const directRedirectElement = document.getElementById('directRedirect');
+const directRedirectLightswitch = directRedirectElement?.classList.contains('lightswitch')
+    ? directRedirectElement
+    : directRedirectField?.closest('.lightswitch');
+const directRedirectCacheWarningBox = document.getElementById('directRedirectCacheWarningBox');
 
 function updateHttpCodeTip() {
     if (!httpCodeSelect || !httpCodeTipText) return;
@@ -146,10 +205,48 @@ function updateHttpCodeWarning() {
     httpCodeWarningBox.style.display = [301, 308].includes(code) ? '' : 'none';
 }
 
+function directRedirectIsEnabled() {
+    if (directRedirectField) {
+        if (directRedirectField.type === 'checkbox') {
+            return directRedirectField.checked;
+        }
+
+        return ['1', 'true', 'on'].includes(String(directRedirectField.value).toLowerCase());
+    }
+
+    if (directRedirectLightswitch?.classList.contains('lightswitch')) {
+        const ariaChecked = directRedirectLightswitch.getAttribute('aria-checked');
+        if (ariaChecked) {
+            return ariaChecked === 'true';
+        }
+
+        return directRedirectLightswitch.classList.contains('on');
+    }
+
+    return false;
+}
+
+function updateDirectRedirectWarning() {
+    if (!directRedirectCacheWarningBox) return;
+
+    directRedirectCacheWarningBox.style.display = directRedirectIsEnabled() ? '' : 'none';
+}
+
 if (httpCodeSelect) {
     httpCodeSelect.addEventListener('change', updateHttpCodeTip);
     httpCodeSelect.addEventListener('change', updateHttpCodeWarning);
     updateHttpCodeTip(); // Initialize on load
     updateHttpCodeWarning();
 }
+
+if (directRedirectLightswitch) {
+    directRedirectLightswitch.addEventListener('click', () => setTimeout(updateDirectRedirectWarning, 0));
+    directRedirectLightswitch.addEventListener('keyup', () => setTimeout(updateDirectRedirectWarning, 0));
+}
+
+if (directRedirectField) {
+    directRedirectField.addEventListener('change', updateDirectRedirectWarning);
+}
+
+updateDirectRedirectWarning();
 {% endjs %}

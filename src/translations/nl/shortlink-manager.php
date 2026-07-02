@@ -286,6 +286,10 @@ return [
     '307 - Temporary' => '307 – Tijdelijk',
     '308 - Permanent' => '308 – Permanent',
     '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 kunnen worden gecached door browsers, CDN\'s en hostinglagen. Wanneer analysetracking is ingeschakeld, kunnen herhaalde bezoeken Craft omzeilen en niet worden geregistreerd. Gebruik 302/307 wanneer nauwkeurigheid van analyses per bezoek belangrijk is.',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}' => 'Directe doorverwijzing kan worden gecached door browsers, CDN\'s en statische cachelagen. Als elk bezoek moet worden gevolgd, configureer dan cache-bypassregels voor uw shortlinkroutes. Begin met de huidige prefixes met: {routeExamples}. {followup}',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}' => 'Directe doorverwijzing kan worden gecached door browsers, CDN\'s en statische cachelagen. Shortlinks op rootniveau zijn actief, bijvoorbeeld <code>/abc123</code> en <code>/{siteHandle}/abc123</code>. Gebruik daarom zorgvuldig afgebakende cacheregels en gebruik Directe doorverwijzing voorzichtig onder statische cache. QR-routes gebruiken nog steeds: {routeExamples}. {followup}',
+    'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.' => 'Servd Static Cache is beschikbaar. Gebruik Utilities → ShortLink Manager → Servd Static Cache nadat u deze instelling wijzigt; Servd kan kort verouderde responses serveren tijdens purgen of opnieuw valideren.',
+    'Clear any browser, CDN, or static cache before retesting redirect-mode changes.' => 'Wis browser-, CDN- of statische caches voordat u wijzigingen in de doorverwijzingsmodus opnieuw test.',
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 - Permanent verplaatst:</strong> Gebruik wanneer inhoud permanent is verplaatst. Zoekmachines zullen hun index bijwerken.',
     '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL.' => '<strong>302 - Gevonden (Tijdelijk):</strong> Gebruik voor tijdelijke doorverwijzingen. Zoekmachines behouden de originele URL.',
     '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index.' => '<strong>302 - Gevonden (Tijdelijk):</strong> Tijdelijke doorverwijzing. Zoekmachines zullen hun index niet bijwerken.',
@@ -863,6 +867,8 @@ return [
 
     // Utilities
     'System Overview' => 'Systeemoverzicht',
+    'Manage Settings' => 'Instellingen beheren',
+    'View Analytics' => 'Analyses bekijken',
     'Quick Actions' => 'Snelle acties',
 
     // Dashboard
@@ -886,7 +892,7 @@ return [
     'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'Gecachte gegevens wissen om regeneratie te forceren. Handig na het wijzigen van QR-code instellingen of bij het oplossen van problemen.',
     'Servd Static Cache' => 'Servd statische cache',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'Een Servd purge voor alle openbare URL\'s van {linksName} en QR-landingspagina\'s in de wachtrij plaatsen. Dit wist de cache van Craft of caches van andere plugins niet.',
-    'Purge Servd static cache' => 'Servd statische cache legen',
+    'Purge Servd Static Cache' => 'Servd statische cache legen',
     'Purge Servd static cache for all {linksName}?' => 'Servd statische cache legen voor alle {linksName}?',
     'Analytics Data Management' => 'Beheer van analysegegevens',
     'Permanently delete all analytics tracking data. This action cannot be undone!' => 'Alle analysetrackinggegevens permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt!',

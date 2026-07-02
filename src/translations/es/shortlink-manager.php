@@ -286,6 +286,10 @@ return [
     '307 - Temporary' => '307 – Temporal',
     '308 - Permanent' => '308 – Permanente',
     '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 pueden ser almacenados en caché por navegadores, CDN y capas de alojamiento. Cuando el seguimiento de analytics está activado, las visitas repetidas pueden eludir Craft y no registrarse. Use 302/307 cuando la precisión de las analytics por visita sea importante.',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}' => 'La redirección directa puede ser almacenada en caché por navegadores, CDN y capas de caché estática. Si se debe rastrear cada visita, configure reglas de omisión de caché para sus rutas de shortlink. Con los prefijos actuales, empiece por: {routeExamples}. {followup}',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}' => 'La redirección directa puede ser almacenada en caché por navegadores, CDN y capas de caché estática. Los enlaces cortos de nivel raíz están activos, por ejemplo <code>/abc123</code> y <code>/{siteHandle}/abc123</code>, así que use reglas de caché cuidadosamente delimitadas y use la redirección directa con cuidado bajo caché estática. Las rutas QR siguen usando: {routeExamples}. {followup}',
+    'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.' => 'La caché estática de Servd está disponible. Use Utilidades → ShortLink Manager → Caché estática de Servd después de cambiar esta configuración; Servd puede servir brevemente respuestas obsoletas mientras purga o revalida.',
+    'Clear any browser, CDN, or static cache before retesting redirect-mode changes.' => 'Vacíe cualquier caché de navegador, CDN o caché estática antes de volver a probar los cambios de modo de redirección.',
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 - Movido permanentemente:</strong> Use cuando el contenido se ha movido permanentemente. Los motores de búsqueda actualizarán su índice.',
     '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL.' => '<strong>302 - Encontrado (Temporal):</strong> Use para redirecciones temporales. Los motores de búsqueda mantienen la URL original.',
     '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index.' => '<strong>302 - Encontrado (Temporal):</strong> Redirección temporal. Los motores de búsqueda no actualizarán su índice.',
@@ -863,6 +867,8 @@ return [
 
     // Utilities
     'System Overview' => 'Descripción general del sistema',
+    'Manage Settings' => 'Gestionar configuración',
+    'View Analytics' => 'Ver analíticas',
     'Quick Actions' => 'Acciones rápidas',
 
     // Dashboard
@@ -886,7 +892,7 @@ return [
     'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'Vacíe los datos en caché para forzar la regeneración. Útil después de cambiar la configuración del QR code o al solucionar problemas.',
     'Servd Static Cache' => 'Caché estática de Servd',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'Ponga en cola una purga de Servd para todas las URL públicas de {linksName} y páginas de destino QR. Esto no vacía la caché de Craft ni las cachés de otros plugins.',
-    'Purge Servd static cache' => 'Purgar caché estática de Servd',
+    'Purge Servd Static Cache' => 'Purgar caché estática de Servd',
     'Purge Servd static cache for all {linksName}?' => '¿Purgar la caché estática de Servd para todos los {linksName}?',
     'Analytics Data Management' => 'Gestión de datos analíticos',
     'Permanently delete all analytics tracking data. This action cannot be undone!' => 'Eliminar permanentemente todos los datos de seguimiento analítico. ¡Esta acción no se puede deshacer!',

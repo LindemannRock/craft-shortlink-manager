@@ -286,6 +286,10 @@ return [
     '307 - Temporary' => '307 – 一時的',
     '308 - Permanent' => '308 – 恒久的',
     '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 はブラウザー、CDN、ホスティングレイヤーによって キャッシュされる場合があります。アナリティクストラッキングが有効な場合、繰り返しのアクセスが Craft をバイパスして記録されない可能性があります。アクセスごとの アナリティクス精度が重要な場合は 302/307 を使用してください。',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}' => 'ダイレクトリダイレクトは、ブラウザー、CDN、静的キャッシュレイヤーによってキャッシュされる場合があります。すべてのアクセスを追跡する必要がある場合は、shortlink ルートのキャッシュバイパスルールを設定してください。現在のプレフィックスでは、まず {routeExamples} から始めてください。{followup}',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}' => 'ダイレクトリダイレクトは、ブラウザー、CDN、静的キャッシュレイヤーによってキャッシュされる場合があります。ルートレベルのショートリンク（例：<code>/abc123</code>、<code>/{siteHandle}/abc123</code>）が有効です。そのため、慎重にスコープ設定したキャッシュルールを使用し、静的キャッシュ下ではダイレクトリダイレクトを慎重に使用してください。QR ルートは引き続き {routeExamples} を使用します。{followup}',
+    'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.' => 'Servd 静的キャッシュが利用可能です。この設定を変更した後は、ユーティリティ → ShortLink Manager → Servd 静的キャッシュを使用してください。Servd はパージ中または再検証中に、短時間古いレスポンスを配信する場合があります。',
+    'Clear any browser, CDN, or static cache before retesting redirect-mode changes.' => 'リダイレクトモードの変更を再テストする前に、ブラウザー、CDN、または静的キャッシュを削除してください。',
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 - 恒久的に移動:</strong> コンテンツが恒久的に移動した場合に使用します。検索エンジンはインデックスを更新します。',
     '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL.' => '<strong>302 - 見つかりました（一時的）:</strong> 一時的なリダイレクトに使用します。検索エンジンは元の URL を保持します。',
     '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index.' => '<strong>302 - 見つかりました（一時的）:</strong> 一時的なリダイレクト。検索エンジンはインデックスを更新しません。',
@@ -863,6 +867,8 @@ return [
 
     // Utilities
     'System Overview' => 'システム概要',
+    'Manage Settings' => '設定を管理する',
+    'View Analytics' => 'アナリティクスを表示する',
     'Quick Actions' => 'クイックアクション',
 
     // Dashboard
@@ -886,7 +892,7 @@ return [
     'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'キャッシュされたデータを削除して再生成を強制します。QR コード設定変更後やトラブルシューティング時に役立ちます。',
     'Servd Static Cache' => 'Servd 静的キャッシュ',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'すべての公開 {linksName} URL と QR ランディングページに対する Servd パージをキューに追加します。これは Craft のキャッシュや他のプラグインのキャッシュを削除しません。',
-    'Purge Servd static cache' => 'Servd 静的キャッシュをパージする',
+    'Purge Servd Static Cache' => 'Servd 静的キャッシュをパージする',
     'Purge Servd static cache for all {linksName}?' => 'すべての {linksName} の Servd 静的キャッシュをパージしますか？',
     'Analytics Data Management' => 'アナリティクスデータ管理',
     'Permanently delete all analytics tracking data. This action cannot be undone!' => 'すべてのアナリティクス追跡データを完全に削除します。この操作は取り消せません！',

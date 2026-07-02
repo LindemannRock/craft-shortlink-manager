@@ -286,6 +286,10 @@ return [
     '307 - Temporary' => '307 – Midlertidig',
     '308 - Permanent' => '308 – Permanent',
     '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 kan caches af browsere, CDN\'er og hostinglag. Når analytics-sporing er aktiveret, kan gentagne besøg omgå Craft og ikke blive registreret. Brug 302/307, når nøjagtighed per besøg er vigtig.',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}' => 'Direkte omdirigering kan caches af browsere, CDN\'er og statiske cachelag. Hvis hvert besøg skal spores, skal du konfigurere regler for cache-bypass for dine shortlink-ruter. Med de aktuelle præfikser skal du starte med: {routeExamples}. {followup}',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}' => 'Direkte omdirigering kan caches af browsere, CDN\'er og statiske cachelag. Shortlinks på rodniveau er aktive, for eksempel <code>/abc123</code> og <code>/{siteHandle}/abc123</code>, så brug omhyggeligt afgrænsede cacheregler, og brug Direkte omdirigering forsigtigt under statisk cache. QR-ruter bruger stadig: {routeExamples}. {followup}',
+    'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.' => 'Servd Static Cache er tilgængelig. Brug Værktøjer → ShortLink Manager → Servd Static Cache, efter denne indstilling er ændret; Servd kan kortvarigt levere forældede svar under rydning eller revalidering.',
+    'Clear any browser, CDN, or static cache before retesting redirect-mode changes.' => 'Ryd browser-, CDN- eller statiske caches, før ændringer af omdirigeringstilstand testes igen.',
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 - Permanent flytning:</strong> Brug når indhold er flyttet permanent. Søgemaskiner opdaterer deres indeks.',
     '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL.' => '<strong>302 - Fundet (midlertidig):</strong> Brug til midlertidige omdirigeringer. Søgemaskiner beholder den oprindelige URL.',
     '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index.' => '<strong>302 - Fundet (midlertidig):</strong> Midlertidig omdirigering. Søgemaskiner opdaterer ikke deres indeks.',
@@ -863,6 +867,8 @@ return [
 
     // Utilities
     'System Overview' => 'Systemoversigt',
+    'Manage Settings' => 'Administrer indstillinger',
+    'View Analytics' => 'Vis analyser',
     'Quick Actions' => 'Hurtige handlinger',
 
     // Dashboard
@@ -886,7 +892,7 @@ return [
     'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'Ryd cachede data for at tvinge regenerering. Nyttigt efter ændring af QR-kodeindstillinger eller ved fejlfinding.',
     'Servd Static Cache' => 'Servd Static Cache',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'Sæt en Servd-rydning i kø for alle offentlige {linksName}-URL\'er og QR-landingssider. Dette rydder ikke Crafts cache eller andre plugins caches.',
-    'Purge Servd static cache' => 'Ryd Servd Static Cache',
+    'Purge Servd Static Cache' => 'Ryd Servd Static Cache',
     'Purge Servd static cache for all {linksName}?' => 'Ryd Servd Static Cache for alle {linksName}?',
     'Analytics Data Management' => 'Administration af analysedata',
     'Permanently delete all analytics tracking data. This action cannot be undone!' => 'Slet alle analysesporingsdata permanent. Denne handling kan ikke fortrydes!',

@@ -96,6 +96,7 @@ class SettingsController extends Controller
 
         return $this->renderTemplate('shortlink-manager/settings/behavior', [
             'settings' => $settings,
+            'servdStaticCacheAvailable' => ShortLinkManager::$plugin->servdStaticCache->isAvailable(),
         ]);
     }
 
@@ -358,9 +359,15 @@ class SettingsController extends Controller
         if ($result->hasErrors || !$settings->validate($attributesToValidate)) {
             $this->setFailFlash(Craft::t('shortlink-manager', 'Could not save settings.'));
 
-            return $this->renderTemplate("shortlink-manager/settings/{$section}", [
+            $templateVars = [
                 'settings' => $settings,
-            ]);
+            ];
+
+            if ($section === 'behavior') {
+                $templateVars['servdStaticCacheAvailable'] = ShortLinkManager::$plugin->servdStaticCache->isAvailable();
+            }
+
+            return $this->renderTemplate("shortlink-manager/settings/{$section}", $templateVars);
         }
 
         // Save settings to database

@@ -286,6 +286,10 @@ return [
     '307 - Temporary' => '307 – مؤقت',
     '308 - Permanent' => '308 – دائم',
     '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => 'قد يتم تخزين 301/308 مؤقتًا بواسطة المتصفحات وشبكات CDN وطبقات الاستضافة. عند تفعيل تتبع Analytics، قد تتجاوز الزيارات المتكررة Craft ولا تُسجَّل. استخدم 302/307 عندما تكون دقة Analytics لكل زيارة مهمة.',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}' => 'يمكن تخزين إعادة التوجيه المباشرة مؤقتًا بواسطة المتصفحات وشبكات CDN وطبقات Cache الثابتة. إذا كان يجب تتبع كل زيارة، فقم بتكوين قواعد تجاوز Cache لمسارات shortlink. مع البادئات الحالية، ابدأ بـ: {routeExamples}. {followup}',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}' => 'يمكن تخزين إعادة التوجيه المباشرة مؤقتًا بواسطة المتصفحات وشبكات CDN وطبقات Cache الثابتة. الروابط القصيرة على مستوى الجذر نشطة، مثل <code>/abc123</code> و <code>/{siteHandle}/abc123</code>، لذلك استخدم قواعد Cache محددة النطاق بعناية واستخدم إعادة التوجيه المباشرة بحذر تحت Cache الثابتة. لا تزال مسارات QR تستخدم: {routeExamples}. {followup}',
+    'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.' => 'Servd Static Cache متاح. استخدم الأدوات → ShortLink Manager → Servd Static Cache بعد تغيير هذا الإعداد؛ قد يقدم Servd استجابات قديمة لفترة وجيزة أثناء المسح أو إعادة التحقق.',
+    'Clear any browser, CDN, or static cache before retesting redirect-mode changes.' => 'امسح أي Cache للمتصفح أو CDN أو Cache ثابتة قبل إعادة اختبار تغييرات وضع إعادة التوجيه.',
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 - نُقل بشكل دائم:</strong> استخدم عند انتقال المحتوى بشكل دائم. ستحدّث محركات البحث فهارسها.',
     '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL.' => '<strong>302 - موجود (مؤقت):</strong> استخدم لإعادة التوجيه المؤقتة. تحتفظ محركات البحث بـ URL الأصلي.',
     '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index.' => '<strong>302 - موجود (مؤقت):</strong> إعادة توجيه مؤقتة. لن تحدّث محركات البحث فهارسها.',
@@ -863,6 +867,8 @@ return [
 
     // Utilities
     'System Overview' => 'نظرة عامة على النظام',
+    'Manage Settings' => 'إدارة الإعدادات',
+    'View Analytics' => 'عرض التحليلات',
     'Quick Actions' => 'إجراءات سريعة',
 
     // Dashboard
@@ -886,7 +892,7 @@ return [
     'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'امسح البيانات المحفوظة في Cache لإجبار إعادة الإنشاء. مفيد بعد تغيير إعدادات QR Code أو عند استكشاف الأخطاء.',
     'Servd Static Cache' => 'Servd Static Cache',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'ضع عملية مسح Servd في قائمة الانتظار لجميع عناوين URL العامة لـ {linksName} وصفحات وصول QR. لا يمسح هذا Cache الخاص بـ Craft أو Caches إضافات أخرى.',
-    'Purge Servd static cache' => 'مسح Servd Static Cache',
+    'Purge Servd Static Cache' => 'مسح Servd Static Cache',
     'Purge Servd static cache for all {linksName}?' => 'مسح Servd Static Cache لجميع {linksName}؟',
     'Analytics Data Management' => 'إدارة بيانات التحليلات',
     'Permanently delete all analytics tracking data. This action cannot be undone!' => 'الحذف الدائم لجميع بيانات تتبع التحليلات. لا يمكن التراجع عن هذا الإجراء!',

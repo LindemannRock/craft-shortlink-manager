@@ -286,6 +286,10 @@ return [
     '307 - Temporary' => '307 – Temporär',
     '308 - Permanent' => '308 – Permanent',
     '301/308 may be cached by browsers, CDNs, and hosting layers. When analytics tracking is enabled, repeat hits may bypass Craft and not be recorded. Use 302/307 when per-hit analytics accuracy matters.' => '301/308 können von Browsern, CDNs und Hosting-Layern zwischengespeichert werden. Wenn Analytics-Tracking aktiviert ist, können wiederholte Aufrufe Craft umgehen und nicht erfasst werden. Verwenden Sie 302/307, wenn eine genaue Erfassung pro Aufruf wichtig ist.',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}' => 'Direkte Weiterleitung kann von Browsern, CDNs und statischen Cache-Layern zwischengespeichert werden. Wenn jeder Aufruf erfasst werden muss, konfigurieren Sie Cache-Bypass-Regeln für Ihre Shortlink-Routen. Mit den aktuellen Präfixen beginnen Sie mit: {routeExamples}. {followup}',
+    'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}' => 'Direkte Weiterleitung kann von Browsern, CDNs und statischen Cache-Layern zwischengespeichert werden. Shortlinks auf Root-Ebene sind aktiv, zum Beispiel <code>/abc123</code> und <code>/{siteHandle}/abc123</code>. Verwenden Sie daher sorgfältig eingegrenzte Cache-Regeln und direkte Weiterleitung unter statischem Cache mit Vorsicht. QR-Routen verwenden weiterhin: {routeExamples}. {followup}',
+    'Servd Static Cache is available. Use Utilities → ShortLink Manager → Servd Static Cache after changing this setting; Servd may briefly serve stale responses while purging or revalidating.' => 'Servd Static Cache ist verfügbar. Verwenden Sie Dienstprogramme → ShortLink Manager → Servd Static Cache, nachdem Sie diese Einstellung geändert haben; Servd kann während der Bereinigung oder erneuten Validierung kurzzeitig veraltete Antworten ausliefern.',
+    'Clear any browser, CDN, or static cache before retesting redirect-mode changes.' => 'Leeren Sie Browser-, CDN- oder statische Caches, bevor Sie Änderungen am Weiterleitungsmodus erneut testen.',
     '<strong>301 - Moved Permanently:</strong> Use when content has permanently moved. Search engines will update their index.' => '<strong>301 – Dauerhaft verschoben:</strong> Verwenden, wenn Inhalte dauerhaft verschoben wurden. Suchmaschinen aktualisieren ihren Index.',
     '<strong>302 - Found (Temporary):</strong> Use for temporary redirects. Search engines keep the original URL.' => '<strong>302 – Gefunden (Temporär):</strong> Für temporäre Weiterleitungen verwenden. Suchmaschinen behalten die Original-URL.',
     '<strong>302 - Found (Temporary):</strong> Temporary redirect. Search engines won\'t update their index.' => '<strong>302 – Gefunden (Temporär):</strong> Temporäre Weiterleitung. Suchmaschinen aktualisieren ihren Index nicht.',
@@ -863,6 +867,8 @@ return [
 
     // Utilities
     'System Overview' => 'Systemübersicht',
+    'Manage Settings' => 'Einstellungen verwalten',
+    'View Analytics' => 'Analytics anzeigen',
     'Quick Actions' => 'Schnellaktionen',
 
     // Dashboard
@@ -886,7 +892,7 @@ return [
     'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'Gecachte Daten löschen, um eine Neugenerierung zu erzwingen. Nützlich nach Änderungen an QR Code Einstellungen oder bei der Fehlersuche.',
     'Servd Static Cache' => 'Servd Static Cache',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'Eine Servd-Bereinigung für alle öffentlichen {linksName} URLs und QR-Landing-Pages in die Warteschlange stellen. Dies leert weder den Craft-Cache noch Caches anderer Plugins.',
-    'Purge Servd static cache' => 'Servd Static Cache bereinigen',
+    'Purge Servd Static Cache' => 'Servd Static Cache bereinigen',
     'Purge Servd static cache for all {linksName}?' => 'Servd Static Cache für alle {linksName} bereinigen?',
     'Analytics Data Management' => 'Verwaltung von Analysedaten',
     'Permanently delete all analytics tracking data. This action cannot be undone!' => 'Alle Analysedaten dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden!',
