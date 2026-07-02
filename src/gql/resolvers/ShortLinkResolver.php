@@ -48,7 +48,7 @@ class ShortLinkResolver extends Resolver
         $destinationUrl = self::resolveDestinationUrl($shortLink);
 
         if ($shortLink->isExpired()) {
-            return self::toArray($shortLink, $shortLink->expiredRedirectUrl ?: null);
+            return self::toArray($shortLink, self::sanitizeNullableRedirectUrl($shortLink->expiredRedirectUrl));
         }
 
         if ($destinationUrl === null || $destinationUrl === '') {
@@ -93,7 +93,7 @@ class ShortLinkResolver extends Resolver
         $query->limit(min($limit, 500));
 
         return array_map(
-            static fn(ShortLink $shortLink): array => self::toArray($shortLink, self::resolveDestinationUrl($shortLink)),
+            static fn(ShortLink $shortLink): array => self::toArray($shortLink, self::sanitizeNullableRedirectUrl(self::resolveDestinationUrl($shortLink))),
             $query->all(),
         );
     }
@@ -142,6 +142,15 @@ class ShortLinkResolver extends Resolver
         }
 
         return $destinationUrl;
+    }
+
+    private static function sanitizeNullableRedirectUrl(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+
+        return UrlSafetyHelper::sanitizeRedirectUrl($url);
     }
 
     private static function shouldPassQueryParams(ShortLink $shortLink): bool

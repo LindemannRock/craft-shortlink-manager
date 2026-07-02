@@ -135,6 +135,33 @@ final class GraphqlShortLinkTest extends TestCase
         self::assertSame('https://example.com/target?existing=2&utm=test', $result['resolvedDestinationUrl']);
     }
 
+    public function testResolveQuerySanitizesExpiredRedirectUrl(): void
+    {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://example.com/target',
+            'siteId' => $site->id,
+        ]);
+        $this->forceStoredShortLinkValues((int)$link->id, $site->id, [
+            'dateExpired' => (new \DateTimeImmutable('-1 day'))->format('Y-m-d H:i:s'),
+        ], [
+            'expiredRedirectUrl' => 'javascript:alert(1)',
+        ]);
+
+        $result = ShortLinkResolver::resolve(
+            null,
+            [
+                'code' => $link->slug,
+                'siteId' => $site->id,
+            ],
+            null,
+            $this->createMock(ResolveInfo::class),
+        );
+
+        self::assertIsArray($result);
+        self::assertSame('/', $result['resolvedDestinationUrl']);
+    }
+
     public function testListQueryIsReadOnly(): void
     {
         $site = Craft::$app->getSites()->getPrimarySite();
@@ -152,6 +179,34 @@ final class GraphqlShortLinkTest extends TestCase
         self::assertContains($link->id, $ids);
         self::assertSame(0, $this->fetchHitsFromDb((int)$link->id));
         self::assertSame(0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+    }
+
+    public function testListQuerySanitizesResolvedDestinationUrl(): void
+    {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://example.com/target',
+            'siteId' => $site->id,
+        ]);
+        $this->forceStoredShortLinkValues((int)$link->id, $site->id, [], [
+            'destinationUrl' => 'javascript:alert(1)',
+        ]);
+
+        $results = ShortLinkResolver::resolveAll(
+            null,
+            ['siteId' => $site->id],
+            null,
+            $this->createMock(ResolveInfo::class),
+        );
+
+        self::assertIsArray($results);
+        $rowsById = [];
+        foreach ($results as $row) {
+            $rowsById[(int)$row['id']] = $row;
+        }
+
+        self::assertArrayHasKey((int)$link->id, $rowsById);
+        self::assertSame('/', $rowsById[(int)$link->id]['resolvedDestinationUrl']);
     }
 
     public function testListQueryAppliesDefaultLimitWhenLimitIsOmitted(): void
@@ -184,5 +239,29 @@ final class GraphqlShortLinkTest extends TestCase
         );
 
         self::assertSame([], $result);
+    }
+
+    /**
+     * @param array<string, mixed> $elementValues
+     * @param array<string, mixed> $contentValues
+     */
+    private function forceStoredShortLinkValues(int $linkId, int $siteId, array $elementValues, array $contentValues): void
+    {
+        if ($elementValues !== []) {
+            Craft::$app->getDb()->createCommand()
+                ->update('{{%shortlinkmanager}}', $elementValues, ['id' => $linkId])
+                ->execute();
+        }
+
+        if ($contentValues !== []) {
+            Craft::$app->getDb()->createCommand()
+                ->update('{{%shortlinkmanager_content}}', $contentValues, [
+                    'shortLinkId' => $linkId,
+                    'siteId' => $siteId,
+                ])
+                ->execute();
+        }
+
+        $this->shortLinks->invalidateShortLinkCache($linkId);
     }
 }
