@@ -38,6 +38,7 @@ final class NativeLinkFieldIntegrationTest extends TestCase
         $resolved = $type->element($expectedValue);
         self::assertInstanceOf(ShortLink::class, $resolved);
         self::assertSame($shortLink->id, $resolved->id);
+        self::assertSame($resolved, $type->element($expectedValue), 'Repeated native Link field resolution should reuse the request-local element lookup.');
 
         self::assertSame($resolved->getUrl(), $type->renderValue($expectedValue));
         self::assertSame($resolved->title, $type->linkLabel($expectedValue));

@@ -27,6 +27,11 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 class ShortLinkType extends BaseElementLinkType
 {
     /**
+     * @var array<string, ShortLink|false>
+     */
+    private static array $fetchedElements = [];
+
+    /**
      * @inheritdoc
      */
     public static function displayName(): string
@@ -311,6 +316,11 @@ class ShortLinkType extends BaseElementLinkType
             return null;
         }
 
+        $cacheKey = sprintf('%s:%s', $elementId, $currentSiteId);
+        if (array_key_exists($cacheKey, self::$fetchedElements)) {
+            return self::$fetchedElements[$cacheKey] ?: null;
+        }
+
         $shortLink = ShortLink::find()
             ->id($elementId)
             ->siteId($currentSiteId)
@@ -325,6 +335,8 @@ class ShortLinkType extends BaseElementLinkType
                 ->status(null)
                 ->one();
         }
+
+        self::$fetchedElements[$cacheKey] = $shortLink instanceof ShortLink ? $shortLink : false;
 
         return $shortLink;
     }
