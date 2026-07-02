@@ -103,4 +103,14 @@ final class SettingsControllerSectionScopeTest extends TestCase
             self::assertSame($attributes, $method->invoke($controller, $section), "Unexpected {$section} settings scope.");
         }
     }
+
+    public function testDirectRedirectCacheWarningAllowsCodeMarkup(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 2) . '/src/templates/settings/behavior.twig');
+        self::assertIsString($source);
+
+        self::assertSame(2, substr_count($source, 'directRedirectCacheFollowup,' . PHP_EOL . '            })|raw'));
+        self::assertStringContainsString('<code>/abc123</code>', $source);
+        self::assertStringContainsString('routeExamples: directRedirectRouteExamplesHtml', $source);
+    }
 }

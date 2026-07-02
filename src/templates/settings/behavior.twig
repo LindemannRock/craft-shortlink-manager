@@ -58,14 +58,14 @@
             {{ 'Direct Redirect can be cached by browsers, CDNs, and static cache layers. If every hit must be tracked, configure cache bypass rules for your shortlink routes. With the current prefixes, start with: {routeExamples}. {followup}'|t('shortlink-manager', {
                 routeExamples: directRedirectRouteExamplesHtml,
                 followup: directRedirectCacheFollowup,
-            }) }}
+            })|raw }}
         {% endset %}
     {% else %}
         {% set directRedirectCacheWarningMessage %}
             {{ 'Direct Redirect can be cached by browsers, CDNs, and static cache layers. Root-level short links are active, for example <code>/abc123</code> and <code>/{siteHandle}/abc123</code>, so use carefully scoped cache rules and use Direct Redirect carefully under static cache. QR routes still use: {routeExamples}. {followup}'|t('shortlink-manager', {
                 routeExamples: directRedirectRouteExamplesHtml,
                 followup: directRedirectCacheFollowup,
-            }) }}
+            })|raw }}
         {% endset %}
     {% endif %}
 
