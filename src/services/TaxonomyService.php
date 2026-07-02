@@ -28,6 +28,16 @@ class TaxonomyService extends Component
      */
     private array $folderNameCache = [];
 
+    /**
+     * @var array<string, int>
+     */
+    private array $folderIdBySlugCache = [];
+
+    /**
+     * @var array<string, int>
+     */
+    private array $tagIdBySlugCache = [];
+
     public function createFolderRecord(): FolderRecord
     {
         $folder = new FolderRecord();
@@ -250,6 +260,11 @@ class TaxonomyService extends Component
                 continue;
             }
 
+            if (array_key_exists($slug, $this->tagIdBySlugCache)) {
+                $tagIds[] = $this->tagIdBySlugCache[$slug];
+                continue;
+            }
+
             $record = TagRecord::find()->where(['slug' => $slug])->one();
             if (!$record) {
                 $record = $this->createTagRecord();
@@ -259,7 +274,9 @@ class TaxonomyService extends Component
             }
 
             if ($record instanceof TagRecord) {
-                $tagIds[] = (int)$record->id;
+                $tagId = (int)$record->id;
+                $this->tagIdBySlugCache[$slug] = $tagId;
+                $tagIds[] = $tagId;
             }
         }
 
@@ -321,6 +338,8 @@ class TaxonomyService extends Component
             return false;
         }
 
+        $oldSlug = (string)($folder->getOldAttribute('slug') ?? '');
+
         $folder->name = $normalizedName;
         $folder->slug = $slug;
         $folder->parentId = $folder->parentId ?: null;
@@ -334,6 +353,10 @@ class TaxonomyService extends Component
         }
 
         $this->folderNameCache[(int)$folder->id] = $folder->name;
+        $this->folderIdBySlugCache[$slug] = (int)$folder->id;
+        if ($oldSlug !== '' && $oldSlug !== $slug) {
+            unset($this->folderIdBySlugCache[$oldSlug]);
+        }
 
         return true;
     }
@@ -361,6 +384,8 @@ class TaxonomyService extends Component
             return false;
         }
 
+        $oldSlug = (string)($tag->getOldAttribute('slug') ?? '');
+
         $tag->name = $normalizedName;
         $tag->slug = $slug;
         $tag->sortOrder = (int)($tag->sortOrder ?? 0);
@@ -370,6 +395,11 @@ class TaxonomyService extends Component
                 $tag->addError('name', Craft::t('shortlink-manager', 'Could not save tag.'));
             }
             return false;
+        }
+
+        $this->tagIdBySlugCache[$slug] = (int)$tag->id;
+        if ($oldSlug !== '' && $oldSlug !== $slug) {
+            unset($this->tagIdBySlugCache[$oldSlug]);
         }
 
         return true;
@@ -385,6 +415,7 @@ class TaxonomyService extends Component
         foreach (FolderRecord::findAll(['id' => array_values(array_unique(array_map('intval', $folderIds)))]) as $folder) {
             if ($folder->delete()) {
                 unset($this->folderNameCache[(int)$folder->id]);
+                unset($this->folderIdBySlugCache[(string)$folder->slug]);
                 $deletedCount++;
             }
         }
@@ -401,6 +432,7 @@ class TaxonomyService extends Component
 
         foreach (TagRecord::findAll(['id' => array_values(array_unique(array_map('intval', $tagIds)))]) as $tag) {
             if ($tag->delete()) {
+                unset($this->tagIdBySlugCache[(string)$tag->slug]);
                 $deletedCount++;
             }
         }
@@ -424,6 +456,10 @@ class TaxonomyService extends Component
             return 0;
         }
 
+        if (array_key_exists($slug, $this->folderIdBySlugCache)) {
+            return $this->folderIdBySlugCache[$slug];
+        }
+
         $record = FolderRecord::find()->where(['slug' => $slug])->one();
         if (!$record) {
             $record = $this->createFolderRecord();
@@ -432,7 +468,14 @@ class TaxonomyService extends Component
             }
         }
 
-        return $record instanceof FolderRecord ? (int)$record->id : 0;
+        if ($record instanceof FolderRecord) {
+            $folderId = (int)$record->id;
+            $this->folderIdBySlugCache[$slug] = $folderId;
+
+            return $folderId;
+        }
+
+        return 0;
     }
 
     private function normalizeTaxonomyName(string $name): string
