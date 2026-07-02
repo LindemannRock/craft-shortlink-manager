@@ -1,4 +1,5 @@
 {% import "_includes/forms" as forms %}
+{% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
 
 {{ forms.selectField({
     label: "Link Type"|t('shortlink-manager'),
@@ -14,7 +15,7 @@
 
 {{ forms.selectField({
     label: "Default HTTP Code"|t('shortlink-manager'),
-    instructions: "Default redirect type for {pluginName} created with this field"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+    instructions: "Default redirect type for {pluginName} created with this field"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}),
     id: 'defaultHttpCode',
     name: 'defaultHttpCode',
     value: field.defaultHttpCode,

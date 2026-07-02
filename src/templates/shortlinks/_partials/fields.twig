@@ -3,6 +3,7 @@
 {% set currentSite = craft.app.sites.getSiteById(shortLink.siteId ?? craft.app.sites.currentSite.id) %}
 {% set locale = craft.app.i18n.getLocaleById(currentSite.language) %}
 {% set textDir = locale.getOrientation() %}
+{% set shortlinkLowerNameHtml = shortlinkHelper.lowerDisplayName|e %}
 
 {# DO NOT namespace - these are native element attributes, not custom fields #}
 
@@ -23,7 +24,7 @@
     {{ forms.selectField({
         first: true,
         label: "{singularName} Type"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
-        instructions: "How the {singularName} code is created"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+        instructions: "How the {singularName} code is created"|t('shortlink-manager', {singularName: shortlinkLowerNameHtml}),
         id: 'linkType',
         name: 'linkType',
         value: shortLink.linkType ?? 'code',
@@ -349,7 +350,7 @@
 {# Expired Redirect URL #}
 {{ forms.textField({
     label: "Expired Redirect URL"|t('shortlink-manager'),
-    instructions: "Where to redirect when this {pluginName} expires (optional)"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+    instructions: "Where to redirect when this {pluginName} expires (optional)"|t('shortlink-manager', {pluginName: shortlinkLowerNameHtml}),
     id: 'expiredRedirectUrl',
     name: 'expiredRedirectUrl',
     value: shortLink.expiredRedirectUrl ?? '',
@@ -361,7 +362,7 @@
 
 {{ forms.textareaField({
     label: "Expired Message"|t('shortlink-manager'),
-    instructions: "Custom message shown when this {pluginName} expires (leave empty to use default from settings)"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+    instructions: "Custom message shown when this {pluginName} expires (leave empty to use default from settings)"|t('shortlink-manager', {pluginName: shortlinkLowerNameHtml}),
     id: 'expiredMessage',
     name: 'expiredMessage',
     value: shortLink.expiredMessage ?? '',

@@ -9,6 +9,7 @@
 {% set saveShortcutRedirect = 'shortlink-manager/shortlinks/{id}' %}
 {% set retainScrollOnSaveShortcut = true %}
 {% set canViewAnalytics = currentUser.can('shortLinkManager:viewAnalytics') %}
+{% set shortlinkLowerNameHtml = shortlinkHelper.lowerDisplayName|e %}
 
 {% do view.registerAssetBundle('lindemannrock\\shortlinkmanager\\web\\assets\\edit\\EditAsset') %}
 
@@ -291,7 +292,7 @@
 
         {{ forms.selectField({
             label: "Folder"|t('shortlink-manager'),
-            instructions: "Select a folder for this {singularName}."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+            instructions: "Select a folder for this {singularName}."|t('shortlink-manager', {singularName: shortlinkLowerNameHtml}),
             id: 'folderId',
             name: 'folderId',
             value: folderFieldValue,
@@ -299,7 +300,7 @@
         }) }}
 
         {{ forms.textField({
-            instructions: "Create a folder and assign it when this {singularName} is saved."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+            instructions: "Create a folder and assign it when this {singularName} is saved."|t('shortlink-manager', {singularName: shortlinkLowerNameHtml}),
             id: 'newFolderName',
             name: 'newFolderName',
             value: pendingNewFolderName,
@@ -352,7 +353,7 @@
         {% if plugin.settings.passQueryParams %}
             {{ forms.lightswitchField({
                 label: "Pass Query Params"|t('shortlink-manager'),
-                instructions: "Pass query parameters from the {pluginName} URL to the destination."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+                instructions: "Pass query parameters from the {pluginName} URL to the destination."|t('shortlink-manager', {pluginName: shortlinkLowerNameHtml}),
                 id: 'passQueryParams',
                 name: 'passQueryParams',
                 on: shortLink.passQueryParams ?? true,
@@ -626,4 +627,3 @@
         width: 100%;
     }
 {% endcss %}
-

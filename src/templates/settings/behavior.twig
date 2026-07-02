@@ -31,6 +31,7 @@
 	{{ actionInput('shortlink-manager/settings/save') }}
 	{{ redirectInput('shortlink-manager/settings/behavior') }}
 	{{ hiddenInput('section', 'behavior') }}
+    {% set shortlinkLowerNameHtml = shortlinkHelper.lowerDisplayName|e %}
 
     {% set shortlinkPrefix = (settings.usePrefix ?? true) ? ((settings.slugPrefix ?: 's')|trim('/')) : null %}
     {% set shortlinkPrefix = shortlinkPrefix is not null ? (shortlinkPrefix ?: 's') : null %}
@@ -114,7 +115,7 @@
         id: 'passQueryParams',
         name: 'settings[passQueryParams]',
         on: settings.passQueryParams,
-        instructions: "When enabled, query parameters from the {pluginName} URL will be passed to the destination URL."|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+        instructions: "When enabled, query parameters from the {pluginName} URL will be passed to the destination URL."|t('shortlink-manager', {pluginName: shortlinkLowerNameHtml}),
         disabled: settings.isOverriddenByConfig('passQueryParams'),
         warning: settings.isOverriddenByConfig('passQueryParams') ?
             "This is being overridden by the <code>passQueryParams</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
@@ -151,7 +152,7 @@
         id: 'notFoundRedirectUrl',
         name: 'settings[notFoundRedirectUrl]',
         value: settings.notFoundRedirectUrl,
-        instructions: "Where to redirect when a {pluginName} is not found"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}),
+        instructions: "Where to redirect when a {pluginName} is not found"|t('shortlink-manager', {pluginName: shortlinkLowerNameHtml}),
         suggestEnvVars: true,
         errors: settings.getErrors('notFoundRedirectUrl'),
         disabled: settings.isOverriddenByConfig('notFoundRedirectUrl'),

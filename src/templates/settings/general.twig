@@ -28,6 +28,7 @@
 	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smartlink-manager') or craft.app.plugins.isPluginInstalled('smart-links') %}
     {% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}
     {% set shortlinkDisplayNameHtml = shortlinkHelper.displayName|e %}
+    {% set shortlinkLowerNameHtml = shortlinkHelper.lowerDisplayName|e %}
     {% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
 
 	{{ actionInput('shortlink-manager/settings/save') }}
@@ -151,7 +152,7 @@
 
         {{ forms.lightswitchField({
             label: "Use URL Prefix"|t('shortlink-manager'),
-            instructions: "Enable to generate {singularName} URLs as /{prefix}/{code}. Disable to generate root URLs as /{code}."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName, prefix: settings.slugPrefix ?: 's', code: 'abc123'}),
+            instructions: "Enable to generate {singularName} URLs as /{prefix}/{code}. Disable to generate root URLs as /{code}."|t('shortlink-manager', {singularName: shortlinkLowerNameHtml, prefix: settings.slugPrefix ?: 's', code: 'abc123'}),
             id: 'usePrefix',
             name: 'settings[usePrefix]',
             on: settings.usePrefix ?? true,
@@ -255,7 +256,7 @@
 
         {{ forms.autosuggestField({
             label: "{singularName} Base URL"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
-            instructions: "Base URL for {singularName} and QR code URLs. For multisite, you can use tokens: {siteHandle}, {siteId}, {siteUid} (e.g., https://short.example.com/{siteHandle}). Leave empty to use each site's base URL."|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+            instructions: "Base URL for {singularName} and QR code URLs. For multisite, you can use tokens: {siteHandle}, {siteId}, {siteUid} (e.g., https://short.example.com/{siteHandle}). Leave empty to use each site's base URL."|t('shortlink-manager', {singularName: shortlinkLowerNameHtml}),
             id: 'shortlinkBaseUrl',
             name: 'settings[shortlinkBaseUrl]',
             value: settings.shortlinkBaseUrl ?? '',
@@ -278,7 +279,7 @@
 
 		{{ forms.textField({
         label: "Code Length"|t('shortlink-manager'),
-        instructions: "Length of generated {singularName} codes (min: 4, max: 32)"|t('shortlink-manager', {singularName: shortlinkHelper.lowerDisplayName}),
+        instructions: "Length of generated {singularName} codes (min: 4, max: 32)"|t('shortlink-manager', {singularName: shortlinkLowerNameHtml}),
         id: 'codeLength',
         name: 'settings[codeLength]',
         value: settings.codeLength,

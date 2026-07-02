@@ -138,6 +138,25 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringContainsString('&#039;', $dist);
     }
 
+    public function testInstructionPlaceholdersEscapeConfiguredPluginName(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $files = [
+            '/src/templates/settings/general.twig',
+            '/src/templates/settings/behavior.twig',
+            '/src/templates/settings/analytics.twig',
+            '/src/templates/_components/fields/ShortLinkField/settings.twig',
+            '/src/templates/shortlinks/edit.twig',
+            '/src/templates/shortlinks/_partials/fields.twig',
+        ];
+
+        foreach ($files as $file) {
+            $source = file_get_contents($pluginRoot . $file);
+            self::assertIsString($source);
+            self::assertDoesNotMatchRegularExpression('/instructions:.*shortlinkHelper\\.(?:lowerDisplayName|pluralLowerDisplayName|fullName|displayName)/', $source, $file);
+        }
+    }
+
     public function testRawSettingsInfoBoxesEscapeConfiguredPluginName(): void
     {
         $pluginRoot = dirname(__DIR__, 2);

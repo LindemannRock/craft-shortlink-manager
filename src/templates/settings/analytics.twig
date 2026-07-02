@@ -27,12 +27,13 @@
     {{ actionInput('shortlink-manager/settings/save') }}
     {{ redirectInput('shortlink-manager/settings/analytics') }}
     {{ hiddenInput('section', 'analytics') }}
+    {% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
 
     <h2 class="first">{{ "Analytics"|t('shortlink-manager') }}</h2>
 
     {{ forms.lightswitchField({
         label: "Enable Analytics"|t('shortlink-manager'),
-        instructions: "Track clicks and visitor data for {pluginName}"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+        instructions: "Track clicks and visitor data for {pluginName}"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}),
         id: 'enableAnalytics',
         name: 'settings[enableAnalytics]',
         on: settings.enableAnalytics ?? true,
