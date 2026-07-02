@@ -83,6 +83,16 @@ final class ShortLinkPermissionGateTest extends TestCase
         });
     }
 
+    public function testDeleteFailsClosedWhenElementSiteIsMissing(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 2) . '/src/controllers/ShortlinksController.php');
+        self::assertIsString($source);
+
+        self::assertStringContainsString("throw new \\yii\\web\\BadRequestHttpException('Invalid site.');", $source);
+        self::assertStringContainsString("\$this->requirePermission('editSite:' . \$site->uid);", $source);
+        self::assertStringNotContainsString("if (\$site) {\n                \$this->requirePermission('editSite:' . \$site->uid);", $source);
+    }
+
     public function testNativeElementActionsRequireEditableSiteForExistingLinks(): void
     {
         $sites = Craft::$app->getSites()->getAllSites();

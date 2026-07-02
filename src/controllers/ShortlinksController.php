@@ -434,9 +434,11 @@ class ShortlinksController extends Controller
         // Enforce site edit permission (multi-site only)
         if (Craft::$app->getIsMultiSite()) {
             $site = Craft::$app->getSites()->getSiteById($shortLink->siteId);
-            if ($site) {
-                $this->requirePermission('editSite:' . $site->uid);
+            if (!$site) {
+                throw new \yii\web\BadRequestHttpException('Invalid site.');
             }
+
+            $this->requirePermission('editSite:' . $site->uid);
         }
 
         if (Craft::$app->elements->deleteElement($shortLink)) {
