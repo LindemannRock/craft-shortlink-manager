@@ -837,7 +837,7 @@ class ShortLink extends Element
             return $user->can('shortLinkManager:createLinks');
         }
 
-        return $user->can('shortLinkManager:editLinks');
+        return $user->can('shortLinkManager:editLinks') && $this->canEditCurrentSite($user);
     }
 
     /**
@@ -845,7 +845,7 @@ class ShortLink extends Element
      */
     public function canDelete(User $user): bool
     {
-        return $user->can('shortLinkManager:deleteLinks');
+        return $user->can('shortLinkManager:deleteLinks') && $this->canEditCurrentSite($user);
     }
 
     /**
@@ -853,7 +853,22 @@ class ShortLink extends Element
      */
     public function canDuplicate(User $user): bool
     {
-        return $user->can('shortLinkManager:createLinks');
+        return $user->can('shortLinkManager:createLinks') && $this->canEditCurrentSite($user);
+    }
+
+    private function canEditCurrentSite(User $user): bool
+    {
+        if (!Craft::$app->getIsMultiSite()) {
+            return true;
+        }
+
+        if (!$this->siteId) {
+            return false;
+        }
+
+        $site = Craft::$app->getSites()->getSiteById((int)$this->siteId);
+
+        return $site !== null && $user->can('editSite:' . $site->uid);
     }
 
     /**
