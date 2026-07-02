@@ -40,6 +40,10 @@
             return div.innerHTML;
         }
 
+        function escAttr(str) {
+            return esc(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
         function fmtNum(val) {
             var n = Number(val);
             return isNaN(n) ? '0' : n.toLocaleString();
@@ -336,7 +340,7 @@
                 html += '<td>' + esc(sourceLabel) + '</td>';
                 html += '<td>';
                 if (dest) {
-                    html += '<span title="' + esc(dest) + '">' + esc(destDisplay) + '</span>';
+                    html += '<span title="' + escAttr(dest) + '">' + esc(destDisplay) + '</span>';
                 } else {
                     html += '\u2014';
                 }

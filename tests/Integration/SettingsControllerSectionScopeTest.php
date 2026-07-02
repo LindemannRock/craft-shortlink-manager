@@ -123,6 +123,21 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringNotContainsString('{{ "Learn more"|t(\'shortlink-manager\') }}</a>\';', $source);
     }
 
+    public function testRecentClicksDestinationTitleUsesAttributeEscaping(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $source = file_get_contents($pluginRoot . '/src/web/assets/analytics/src/analytics.js');
+        $dist = file_get_contents($pluginRoot . '/src/web/assets/analytics/dist/analytics.js');
+        self::assertIsString($source);
+        self::assertIsString($dist);
+
+        self::assertStringContainsString('function escAttr(str)', $source);
+        self::assertStringContainsString('title="\' + escAttr(dest)', $source);
+        self::assertStringNotContainsString('title="\' + esc(dest)', $source);
+        self::assertStringContainsString('&quot;', $dist);
+        self::assertStringContainsString('&#039;', $dist);
+    }
+
     public function testRawSettingsInfoBoxesEscapeConfiguredPluginName(): void
     {
         $pluginRoot = dirname(__DIR__, 2);
