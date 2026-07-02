@@ -348,14 +348,12 @@ class AnalyticsQueryInsightsService
      */
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
-        $contentSiteId = is_int($siteId) ? $siteId : Craft::$app->getSites()->getPrimarySite()->id;
-
         $query = (new Query())
-            ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'c.siteId', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
-            ->from('{{%shortlinkmanager}} l')
-            ->leftJoin('{{%shortlinkmanager_analytics}} a', 'a.linkId = l.id')
-            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = l.id AND c.siteId = :contentSiteId', [':contentSiteId' => $contentSiteId])
-            ->groupBy('l.id, c.destinationUrl, c.siteId')
+            ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'a.siteId', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
+            ->from('{{%shortlinkmanager_analytics}} a')
+            ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
+            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
+            ->groupBy('l.id, l.code, l.slug, c.destinationUrl, a.siteId')
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
