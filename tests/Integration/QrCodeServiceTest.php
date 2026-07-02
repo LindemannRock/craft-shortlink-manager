@@ -71,6 +71,32 @@ class QrCodeServiceTest extends TestCase
         $this->assertMatchesRegularExpression('/<svg[^>]+width="1000"[^>]+height="1000"/', $tooLarge);
     }
 
+    public function testInvalidColorOptionsFallBackToDefaults(): void
+    {
+        $qrCode = $this->generateWithoutCache([
+            'format' => 'svg',
+            'color' => ['not-a-string'],
+            'bg' => 'not-a-hex-color',
+            'eyeColor' => '12345g',
+        ]);
+
+        $this->assertStringContainsString('<svg', $qrCode);
+        $this->assertStringContainsString('</svg>', $qrCode);
+    }
+
+    public function testValidHashPrefixedColorOptionsStillGenerate(): void
+    {
+        $qrCode = $this->generateWithoutCache([
+            'format' => 'svg',
+            'color' => '#1A73E8',
+            'bg' => '#FFFFFF',
+            'eyeColor' => '#111111',
+        ]);
+
+        $this->assertStringContainsString('<svg', $qrCode);
+        $this->assertStringContainsString('</svg>', $qrCode);
+    }
+
     public function testGeneratesPngQrCodeWhenImagickIsAvailable(): void
     {
         if (!class_exists(\Imagick::class) || !class_exists(ImagickImageBackEnd::class)) {

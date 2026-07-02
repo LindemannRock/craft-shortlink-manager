@@ -59,8 +59,8 @@ class QrCodeService extends Component
 
         // Merge options with defaults and clamp values
         $size = max(100, min(1000, (int)($options['size'] ?? $settings->defaultQrSize)));
-        $color = $options['color'] ?? $settings->defaultQrColor;
-        $bgColor = $options['bg'] ?? $options['backgroundColor'] ?? $settings->defaultQrBgColor;
+        $color = $this->normalizeHexColor($options['color'] ?? null, (string)$settings->defaultQrColor);
+        $bgColor = $this->normalizeHexColor($options['bg'] ?? $options['backgroundColor'] ?? null, (string)$settings->defaultQrBgColor);
         $format = in_array($options['format'] ?? $settings->defaultQrFormat, ['png', 'svg'], true)
             ? ($options['format'] ?? $settings->defaultQrFormat)
             : $settings->defaultQrFormat;
@@ -71,7 +71,7 @@ class QrCodeService extends Component
         $eyeStyle = in_array($options['eyeStyle'] ?? $settings->qrEyeStyle, ['square', 'rounded', 'pointed'], true)
             ? ($options['eyeStyle'] ?? $settings->qrEyeStyle)
             : $settings->qrEyeStyle;
-        $eyeColor = $options['eyeColor'] ?? $settings->qrEyeColor ?? null;
+        $eyeColor = $this->normalizeOptionalHexColor($options['eyeColor'] ?? null, $settings->qrEyeColor ?? null);
         $logoId = $options['logo'] ?? null;
         $logoSize = max(10, min(30, (int)($options['logoSize'] ?? $settings->qrLogoSize ?? 20)));
 
@@ -250,6 +250,29 @@ class QrCodeService extends Component
         $b = hexdec(substr($hex, 4, 2));
 
         return new Rgb($r, $g, $b);
+    }
+
+    private function normalizeHexColor(mixed $value, string $fallback): string
+    {
+        $normalized = $this->normalizeOptionalHexColor($value, $fallback);
+
+        return $normalized ?? '000000';
+    }
+
+    private function normalizeOptionalHexColor(mixed $value, mixed $fallback = null): ?string
+    {
+        foreach ([$value, $fallback] as $candidate) {
+            if (!is_scalar($candidate)) {
+                continue;
+            }
+
+            $color = ltrim(trim((string)$candidate), '#');
+            if (preg_match('/^[0-9A-Fa-f]{6}$/', $color) === 1) {
+                return strtoupper($color);
+            }
+        }
+
+        return null;
     }
 
     /**
