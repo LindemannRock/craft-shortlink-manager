@@ -26,6 +26,9 @@
 
 	{% set smartLinksPlugin = craft.app.plugins.getPlugin('smartlink-manager') ?? craft.app.plugins.getPlugin('smart-links') %}
 	{% set smartLinksInstalled = craft.app.plugins.isPluginInstalled('smartlink-manager') or craft.app.plugins.isPluginInstalled('smart-links') %}
+    {% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}
+    {% set shortlinkDisplayNameHtml = shortlinkHelper.displayName|e %}
+    {% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
 
 	{{ actionInput('shortlink-manager/settings/save') }}
 	{{ redirectInput('shortlink-manager/settings/general') }}
@@ -53,7 +56,7 @@
 
 		{{ forms.checkboxGroupField({
 			label: "Enabled Sites"|t('shortlink-manager'),
-			instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}),
+			instructions: "Select which sites {pluginName} should be enabled for. Leave empty to enable for all sites."|t('shortlink-manager', {pluginName: shortlinkFullNameHtml}),
 			id: 'enabledSites',
 			name: 'settings[enabledSites]',
 			options: siteOptions,
@@ -162,20 +165,20 @@
             {% include 'lindemannrock-base/_components/info-box' with {
                 type: 'warning',
                 margin: 'both',
-                message: "Both {shortName} and {smartName} are set to root URLs (no prefix) and share at least one host. Redirect routes can collide (e.g., <code>/code</code>), and QR routes can also collide when both plugins use the same QR prefix (e.g., <code>/qr/code</code>)."|t('shortlink-manager', {shortName: shortlinkHelper.fullName, smartName: smartLinkNameForWarning})|raw
+                message: "Both {shortName} and {smartName} are set to root URLs (no prefix) and share at least one host. Redirect routes can collide (e.g., <code>/code</code>), and QR routes can also collide when both plugins use the same QR prefix (e.g., <code>/qr/code</code>)."|t('shortlink-manager', {shortName: shortlinkFullNameHtml, smartName: smartLinkNameForWarning})|raw
             } %}
         {% elseif possibleHostCollision %}
             {% include 'lindemannrock-base/_components/info-box' with {
                 type: 'warning',
                 margin: 'both',
-                message: "Both {shortName} and {smartName} are set to root URLs (no prefix). Host overlap could not be fully resolved from current settings/config, so redirect route collisions are possible. QR routes may also collide if both plugins use the same QR prefix."|t('shortlink-manager', {shortName: shortlinkHelper.fullName, smartName: smartLinkNameForWarning})
+                message: "Both {shortName} and {smartName} are set to root URLs (no prefix). Host overlap could not be fully resolved from current settings/config, so redirect route collisions are possible. QR routes may also collide if both plugins use the same QR prefix."|t('shortlink-manager', {shortName: shortlinkFullNameHtml, smartName: smartLinkNameForWarning})
             } %}
         {% endif %}
 
         <div id="slug-prefix-field-wrapper" class="{{ not currentUsePrefix ? 'hidden' : '' }}">
             {{ forms.textField({
                 label: "{singularName} URL Prefix"|t('shortlink-manager', {singularName: shortlinkHelper.displayName}),
-                instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+                instructions: "The URL prefix for {pluginName} (e.g., 's' creates /s/abc123)"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}),
                 id: 'slugPrefix',
                 name: 'settings[slugPrefix]',
                 value: settings.slugPrefix,
@@ -192,7 +195,7 @@
         {% if not currentUsePrefix %}
             {% include 'lindemannrock-base/_components/info-box' with {
                 type: 'info',
-                message: "URL Prefix is disabled. {singularName} URLs will be generated as root paths like <code>/abc123</code>."|t('shortlink-manager', {singularName: shortlinkHelper.displayName})|raw
+                message: "URL Prefix is disabled. {singularName} URLs will be generated as root paths like <code>/abc123</code>."|t('shortlink-manager', {singularName: shortlinkDisplayNameHtml})|raw
             } %}
         {% endif %}
 
@@ -269,7 +272,7 @@
         {% if hasMultipleSites and (settings.shortlinkBaseUrl ?? '')|trim is not empty and not hasSiteToken %}
             {% include 'lindemannrock-base/_components/info-box' with {
                 type: 'warning',
-                message: "Multisite detected: <code>{singularName} Base URL</code> is set without a site token. Generated URLs may resolve to only one site. Use a tokenized URL like <code>https://short.example.com/{siteHandle}</code> to preserve site-specific routing."|t('shortlink-manager', {singularName: shortlinkHelper.displayName, siteHandle: '{siteHandle}'})|raw
+                message: "Multisite detected: <code>{singularName} Base URL</code> is set without a site token. Generated URLs may resolve to only one site. Use a tokenized URL like <code>https://short.example.com/{siteHandle}</code> to preserve site-specific routing."|t('shortlink-manager', {singularName: shortlinkDisplayNameHtml, siteHandle: '{siteHandle}'})|raw
             } %}
         {% endif %}
 

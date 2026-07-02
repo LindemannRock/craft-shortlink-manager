@@ -25,6 +25,8 @@
     {{ actionInput('shortlink-manager/settings/save') }}
     {{ redirectInput('shortlink-manager/settings/integrations') }}
     {{ hiddenInput('section', 'integrations') }}
+    {% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}
+    {% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
 
         <h2 class="first">{{ "Third-Party Integrations"|t('shortlink-manager') }}</h2>
 
@@ -68,7 +70,7 @@
                         type: 'warning',
                         variant: 'colored',
                         margin: 'bottom',
-                        message: "Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href=\"{url}\" class=\"go\">Behavior Settings</a>"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName, url: url('shortlink-manager/settings/behavior')})
+                        message: "Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href=\"{url}\" class=\"go\">Behavior Settings</a>"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml, url: url('shortlink-manager/settings/behavior')})
                     } %}
                 {% endif %}
 
@@ -233,12 +235,12 @@
                     message: '<strong>' ~ "How Events Are Sent"|t('shortlink-manager') ~ ':</strong>
                         <ul class="lr-integration-help-list">
                             <li>
-                                <strong>' ~ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</strong><br>
+                                <strong>' ~ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: shortlinkFullNameHtml}) ~ '</strong><br>
                                 <span class="light">' ~ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('shortlink-manager') ~ '</span>
                             </li>
                             <li>
                                 <strong>' ~ "Use GTM to forward to other platforms"|t('shortlink-manager') ~ '</strong><br>
-                                <span class="light">' ~ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~ '</span>
+                                <span class="light">' ~ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkFullNameHtml}) ~ '</span>
                             </li>
                             <li>
                                 <span class="light">' ~ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') ~ '</span>
@@ -246,7 +248,7 @@
                         </ul>
                         <p class="lr-integration-help-note">
                             <strong>' ~ "Architecture"|t('shortlink-manager') ~ ':</strong>
-                            ' ~ shortlinkHelper.fullName ~ ' → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
+                            ' ~ shortlinkFullNameHtml ~ ' → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
                         </p>'
                 } %}
             {% endblock %}
@@ -261,7 +263,7 @@
 
         {% embed 'lindemannrock-base/_partials/integration-card' with {
             title: "{pluginName} Integration"|t('shortlink-manager', { pluginName: rmPluginName }),
-            description: "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}),
+            description: "Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking."|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}),
             available: rmAvailable,
             installed: rmInstalled,
             installUrl: 'https://github.com/LindemannRock/craft-redirect-manager',
@@ -338,11 +340,11 @@
                         <ul class="lr-integration-help-list lr-integration-help-list--flush">
                             <li>
                                 <strong>' ~ "Centralized Management"|t('shortlink-manager') ~ '</strong> –
-                                ' ~ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) ~ '
+                                ' ~ "View and manage all redirects ({pluginName} + regular pages) in one place"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}) ~ '
                             </li>
                             <li>
                                 <strong>' ~ "Analytics Tracking"|t('shortlink-manager') ~ '</strong> –
-                                ' ~ "Track how many people access old {pluginName} slugs after changes"|t('shortlink-manager', {pluginName: shortlinkHelper.pluralLowerDisplayName}) ~ '
+                                ' ~ "Track how many people access old {pluginName} slugs after changes"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}) ~ '
                             </li>
                             <li>
                                 <strong>' ~ "Persistent Redirects"|t('shortlink-manager') ~ '</strong> –

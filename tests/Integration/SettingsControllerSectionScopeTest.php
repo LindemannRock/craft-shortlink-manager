@@ -113,4 +113,35 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringContainsString('<code>/abc123</code>', $source);
         self::assertStringContainsString('routeExamples: directRedirectRouteExamplesHtml', $source);
     }
+
+    public function testRawSettingsInfoBoxesEscapeConfiguredPluginName(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $general = file_get_contents($pluginRoot . '/src/templates/settings/general.twig');
+        $integrations = file_get_contents($pluginRoot . '/src/templates/settings/integrations.twig');
+        self::assertIsString($general);
+        self::assertIsString($integrations);
+
+        self::assertStringContainsString('{% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}', $general);
+        self::assertStringContainsString('{% set shortlinkDisplayNameHtml = shortlinkHelper.displayName|e %}', $general);
+        self::assertStringContainsString('{% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}', $general);
+        self::assertStringContainsString('shortName: shortlinkFullNameHtml', $general);
+        self::assertStringContainsString('singularName: shortlinkDisplayNameHtml', $general);
+        self::assertStringContainsString('pluginName: shortlinkFullNameHtml', $general);
+        self::assertStringContainsString('pluginName: shortlinkPluralLowerNameHtml', $general);
+        self::assertStringNotContainsString('shortName: shortlinkHelper.fullName', $general);
+        self::assertStringNotContainsString('message: "URL Prefix is disabled. {singularName} URLs will be generated as root paths like <code>/abc123</code>."|t(\'shortlink-manager\', {singularName: shortlinkHelper.displayName})|raw', $general);
+        self::assertStringNotContainsString('singularName: shortlinkHelper.displayName, siteHandle:', $general);
+        self::assertStringNotContainsString('pluginName: shortlinkHelper.fullName', $general);
+        self::assertStringNotContainsString('pluginName: shortlinkHelper.pluralLowerDisplayName', $general);
+
+        self::assertStringContainsString('{% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}', $integrations);
+        self::assertStringContainsString('{% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}', $integrations);
+        self::assertStringContainsString('pluginName: shortlinkFullNameHtml', $integrations);
+        self::assertStringContainsString('pluginName: shortlinkPluralLowerNameHtml', $integrations);
+        self::assertStringContainsString('~ shortlinkFullNameHtml ~', $integrations);
+        self::assertStringNotContainsString("|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~", $integrations);
+        self::assertStringNotContainsString('~ shortlinkHelper.fullName ~', $integrations);
+        self::assertStringNotContainsString('pluginName: shortlinkHelper.pluralLowerDisplayName', $integrations);
+    }
 }
