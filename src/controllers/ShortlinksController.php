@@ -9,15 +9,17 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
-use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Db;
 use craft\web\Controller;
 use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\SlugHandleHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\records\FolderRecord;
+use lindemannrock\shortlinkmanager\records\TagRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\Response;
 
@@ -482,6 +484,10 @@ class ShortlinksController extends Controller
             return $this->asJsonFailure(Craft::t('shortlink-manager', 'Folder name cannot be empty.'));
         }
 
+        if (!$this->folderExistsByName($folderName)) {
+            $this->requirePermission('shortLinkManager:createTaxonomy');
+        }
+
         $folderId = ShortLinkManager::$plugin->taxonomy->getOrCreateFolderByName($folderName);
         if ($folderId <= 0) {
             return $this->asJsonFailure(Craft::t('shortlink-manager', 'Could not create folder.'));
@@ -531,6 +537,10 @@ class ShortlinksController extends Controller
 
         if (empty($inputTags)) {
             return $this->asJsonFailure(Craft::t('shortlink-manager', 'Tags cannot be empty.'));
+        }
+
+        if ($this->hasMissingTags($inputTags)) {
+            $this->requirePermission('shortLinkManager:createTaxonomy');
         }
 
         $existingByLink = ShortLinkManager::$plugin->taxonomy->getTagNamesForShortLinks($ids);
@@ -632,12 +642,16 @@ class ShortlinksController extends Controller
             return [];
         }
 
-        $query = (new Query())
-            ->select(['id'])
-            ->from('{{%shortlinkmanager}}')
-            ->where(['id' => $ids]);
+        $siteIds = $this->editableBulkSiteIds();
+        if (empty($siteIds)) {
+            return [];
+        }
 
-        return array_map('intval', $query->column());
+        return array_map('intval', ShortLink::find()
+            ->id($ids)
+            ->siteId($siteIds)
+            ->status(null)
+            ->ids());
     }
 
     /**
@@ -666,6 +680,46 @@ class ShortlinksController extends Controller
             'success' => false,
             'error' => $message,
         ]);
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function editableBulkSiteIds(): array
+    {
+        return array_values(array_unique(array_map(
+            static fn($site): int => (int)$site->id,
+            ShortLinkManager::$plugin->getEnabledSites(),
+        )));
+    }
+
+    private function folderExistsByName(string $name): bool
+    {
+        $slug = $this->taxonomySlug($name);
+
+        return $slug !== '' && FolderRecord::find()
+            ->where(['slug' => $slug])
+            ->exists();
+    }
+
+    /**
+     * @param array<int, string> $names
+     */
+    private function hasMissingTags(array $names): bool
+    {
+        foreach (ShortLinkManager::$plugin->taxonomy->normalizeTagNames($names) as $name) {
+            $slug = $this->taxonomySlug($name);
+            if ($slug !== '' && !TagRecord::find()->where(['slug' => $slug])->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function taxonomySlug(string $name): string
+    {
+        return SlugHandleHelper::normalizeSlug(mb_substr(trim($name), 0, 255), '');
     }
 
     /**
