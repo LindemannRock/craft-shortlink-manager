@@ -47,14 +47,18 @@ trait SiteFilterTrait
      */
     protected function effectiveSiteId(): int|array
     {
-        if ($this->siteId !== 'all') {
-            return (int) $this->siteId;
-        }
-
-        return array_map(
+        $siteIds = array_map(
             static fn($site): int => (int) $site->id,
             ShortLinkManager::$plugin->getEnabledSites()
         );
+
+        if ($this->siteId !== 'all') {
+            $siteId = (int) $this->siteId;
+
+            return in_array($siteId, $siteIds, true) ? $siteId : [];
+        }
+
+        return $siteIds;
     }
 
     /**

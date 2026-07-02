@@ -116,6 +116,27 @@ final class AnalyticsEmptySiteScopeTest extends TestCase
         });
     }
 
+    public function testWidgetSpecificSiteIsRevalidatedOnRender(): void
+    {
+        $sites = Craft::$app->getSites()->getAllSites();
+        if (count($sites) < 2) {
+            self::markTestSkipped('Widget stale-site regression requires at least two Craft sites.');
+        }
+
+        $editableSite = $sites[0];
+        $revokedSite = $sites[1];
+
+        $this->withSettings(['enabledSites' => [(int)$editableSite->id, (int)$revokedSite->id]], function() use ($editableSite, $revokedSite): void {
+            $this->withEditableSitePermissions([$editableSite->uid], function() use ($revokedSite): void {
+                $widget = new EmptyScopeAnalyticsSummaryWidget();
+                $widget->siteId = (string)$revokedSite->id;
+
+                self::assertSame([], $widget->exposedEffectiveSiteId());
+                self::assertStringContainsString('0', (string)$widget->getBodyHtml());
+            });
+        });
+    }
+
     public function testAnalyticsServicesUseNullOnlyForUnscopedSiteQueries(): void
     {
         $pluginRoot = dirname(__DIR__, 2);
