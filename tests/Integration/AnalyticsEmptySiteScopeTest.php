@@ -83,6 +83,7 @@ final class AnalyticsEmptySiteScopeTest extends TestCase
                 self::assertSame(0, $emptyScope['totalClicks']);
                 self::assertSame(0, $emptyScope['uniqueVisitors']);
                 self::assertSame(0, $emptyScope['activeLinks']);
+                self::assertSame(0, $emptyScope['totalLinks']);
                 self::assertSame(0, $emptyScope['linksUsed']);
                 self::assertSame(0, $emptyScope['linksUsedPercentage']);
                 self::assertSame([], $emptyScope['topLinks']);

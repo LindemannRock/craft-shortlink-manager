@@ -209,9 +209,16 @@ class AnalyticsService extends Component
         }
 
         // Get total links
-        $totalLinksQuery = (new Query())
-            ->from('{{%shortlinkmanager}}');
-        $totalLinks = $totalLinksQuery->count();
+        if ($siteId === []) {
+            $totalLinks = 0;
+        } else {
+            $totalLinksQuery = ShortLink::find()
+                ->status(null);
+            if ($siteId !== null) {
+                $totalLinksQuery->siteId($siteId);
+            }
+            $totalLinks = $totalLinksQuery->count();
+        }
 
         // Get count of links that have been clicked in this period
         $shortLinksQuery = (new Query())
