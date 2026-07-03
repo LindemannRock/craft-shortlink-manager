@@ -115,7 +115,25 @@ final class ServdStaticCacheServiceTest extends TestCase
         }
 
         self::assertStringContainsString('App::env($name)', $source);
+        self::assertStringContainsString("in_array(App::env('ENVIRONMENT'), ['development', 'staging', 'production'], true)", $source);
         self::assertStringNotContainsString('getenv(', $source);
+    }
+
+    public function testRuntimeConfigRequiresRealServdEnvironment(): void
+    {
+        $method = new \ReflectionMethod(ShortLinkManager::$plugin->servdStaticCache, 'hasRequiredRuntimeConfig');
+
+        foreach ([null, '', 'dev', 'test', 'testing', 'local'] as $environment) {
+            $this->withServdRuntimeEnvironment($environment, function() use ($method): void {
+                self::assertFalse($method->invoke(ShortLinkManager::$plugin->servdStaticCache));
+            });
+        }
+
+        foreach (['development', 'staging', 'production'] as $environment) {
+            $this->withServdRuntimeEnvironment($environment, function() use ($method): void {
+                self::assertTrue($method->invoke(ShortLinkManager::$plugin->servdStaticCache));
+            });
+        }
     }
 
     public function testUtilityAndControllerSourcesWireDedicatedServdStaticCachePurge(): void
@@ -179,6 +197,59 @@ final class ServdStaticCacheServiceTest extends TestCase
             $previousEnv[$name] = getenv($name);
             unset($_SERVER[$name]);
             putenv($name);
+        }
+
+        try {
+            $callback();
+        } finally {
+            foreach (self::SERVD_ENV_VARS as $name) {
+                if ($previousServer[$name] === null) {
+                    unset($_SERVER[$name]);
+                } else {
+                    $_SERVER[$name] = $previousServer[$name];
+                }
+
+                if ($previousEnv[$name] === false) {
+                    putenv($name);
+                } else {
+                    putenv($name . '=' . $previousEnv[$name]);
+                }
+            }
+        }
+    }
+
+    private function withServdRuntimeEnvironment(?string $environment, callable $callback): void
+    {
+        $this->withServdEnvVars([
+            'SERVD_CACHE_ENABLED' => '1',
+            'REDIS_STATIC_CACHE_DB' => '1',
+            'REDIS_HOST' => 'redis',
+            'REDIS_PORT' => '6379',
+            'ENVIRONMENT' => $environment,
+            'SERVD_PROJECT_SLUG' => 'test-project',
+        ], $callback);
+    }
+
+    /**
+     * @param array<string, string|null> $values
+     */
+    private function withServdEnvVars(array $values, callable $callback): void
+    {
+        $previousServer = [];
+        $previousEnv = [];
+
+        foreach (self::SERVD_ENV_VARS as $name) {
+            $previousServer[$name] = array_key_exists($name, $_SERVER) ? $_SERVER[$name] : null;
+            $previousEnv[$name] = getenv($name);
+
+            if (($values[$name] ?? null) === null) {
+                unset($_SERVER[$name]);
+                putenv($name);
+                continue;
+            }
+
+            $_SERVER[$name] = $values[$name];
+            putenv($name . '=' . $values[$name]);
         }
 
         try {

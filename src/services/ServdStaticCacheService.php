@@ -212,6 +212,10 @@ class ServdStaticCacheService extends Component
 
     private function hasRequiredRuntimeConfig(): bool
     {
+        if (!in_array(App::env('ENVIRONMENT'), ['development', 'staging', 'production'], true)) {
+            return false;
+        }
+
         foreach (self::REQUIRED_ENV_VARS as $name) {
             $value = App::env($name);
 
