@@ -133,7 +133,7 @@ return [
     '{pluginName}: Cleaning up old analytics' => '{pluginName}: Rensar gammal analys',
 
     // Controller messages
-    'An unexpected error occurred.' => 'Ett oväntat fel inträffade.',
+    'An unexpected error occurred.' => 'Ett oväntat fel uppstod.',
     'No analytics data to export.' => 'Inga analysdata att exportera.',
     'Settings saved.' => 'Inställningar sparade.',
     'Could not save settings.' => 'Det gick inte att spara inställningarna.',
@@ -809,8 +809,8 @@ return [
     'OS' => 'OS',
     'OS Version' => 'OS-version',
     'Browser' => 'Webbläsare',
-    'Browser Version' => 'Browser-version',
-    'Browser Engine' => 'Browsermotor',
+    'Browser Version' => 'Webbläsarversion',
+    'Browser Engine' => 'Webbläsarmotor',
     'Detected Language' => 'Identifierat språk',
     'Traffic Type' => 'Trafiktyp',
     'System Agent' => 'Systemagent',

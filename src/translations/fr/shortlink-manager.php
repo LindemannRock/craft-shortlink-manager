@@ -912,7 +912,7 @@ return [
     'This link has expired' => 'Ce lien a expiré',
 
     'Created By' => 'Créé par',
-    'Filename' => 'Nom du fichier',
+    'Filename' => 'Nom de fichier',
     'Imported' => 'Importé',
 
     // Config overrides

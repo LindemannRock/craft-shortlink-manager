@@ -887,7 +887,7 @@ return [
     'Clear Device Cache' => 'Fjern enhetscache',
     'Clear All Caches' => 'Fjern alle cacher',
     'Cache Management' => 'Cache-administrasjon',
-    'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'Tøm bufret data for å tvinge regenerering. Nyttig etter endring av QR Code-innstillinger eller ved feilsøking.',
+    'Clear cached data to force regeneration. Useful after changing QR code settings or when troubleshooting.' => 'Fjern cachede data for å tvinge regenerering. Nyttig etter endring av QR Code-innstillinger eller ved feilsøking.',
     'Servd Static Cache' => 'Servd Static Cache',
     'Queue a Servd purge for all public {linksName} URLs and QR landing pages. This does not clear Craft’s cache or other plugins’ caches.' => 'Sett en Servd-fjerning i kø for alle offentlige URL-er for {linksName} og QR-landingssider. Dette fjerner ikke Crafts cache eller andre plugins cacher.',
     'Purge Servd Static Cache' => 'Fjern Servd Static Cache',

@@ -809,7 +809,7 @@ return [
     'OS' => 'OS',
     'OS Version' => 'OS バージョン',
     'Browser' => 'ブラウザ',
-    'Browser Version' => 'ブラウザー バージョン',
+    'Browser Version' => 'ブラウザーバージョン',
     'Browser Engine' => 'ブラウザーエンジン',
     'Detected Language' => '検出された言語',
     'Traffic Type' => 'トラフィックタイプ',
