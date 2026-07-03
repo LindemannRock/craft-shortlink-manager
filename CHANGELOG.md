@@ -1,5 +1,45 @@
 # Changelog
 
+## [5.26.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.25.0...v5.26.0) (2026-07-03)
+
+
+### Added
+
+* **analytics:** exclude disabled shortlinks from top links query ([1322236](https://github.com/LindemannRock/craft-shortlink-manager/commit/132223635c01b51a3ea196270a6a5e1fe24a684c))
+* **analytics:** optimize getTopLinks query for multi-site support ([3ad57d2](https://github.com/LindemannRock/craft-shortlink-manager/commit/3ad57d253da470c2fcb830fd25ef647bb47ce291))
+* **controllers:** add folder and tag validation in bulk actions ([e32c6e2](https://github.com/LindemannRock/craft-shortlink-manager/commit/e32c6e26fd375d51ca200f51ff208a22e1d938e2))
+* **qrcode:** normalize color options and add fallback handling ([d40c96e](https://github.com/LindemannRock/craft-shortlink-manager/commit/d40c96e1006159adcbad2cb837deca683de2e57d))
+* **settings:** add HTML escaping for shortlink names in settings templates ([ce70fad](https://github.com/LindemannRock/craft-shortlink-manager/commit/ce70fada15f02fdf8e1c2b54eba51ff39c2ca128))
+* **settings:** add servd static cache availability to behavior settings ([086eff5](https://github.com/LindemannRock/craft-shortlink-manager/commit/086eff57e653d6fc85c727dc5e8a1dd8c6aab016))
+* **shortlink:** cache fetched ShortLink elements for improved performance ([305a326](https://github.com/LindemannRock/craft-shortlink-manager/commit/305a326a7327675dfe6143236a31e819e4f29dbd))
+* **taxonomy:** add caching for folder and tag ID lookups by slug ([6013dc7](https://github.com/LindemannRock/craft-shortlink-manager/commit/6013dc7a47cae1593223445700276b2c073fa384))
+* **widgets:** add safe destination URL handling for top links ([bc23075](https://github.com/LindemannRock/craft-shortlink-manager/commit/bc23075301282917956701de097577976eae592d))
+
+
+### Fixed
+
+* **analytics:** handle total links count for empty site ID ([2476c01](https://github.com/LindemannRock/craft-shortlink-manager/commit/2476c01ac8d9a8c55e174838e6b8812b80b68885))
+* **controllers:** enforce site edit permission checks in SmartlinksController ([70a61e3](https://github.com/LindemannRock/craft-shortlink-manager/commit/70a61e3350143fcf8b54a77c3df7303944f50e78))
+* enforce required runtime environment for Servd static cache ([84326b8](https://github.com/LindemannRock/craft-shortlink-manager/commit/84326b817c2e0126df5cd092c86d41b6416829fa))
+* escape direct redirect cache warning messages for safe output ([0830d24](https://github.com/LindemannRock/craft-shortlink-manager/commit/0830d24b96a68142c26e2ea3d88b8cfd3628f791))
+* escape HTTP status tip link labels for JavaScript output ([729e497](https://github.com/LindemannRock/craft-shortlink-manager/commit/729e4975a1555bdec56e85bafafa904e489d9e90))
+* escape plugin name placeholders in behavior and integrations settings ([b2d283b](https://github.com/LindemannRock/craft-shortlink-manager/commit/b2d283badc25ff0e445bf238caa8aa2c63631174))
+* **gql:** sanitize expired and resolved destination URLs to prevent XSS ([d594955](https://github.com/LindemannRock/craft-shortlink-manager/commit/d594955692eb17ba54ae289edd88d8007891c9ef))
+* **i18n:** correct translations across multiple locales ([ec1b58a](https://github.com/LindemannRock/craft-shortlink-manager/commit/ec1b58ac8db554ee2dc3bc6d970c9acd9df41fe8))
+* **i18n:** escape plugin name placeholders in instruction texts ([c677495](https://github.com/LindemannRock/craft-shortlink-manager/commit/c67749518a06d41c79d5b95b63d9b6863cf61415))
+* **import-export:** enforce site import permissions based on settings ([c445b9e](https://github.com/LindemannRock/craft-shortlink-manager/commit/c445b9ebbf5e3d835a256a79eabc38953fc9d9ec))
+* **import-export:** ensure export only includes enabled sites ([efab769](https://github.com/LindemannRock/craft-shortlink-manager/commit/efab76906855843ee9c6aefda8c973efe6355d56))
+* **import-export:** ensure export only includes specified site IDs ([49f4027](https://github.com/LindemannRock/craft-shortlink-manager/commit/49f4027ea0ccad80acd3c0a1a13097dca9432145))
+* **import-export:** handle CSV parse errors with user-friendly messages ([81d96de](https://github.com/LindemannRock/craft-shortlink-manager/commit/81d96de952353bb4b940cf7bf02b2c3c0aaaa201))
+* **permissions:** enforce site-specific edit and delete permissions ([a8cd2d5](https://github.com/LindemannRock/craft-shortlink-manager/commit/a8cd2d55ce0a1559f6cb741bd2dded2808800179))
+* **settings:** update slug and QR prefix migration tips for clarity ([3889f0f](https://github.com/LindemannRock/craft-shortlink-manager/commit/3889f0f0e922aa43bbdb171c02beca4838d3f3f7))
+* **widgets:** handle empty site ID in top links analytics retrieval ([eb9437b](https://github.com/LindemannRock/craft-shortlink-manager/commit/eb9437b55caa50eea60c89dcf720852d908fe98c))
+
+
+### Security
+
+* **analytics:** add attribute escaping for destination titles to prevent XSS ([b73ab46](https://github.com/LindemannRock/craft-shortlink-manager/commit/b73ab4641e654c658c759124ec9d6170e3cefae9))
+
 ## [5.25.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.24.0...v5.25.0) - 2026-07-01
 
 
