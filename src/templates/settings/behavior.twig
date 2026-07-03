@@ -123,7 +123,7 @@
 
     {% set prefixExample = (settings.usePrefix ?? true) ? ((settings.slugPrefix ?: 's') ~ '/') : '' %}
     {% include 'lindemannrock-base/_components/info-box' with {
-        message: "Example: <code>{prefix}abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: prefixExample}),
+        message: "Example: <code>{prefix}abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>"|t('shortlink-manager', {prefix: prefixExample|e}),
         type: 'info',
         margin: 'bottom',
     } %}

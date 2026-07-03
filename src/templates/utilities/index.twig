@@ -14,6 +14,7 @@
 {% set hasServdStaticCacheManagement = servdStaticCacheAvailable and canClearCache %}
 {% set hasAnalyticsManagement = settings.enableAnalytics and canClearAnalytics %}
 {% set hasAnyQuickAction = hasNavigation or hasCacheManagement or hasServdStaticCacheManagement or hasAnalyticsManagement %}
+{% set selectedSiteLabelHtml = selectedSiteLabel|e %}
 
 {% set utilitiesConfig = {
     plugin: {
@@ -193,7 +194,7 @@
 
 {% block beforeQuickActions %}
     {% include 'lindemannrock-base/_components/info-box' with {
-        message: '<strong>' ~ 'Site'|t('shortlink-manager') ~ ':</strong> ' ~ selectedSiteLabel,
+        message: '<strong>' ~ 'Site'|t('shortlink-manager') ~ ':</strong> ' ~ selectedSiteLabelHtml,
         margin: 'both',
     } %}
     <br>

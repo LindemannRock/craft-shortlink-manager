@@ -25,6 +25,7 @@
 	{{ actionInput('shortlink-manager/settings/save') }}
 	{{ redirectInput('shortlink-manager/settings/cache') }}
 	{{ hiddenInput('section', 'cache') }}
+    {% set shortlinkCacheBasePathHtml = shortlinkHelper.cacheBasePath|e %}
 
 		<h2 class="first">{{ "Cache Storage Settings"|t('shortlink-manager') }}</h2>
 
@@ -48,7 +49,7 @@
 			<div id="cache-location-file" class="{{ (settings.cacheStorageMethod ?? 'file') == 'redis' ? 'hidden' }}">
 				{% include 'lindemannrock-base/_components/info-box' with {
 					message: '<strong>Cache Location:</strong> <code>{path}</code>'|t('shortlink-manager', {
-						path: shortlinkHelper.cacheBasePath,
+						path: shortlinkCacheBasePathHtml,
 					}),
 					type: 'info'
 				} %}

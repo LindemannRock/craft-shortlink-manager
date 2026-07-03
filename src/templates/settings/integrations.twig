@@ -41,6 +41,7 @@
         {% set seomaticInstalled = lrPluginInstalled('seomatic') %}
         {% set seomaticAvailable = lrPluginEnabled('seomatic') %}
         {% set seomaticPluginName = lrPluginName('seomatic', 'SEOmatic') %}
+        {% set seomaticPluginNameHtml = seomaticPluginName|e %}
         {% set seomaticIntegrationEnabled = 'seomatic' in (settings.enabledIntegrations ?? []) %}
 
         {% embed 'lindemannrock-base/_partials/integration-card' with {
@@ -70,7 +71,7 @@
                         type: 'warning',
                         variant: 'colored',
                         margin: 'bottom',
-                        message: "Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href=\"{url}\" class=\"go\">Behavior Settings</a>"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml, url: url('shortlink-manager/settings/behavior')})
+                        message: "Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href=\"{url}\" class=\"go\">Behavior Settings</a>"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml, url: url('shortlink-manager/settings/behavior')|e('html_attr')})
                     } %}
                 {% endif %}
 
@@ -128,7 +129,7 @@
                         type: 'warning',
                         variant: 'colored',
                         margin: 'bottom',
-                        message: '<strong>' ~ "Note"|t('shortlink-manager') ~ ':</strong> ' ~ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('shortlink-manager', { pluginName: seomaticPluginName })
+                        message: '<strong>' ~ "Note"|t('shortlink-manager') ~ ':</strong> ' ~ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('shortlink-manager', { pluginName: seomaticPluginNameHtml })
                     } %}
                 {% endif %}
 
@@ -258,6 +259,7 @@
         {% set rmInstalled = lrPluginInstalled('redirect-manager') %}
         {% set rmAvailable = lrPluginEnabled('redirect-manager') %}
         {% set rmPluginName = lrPluginName('redirect-manager', 'Redirect Manager') %}
+        {% set rmPluginNameHtml = rmPluginName|e %}
         {% set rmIntegrationEnabled = 'redirect-manager' in (settings.enabledIntegrations ?? []) %}
         {% set rmEvents = settings.redirectManagerEvents ?? ['slug-change'] %}
 
@@ -352,7 +354,7 @@
                             </li>
                             <li>
                                 <strong>' ~ "Source Tracking"|t('shortlink-manager') ~ '</strong> –
-                                ' ~ "{rmPluginName} shows which plugin created each redirect for better organization"|t('shortlink-manager', {rmPluginName: rmPluginName}) ~ '
+                                ' ~ "{rmPluginName} shows which plugin created each redirect for better organization"|t('shortlink-manager', {rmPluginName: rmPluginNameHtml}) ~ '
                             </li>
                         </ul>'
                 } %}

@@ -187,4 +187,64 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringNotContainsString('~ shortlinkHelper.fullName ~', $integrations);
         self::assertStringNotContainsString('pluginName: shortlinkHelper.pluralLowerDisplayName', $integrations);
     }
+
+    public function testRawInfoBoxMessagesEscapeDynamicPlaceholders(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $files = [
+            '/src/templates/settings/behavior.twig' => [
+                'contains' => [
+                    'prefixExample|e',
+                ],
+                'notContains' => [
+                    '{prefix: prefixExample})',
+                ],
+            ],
+            '/src/templates/settings/cache.twig' => [
+                'contains' => [
+                    '{% set shortlinkCacheBasePathHtml = shortlinkHelper.cacheBasePath|e %}',
+                    'path: shortlinkCacheBasePathHtml',
+                ],
+                'notContains' => [
+                    'path: shortlinkHelper.cacheBasePath',
+                ],
+            ],
+            '/src/templates/settings/integrations.twig' => [
+                'contains' => [
+                    '{% set seomaticPluginNameHtml = seomaticPluginName|e %}',
+                    '{% set rmPluginNameHtml = rmPluginName|e %}',
+                    "url: url('shortlink-manager/settings/behavior')|e('html_attr')",
+                    'pluginName: seomaticPluginNameHtml',
+                    'rmPluginName: rmPluginNameHtml',
+                ],
+                'notContains' => [
+                    "url: url('shortlink-manager/settings/behavior')})",
+                    'message: \'<strong>\' ~ "Note"|t(\'shortlink-manager\') ~ \':</strong> \' ~ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t(\'shortlink-manager\', { pluginName: seomaticPluginName })',
+                    ' ~ "{rmPluginName} shows which plugin created each redirect for better organization"|t(\'shortlink-manager\', {rmPluginName: rmPluginName}) ~ ',
+                ],
+            ],
+            '/src/templates/utilities/index.twig' => [
+                'contains' => [
+                    '{% set selectedSiteLabelHtml = selectedSiteLabel|e %}',
+                    '~ selectedSiteLabelHtml',
+                ],
+                'notContains' => [
+                    '~ selectedSiteLabel,',
+                ],
+            ],
+        ];
+
+        foreach ($files as $file => $expectations) {
+            $source = file_get_contents($pluginRoot . $file);
+            self::assertIsString($source);
+
+            foreach ($expectations['contains'] as $expected) {
+                self::assertStringContainsString($expected, $source, $file);
+            }
+
+            foreach ($expectations['notContains'] as $unexpected) {
+                self::assertStringNotContainsString($unexpected, $source, $file);
+            }
+        }
+    }
 }
