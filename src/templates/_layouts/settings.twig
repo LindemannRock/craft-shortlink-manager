@@ -5,9 +5,10 @@
 {% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
 {% set selectedSubnavItem = 'settings' %}
 
-{% set errorSummary = include('lindemannrock-base/_partials/ip-salt-error', {
-    pluginHandle: 'shortlink-manager'
-})|trim %}
+{% set setupIncompleteSummary = include('shortlink-manager/_partials/setup-incomplete-summary', {
+    selectedSubnavItem: selectedSubnavItem,
+    setupStatus: setupStatus ?? null,
+}, false)|trim %}
 {% set validationSummary = '' %}
 {% if settings is defined and settings.hasErrors() %}
     {% set validationSummary = include('lindemannrock-base/_partials/error-summary', {
@@ -16,7 +17,7 @@
         translationCategory: 'shortlink-manager'
     })|trim %}
 {% endif %}
-{% set errorSummary = (errorSummary ~ validationSummary)|trim %}
+{% set errorSummary = (setupIncompleteSummary ~ validationSummary)|trim %}
 
 {% block sidebar %}
     <nav id="settings-nav">

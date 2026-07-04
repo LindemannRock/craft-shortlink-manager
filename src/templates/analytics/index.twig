@@ -9,6 +9,10 @@
 {% set plugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set settings = plugin.settings %}
 {% set pluginHandle = pluginHandle ?? plugin.id %}
+{% set setupIncompleteSummary = include('shortlink-manager/_partials/setup-incomplete-summary', {
+    selectedSubnavItem: 'analytics',
+}, false)|trim %}
+{% set errorSummary = (setupIncompleteSummary ~ (errorSummary ?? ''))|trim %}
 
 {# Define tabs - Geographic only if geo detection enabled #}
 {% set tabsConfig = {

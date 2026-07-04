@@ -12,6 +12,7 @@ return [
     'ShortLink Manager' => 'ShortLink Manager',
     'Create short links, generate QR codes, and track performance from one control panel workspace.' => 'Maak short links aan, genereer QR-codes en volg prestaties vanuit één werkruimte in het configuratiescherm.',
     'Open ShortLink Manager' => 'ShortLink Manager openen',
+    'Complete setup' => 'Setup voltooien',
     '{name} plugin loaded' => 'Plugin {name} geladen',
 
     // Navigation
@@ -21,6 +22,7 @@ return [
     'Settings' => 'Instellingen',
     'Dashboard' => 'Dashboard',
     'Field Layout' => 'Veldindeling',
+    'Setup' => 'Setup',
 
     // Permissions
     'Manage {plural}' => '{plural} beheren',
@@ -236,13 +238,11 @@ return [
     'The URL prefix for QR code pages (e.g., \'qr\' creates /qr/abc123/view or \'s/qr\' creates /s/qr/abc123/view)' => 'Het URL-prefix voor QR-code pagina\'s (bijv. \'qr\' maakt /qr/abc123/view of \'s/qr\' maakt /s/qr/abc123/view)',
     'Length of generated {singularName} codes (min: 4, max: 32)' => 'Lengte van gegenereerde {singularName} codes (min: 4, max: 32)',
     'Template Settings' => 'Sjablooninstellingen',
-    'These templates must exist in your site\'s <code>templates/</code> folder. Copy the reference templates from <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/</code> to <code>templates/shortlink-manager/</code> and customize as needed.' => 'Deze sjablonen moeten bestaan in de map <code>templates/</code> van uw site. Kopieer de referentiesjablonen van <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/</code> naar <code>templates/shortlink-manager/</code> en pas ze naar wens aan.',
+    'These templates must exist in your site\'s <code>templates/</code> folder at the paths configured below. Copy each matching reference template into its configured destination and customize as needed.' => 'Deze sjablonen moeten bestaan in de map <code>templates/</code> van uw site op de hieronder geconfigureerde paden. Kopieer elk bijbehorend referentiesjabloon naar de geconfigureerde bestemming en pas het naar wens aan.',
     'Redirect Template' => 'Doorverwijzingssjabloon',
     'Template path in your templates/ folder. Leave empty to use the default path.' => 'Sjabloonpad in uw map templates/. Laat leeg om het standaardpad te gebruiken.',
-    'Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig</code> to <code>templates/shortlink-manager/redirect.twig</code>' => 'Vereist: kopieer <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig</code> naar <code>templates/shortlink-manager/redirect.twig</code>',
+    'Required: copy <code>{source}</code> to <code>{destination}</code>' => 'Vereist: kopieer <code>{source}</code> naar <code>{destination}</code>',
     'Note: This template is not used when Direct Redirect is enabled (Settings → Behavior). Links using direct redirect skip the template entirely.' => 'Opmerking: dit sjabloon wordt niet gebruikt wanneer Directe doorverwijzing is ingeschakeld (Instellingen → Gedrag). Links die directe doorverwijzing gebruiken, slaan het sjabloon volledig over.',
-    'Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig</code> to <code>templates/shortlink-manager/expired.twig</code>' => 'Vereist: kopieer <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig</code> naar <code>templates/shortlink-manager/expired.twig</code>',
-    'Required: copy <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig</code> to <code>templates/shortlink-manager/qr.twig</code>' => 'Vereist: kopieer <code>vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig</code> naar <code>templates/shortlink-manager/qr.twig</code>',
     'Expired Template' => 'Verlopen sjabloon',
     'QR Code Template' => 'QR-code sjabloon',
     'Default Expired Message' => 'Standaard verlopen bericht',
@@ -301,11 +301,11 @@ return [
     'When enabled, query parameters from the {pluginName} URL will be passed to the destination URL.' => 'Wanneer ingeschakeld, worden queryparameters van de {pluginName} URL doorgegeven aan de doel-URL.',
     'Example: <code>{prefix}/abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>' => 'Voorbeeld: <code>{prefix}/abc123?utm_source=email</code> → <code>https://example.com/page?utm_source=email</code>',
     'Direct Redirect' => 'Directe doorverwijzing',
-    'Perform a server-side redirect without rendering a template. Analytics and hit counting are unaffected. Disables SEOmatic client-side tracking (GTM/GA events).' => 'Voert een servergebaseerde doorverwijzing uit zonder een sjabloon te renderen. Analyses en bezoekstelling zijn niet beïnvloed. Schakelt SEOmatic clientgebaseerde tracking uit (GTM/GA-gebeurtenissen).',
+    'Perform a server-side redirect without rendering a template. SEOmatic client-side tracking (GTM/GA events) will not fire, and server-side analytics only run when the request reaches Craft/PHP.' => 'Voert een servergebaseerde doorverwijzing uit zonder een sjabloon te renderen. SEOmatic clientgebaseerde tracking (GTM/GA-gebeurtenissen) zal niet worden geactiveerd, en servergebaseerde analyses worden alleen uitgevoerd wanneer het verzoek Craft/PHP bereikt.',
     'Default 404 Redirect URL' => 'Standaard 404 doorverwijzings-URL',
     'Where to redirect when a {pluginName} is not found' => 'Waarheen doorverwijzen wanneer een {pluginName} niet wordt gevonden',
 
-    // Settings: QR-code
+    // Settings: QR Code
     'QR Code Settings' => 'QR-code instellingen',
     'Live Preview' => 'Live voorvertoning',
     'Toggle preview' => 'Voorbeeld omschakelen',
@@ -432,7 +432,7 @@ return [
     'Not Installed' => 'Niet geïnstalleerd',
     'Install Plugin' => 'Plugin installeren',
     'Push {pluginName} events to Google Tag Manager and analytics platforms for tracking redirects and QR code scans.' => '{pluginName} gebeurtenissen pushen naar Google Tag Manager en analyticsplatforms voor het bijhouden van doorverwijzingen en QR-code scans.',
-    'Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href="{url}" class="go">Behavior Settings</a>' => 'Directe doorverwijzing is globaal ingeschakeld. SEOmatic clientgebaseerde tracking (GTM/GA-gebeurtenissen) zal niet worden geactiveerd voor doorverwezen {pluginName} omdat het sjabloon wordt overgeslagen. Servergebaseerde analyses en bezoekstelling zijn niet beïnvloed. <a href="{url}" class="go">Gedragsinstellingen</a>',
+    'Direct Redirect is enabled globally in <a href="{url}" class="go">Behavior Settings</a>. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting only run when the request reaches Craft/PHP. If every hit must be tracked, configure cache bypass rules for your shortlink routes and clear existing browser, CDN, or static caches before retesting redirect-mode changes.' => 'Directe doorverwijzing is globaal ingeschakeld in <a href="{url}" class="go">Gedragsinstellingen</a>. SEOmatic clientgebaseerde tracking (GTM/GA-gebeurtenissen) zal niet worden geactiveerd voor doorverwezen {pluginName} omdat het sjabloon wordt overgeslagen. Servergebaseerde analyses en bezoekstelling worden alleen uitgevoerd wanneer het verzoek Craft/PHP bereikt. Als elk bezoek moet worden gevolgd, configureer dan cache-bypassregels voor uw shortlinkroutes en wis bestaande browser-, CDN- of statische caches voordat u wijzigingen in de doorverwijzingsmodus opnieuw test.',
     'Active Tracking Scripts' => 'Actieve trackingscripts',
     'Scripts receiving {pluginName} events' => 'Scripts die {pluginName} gebeurtenissen ontvangen',
     'No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}.' => 'Er zijn momenteel geen trackingscripts geconfigureerd in {pluginName}. Gebeurtenissen worden in de wachtrij geplaatst maar niet verzonden totdat u GTM of Google Analytics configureert in {pluginName}.',
@@ -903,6 +903,32 @@ return [
     'This will delete all click tracking data and reset all click counts. Are you absolutely sure?' => 'Dit verwijdert alle klikregistratiegegevens en reset alle kliktellingen. Weet u het zeker?',
     'Failed to clear analytics' => 'Analysegegevens konden niet worden gewist',
     'Manage {pluginName}' => '{pluginName} beheren',
+
+    // Setup
+    'Set up ShortLink Manager' => 'ShortLink Manager instellen',
+    'Ready' => 'Gereed',
+    'v{version}' => 'v{version}',
+    'Complete these steps before creating public short links and QR landing pages.' => 'Voltooi deze stappen voordat u openbare korte links en QR-landingspagina\'s maakt.',
+    'IP salt' => 'IP-salt',
+    'Analytics needs a privacy salt before public link tracking is ready.' => 'Analyses hebben een privacysalt nodig voordat tracking van openbare links gereed is.',
+    'Analytics privacy salt is ready for public link tracking.' => 'De privacysalt voor analyses is gereed voor tracking van openbare links.',
+    'IP hash salt is configured.' => 'IP-hashsalt is geconfigureerd.',
+    'Starter templates are missing.' => 'Startertemplates ontbreken.',
+    'Starter template is missing.' => 'Startertemplate ontbreekt.',
+    'Starter templates' => 'Startertemplates',
+    'All required frontend templates are available.' => 'Alle vereiste frontendtemplates zijn beschikbaar.',
+    'Starter templates are ready.' => 'Startertemplates zijn gereed.',
+    'Copy the starter templates before public short links can render their frontend pages.' => 'Kopieer de startertemplates voordat openbare korte links hun frontendpagina\'s kunnen renderen.',
+    'Copy the missing starter template before public links can render this frontend page.' => 'Kopieer het ontbrekende startertemplate voordat openbare links deze frontendpagina kunnen renderen.',
+    'Copy the missing starter templates before public links can render redirect, expired, or QR pages.' => 'Kopieer de ontbrekende startertemplates voordat openbare links redirect-, verlopen- of QR-pagina\'s kunnen renderen.',
+    'Run this command in your terminal:' => 'Voer deze opdracht uit in uw terminal:',
+    'Run these commands in your terminal:' => 'Voer deze opdrachten uit in uw terminal:',
+    'Review and customize the copied templates before going live.' => 'Controleer en pas de gekopieerde templates aan voordat u live gaat.',
+    'Setup incomplete' => 'Setup onvolledig',
+    'Finish setup before creating public short links and QR landing pages.' => 'Voltooi de setup voordat u openbare korte links en QR-landingspagina\'s maakt.',
+    'Open setup' => 'Setup openen',
+    'Setup complete.' => 'Setup voltooid.',
+    'ShortLink Manager is ready to create public short links and QR landing pages.' => 'ShortLink Manager is gereed om openbare korte links en QR-landingspagina\'s te maken.',
 
     // Frontend
     'Scan with your phone\'s camera' => 'Scan met de camera van uw telefoon',

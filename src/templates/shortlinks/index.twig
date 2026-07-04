@@ -4,6 +4,10 @@
 {% set elementType = 'lindemannrock\\shortlinkmanager\\elements\\ShortLink' %}
 {% set selectedSubnavItem = 'shortlinks' %}
 {% set showSiteMenu = false %}
+{% set setupIncompleteSummary = include('shortlink-manager/_partials/setup-incomplete-summary', {
+    selectedSubnavItem: selectedSubnavItem,
+}, false)|trim %}
+{% set errorSummary = (setupIncompleteSummary ~ (errorSummary ?? ''))|trim %}
 
 {# Site switcher (first item) #}
 {% set crumbs = [] %}

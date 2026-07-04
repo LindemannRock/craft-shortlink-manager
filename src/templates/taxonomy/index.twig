@@ -4,6 +4,11 @@
    default them here — the controller has already snapped off-list values
    back to defaults. #}
 
+{% set setupIncompleteSummary = include('shortlink-manager/_partials/setup-incomplete-summary', {
+    selectedSubnavItem: 'taxonomy',
+}, false)|trim %}
+{% set errorSummary = (setupIncompleteSummary ~ (errorSummary ?? ''))|trim %}
+
 {% set tableConfig = {
     plugin: {
         handle: 'shortlink-manager',

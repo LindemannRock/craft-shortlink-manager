@@ -71,7 +71,7 @@
                         type: 'warning',
                         variant: 'colored',
                         margin: 'bottom',
-                        message: "Direct Redirect is enabled globally. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting are unaffected. <a href=\"{url}\" class=\"go\">Behavior Settings</a>"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml, url: url('shortlink-manager/settings/behavior')|e('html_attr')})
+                        message: "Direct Redirect is enabled globally in <a href=\"{url}\" class=\"go\">Behavior Settings</a>. SEOmatic client-side tracking (GTM/GA events) will not fire for redirected {pluginName} because the template is skipped. Server-side analytics and hit counting only run when the request reaches Craft/PHP. If every hit must be tracked, configure cache bypass rules for your shortlink routes and clear existing browser, CDN, or static caches before retesting redirect-mode changes."|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml, url: url('shortlink-manager/settings/behavior')|e('html_attr')})
                     } %}
                 {% endif %}
 

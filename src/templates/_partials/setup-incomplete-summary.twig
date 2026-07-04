@@ -1,0 +1,12 @@
+{% set currentSubnavItem = selectedSubnavItem ?? '' %}
+{% set setupStatus = setupStatus ?? craft.app.plugins.getPlugin('shortlink-manager').setup.getStatus() %}
+
+{% if currentSubnavItem != 'setup' %}
+    {% include 'lindemannrock-base/_components/setup-incomplete' with {
+        complete: setupStatus.complete,
+        setupUrl: setupStatus.setupUrl,
+        heading: 'Setup incomplete'|t('shortlink-manager'),
+        message: 'Finish setup before creating public short links and QR landing pages.'|t('shortlink-manager'),
+        actionLabel: 'Open setup'|t('shortlink-manager'),
+    } only %}
+{% endif %}

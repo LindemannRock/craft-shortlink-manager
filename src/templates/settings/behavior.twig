@@ -133,7 +133,7 @@
         id: 'directRedirect',
         name: 'settings[directRedirect]',
         on: settings.directRedirect,
-        instructions: "Perform a server-side redirect without rendering a template. Analytics and hit counting are unaffected. Disables SEOmatic client-side tracking (GTM/GA events)."|t('shortlink-manager'),
+        instructions: "Perform a server-side redirect without rendering a template. SEOmatic client-side tracking (GTM/GA events) will not fire, and server-side analytics only run when the request reaches Craft/PHP."|t('shortlink-manager'),
         disabled: settings.isOverriddenByConfig('directRedirect'),
         warning: settings.isOverriddenByConfig('directRedirect') ?
             "This is being overridden by the <code>directRedirect</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,

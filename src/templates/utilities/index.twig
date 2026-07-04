@@ -41,6 +41,12 @@
     </form>
 {% endblock %}
 
+{% block notices %}
+    {% include 'shortlink-manager/_partials/setup-incomplete-summary' with {
+        selectedSubnavItem: 'utilities',
+    } only %}
+{% endblock %}
+
 {% block overview %}
     {# Links Status Card - only show if user can manage links #}
     {% if canManageLinks %}

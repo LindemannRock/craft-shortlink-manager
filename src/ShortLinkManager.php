@@ -54,6 +54,7 @@ use lindemannrock\shortlinkmanager\services\IntegrationService;
 use lindemannrock\shortlinkmanager\services\LocalCacheService;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\services\ServdStaticCacheService;
+use lindemannrock\shortlinkmanager\services\SetupService;
 use lindemannrock\shortlinkmanager\services\ShortLinksService;
 use lindemannrock\shortlinkmanager\services\TaxonomyService;
 use lindemannrock\shortlinkmanager\utilities\ShortLinkManagerUtility;
@@ -78,6 +79,7 @@ use yii\base\Event;
  * @property-read LocalCacheService $localCache
  * @property-read TaxonomyService $taxonomy
  * @property-read ServdStaticCacheService $servdStaticCache
+ * @property-read SetupService $setup
  * @property-read Settings $settings
  * @method Settings getSettings()
  */
@@ -128,9 +130,9 @@ class ShortLinkManager extends Plugin
                 'installExperience' => [
                     'headline' => Craft::t('shortlink-manager', 'ShortLink Manager'),
                     'body' => Craft::t('shortlink-manager', 'Create short links, generate QR codes, and track performance from one control panel workspace.'),
-                    'ctaLabel' => Craft::t('shortlink-manager', 'Open ShortLink Manager'),
-                    'ctaUrl' => 'shortlink-manager',
-                    'redirectUri' => 'shortlink-manager',
+                    'ctaLabel' => Craft::t('shortlink-manager', 'Complete setup'),
+                    'ctaUrl' => 'shortlink-manager/setup',
+                    'redirectUri' => 'shortlink-manager/setup',
                     'confettiPreset' => 'surprise',
                 ],
             ]
@@ -148,6 +150,7 @@ class ShortLinkManager extends Plugin
             'localCache' => LocalCacheService::class,
             'taxonomy' => TaxonomyService::class,
             'servdStaticCache' => ServdStaticCacheService::class,
+            'setup' => SetupService::class,
         ]);
 
         // Schedule analytics cleanup if retention is enabled
@@ -494,6 +497,13 @@ class ShortLinkManager extends Plugin
         }
 
         $sections[] = [
+            'key' => 'setup',
+            'label' => Craft::t('shortlink-manager', 'Setup'),
+            'url' => 'shortlink-manager/setup',
+            'permissionsAll' => ['shortLinkManager:manageSettings'],
+        ];
+
+        $sections[] = [
             'key' => 'settings',
             'label' => Craft::t('shortlink-manager', 'Settings'),
             'url' => 'shortlink-manager/settings',
@@ -617,6 +627,9 @@ class ShortLinkManager extends Plugin
             'shortlink-manager/taxonomy/bulk-delete-folders' => 'shortlink-manager/taxonomy/bulk-delete-folders',
             'shortlink-manager/taxonomy/delete-tag' => 'shortlink-manager/taxonomy/delete-tag',
             'shortlink-manager/taxonomy/bulk-delete-tags' => 'shortlink-manager/taxonomy/bulk-delete-tags',
+
+            // Setup route
+            'shortlink-manager/setup' => 'shortlink-manager/settings/setup',
 
             // Settings routes
             'shortlink-manager/settings' => 'shortlink-manager/settings/index',

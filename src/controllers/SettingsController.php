@@ -10,6 +10,8 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\PluginThemeStyleHelper;
 use lindemannrock\base\helpers\SettingsPostHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -68,6 +70,31 @@ class SettingsController extends Controller
     }
 
     /**
+     * Setup checklist.
+     *
+     * @since 5.27.0
+     */
+    public function actionSetup(): Response
+    {
+        $this->requirePermission('shortLinkManager:manageSettings');
+
+        $plugin = ShortLinkManager::$plugin;
+        $settings = $plugin->getSettings();
+        $iconSvg = PluginHelper::getIconSvg($plugin);
+        $setupStatus = $plugin->setup->getStatus($settings);
+
+        return $this->renderTemplate('shortlink-manager/setup', [
+            'settings' => $settings,
+            'pluginVersion' => PluginHelper::getPluginVersion($plugin),
+            'pluginIconSvg' => $iconSvg,
+            'pluginHeroStyle' => PluginThemeStyleHelper::heroCssVarsFromSvg($iconSvg),
+            'logoPaths' => PluginHelper::lrLogoPaths(),
+            'ipSaltConfigured' => $setupStatus['ipSaltConfigured'],
+            'templateStatuses' => $setupStatus['templateStatuses'],
+        ]);
+    }
+
+    /**
      * General settings
      *
      * @return Response
@@ -80,6 +107,7 @@ class SettingsController extends Controller
 
         return $this->renderTemplate('shortlink-manager/settings/general', [
             'settings' => $settings,
+            'templateStatuses' => ShortLinkManager::$plugin->setup->templateStatuses($settings),
         ]);
     }
 

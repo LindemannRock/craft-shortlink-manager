@@ -10,6 +10,11 @@
 {# Set up the CP layout #}
 {% set fullPageForm = fullPageForm ?? false %}
 {% set selectedSubnavItem = selectedSubnavItem ?? '' %}
+{% set setupIncompleteSummary = include('shortlink-manager/_partials/setup-incomplete-summary', {
+    selectedSubnavItem: selectedSubnavItem,
+    setupStatus: setupStatus ?? null,
+}, false)|trim %}
+{% set errorSummary = (setupIncompleteSummary ~ (errorSummary ?? ''))|trim %}
 
 {# Plugin-wide breadcrumbs #}
 {% set crumbs = crumbs ?? [] %}
