@@ -29,11 +29,45 @@ final class HelpController extends AbstractHelpController
                 'php craft',
                 'ddev craft',
             ],
-            'summary' => 'Use these commands to generate the IP hash salt used for privacy-safe shortlink analytics.',
+            'summary' => 'Use these commands to generate the IP hash salt and copy starter templates for ShortLink Manager setup.',
             'common' => [
                 'security/generate-salt',
+                'setup/copy-templates',
             ],
             'groups' => [
+                [
+                    'name' => 'setup',
+                    'label' => 'Setup',
+                    'description' => 'Copy frontend starter templates into the configured site template paths.',
+                    'commands' => [
+                        [
+                            'path' => 'setup/copy-templates',
+                            'summary' => 'Copy missing starter templates.',
+                            'description' => 'Copy bundled redirect, expired, and QR templates into the configured paths in your site templates folder.',
+                            'usageOptions' => '[--template=<redirect|expired|qr>] [--overwrite]',
+                            'options' => [
+                                [
+                                    'name' => '--template',
+                                    'description' => 'Copy only one template: redirect, expired, or qr.',
+                                ],
+                                [
+                                    'name' => '--overwrite',
+                                    'description' => 'Replace existing destination templates without prompting.',
+                                ],
+                            ],
+                            'examples' => [
+                                'shortlink-manager/setup/copy-templates',
+                                'shortlink-manager/setup/copy-templates --template=redirect',
+                                'shortlink-manager/setup/copy-templates --template=qr --overwrite',
+                            ],
+                            'notes' => [
+                                'By default, existing destination templates are skipped.',
+                                'The command respects custom template paths configured in settings or config.',
+                                'Review and customize copied templates before going live.',
+                            ],
+                        ],
+                    ],
+                ],
                 [
                     'name' => 'security',
                     'label' => 'Security',
