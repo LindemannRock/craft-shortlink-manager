@@ -1,22 +1,44 @@
 # Console commands
 
-Run ShortLink Manager's console commands to generate the IP hash salt used for privacy-safe analytics — no CP visit required.
+Run ShortLink Manager's console commands to finish setup tasks without visiting the Control Panel.
 
 ## Getting help @since(5.20.0)
 
-The plugin-level help command lists available commands and their context-specific notes:
+The plugin-level help command lists available commands:
 
 ```bash title="PHP"
 php craft shortlink-manager/help
-php craft shortlink-manager/help security/generate-salt
 ```
 
 ```bash title="DDEV"
 ddev craft shortlink-manager/help
+```
+
+Pass a command name when you want context-specific notes for one workflow:
+
+Setup templates:
+
+```bash title="PHP"
+php craft shortlink-manager/help setup/copy-templates
+```
+
+```bash title="DDEV"
+ddev craft shortlink-manager/help setup/copy-templates
+```
+
+Generate the analytics salt:
+
+```bash title="PHP"
+php craft shortlink-manager/help security/generate-salt
+```
+
+```bash title="DDEV"
 ddev craft shortlink-manager/help security/generate-salt
 ```
 
 Craft's native help is still available when you need the exact Yii option signature:
+
+Generate the analytics salt:
 
 ```bash title="PHP"
 php craft help shortlink-manager/security/generate-salt
@@ -25,6 +47,66 @@ php craft help shortlink-manager/security/generate-salt
 ```bash title="DDEV"
 ddev craft help shortlink-manager/security/generate-salt
 ```
+
+Setup templates:
+
+```bash title="PHP"
+php craft help shortlink-manager/setup/copy-templates
+```
+
+```bash title="DDEV"
+ddev craft help shortlink-manager/setup/copy-templates
+```
+
+## Setup
+
+### `shortlink-manager/setup/copy-templates` @since(5.27.0)
+
+Copy bundled starter templates into the configured paths in your site's `templates/` folder. This is the fastest way to make the redirect, expired, and QR pages render without Twig template loading errors.
+
+```bash title="PHP"
+php craft shortlink-manager/setup/copy-templates
+```
+
+```bash title="DDEV"
+ddev craft shortlink-manager/setup/copy-templates
+```
+
+**What it does:**
+
+1. Reads the current ShortLink Manager template settings.
+2. Copies only missing starter templates by default.
+3. Creates destination folders automatically.
+4. Skips existing destination templates unless you target one template interactively or pass `--overwrite`.
+
+| Option | Description |
+|--------|-------------|
+| `--template=redirect` | Copy only the redirect interstitial template |
+| `--template=expired` | Copy only the expired-link template |
+| `--template=qr` | Copy only the QR display template |
+| `--overwrite` | Replace existing destination templates without prompting |
+
+Copy one template:
+
+```bash title="PHP"
+php craft shortlink-manager/setup/copy-templates --template=redirect
+```
+
+```bash title="DDEV"
+ddev craft shortlink-manager/setup/copy-templates --template=redirect
+```
+
+Replace one template:
+
+```bash title="PHP"
+php craft shortlink-manager/setup/copy-templates --template=qr --overwrite
+```
+
+```bash title="DDEV"
+ddev craft shortlink-manager/setup/copy-templates --template=qr --overwrite
+```
+
+**When to use:** Run this after installing the plugin, after changing template paths in settings, or when the setup page reports missing starter templates. Review and customize copied templates before going live.
 
 ## Security
 
