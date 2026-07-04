@@ -355,8 +355,7 @@ return [
 
     // Settings: Analytics
     'Analytics Settings' => 'Analyse-instellingen',
-    'Track clicks and visitor data for {pluginName}' => 'Klikken en bezoekersgegevens bijhouden voor {pluginName}',
-    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Wanneer ingeschakeld, zal {pluginName} bezoekerinteracties, apparaattypen, geografische gegevens en andere analyse-informatie bijhouden.',
+    'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Klikken en bezoekersgegevens bijhouden voor {pluralLowerName}. Wanneer ingeschakeld, zal {pluginName} bezoekerinteracties, apparaattypen, geografische gegevens en andere analyse-informatie bijhouden.',
     'Geographic Detection' => 'Geografische detectie',
     'Detect user location for analytics' => 'Gebruikerslocatie detecteren voor analyses',
     'IP Address Privacy' => 'IP-adresprivacy',

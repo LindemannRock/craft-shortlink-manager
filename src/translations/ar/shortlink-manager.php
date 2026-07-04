@@ -355,8 +355,7 @@ return [
 
     // Settings: Analytics
     'Analytics Settings' => 'إعدادات التحليلات',
-    'Track clicks and visitor data for {pluginName}' => 'تتبع النقرات وبيانات الزوار لـ {pluginName}',
-    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'عند التفعيل، سيتتبع {pluginName} تفاعلات الزوار وأنواع الأجهزة والبيانات الجغرافية وغيرها من معلومات Analytics.',
+    'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'تتبع النقرات وبيانات الزوار لـ {pluralLowerName}. عند التفعيل، سيتتبع {pluginName} تفاعلات الزوار وأنواع الأجهزة والبيانات الجغرافية وغيرها من معلومات التحليلات.',
     'Geographic Detection' => 'الكشف الجغرافي',
     'Detect user location for analytics' => 'اكتشاف موقع المستخدم لأغراض Analytics',
     'IP Address Privacy' => 'خصوصية عناوين IP',

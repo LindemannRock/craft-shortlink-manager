@@ -355,8 +355,7 @@ return [
 
     // Settings: Analytics
     'Analytics Settings' => 'Analysinställningar',
-    'Track clicks and visitor data for {pluginName}' => 'Spåra klick och besökardata för {pluginName}',
-    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'När aktiverat spårar {pluginName} besökarinteraktioner, enhetstyper, geografisk data och annan analysinformation.',
+    'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Spåra klick och besökardata för {pluralLowerName}. När aktiverat spårar {pluginName} besökarinteraktioner, enhetstyper, geografisk data och annan analysinformation.',
     'Geographic Detection' => 'Geografisk identifiering',
     'Detect user location for analytics' => 'Identifiera användarens plats för analys',
     'IP Address Privacy' => 'Sekretess för IP-adresser',

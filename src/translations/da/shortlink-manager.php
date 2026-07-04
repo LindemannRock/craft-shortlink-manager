@@ -355,8 +355,7 @@ return [
 
     // Settings: Analytics
     'Analytics Settings' => 'Analyseindstillinger',
-    'Track clicks and visitor data for {pluginName}' => 'Spor klik og besøgsdata for {pluginName}',
-    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Når aktiveret sporer {pluginName} besøgsinteraktioner, enhedstyper, geografiske data og andre analytics-oplysninger.',
+    'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Spor klik og besøgsdata for {pluralLowerName}. Når aktiveret sporer {pluginName} besøgsinteraktioner, enhedstyper, geografiske data og andre analyseoplysninger.',
     'Geographic Detection' => 'Geografisk registrering',
     'Detect user location for analytics' => 'Registrér brugerens placering til analytics',
     'IP Address Privacy' => 'Beskyttelse af IP-adresser',

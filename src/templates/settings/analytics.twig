@@ -28,12 +28,16 @@
     {{ redirectInput('shortlink-manager/settings/analytics') }}
     {{ hiddenInput('section', 'analytics') }}
     {% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
+    {% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}
 
     <h2 class="first">{{ "Analytics"|t('shortlink-manager') }}</h2>
 
     {{ forms.lightswitchField({
         label: "Enable Analytics"|t('shortlink-manager'),
-        instructions: "Track clicks and visitor data for {pluginName}"|t('shortlink-manager', {pluginName: shortlinkPluralLowerNameHtml}),
+        instructions: "Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('shortlink-manager', {
+            pluralLowerName: shortlinkPluralLowerNameHtml,
+            pluginName: shortlinkFullNameHtml,
+        }),
         id: 'enableAnalytics',
         name: 'settings[enableAnalytics]',
         on: settings.enableAnalytics ?? true,
@@ -44,10 +48,6 @@
     }) }}
 
     <div id="analytics-settings" class="{{ not (settings.enableAnalytics ?? true) ? 'hidden' }}">
-        <div class="field">
-            <p class="light">{{ "When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information."|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) }}</p>
-        </div>
-
         <hr>
 
         <h2>{{ "Geographic Detection"|t('shortlink-manager') }}</h2>

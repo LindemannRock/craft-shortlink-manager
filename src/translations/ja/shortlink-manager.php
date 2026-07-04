@@ -355,8 +355,7 @@ return [
 
     // Settings: Analytics
     'Analytics Settings' => 'アナリティクス設定',
-    'Track clicks and visitor data for {pluginName}' => '{pluginName} のクリックと訪問者データを追跡する',
-    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => '有効にすると、{pluginName} は訪問者のインタラクション、デバイスタイプ、地理データ、その他の アナリティクス情報を追跡します。',
+    'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => '{pluralLowerName} のクリックと訪問者データを追跡する。有効にすると、{pluginName} は訪問者のインタラクション、デバイスタイプ、地理データ、その他のアナリティクス情報を追跡します。',
     'Geographic Detection' => '地理的検出',
     'Detect user location for analytics' => 'アナリティクスのためにユーザーの位置情報を検出する',
     'IP Address Privacy' => 'IP アドレスのプライバシー',

@@ -355,8 +355,7 @@ return [
 
     // Settings: Analytics
     'Analytics Settings' => 'Analytics Settings',
-    'Track clicks and visitor data for {pluginName}' => 'Track clicks and visitor data for {pluginName}',
-    'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.',
+    'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.' => 'Track clicks and visitor data for {pluralLowerName}. When enabled, {pluginName} will track visitor interactions, device types, geographic data, and other analytics information.',
     'Geographic Detection' => 'Geographic Detection',
     'Detect user location for analytics' => 'Detect user location for analytics',
     'IP Address Privacy' => 'IP Address Privacy',
