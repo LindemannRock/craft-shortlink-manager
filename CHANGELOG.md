@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.27.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.26.0...v5.27.0) - 2026-07-05
+
+
+### Added
+
+* **i18n:** add shortlink translations and update existing strings ([cd810b9](https://github.com/LindemannRock/craft-shortlink-manager/commit/cd810b98085ff3d4eaf09c84fa0876c9d1d60dcb))
+* **settings:** add template status checks and update messages for setup guidance ([2d09128](https://github.com/LindemannRock/craft-shortlink-manager/commit/2d09128d30ec748f6432f78f4838f800607433cd))
+* **setup:** add command for copying starter templates ([116dbe5](https://github.com/LindemannRock/craft-shortlink-manager/commit/116dbe5d8a139d3a477e25e926c0696894848154))
+* **setup:** add setup checklist and service for readiness verification ([1547ffe](https://github.com/LindemannRock/craft-shortlink-manager/commit/1547ffe2ea56a98993d0ec33203fec9bc35a4f4b))
+
+
+### Fixed
+
+* **analytics:** analytics settings instructions for clarity ([814bef2](https://github.com/LindemannRock/craft-shortlink-manager/commit/814bef2e01c2f12b04ba632451ef453a8a9803ce))
+
 ## [5.26.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.25.0...v5.26.0) - 2026-07-03
 
 
