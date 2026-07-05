@@ -21,7 +21,7 @@
         {{ 'This will automatically add {envVar} to your .env file.'|t('lindemannrock-base', {envVar: '<code>SHORTLINK_MANAGER_IP_SALT</code>'})|raw }}
     </p>
     <p>
-        <strong>{{ 'Warning:'|t('lindemannrock-base') }}</strong>
+        <strong>{{ 'Note:'|t('shortlink-manager') }}</strong>
         {{ 'Copy the same salt to staging and production environments.'|t('lindemannrock-base') }}
     </p>
 {% endset %}
@@ -39,18 +39,16 @@
     </p>
 {% endset %}
 
-{% set selectedTemplate = missingTemplates|length == 1 ? missingTemplates|first : null %}
-{% set templateCopyOption = selectedTemplate ? ' --template=' ~ selectedTemplate.key : '' %}
 {% set templateCopyCommands = [
     {
         legend: 'Standard:'|t('lindemannrock-base'),
-        value: 'php craft shortlink-manager/setup/copy-templates' ~ templateCopyOption,
+        value: 'php craft shortlink-manager/setup/copy-templates',
         copyLabel: 'Copy'|t('lindemannrock-base'),
         copiedMessage: 'Copied!'|t('lindemannrock-base'),
     },
     {
         legend: 'DDEV:'|t('lindemannrock-base'),
-        value: 'ddev craft shortlink-manager/setup/copy-templates' ~ templateCopyOption,
+        value: 'ddev craft shortlink-manager/setup/copy-templates',
         copyLabel: 'Copy'|t('lindemannrock-base'),
         copiedMessage: 'Copied!'|t('lindemannrock-base'),
     },
@@ -58,7 +56,7 @@
 
 {% set templatesFooter %}
     <p>
-        <strong>{{ 'Warning:'|t('lindemannrock-base') }}</strong>
+        <strong>{{ 'Note:'|t('shortlink-manager') }}</strong>
         {{ 'Review and customize the copied templates before going live.'|t('shortlink-manager') }}
     </p>
 {% endset %}
@@ -146,6 +144,32 @@
                     allowHtml: true,
                 } only %}
             {% endif %}
+        {% endblock %}
+        {% block additionalContent %}
+            <section class="lr-setup-task">
+                <div class="lr-setup-task__section-header">
+                    <h4 class="lr-setup-task__subheading">{{ 'Template locations'|t('shortlink-manager') }}</h4>
+                </div>
+                <div class="lr-setup-task__body">
+                    {% for templateStatus in templateStatuses %}
+                        {% set templateLocationMessage %}
+                            <strong>{{ templateStatus.label }}</strong>
+                            <span class="light">{{ templateStatus.exists ? 'Ready'|t('shortlink-manager') : 'Missing'|t('shortlink-manager') }}</span><br>
+                            <span class="light">{{ 'Bundled template:'|t('shortlink-manager') }}</span>
+                            <code>{{ templateStatus.source }}</code><br>
+                            <span class="light">{{ 'Site template:'|t('shortlink-manager') }}</span>
+                            <code>{{ templateStatus.destination }}</code>
+                        {% endset %}
+                        {% include 'lindemannrock-base/_components/info-box' with {
+                            type: templateStatus.exists ? 'success' : 'warning',
+                            variant: 'subtle',
+                            margin: loop.first ? 'none' : 'top',
+                            message: templateLocationMessage,
+                            allowHtml: true,
+                        } only %}
+                    {% endfor %}
+                </div>
+            </section>
         {% endblock %}
     {% endembed %}
 {% endblock %}

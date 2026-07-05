@@ -34,6 +34,8 @@
     {% for templateStatus in templateStatuses ?? [] %}
         {% set templateStatusesBySetting = templateStatusesBySetting|merge({(templateStatus.setting): templateStatus}) %}
     {% endfor %}
+    {% set missingTemplateStatuses = (templateStatuses ?? [])|filter(status => not status.exists) %}
+    {% set templatesReady = missingTemplateStatuses|length == 0 %}
 
 	{{ actionInput('shortlink-manager/settings/save') }}
 	{{ redirectInput('shortlink-manager/settings/general') }}
@@ -302,8 +304,10 @@
 		<h2>{{ "Template Settings"|t('shortlink-manager') }}</h2>
 
 		{% include 'lindemannrock-base/_components/info-box' with {
-			type: 'info',
-			message: "These templates must exist in your site's <code>templates/</code> folder at the paths configured below. Copy each matching reference template into its configured destination and customize as needed."|t('shortlink-manager')
+			type: templatesReady ? 'success' : 'warning',
+			message: templatesReady
+                ? "All required frontend templates are available."|t('shortlink-manager')
+                : "Some frontend templates are missing. Open <a href=\"{url}\">setup</a> for guided copy instructions before creating public short links or QR landing pages."|t('shortlink-manager', {url: url('shortlink-manager/setup')})|raw
 		} %}
 
         {% set redirectTemplateStatus = templateStatusesBySetting.redirectTemplate ?? null %}
@@ -320,18 +324,10 @@
                 "This is being overridden by the <code>redirectTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
             errors: settings.getErrors('redirectTemplate')
         }) }}
-        {% if redirectTemplateStatus %}
-            <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
-                {{ "Required: copy <code>{source}</code> to <code>{destination}</code>"|t('shortlink-manager', {
-                    source: redirectTemplateStatus.source|e,
-                    destination: redirectTemplateStatus.destination|e,
-                })|raw }}
-            </p>
-        {% endif %}
         {% if settings.directRedirect %}
             {% include 'lindemannrock-base/_components/info-box' with {
-                type: 'warning',
-                message: "Note: This template is not used when Direct Redirect is enabled (Settings → Behavior). Links using direct redirect skip the template entirely."|t('shortlink-manager')
+                type: 'info',
+                message: "Direct Redirect is active. The redirect template is only used when Direct Redirect is disabled. Open <a href=\"{url}\">Behavior settings</a> to change this."|t('shortlink-manager', {url: url('shortlink-manager/settings/behavior')})|raw
             } %}
         {% endif %}
 
@@ -349,15 +345,6 @@
                 "This is being overridden by the <code>expiredTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
             errors: settings.getErrors('expiredTemplate')
         }) }}
-        {% if expiredTemplateStatus %}
-            <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
-                {{ "Required: copy <code>{source}</code> to <code>{destination}</code>"|t('shortlink-manager', {
-                    source: expiredTemplateStatus.source|e,
-                    destination: expiredTemplateStatus.destination|e,
-                })|raw }}
-            </p>
-        {% endif %}
-
         {% set qrTemplateStatus = templateStatusesBySetting.qrTemplate ?? null %}
 		{{ forms.autosuggestField({
             label: "QR Code Template"|t('shortlink-manager'),
@@ -372,15 +359,6 @@
                 "This is being overridden by the <code>qrTemplate</code> setting in <code>config/shortlink-manager.php</code>."|t('shortlink-manager')|raw : null,
             errors: settings.getErrors('qrTemplate')
         }) }}
-        {% if qrTemplateStatus %}
-            <p class="light" style="margin-top: -12px; margin-bottom: 24px;">
-                {{ "Required: copy <code>{source}</code> to <code>{destination}</code>"|t('shortlink-manager', {
-                    source: qrTemplateStatus.source|e,
-                    destination: qrTemplateStatus.destination|e,
-                })|raw }}
-            </p>
-        {% endif %}
-
 		{{ forms.textareaField({
             label: "Default Expired Message"|t('shortlink-manager'),
             id: 'expiredMessage',
