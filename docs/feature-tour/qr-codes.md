@@ -155,6 +155,8 @@ All methods accept an `options` array with any of the customization options list
 
 The `/{qrPrefix}/{code}/view` endpoint renders a styled page containing the QR code with context. A custom template can be set via the `qrTemplate` setting.
 
+For the starter template, copy command, and available variables, see [Custom templates](../developers/custom-templates.md#qrtwig).
+
 The following variables are available in the display template:
 
 | Variable | Type | Description |

@@ -29,13 +29,37 @@ If visiting a short link URL doesn't redirect but instead loads a Craft template
 - Your site may have a matching Craft URL (section, entry) that intercepts the request before the shortlink route. Check if there's a section or entry with the same slug.
 - Clear all caches: Craft route caches can be stale after changing `slugPrefix`.
 
+## Twig says it cannot find `shortlink-manager/redirect`
+
+If a public short link, expired-link page, or QR landing page fails with a Twig template loading error such as:
+
+```text
+Unable to find the template "shortlink-manager/redirect".
+```
+
+the starter templates have not been copied into your site's `templates/` folder, or the template path setting points at a custom location where no file exists.
+
+Open **ShortLink Manager → Setup** and follow the template task, or run:
+
+```bash title="PHP"
+php craft shortlink-manager/setup/copy-templates
+```
+
+```bash title="DDEV"
+ddev craft shortlink-manager/setup/copy-templates
+```
+
+The command copies missing starter templates into the paths configured in settings and skips existing files. If you changed `redirectTemplate`, `expiredTemplate`, or `qrTemplate`, make sure the matching template exists at that configured path.
+
+For template source paths, manual copy commands, and available variables, see [Custom templates](../developers/custom-templates.md).
+
 ## Analytics are not recording
 
 1. **Is analytics enabled?** Check `enableAnalytics` is `true` in settings.
 
 2. **Is the link set to track?** Each short link has a **Track Analytics** toggle. Disabled links do not record clicks.
 
-3. **Is the IP hash salt set?** Without `ipHashSalt`, unique visitor tracking is not available, but total click counts still record. Set the salt with:
+3. **Is the IP hash salt set?** Open **ShortLink Manager → Setup** if the salt is missing. Public links can still resolve when templates are present, but setup remains incomplete and analytics privacy features are limited until the salt is configured. Set the salt with:
 
 ```bash title="PHP"
 php craft shortlink-manager/security/generate-salt

@@ -52,7 +52,9 @@ Settings are grouped below by their functional area, matching the CP settings pa
 
 ### Template settings
 
-These templates must exist in your site's `templates/` folder. Copy the reference templates from `vendor/lindemannrock/craft-shortlink-manager/src/templates/` to `templates/shortlink-manager/` and customize as needed. For what each template renders and the variables available in each, see [Custom templates](../developers/custom-templates.md).
+ShortLink Manager renders the redirect, expired-link, and QR landing pages from your site's `templates/` folder. Complete [Installation & Setup](installation.md#post-install-setup) first so the starter templates exist before public links render.
+
+The fields below only change where ShortLink Manager looks for those templates. Leave them empty to use the default paths, or point them at custom paths after you have placed templates there. For bundled template locations, manual copy commands, and the variables each template receives, see [Custom templates](../developers/custom-templates.md).
 
 All template paths support environment variables via Craft's `$ENV_VAR` syntax in the CP field, or via `App::env()` in the config file.
 
