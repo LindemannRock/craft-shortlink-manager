@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.28.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.27.0...v5.28.0) (2026-07-06)
+
+
+### Added
+
+* **settings:** add default QR logo ID normalization and selection ([8382835](https://github.com/LindemannRock/craft-shortlink-manager/commit/838283520bc09554146d9acba4016075ebd9c145))
+* **setup:** include shortlink full name in setup completion message ([c5cda42](https://github.com/LindemannRock/craft-shortlink-manager/commit/c5cda424f358655fdd500898ccee62d0488741e6))
+
 ## [5.27.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.26.0...v5.27.0) - 2026-07-05
 
 
