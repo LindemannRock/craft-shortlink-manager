@@ -145,6 +145,18 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringNotContainsString('elements: settings.defaultQrLogoId ? [craft.assets.id(settings.defaultQrLogoId).one()] : [],', $source);
     }
 
+    public function testSetupCompleteInfoBoxUsesConfiguredPluginName(): void
+    {
+        $source = file_get_contents(dirname(__DIR__, 2) . '/src/templates/setup.twig');
+        self::assertIsString($source);
+
+        self::assertStringContainsString('{% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}', $source);
+        self::assertStringContainsString('shortlinkFullNameHtml: shortlinkFullNameHtml,', $source);
+        self::assertStringContainsString("'{pluginName} is ready to create public short links and QR landing pages.'|t('shortlink-manager', {", $source);
+        self::assertStringContainsString('pluginName: shortlinkFullNameHtml', $source);
+        self::assertStringNotContainsString("'ShortLink Manager is ready to create public short links and QR landing pages.'|t('shortlink-manager')", $source);
+    }
+
     public function testDirectRedirectCacheWarningAllowsCodeMarkup(): void
     {
         $source = file_get_contents(dirname(__DIR__, 2) . '/src/templates/settings/behavior.twig');

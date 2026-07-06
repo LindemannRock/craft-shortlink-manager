@@ -6,6 +6,7 @@
 {% set missingTemplates = templateStatuses|filter(status => not status.exists) %}
 {% set templatesReady = missingTemplates|length == 0 %}
 {% set allComplete = ipSaltConfigured and templatesReady %}
+{% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}
 
 {% set ipSaltIncompleteBody %}
     <p>
@@ -133,11 +134,14 @@
         pluginIconSvg: pluginIconSvg,
         pluginHeroStyle: pluginHeroStyle,
         logoPaths: logoPaths,
+        shortlinkFullNameHtml: shortlinkFullNameHtml,
     } only %}
         {% block summary %}
             {% if allComplete %}
                 {% include 'lindemannrock-base/_components/info-box' with {
-                    message: '<strong>' ~ 'Setup complete.'|t('shortlink-manager') ~ '</strong> ' ~ 'ShortLink Manager is ready to create public short links and QR landing pages.'|t('shortlink-manager'),
+                    message: '<strong>' ~ 'Setup complete.'|t('shortlink-manager') ~ '</strong> ' ~ '{pluginName} is ready to create public short links and QR landing pages.'|t('shortlink-manager', {
+                        pluginName: shortlinkFullNameHtml,
+                    }),
                     type: 'success',
                     variant: 'colored',
                     margin: 'none',

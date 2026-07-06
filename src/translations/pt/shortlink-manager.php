@@ -931,7 +931,7 @@ return [
     'Finish setup before creating public short links and QR landing pages.' => 'Conclua a configuração antes de criar ligações curtas públicas e páginas de destino QR.',
     'Open setup' => 'Abrir configuração',
     'Setup complete.' => 'Configuração concluída.',
-    'ShortLink Manager is ready to create public short links and QR landing pages.' => 'ShortLink Manager está pronto para criar ligações curtas públicas e páginas de destino QR.',
+    '{pluginName} is ready to create public short links and QR landing pages.' => '{pluginName} está pronto para criar ligações curtas públicas e páginas de destino QR.',
 
     // Frontend
     'Scan with your phone\'s camera' => 'Digitalize com a câmara do seu telemóvel',

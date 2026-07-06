@@ -931,7 +931,7 @@ return [
     'Finish setup before creating public short links and QR landing pages.' => 'Fuldfør opsætningen, før du opretter offentlige korte links og QR-landingssider.',
     'Open setup' => 'Åbn opsætning',
     'Setup complete.' => 'Opsætning fuldført.',
-    'ShortLink Manager is ready to create public short links and QR landing pages.' => 'ShortLink Manager er klar til at oprette offentlige korte links og QR-landingssider.',
+    '{pluginName} is ready to create public short links and QR landing pages.' => '{pluginName} er klar til at oprette offentlige korte links og QR-landingssider.',
 
     // Frontend
     'Scan with your phone\'s camera' => 'Scan med din telefons kamera',
