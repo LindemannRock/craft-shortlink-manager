@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\helpers\PluginThemeStyleHelper;
 use lindemannrock\base\helpers\SettingsPostHelper;
@@ -380,6 +381,7 @@ class SettingsController extends Controller
                     : (is_array($value) ? $value : []),
                 'redirectManagerEvents' => static fn(mixed $value): array => is_array($value) ? $value : [],
                 'seomaticTrackingEvents' => static fn(mixed $value): array => is_array($value) ? $value : [],
+                'defaultQrLogoId' => fn(mixed $value): ?int => $this->normalizeDefaultQrLogoId($value, $settings),
             ],
         );
         $attributesToValidate = $result->attributesToValidate;
@@ -410,6 +412,15 @@ class SettingsController extends Controller
         }
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Normalize a posted default QR logo ID through the same server-side guard
+     * used by per-link QR logo saves and imports.
+     */
+    private function normalizeDefaultQrLogoId(mixed $assetId, Settings $settings): ?int
+    {
+        return AssetVolumeHelper::validateAssetId($assetId, $settings->qrLogoVolumeUid);
     }
 
     /**
