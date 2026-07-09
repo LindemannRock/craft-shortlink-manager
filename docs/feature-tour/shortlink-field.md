@@ -4,7 +4,7 @@ Attach a short link directly to any entry, product, or category — and have its
 
 When you add a ShortLink Field to a field layout, editors can see the short URL, copy it, and access the QR code from inside the element editor, without opening ShortLink Manager separately. When the element's URL changes, the short link's destination updates to match.
 
-![ShortLink Field panel inside an entry editor](images/shortlink-field-entry.webp)
+![ShortLink Field panel inside an entry editor](../images/shortlink-field-entry.webp)
 
 ## What you'll use it for
 

@@ -76,7 +76,7 @@ Logs are written as structured JSON with context data alongside each message, so
 
 The **ShortLink Manager → Logs** screen reads, filters, and downloads these log files without leaving the Control Panel.
 
-![ShortLink Manager log viewer in the Control Panel](images/logging-log-viewer.webp)
+![ShortLink Manager log viewer in the Control Panel](../images/logging-log-viewer.webp)
 
 From there you can:
 

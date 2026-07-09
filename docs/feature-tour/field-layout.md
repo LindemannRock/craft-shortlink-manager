@@ -15,7 +15,7 @@ Use this when the short link itself needs fields like campaign owner, UTM plan, 
 
 Go to **ShortLink Manager → Settings → Field Layout**.
 
-![ShortLink Manager field layout settings screen](images/field-layout-settings.webp)
+![ShortLink Manager field layout settings screen](../images/field-layout-settings.webp)
 
 Add any Craft fields you want ShortLink elements to carry. When a field-layout tab contains fields, it appears as an extra tab on the ShortLink edit screen.
 

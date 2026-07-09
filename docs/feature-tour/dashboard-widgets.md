@@ -9,7 +9,7 @@ Keep an eye on short link performance without leaving the Craft dashboard. Short
 - Share a focused view of link activity with team members who don't need the full analytics section
 - Monitor a time-limited campaign link across different date windows
 
-![Both ShortLink Manager dashboard widgets side by side](images/dashboard-widgets-cp.webp)
+![Both ShortLink Manager dashboard widgets side by side](../images/dashboard-widgets-cp.webp)
 
 ## Adding widgets
 

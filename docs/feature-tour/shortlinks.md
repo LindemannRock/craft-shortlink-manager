@@ -14,7 +14,7 @@ Shorten any URL in the Control Panel — no code required. Every short link gets
 
 Go to **ShortLink Manager → New ShortLink** in the Control Panel.
 
-![New short link form showing code, destination, and optional fields](images/shortlinks-new-link.webp)
+![New short link form showing code, destination, and optional fields](../images/shortlinks-new-link.webp)
 
 **Required fields:**
 
@@ -36,7 +36,7 @@ Go to **ShortLink Manager → New ShortLink** in the Control Panel.
 
 The entry sidebar also shows an attached short link without leaving the editor:
 
-![ShortLink Manager sidebar panel on an entry edit screen, showing the short URL, copy button, and QR code preview](images/shortlinks-element-sidebar.webp)
+![ShortLink Manager sidebar panel on an entry edit screen, showing the short URL, copy button, and QR code preview](../images/shortlinks-element-sidebar.webp)
 
 ---
 

@@ -11,7 +11,7 @@ By default, ShortLink Manager renders a redirect template before issuing the fin
 - Mixing tracking and non-tracking links in the same install — keep the template for campaign links, enable Direct Redirect for utility links
 - Reducing latency caused by template asset loading or complex layouts on the redirect page
 
-![Per-link Direct Redirect toggle in the ShortLink Manager edit screen](images/direct-redirect-toggle.webp)
+![Per-link Direct Redirect toggle in the ShortLink Manager edit screen](../images/direct-redirect-toggle.webp)
 
 ## Turning it on
 

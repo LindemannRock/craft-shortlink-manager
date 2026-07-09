@@ -14,7 +14,7 @@ Know exactly who's clicking your short links — device, location, referrer, and
 
 Go to **ShortLink Manager → Analytics**. Across the top sits a row of summary cards — **Total Interactions**, **Unique Visitors** (based on IP hashing — requires `ipHashSalt`), **Active Links**, and **Engagement Rate** — followed by tabs that group the detail.
 
-![Analytics dashboard showing summary cards, device breakdown, and top links chart](images/analytics-dashboard.webp)
+![Analytics dashboard showing summary cards, device breakdown, and top links chart](../images/analytics-dashboard.webp)
 
 ### Overview
 
@@ -181,7 +181,7 @@ In development, you may want to disable this cache to avoid stale results during
 
 Two Craft dashboard widgets provide at-a-glance analytics. Add them via **Dashboard → New Widget**.
 
-![Dashboard widgets showing click totals and top links list](images/analytics-widgets.webp)
+![Dashboard widgets showing click totals and top links list](../images/analytics-widgets.webp)
 
 **ShortLink Manager - Analytics** shows click totals, unique visitors, top links, and device breakdown for a configurable date range (default: last 7 days).
 

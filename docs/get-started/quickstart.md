@@ -14,7 +14,7 @@ Complete [Installation & Setup](installation.md#post-install-setup) first. The s
 4. Leave the code on **Auto-generated** — the plugin creates a unique code for you
 5. Click **Save**
 
-![The new short link form with destination URL filled in and code set to Auto-generated](images/quickstart-new-link.webp)
+![The new short link form with destination URL filled in and code set to Auto-generated](../images/quickstart-new-link.webp)
 
 The short URL and its QR code appear in the sidebar immediately after saving.
 

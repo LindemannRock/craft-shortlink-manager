@@ -13,7 +13,7 @@ Turn any URL into a short, trackable link — and a scannable QR code — withou
 - **Multi-site link management** — one short code, per-site destinations. Useful for regional or language variants of the same content.
 - **Organized link libraries** — group links into folders and tag them for bulk operations across large link sets.
 
-![ShortLink Manager element index showing a list of short links with status, destination, and click count columns](images/overview-element-index.webp)
+![ShortLink Manager element index showing a list of short links with status, destination, and click count columns](../images/overview-element-index.webp)
 
 ## What's in the box
 

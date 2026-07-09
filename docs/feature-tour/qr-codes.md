@@ -19,7 +19,7 @@ On the short link edit page, toggle **QR Code Enabled** to activate the QR endpo
 
 Go to **Settings → QR Codes** to configure appearance defaults for all links. A live preview updates as you change the size, colors, and styles, so you can see the result before saving — the same preview also appears on a short link's edit page when you override QR settings per link.
 
-![Settings → QR Codes page showing size, color, module style, and eye style options](images/qr-codes-settings.webp)
+![Settings → QR Codes page showing size, color, module style, and eye style options](../images/qr-codes-settings.webp)
 
 Per-link values left at `null` inherit from these global defaults.
 
@@ -27,7 +27,7 @@ Per-link values left at `null` inherit from these global defaults.
 
 Module style and eye style combine to give your QR codes a distinct look:
 
-![Grid comparing module styles (square, rounded, dots) and eye styles (square, rounded, pointed)](images/qr-codes-styles.webp)
+![Grid comparing module styles (square, rounded, dots) and eye styles (square, rounded, pointed)](../images/qr-codes-styles.webp)
 
 | Option | Values | Default |
 |--------|--------|---------|

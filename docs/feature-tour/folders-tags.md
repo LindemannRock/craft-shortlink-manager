@@ -27,7 +27,7 @@ Navigate to **ShortLink Manager → Folders & Tags**. The section has a sidebar 
 - **Folders** — list of all folders with usage count (number of links in each folder)
 - **Tags** — list of all tags with usage count
 
-![Folders & Tags CP section showing the folder list with usage counts](images/folders-tags-cp.webp)
+![Folders & Tags CP section showing the folder list with usage counts](../images/folders-tags-cp.webp)
 
 ### Creating
 

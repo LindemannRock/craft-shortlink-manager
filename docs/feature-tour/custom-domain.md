@@ -39,7 +39,7 @@ The link path uses `slugPrefix` (default `s`) and the QR path uses `qrPrefix` (d
 
 This overrides the site's own base URL when generating shortlink URLs, but does **not** require a separate Craft site. Your existing Craft site handles the routing — `shortlinkBaseUrl` only changes what URL is displayed and encoded in QR codes.
 
-![Custom domain field in ShortLink Manager settings](images/custom-domain-settings.webp)
+![Custom domain field in ShortLink Manager settings](../images/custom-domain-settings.webp)
 
 > [!TIP]
 > Rule of thumb: Single-site → `shortlinkBaseUrl` as a plain URL. Multisite where each site needs its own path → `shortlinkBaseUrl` with a `{siteHandle}` token.

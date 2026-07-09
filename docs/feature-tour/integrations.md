@@ -10,7 +10,7 @@ ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft's native
 - Automatically create a 301 redirect in Redirect Manager whenever a short link's slug changes, so existing bookmarks and QR codes keep working
 - Let editors pick a short link as the target of any Craft Link field — in matrix blocks, global sets, or any other context where a URL is needed
 
-![Integration settings screen showing SEOmatic and Redirect Manager toggles](images/integrations-settings.webp)
+![Integration settings screen showing SEOmatic and Redirect Manager toggles](../images/integrations-settings.webp)
 
 ## SEOmatic integration
 
