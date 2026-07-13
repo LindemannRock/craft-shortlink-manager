@@ -70,6 +70,14 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 ---
 
+### Logging
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `logLevel` | `string` | `'error'` | Log level. Options: `'error'`, `'warning'`, `'info'`, `'debug'` (debug requires devMode) |
+
+---
+
 ### Redirect behavior
 
 | Setting | Type | Default | Description |
@@ -80,13 +88,13 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `notFoundRedirectUrl` | `string` | `'/'` | Where to redirect when a short link is not found or disabled. Supports env vars |
 
 > [!TIP]
+> `302` is the default because it is the safest general-purpose status code for short links. `301` and `308` remain available, but they are much more likely to be cached aggressively by browsers and edge caches.
+
+> [!TIP]
 > Use `directRedirect` for maximum performance or when you do not need SEOmatic client-side tracking events. The redirect template is still useful when you want GTM/GA events to fire before the browser navigates away.
 
 > [!IMPORTANT]
 > `directRedirect` is the fastest path, but it only records server-side analytics when the short URL request reaches Craft/PHP. If a browser, CDN, or static cache serves that URL before Craft runs, repeat-hit analytics can be bypassed. Keep `directRedirect = false` for analytics-safe redirect pages under caching, or add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes) when direct mode must be used.
-
-> [!TIP]
-> `302` is the default because it is the safest general-purpose status code for short links. `301` and `308` remain available, but they are much more likely to be cached aggressively by browsers and edge caches.
 
 ---
 
@@ -157,8 +165,28 @@ Add `'seomatic'` to `enabledIntegrations` to activate both SEOmatic tracking and
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `itemsPerPage` | `int` | `50` | Items per page in element indexes (10–500) |
-| `logLevel` | `string` | `'error'` | Log level. Options: `'error'`, `'warning'`, `'info'`, `'debug'` (debug requires devMode) |
+| `itemsPerPage` | `int` | `100` | Items per page in element indexes (10–500) |
+
+---
+
+### Base display and export overrides
+
+The **Settings → Interface** screen also includes base-owned display and export controls after **Items per page**. Leave these unset to inherit from `config/lindemannrock-base.php`; set them in `config/shortlink-manager.php` only when ShortLink Manager should override the global base value.
+
+Each of these settings resolves in three steps: a value in `config/shortlink-manager.php` wins and locks the setting (the matching CP field is disabled with an override warning); otherwise a specific value picked in the Control Panel (anything other than **Use global default**) is saved with the plugin's settings and applies; otherwise the setting cascades from `config/lindemannrock-base.php` (or the built-in default when that file doesn't set it either). In practice you'll usually just pick a value in the CP — reach for the config file only when the value should be locked per environment.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `timeFormat` | `string\|null` | `null` | Time display override: `'12'` (AM/PM) or `'24'` |
+| `monthFormat` | `string\|null` | `null` | Month display override: `'numeric'`, `'short'`, or `'long'` |
+| `dateOrder` | `string\|null` | `null` | Date order override: `'dmy'`, `'mdy'`, or `'ymd'` |
+| `dateSeparator` | `string\|null` | `null` | Date separator override: `'/'`, `'-'`, or `'.'` |
+| `showSeconds` | `bool\|null` | `null` | Whether timestamps include seconds |
+| `defaultDateRange` | `string\|null` | `null` | Default date range for analytics, logs, dashboard widgets, and other date-filtered views. Values: `today`, `yesterday`, `thisWeek`, `lastWeek`, `last7days`, `last14days`, `last30days`, `last90days`, `thisMonth`, `lastMonth`, `thisQuarter`, `lastQuarter`, `thisYear`, `lastYear`, `last12months`, `all` |
+| `exports` | `array\|null` | `null` | Export format overrides, e.g. `['csv' => true, 'json' => true, 'excel' => true]` |
+
+> [!NOTE]
+> `exports` is the config-file shape only. In the Control Panel these appear as three separate dropdowns (CSV, JSON, Excel) on **Settings → Interface**, stored internally as individual settings — there is no single "Exports" field.
 
 ---
 
@@ -237,6 +265,20 @@ return [
 
         // Logging
         'logLevel' => 'error',
+
+        // Optional base-setting overrides for this plugin only
+        // Leave unset to inherit from config/lindemannrock-base.php.
+        // 'timeFormat' => '24',
+        // 'monthFormat' => 'short',
+        // 'dateOrder' => 'dmy',
+        // 'dateSeparator' => '/',
+        // 'showSeconds' => false,
+        // 'defaultDateRange' => 'last7days',
+        // 'exports' => [
+        //     'csv' => true,
+        //     'json' => true,
+        //     'excel' => true,
+        // ],
     ],
 
     'dev' => [
@@ -272,6 +314,8 @@ Settings are resolved in this order (later sources override earlier ones):
 2. Database-stored settings (saved from the CP)
 3. Config file settings (`config/shortlink-manager.php`)
 4. Environment-specific config overrides
+
+The base-owned settings in [Base display and export overrides](#base-display-and-export-overrides) add one extra layer: when neither a CP value nor `config/shortlink-manager.php` sets them, they inherit from `config/lindemannrock-base.php` before falling back to the built-in default.
 
 ---
 

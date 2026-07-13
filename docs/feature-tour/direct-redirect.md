@@ -120,3 +120,5 @@ Direct Redirect is simply the most performant option when you have no template r
 ## Changing redirect modes or status codes
 
 After changing `directRedirect` or switching a link between `301`/`308` and `302`/`307`, clear any relevant browser, CDN, or static caches before testing again. Old permanent redirect responses can stay cached and make the new behavior look broken until those caches are cleared.
+
+On Servd hosting, the automatic [Servd static cache purge](integrations.md#servd-static-cache) fires per short link — it does **not** run when you toggle the global Direct Redirect setting. After a global change, run **Utilities → ShortLink Manager → Servd Static Cache** to purge all short URL and QR landing pages at once (the Behavior settings screen reminds you of this too).

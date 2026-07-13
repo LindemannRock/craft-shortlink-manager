@@ -103,6 +103,8 @@ The QR image URL accepts query parameters to customize on the fly:
 | `eyeColor` | `?eyeColor=0000ff` | Eye color override |
 | `download` | `?download=1` | Trigger file download instead of inline display |
 
+Color parameters are forgiving: a value that isn't a valid 6-digit hex color (`color`, `bg`, or `eyeColor`) is silently ignored and the configured default is used instead — the QR code always renders rather than erroring.
+
 ## Downloading QR codes
 
 When `enableQrDownload` is `true` (default), QR codes can be downloaded. The download filename follows the `qrDownloadFilename` pattern with these tokens:

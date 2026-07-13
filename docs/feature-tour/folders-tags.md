@@ -64,7 +64,9 @@ The following bulk actions are available when selecting short links on the **Sho
 | **Set Folder** | Assign a folder to all selected links |
 | **Clear Folder** | Remove the folder assignment from all selected links |
 
-All bulk actions require the `shortLinkManager:editLinks` permission.
+All bulk actions require the `shortLinkManager:editLinks` permission. **Set Folder** and **Add Tags** additionally require `shortLinkManager:createTaxonomy` when the folder or tag you enter doesn't exist yet, since they create it on the fly — assigning an existing folder or tag needs only `editLinks`.
+
+On multi-site installs, bulk actions only apply to links on sites you have Craft's native "Edit site" permission for; selected links on other sites are skipped. See [Permissions → Multisite](../developers/permissions.md#multisite-the-native-editsite-permission).
 
 ## Filtering by folder or tag
 

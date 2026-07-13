@@ -19,7 +19,7 @@ Go to **ShortLink Manager → Analytics**. Across the top sits a row of summary 
 ### Overview
 
 - **Daily Interactions** — time-series chart of activity over the selected date range
-- **Top ShortLinks (Top 20)** — most-clicked links in the range
+- **Top ShortLinks (Top 20)** — most-clicked links in the range (disabled links are excluded, even if they recorded clicks while enabled)
 - **Interactions (Last 20)** — the most recent individual clicks
 
 ### Traffic & Devices

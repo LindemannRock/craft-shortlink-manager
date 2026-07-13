@@ -21,7 +21,7 @@ Navigate to **ShortLink Manager → Import/Export**. The page shows three sectio
 
 ## Exporting short links
 
-Click **Export CSV** to download all short links across all sites. The CSV includes the following columns:
+Click **Export CSV** to download your short links. The export covers every site that is enabled for the plugin *and* that you have edit access to (Craft's native "Edit site" permission) — on multi-site installs, links on sites you can't edit are left out. If no sites qualify, the page shows "No shortlinks to export." The CSV includes the following columns:
 
 | Column | Description |
 |--------|-------------|
@@ -62,7 +62,7 @@ Select your CSV file and click **Upload**. The importer accepts:
 
 - UTF-8 encoded CSV files
 - Auto-detected delimiter (comma, semicolon, or tab) — or specify a delimiter manually
-- Maximum 5,000 rows and 5 MB per file (base plugin defaults)
+- Maximum 4,000 rows and 5 MB per file (base plugin defaults)
 
 ### Step 2: Map columns
 
@@ -94,6 +94,8 @@ For multi-site setups, include both `siteId` and/or `siteHandle` columns. If bot
 
 To import the same short link code across multiple sites, include one row per site with the same `code` value and different `siteId`/`siteHandle` values.
 
+Rows are also permission-checked per site — see the "Site must be importable" rule below and [Permissions → Multisite](../developers/permissions.md#multisite-the-native-editsite-permission).
+
 ## Import validation rules
 
 | Rule | Detail |
@@ -104,6 +106,7 @@ To import the same short link code across multiple sites, include one row per si
 | URL format | Destination URL must start with `https://`, `http://`, or `/`. Dangerous schemes (e.g. `javascript:`, `data:`), including obfuscated variants, are always rejected. |
 | QR format | `qrCodeFormat` must be `png`, `svg`, or empty |
 | Element must exist | `shortLinkType: auto` rows require a valid `elementId` pointing to a Craft element with a URL |
+| Site must be importable | The target site must be enabled for the plugin and editable by you (multi-site) — otherwise the row fails. This check runs at the final import step, so it isn't reflected in the Step 3 preview counts |
 | `folder` | Creates the folder automatically if it doesn't exist |
 | `tags` | Creates tags automatically if they don't exist; comma-separated in the CSV cell |
 | `passQueryParams` / `directRedirect` | `1`/`true`/`yes` → `true`; `0`/`false` → `false`; empty → `null` (inherits global) |

@@ -102,3 +102,17 @@ The same pattern applies to analytics: `viewAnalytics` grants access to the anal
 The same pattern applies to import/export: `manageImportExport` grants access to the Import/Export CP section and import history. Individual child permissions (`importLinks`, `exportLinks`, `clearImportHistory`) control specific operations.
 
 The same pattern applies to folders & tags: `manageTaxonomy` grants access to the Folders & Tags CP section. Child permissions (`createTaxonomy`, `editTaxonomy`, `deleteTaxonomy`) control write operations on the taxonomy entries themselves.
+
+Two taxonomy actions have an extra requirement: the **Set Folder** and **Add Tags** bulk actions additionally require `createTaxonomy` when the folder or tag you type doesn't exist yet (they auto-create it). Assigning an *existing* folder or tag only needs `editLinks`.
+
+## Multisite: the native `editSite` permission
+
+On multi-site installs, ShortLink Manager's own permissions are not the whole story. Editing, deleting, or duplicating a short link also requires Craft's **native site permission** (`editSite:<site-uid>` — the "Edit site" checkbox under the site's name in the user group's permissions) for the site the link belongs to. A user with `editLinks` but no edit access to the link's site cannot modify that link.
+
+The same site scoping applies across the plugin:
+
+- **Folder & tag bulk actions** only affect links on sites the user can edit — links on other sites are silently skipped.
+- **CSV export** includes only links from sites that are both enabled for the plugin *and* editable by the exporting user. If no sites qualify, the export shows "No shortlinks to export."
+- **CSV import** counts a row as failed when it targets a site the importing user can't edit (or a site not enabled for the plugin) — see [Import & Export](../feature-tour/import-export.md).
+
+On single-site installs none of this applies — the plugin's own permissions are sufficient.

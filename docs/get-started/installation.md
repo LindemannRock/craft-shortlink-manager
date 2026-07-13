@@ -42,6 +42,8 @@ Or via the Control Panel: **Settings → Plugins → Logging Library → Install
 
 After installing, open **ShortLink Manager → Setup** in the Control Panel before creating public short links or QR landing pages. The setup page checks the required privacy salt and starter templates.
 
+Until both checks pass, every ShortLink Manager screen shows a **"Setup incomplete"** notice with an **Open setup** button — that's expected, not an error. Complete the two steps below and the notice disappears everywhere at once.
+
 ### Generate an IP hash salt
 
 Generate a secure salt for analytics privacy and unique visitor tracking:

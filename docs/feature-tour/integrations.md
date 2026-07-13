@@ -130,9 +130,12 @@ When the [Servd Asset Storage](https://plugins.craftcms.com/servd-asset-storage)
 
 - **What's purged:** the public short URL and the QR landing URL, across all enabled sites (generated with `Settings::buildPublicUrl()`, so `shortlinkBaseUrl`, custom domains, and `{siteHandle}` tokens are respected).
 - **When:** on save/update, before delete, after a slug change (the old slug is purged too), and when ShortLink Manager caches are cleared.
-- **Prerequisites:** purging only runs on Servd's hosting infrastructure with static cache enabled — the PHP `redis` extension must be loaded and Servd's runtime environment variables (`SERVD_CACHE_ENABLED`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_STATIC_CACHE_DB`, `ENVIRONMENT`, `SERVD_PROJECT_SLUG`) must be present. On a standard Servd deployment these are already set; anywhere else the purge is silently skipped.
+- **Prerequisites:** purging only runs on Servd's hosting infrastructure with static cache enabled — the PHP `redis` extension must be loaded, Servd's runtime environment variables (`SERVD_CACHE_ENABLED`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_STATIC_CACHE_DB`, `SERVD_PROJECT_SLUG`) must be present, and `ENVIRONMENT` must be exactly `development`, `staging`, or `production`. On a standard Servd deployment these are already set; anywhere else the purge is silently skipped.
 
-This keeps Servd from serving stale redirect/QR responses after a change. It does **not** replace cache-bypass rules for [Direct Redirect](direct-redirect.md) if every hit must reach Craft for analytics — see [Troubleshooting](../resources/troubleshooting.md#analytics-record-once-then-stop-under-static-cache).
+This keeps Servd from serving stale redirect/QR responses after a change. Two caveats:
+
+- **Global settings changes don't auto-purge.** The automatic purge fires per short link (save, delete, slug change) — not when you flip a plugin-wide setting. After toggling the global [Direct Redirect](direct-redirect.md) setting, run **Utilities → ShortLink Manager → Servd Static Cache** so cached redirect responses are refreshed (the Behavior settings screen shows this reminder too).
+- It does **not** replace cache-bypass rules for [Direct Redirect](direct-redirect.md) if every hit must reach Craft for analytics — see [Troubleshooting](../resources/troubleshooting.md#analytics-record-once-then-stop-under-static-cache).
 
 ## Integration requirements
 

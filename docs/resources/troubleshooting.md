@@ -213,6 +213,14 @@ Numeric settings such as QR cache duration, device detection cache duration, QR 
 
 If a settings save fails, keep the submitted form open and check the inline field errors. ShortLink Manager validates the posted values before saving and does not partially save invalid settings.
 
+## CSV import fails with "Failed to parse CSV"
+
+1. **Is the file valid UTF-8 CSV?** Re-save the file as UTF-8 CSV from your spreadsheet tool. Excel's default encodings and stray BOMs are the most common cause.
+2. **Is the file within limits?** Imports accept up to 4,000 rows and 5 MB per file.
+3. **Is the delimiter detected correctly?** If auto-detection struggles, specify the delimiter (comma, semicolon, or tab) manually on the upload step.
+
+In production the flash message intentionally shows a generic "An unexpected error occurred." — the underlying parse error is written to the plugin log. With `devMode` enabled, the flash message includes the real error instead. Check **ShortLink Manager → Logs** (or `storage/logs/`) for the specific cause.
+
 ## Custom short domain not working
 
 1. **Does DNS resolve?** The domain must point to your Craft server.

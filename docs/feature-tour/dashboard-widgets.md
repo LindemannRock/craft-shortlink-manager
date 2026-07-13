@@ -53,8 +53,10 @@ See a ranked list of your most-clicked short links for the selected period.
 ### What it shows
 
 - **Short code** — the link's code, linked to its edit page in ShortLink Manager
-- **Destination domain** — abbreviated domain of the target URL
+- **Destination domain** — abbreviated domain of the target URL (shown as plain text rather than a link if the stored URL fails the plugin's URL safety check)
 - **Interactions** — total click count for the period
+
+Disabled short links are excluded from the ranking, even if they recorded clicks while enabled.
 
 ### Configuration
 
