@@ -468,7 +468,6 @@ return [
     'Slug change redirects remain active permanently, preventing broken links' => 'Slug-Änderungs-Weiterleitungen bleiben dauerhaft aktiv und verhindern defekte Links',
     'Source Tracking' => 'Quellenverfolgung',
     '{rmPluginName} shows which plugin created each redirect for better organization' => '{rmPluginName} zeigt an, welches Plugin jede Weiterleitung erstellt hat, für eine bessere Übersicht',
-    'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Erstellt permanente Weiterleitungen, wenn sich {pluginName} Slugs ändern oder Links gelöscht werden',
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} ist für die Website „{site}" nicht aktiviert. Aktivieren Sie es in den Plugin-Einstellungen, um {pluginNameLower} hier zu verwenden.',
     'Invalid {pluginName} format.' => 'Ungültiges {pluginName} Format.',
     '{pluginName} not found.' => '{pluginName} nicht gefunden.',

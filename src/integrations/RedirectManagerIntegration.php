@@ -25,8 +25,6 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  *
  * Actual redirect creation happens in ShortLinksService:
  * - handleSlugChange() -> calls redirect-manager service methods with runtime checks
- * - handleExpiredShortLink() -> calls redirect-manager service methods with runtime checks
- * - handleDeletedShortLink() -> calls redirect-manager service methods with runtime checks
  *
  * @since 5.0.0
  */
@@ -64,8 +62,6 @@ class RedirectManagerIntegration extends BaseIntegration
         // Redirect Manager integration doesn't use event pushing
         // Redirects are created via service method calls in the service layer:
         // - ShortLinksService::handleSlugChange() -> calls redirect-manager service
-        // - ShortLinksService::handleExpiredShortLink() -> calls redirect-manager service
-        // - ShortLinksService::handleDeletedShortLink() -> calls redirect-manager service
         return true;
     }
 
@@ -85,7 +81,7 @@ class RedirectManagerIntegration extends BaseIntegration
             'available' => $this->isAvailable(),
             'enabled' => $this->isEnabled(),
             'events' => $redirectManagerEvents,
-            'description' => Craft::t('shortlink-manager', 'Creates permanent redirects when {pluginName} slugs change or links are deleted', [
+            'description' => Craft::t('shortlink-manager', 'Create permanent redirect records when {pluginName} slugs change. Provides centralized redirect management and analytics tracking.', [
                 'pluginName' => ShortLinkManager::$plugin->getSettings()->getLowerDisplayName(),
             ]),
         ];

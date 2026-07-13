@@ -468,7 +468,6 @@ return [
     'Slug change redirects remain active permanently, preventing broken links' => 'Omdirigeringar vid slug-ändringar förblir permanent aktiva och förhindrar brutna länkar',
     'Source Tracking' => 'Källspårning',
     '{rmPluginName} shows which plugin created each redirect for better organization' => '{rmPluginName} visar vilket plugin som skapade varje omdirigering för bättre organisation',
-    'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Skapar permanenta omdirigeringar när {pluginName}-slugs ändras eller när länkar tas bort',
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} är inte aktiverat för webbplatsen "{site}". Aktivera det i pluginets inställningar för att använda {pluginNameLower} här.',
     'Invalid {pluginName} format.' => 'Ogiltigt {pluginName}-format.',
     '{pluginName} not found.' => '{pluginName} hittades inte.',

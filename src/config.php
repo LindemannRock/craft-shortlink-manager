@@ -140,7 +140,7 @@ return [
         'seomaticEventPrefix' => 'shortlink_manager', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
 
         // Redirect Manager Integration
-        'redirectManagerEvents' => ['slug-change', 'expire', 'delete'], // Which events create redirects
+        'redirectManagerEvents' => ['slug-change'], // Which events create redirects
 
 
         // ========================================
@@ -208,7 +208,7 @@ return [
         /**
          * Export format overrides
          * Enable/disable specific export formats for this plugin
-         * Default: all enabled (from base plugin)
+         * Default: CSV and Excel enabled, JSON disabled (developer format — from base plugin)
          */
         // 'exports' => [
         //     'csv' => true,

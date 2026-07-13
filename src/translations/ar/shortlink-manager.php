@@ -468,7 +468,6 @@ return [
     'Slug change redirects remain active permanently, preventing broken links' => 'تبقى عمليات إعادة توجيه تغيير Slug نشطة بشكل دائم مما يمنع الروابط المكسورة',
     'Source Tracking' => 'تتبع المصدر',
     '{rmPluginName} shows which plugin created each redirect for better organization' => '{rmPluginName} يُظهر أي إضافة أنشأت كل إعادة توجيه لتنظيم أفضل',
-    'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'ينشئ إعادة توجيه دائمة عند تغيير Slugs {pluginName} أو حذف الروابط',
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} غير مُفعَّل للموقع "{site}". فعّله في إعدادات الإضافة لاستخدام {pluginNameLower} هنا.',
     'Invalid {pluginName} format.' => 'صيغة {pluginName} غير صالحة.',
     '{pluginName} not found.' => '{pluginName} غير موجود.',

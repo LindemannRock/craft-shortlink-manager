@@ -468,7 +468,6 @@ return [
     'Slug change redirects remain active permanently, preventing broken links' => 'Slug change redirects remain active permanently, preventing broken links',
     'Source Tracking' => 'Source Tracking',
     '{rmPluginName} shows which plugin created each redirect for better organization' => '{rmPluginName} shows which plugin created each redirect for better organization',
-    'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Creates permanent redirects when {pluginName} slugs change or links are deleted',
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.',
     'Invalid {pluginName} format.' => 'Invalid {pluginName} format.',
     '{pluginName} not found.' => '{pluginName} not found.',

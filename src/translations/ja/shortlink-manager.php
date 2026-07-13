@@ -468,7 +468,6 @@ return [
     'Slug change redirects remain active permanently, preventing broken links' => 'Slug 変更リダイレクトは永続的にアクティブのままで、リンク切れを防ぎます',
     'Source Tracking' => 'ソーストラッキング',
     '{rmPluginName} shows which plugin created each redirect for better organization' => '{rmPluginName} はより良い整理のためにどのプラグインが各リダイレクトを作成したかを表示します',
-    'Creates permanent redirects when {pluginName} slugs change or links are deleted' => '{pluginName} の slug が変更されたりリンクが削除されたりした場合に恒久的なリダイレクトを作成します',
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} はサイト "{site}" で有効になっていません。こちらで {pluginNameLower} を使用するにはプラグイン設定で有効にしてください。',
     'Invalid {pluginName} format.' => '{pluginName} のフォーマットが無効です。',
     '{pluginName} not found.' => '{pluginName} が見つかりません。',

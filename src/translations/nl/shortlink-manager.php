@@ -468,7 +468,6 @@ return [
     'Slug change redirects remain active permanently, preventing broken links' => 'Redirects bij slug-wijzigingen blijven permanent actief, waardoor verbroken links worden voorkomen',
     'Source Tracking' => 'Bronregistratie',
     '{rmPluginName} shows which plugin created each redirect for better organization' => '{rmPluginName} toont welke plugin elke doorverwijzing heeft aangemaakt voor een betere organisatie',
-    'Creates permanent redirects when {pluginName} slugs change or links are deleted' => 'Maakt permanente doorverwijzingen aan wanneer {pluginName} slugs veranderen of links worden verwijderd',
     '{pluginName} is not enabled for site "{site}". Enable it in plugin settings to use {pluginNameLower} here.' => '{pluginName} is niet ingeschakeld voor site "{site}". Schakel het in via de plugininstellingen om {pluginNameLower} hier te gebruiken.',
     'Invalid {pluginName} format.' => 'Ongeldig {pluginName} formaat.',
     '{pluginName} not found.' => '{pluginName} niet gevonden.',
