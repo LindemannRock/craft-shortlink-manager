@@ -5,7 +5,7 @@
 [![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-shortlink-manager.svg)](https://packagist.org/packages/lindemannrock/craft-shortlink-manager)
 [![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.10%2B-orange.svg)](https://craftcms.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue.svg)](https://php.net/)
-[![Logging Library](https://img.shields.io/badge/Logging%20Library-5.15%2B-green.svg)](https://github.com/LindemannRock/craft-logging-library)
+[![Logging Library](https://img.shields.io/badge/Logging%20Library-5.15.1%2B-green.svg)](https://github.com/LindemannRock/craft-logging-library)
 [![License](https://img.shields.io/packagist/l/lindemannrock/craft-shortlink-manager.svg)](LICENSE.md)
 
 Advanced shortlink management with QR codes and analytics for Craft CMS.
@@ -32,7 +32,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 
 - Craft CMS 5.10+
 - PHP 8.2+
-- [Logging Library](https://github.com/LindemannRock/craft-logging-library) 5.15+ — optional, install in CP for logs
+- [Logging Library](https://github.com/LindemannRock/craft-logging-library) 5.15.1+ (required by Composer; install in CP for log viewing)
 - [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode) ^2.0 or ^3.0
 
 ## Installation
