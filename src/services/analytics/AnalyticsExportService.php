@@ -61,7 +61,7 @@ class AnalyticsExportService
         // Use analytics destinationUrl (captured at click time), fallback to current for old records
         $query = (new Query())
             ->from('{{%shortlinkmanager_analytics}} a')
-            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
+            ->leftJoin('{{%shortlinkmanager_content}} c', '[[c.shortLinkId]] = [[a.linkId]] AND [[c.siteId]] = [[a.siteId]]')
             ->select(array_merge([
                 'a.dateCreated',
                 'a.linkId',
@@ -80,7 +80,7 @@ class AnalyticsExportService
                 'a.language',
                 'a.referrer',
                 'a.userAgent',
-                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
+                'COALESCE([[a.destinationUrl]], [[c.destinationUrl]]) as [[destinationUrl]]',
             ], $optionalSelect))
             ->orderBy(['a.dateCreated' => SORT_DESC]);
 

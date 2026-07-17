@@ -223,7 +223,7 @@ class AnalyticsService extends Component
         // Get count of links that have been clicked in this period
         $shortLinksQuery = (new Query())
             ->from('{{%shortlinkmanager_analytics}}')
-            ->select('COUNT(DISTINCT linkId)');
+            ->select('COUNT(DISTINCT [[linkId]])');
 
         $this->applyDateRangeFilter($shortLinksQuery, $dateRange);
         if ($siteId !== null) {

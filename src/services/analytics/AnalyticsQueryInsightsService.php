@@ -229,11 +229,11 @@ class AnalyticsQueryInsightsService
                 'a.isMobileApp', 'a.botName', 'a.country', 'a.city', 'a.language', 'a.region',
                 'a.latitude', 'a.longitude', 'a.dateCreated', 'a.dateUpdated',
                 'l.code as linkCode', 'l.slug',
-                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
+                'COALESCE([[a.destinationUrl]], [[c.destinationUrl]]) as [[destinationUrl]]',
             ], $optionalSelect))
             ->from('{{%shortlinkmanager_analytics}} a')
-            ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
-            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
+            ->innerJoin('{{%shortlinkmanager}} l', '[[l.id]] = [[a.linkId]]')
+            ->leftJoin('{{%shortlinkmanager_content}} c', '[[c.shortLinkId]] = [[a.linkId]] AND [[c.siteId]] = [[a.siteId]]')
             ->where(['a.linkId' => $shortLinkId])
             ->orderBy(['a.dateCreated' => SORT_DESC])
             ->limit(20);
@@ -290,11 +290,11 @@ class AnalyticsQueryInsightsService
                 'a.isMobileApp', 'a.botName', 'a.country', 'a.city', 'a.language', 'a.region',
                 'a.latitude', 'a.longitude', 'a.dateCreated', 'a.dateUpdated',
                 'l.code as linkCode', 'l.slug',
-                'COALESCE(a.destinationUrl, c.destinationUrl) as destinationUrl',
+                'COALESCE([[a.destinationUrl]], [[c.destinationUrl]]) as [[destinationUrl]]',
             ], $optionalSelect))
             ->from('{{%shortlinkmanager_analytics}} a')
-            ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
-            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
+            ->innerJoin('{{%shortlinkmanager}} l', '[[l.id]] = [[a.linkId]]')
+            ->leftJoin('{{%shortlinkmanager_content}} c', '[[c.shortLinkId]] = [[a.linkId]] AND [[c.siteId]] = [[a.siteId]]')
             ->orderBy(['a.dateCreated' => SORT_DESC])
             ->limit($limit);
 
@@ -349,11 +349,11 @@ class AnalyticsQueryInsightsService
     public function getTopLinks(int $limit = 10, string $dateRange = 'last7days', int|array|null $siteId = null): array
     {
         $query = (new Query())
-            ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'a.siteId', 'COUNT(a.id) as clicks', 'MAX(a.dateCreated) as lastClick'])
+            ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'a.siteId', 'COUNT(a.id) as clicks', 'MAX([[a.dateCreated]]) as [[lastClick]]'])
             ->from('{{%shortlinkmanager_analytics}} a')
-            ->innerJoin('{{%shortlinkmanager}} l', 'l.id = a.linkId')
-            ->innerJoin('{{%elements_sites}} es', 'es.elementId = l.id AND es.siteId = a.siteId')
-            ->leftJoin('{{%shortlinkmanager_content}} c', 'c.shortLinkId = a.linkId AND c.siteId = a.siteId')
+            ->innerJoin('{{%shortlinkmanager}} l', '[[l.id]] = [[a.linkId]]')
+            ->innerJoin('{{%elements_sites}} es', '[[es.elementId]] = [[l.id]] AND [[es.siteId]] = [[a.siteId]]')
+            ->leftJoin('{{%shortlinkmanager_content}} c', '[[c.shortLinkId]] = [[a.linkId]] AND [[c.siteId]] = [[a.siteId]]')
             ->groupBy('l.id, l.code, l.slug, c.destinationUrl, a.siteId')
             ->where(['es.enabled' => true])
             ->orderBy(['clicks' => SORT_DESC])
