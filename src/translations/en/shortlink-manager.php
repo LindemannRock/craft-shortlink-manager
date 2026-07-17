@@ -183,7 +183,6 @@ return [
     'User does not have permission to clear import history.' => 'User does not have permission to clear import history.',
 
     // Validation messages
-    'Found {count, number} {count, plural, =1{error} other{errors}}' => 'Found {count, number} {count, plural, =1{error} other{errors}}',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.',
     'This code is already in use (slug: {slug}).' => 'This code is already in use (slug: {slug}).',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)',
@@ -863,10 +862,8 @@ return [
     'Enable in Settings' => 'Enable in Settings',
 
     // Utilities
-    'System Overview' => 'System Overview',
     'Manage Settings' => 'Manage Settings',
     'View Analytics' => 'View Analytics',
-    'Quick Actions' => 'Quick Actions',
 
     // Dashboard
     'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.' => 'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.',

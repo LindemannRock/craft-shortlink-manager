@@ -183,7 +183,6 @@ return [
     'User does not have permission to clear import history.' => 'Användaren har inte behörighet att rensa importhistoriken.',
 
     // Validation messages
-    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{fel} other{fel}} hittades',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => '{attribute} får bara innehålla bokstäver, siffror, understreck, bindestreck och mellanslag.',
     'This code is already in use (slug: {slug}).' => 'Den här koden används redan (slug: {slug}).',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'Ange en giltig URL som börjar med https:// eller http://, eller en sökväg som börjar med / (t.ex. https://example.com eller /page)',
@@ -863,10 +862,8 @@ return [
     'Enable in Settings' => 'Aktivera i inställningar',
 
     // Utilities
-    'System Overview' => 'Systemöversikt',
     'Manage Settings' => 'Hantera inställningar',
     'View Analytics' => 'Visa analys',
-    'Quick Actions' => 'Snabbåtgärder',
 
     // Dashboard
     'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.' => 'Övervaka {pluginName}-prestanda, spåra analys och hantera cache för dina QR-koder och omdirigeringar.',

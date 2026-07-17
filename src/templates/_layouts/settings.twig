@@ -14,7 +14,6 @@
     {% set validationSummary = include('lindemannrock-base/_partials/error-summary', {
         errors: settings.getErrors(),
         linkMode: 'field-id',
-        translationCategory: 'shortlink-manager'
     })|trim %}
 {% endif %}
 {% set errorSummary = (setupIncompleteSummary ~ validationSummary)|trim %}

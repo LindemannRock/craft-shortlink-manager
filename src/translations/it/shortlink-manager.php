@@ -183,7 +183,6 @@ return [
     'User does not have permission to clear import history.' => 'L\'utente non dispone dell\'autorizzazione per cancellare la cronologia importazioni.',
 
     // Validation messages
-    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{errore trovato} other{errori trovati}}',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => '{attribute} deve contenere solo lettere, numeri, trattini bassi, trattini e spazi.',
     'This code is already in use (slug: {slug}).' => 'Questo codice è già in uso (slug: {slug}).',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'Inserire un URL valido che inizi con https:// o http://, oppure un percorso che inizi con / (ad es. https://example.com o /page)',
@@ -863,10 +862,8 @@ return [
     'Enable in Settings' => 'Abilita nelle impostazioni',
 
     // Utilities
-    'System Overview' => 'Panoramica di sistema',
     'Manage Settings' => 'Gestisci impostazioni',
     'View Analytics' => 'Visualizza analisi',
-    'Quick Actions' => 'Azioni rapide',
 
     // Dashboard
     'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.' => 'Monitora le prestazioni di {pluginName}, traccia gli analytics e gestisci la cache per i QR Code e i reindirizzamenti.',

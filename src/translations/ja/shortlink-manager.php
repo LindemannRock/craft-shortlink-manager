@@ -183,7 +183,6 @@ return [
     'User does not have permission to clear import history.' => 'ユーザーにインポート履歴を削除する権限がありません。',
 
     // Validation messages
-    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} 件の{count, plural, =1{エラー} other{エラー}}が見つかりました',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => '{attribute} には文字、数字、アンダースコア、ハイフン、スペースのみ使用できます。',
     'This code is already in use (slug: {slug}).' => 'このコードはすでに使用されています（slug: {slug}）。',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'https:// または http:// で始まる有効な URL、または / で始まるパス（例: https://example.com または /page）を入力してください',
@@ -863,10 +862,8 @@ return [
     'Enable in Settings' => '設定で有効にする',
 
     // Utilities
-    'System Overview' => 'システム概要',
     'Manage Settings' => '設定を管理する',
     'View Analytics' => 'アナリティクスを表示する',
-    'Quick Actions' => 'クイックアクション',
 
     // Dashboard
     'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.' => '{pluginName} のパフォーマンスを監視し、アナリティクスを追跡し、QR コードとリダイレクトのキャッシュを管理します。',

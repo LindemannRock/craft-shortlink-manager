@@ -183,7 +183,6 @@ return [
     'User does not have permission to clear import history.' => 'ليس لدى المستخدم صلاحية لمسح سجل الاستيراد.',
 
     // Validation messages
-    'Found {count, number} {count, plural, =1{error} other{errors}}' => 'تم العثور على {count, number} {count, plural, =1{خطأ} other{أخطاء}}',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => 'يجب أن يحتوي {attribute} على حروف وأرقام وشرطات سفلية وشرطات ومسافات فقط.',
     'This code is already in use (slug: {slug}).' => 'هذا الCode مستخدم بالفعل (slug: {slug}).',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'يرجى إدخال URL صالح يبدأ بـ https:// أو http://، أو مسار يبدأ بـ / (مثل https://example.com أو /page)',
@@ -863,10 +862,8 @@ return [
     'Enable in Settings' => 'التفعيل في الإعدادات',
 
     // Utilities
-    'System Overview' => 'نظرة عامة على النظام',
     'Manage Settings' => 'إدارة الإعدادات',
     'View Analytics' => 'عرض التحليلات',
-    'Quick Actions' => 'إجراءات سريعة',
 
     // Dashboard
     'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.' => 'راقب أداء {pluginName}، وتتبع Analytics، وأدر Cache لـ QR codes وإعادة التوجيه.',

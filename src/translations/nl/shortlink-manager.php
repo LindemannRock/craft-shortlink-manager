@@ -183,7 +183,6 @@ return [
     'User does not have permission to clear import history.' => 'De gebruiker heeft geen toestemming om de importgeschiedenis te wissen.',
 
     // Validation messages
-    'Found {count, number} {count, plural, =1{error} other{errors}}' => '{count, number} {count, plural, =1{fout} other{fouten}} gevonden',
     '{attribute} should only contain letters, numbers, underscores, hyphens, and spaces.' => '{attribute} mag alleen letters, cijfers, underscores, koppeltekens en spaties bevatten.',
     'This code is already in use (slug: {slug}).' => 'Deze code is al in gebruik (slug: {slug}).',
     'Please enter a valid URL starting with https:// or http://, or a path starting with / (e.g., https://example.com or /page)' => 'Voer een geldige URL in die begint met https:// of http://, of een pad dat begint met / (bijv. https://example.com of /pagina)',
@@ -863,10 +862,8 @@ return [
     'Enable in Settings' => 'Inschakelen via instellingen',
 
     // Utilities
-    'System Overview' => 'Systeemoverzicht',
     'Manage Settings' => 'Instellingen beheren',
     'View Analytics' => 'Analyses bekijken',
-    'Quick Actions' => 'Snelle acties',
 
     // Dashboard
     'Monitor {pluginName} performance, track analytics, and manage cache for your QR codes and redirects.' => 'Monitor {pluginName} prestaties, volg analyses en beheer cache voor uw QR-codes en doorverwijzingen.',
