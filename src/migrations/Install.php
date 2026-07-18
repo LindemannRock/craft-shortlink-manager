@@ -162,7 +162,7 @@ class Install extends Migration
                 'destinationUrl' => $this->text()->null(),
                 'ip' => $this->string(64)->null(),
                 'userAgent' => $this->text()->null(),
-                'metadata' => $this->text()->null(),
+                'metadata' => $this->json()->null(),
                 'referrer' => $this->text()->null(),
                 'deviceType' => $this->string(50)->null(),
                 'deviceBrand' => $this->string(50)->null(),

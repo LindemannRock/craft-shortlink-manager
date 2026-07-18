@@ -95,7 +95,7 @@ class ShortLinkManager extends Plugin
     /**
      * @var string Plugin schema version for migrations
      */
-    public string $schemaVersion = '1.0.0';
+    public string $schemaVersion = '1.1.0';
 
     /**
      * @var bool Whether the plugin exposes a control panel settings page
