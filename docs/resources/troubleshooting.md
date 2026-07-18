@@ -353,3 +353,14 @@ If redirects feel slow:
 - Enable debug logging: `'logLevel' => 'debug'` in `config/shortlink-manager.php` (requires `devMode`)
 - Check Craft's general logs: `storage/logs/web.log`
 - For persistent issues, include your ShortLink Manager version and relevant log entries when reporting
+
+## SQL Errors on PostgreSQL (Column Does Not Exist / Ambiguous)
+
+```text
+SQLSTATE[42703]: column "..." does not exist
+SQLSTATE[42702]: column reference "..." is ambiguous
+```
+
+Either of these on a PostgreSQL install — in analytics pages, dashboards, or tracking — means you're on a version whose SQL was only exercised on MySQL. PostgreSQL folds unquoted identifiers to lowercase and resolves upsert column references differently; MySQL surfaces neither, so the issues were invisible there.
+
+**Fix:** Update to the latest version. All plugin SQL is now dialect-safe on both MySQL and PostgreSQL.

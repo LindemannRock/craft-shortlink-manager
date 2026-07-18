@@ -32,8 +32,8 @@
     "require": {
         "php": ">=8.2",
         "craftcms/cms": "^5.10",
-        "lindemannrock/craft-plugin-base": "^5.34.2",
-        "lindemannrock/craft-logging-library": "^5.15.1",
+        "lindemannrock/craft-plugin-base": "^5.35",
+        "lindemannrock/craft-logging-library": "^5.16",
         "bacon/bacon-qr-code": "^2.0 || ^3.0"
     },
     "require-dev": {
@@ -42,7 +42,7 @@
         "nystudio107/craft-seomatic": "^5.0",
         "phpunit/phpunit": "^11.0",
         "yiisoft/yii2-redis": "^2.0",
-        "lindemannrock/craft-redirect-manager": "^5.39.1"
+        "lindemannrock/craft-redirect-manager": "^5.40"
     },
     "autoload": {
         "psr-4": {
