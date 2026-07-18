@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.28.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.2...v5.28.3) - 2026-07-18
+
+
+### Fixed
+
+* **analytics:** use parameterized queries for destination URL selection ([fdabe65](https://github.com/LindemannRock/craft-shortlink-manager/commit/fdabe65c2fc659ce65156249d64842c2b3cbd931))
+* require PostgreSQL-compatible shared dependencies ([bfa2a89](https://github.com/LindemannRock/craft-shortlink-manager/commit/bfa2a8906c49f0aff88e25046212c97c6373931f))
+
 ## [5.28.2](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.1...v5.28.2) - 2026-07-17
 
 
