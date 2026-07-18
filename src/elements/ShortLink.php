@@ -20,6 +20,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
 use lindemannrock\base\helpers\DateFormatHelper;
+use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\SlugHandleHelper;
 use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -499,7 +500,12 @@ class ShortLink extends Element
                 // JOIN graph (only the folderId column is selected), and a
                 // subquery is non-invasive vs. modifying beforePrepare().
                 'label' => Craft::t('shortlink-manager', 'Folder'),
-                'orderBy' => '(SELECT [[name]] FROM {{%shortlinkmanager_folders}} WHERE [[id]] = [[shortlinkmanager.folderId]])',
+                // NULLs (no folder) pinned last on both engines, both directions —
+                // MySQL and PostgreSQL default NULL ordering are opposites.
+                'orderBy' => fn(int $dir) => new \yii\db\Expression(DbHelper::orderByNullsLast(
+                    new \yii\db\Expression('(SELECT [[name]] FROM {{%shortlinkmanager_folders}} WHERE [[id]] = [[shortlinkmanager.folderId]])'),
+                    $dir === SORT_DESC ? 'DESC' : 'ASC',
+                )),
                 'attribute' => 'folder',
                 'defaultDir' => 'asc',
             ],
@@ -536,7 +542,8 @@ class ShortLink extends Element
             ],
             [
                 'label' => Craft::t('shortlink-manager', 'Expiry Date'),
-                'orderBy' => 'shortlinkmanager.dateExpired',
+                // NULLs (never expires) pinned last on both engines, both directions.
+                'orderBy' => fn(int $dir) => new \yii\db\Expression(DbHelper::orderByNullsLast('shortlinkmanager.dateExpired', $dir === SORT_DESC ? 'DESC' : 'ASC')),
                 'attribute' => 'dateExpired',
                 'defaultDir' => 'asc',
             ],
