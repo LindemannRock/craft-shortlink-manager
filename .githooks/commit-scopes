@@ -16,6 +16,7 @@ fields
 geo
 gql
 i18n
+import-export
 integrations
 jobs
 migrations
@@ -23,6 +24,7 @@ models
 permissions
 qr-code
 queue
+redirects
 settings
 shortlinks
 templates
