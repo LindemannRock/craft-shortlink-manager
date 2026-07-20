@@ -125,28 +125,6 @@ The level of detail depends on your configured `logLevel`.
 - Analytics payload details
 - Performance timing for routing and analytics work
 
-## Developer usage
-
-Most sites only need the configuration and CP viewer above. Custom modules or integrations can write to the same ShortLink Manager log when they need related diagnostics:
-
-```php
-use lindemannrock\shortlinkmanager\ShortLinkManager;
-
-ShortLinkManager::getInstance()->logError('Operation failed', [
-    'context' => 'import',
-    'error' => $e->getMessage(),
-]);
-
-ShortLinkManager::getInstance()->logInfo('Short links exported', [
-    'count' => $count,
-]);
-
-ShortLinkManager::getInstance()->logDebug('Resolving short link', [
-    'code' => $code,
-    'siteId' => $siteId,
-]);
-```
-
 ## Permissions
 
 | Action | Permission |
