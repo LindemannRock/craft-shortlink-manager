@@ -901,7 +901,7 @@ return [
     'Manage {pluginName}' => 'Hantera {pluginName}',
 
     // Setup
-    'Set up ShortLink Manager' => 'Konfigurera ShortLink Manager',
+    'Set up {pluginName}' => 'Konfigurera {pluginName}',
     'Ready' => 'Klar',
     'v{version}' => 'v{version}',
     'Complete these steps before creating public short links and QR landing pages.' => 'Slutför dessa steg innan du skapar offentliga kortlänkar och QR-landningssidor.',

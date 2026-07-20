@@ -150,6 +150,9 @@ final class SettingsControllerSectionScopeTest extends TestCase
         $source = file_get_contents(dirname(__DIR__, 2) . '/src/templates/setup.twig');
         self::assertIsString($source);
 
+        self::assertStringContainsString("{% set title = 'Set up {pluginName}'|t('shortlink-manager', {", $source);
+        self::assertStringContainsString('pluginName: shortlinkHelper.fullName', $source);
+        self::assertStringNotContainsString('Set up ShortLink Manager', $source);
         self::assertStringContainsString('{% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}', $source);
         self::assertStringContainsString('shortlinkFullNameHtml: shortlinkFullNameHtml,', $source);
         self::assertStringContainsString("'{pluginName} is ready to create public short links and QR landing pages.'|t('shortlink-manager', {", $source);

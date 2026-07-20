@@ -1,7 +1,9 @@
 {% extends "shortlink-manager/_layouts/cp" %}
 
 {% set selectedSubnavItem = 'setup' %}
-{% set title = "Set up ShortLink Manager"|t('shortlink-manager') %}
+{% set title = 'Set up {pluginName}'|t('shortlink-manager', {
+    pluginName: shortlinkHelper.fullName,
+}) %}
 
 {% set missingTemplates = templateStatuses|filter(status => not status.exists) %}
 {% set templatesReady = missingTemplates|length == 0 %}

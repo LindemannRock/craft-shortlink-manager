@@ -901,7 +901,7 @@ return [
     'Manage {pluginName}' => 'Gestionar {pluginName}',
 
     // Setup
-    'Set up ShortLink Manager' => 'Configurar ShortLink Manager',
+    'Set up {pluginName}' => 'Configurar {pluginName}',
     'Ready' => 'Listo',
     'v{version}' => 'v{version}',
     'Complete these steps before creating public short links and QR landing pages.' => 'Complete estos pasos antes de crear enlaces cortos públicos y páginas de destino QR.',
