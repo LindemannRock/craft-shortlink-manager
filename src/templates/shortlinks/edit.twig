@@ -160,7 +160,6 @@
     {% set errorSummary %}
         {% include 'lindemannrock-base/_partials/error-summary' with {
             errors: shortLink.getErrors(),
-            linkMode: 'data-key',
         } %}
     {% endset %}
 {% endif %}

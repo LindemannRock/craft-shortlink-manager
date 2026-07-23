@@ -43,7 +43,7 @@
     {# Element-linked shortlinks - respect linkType #}
     {% if shortLink.linkType == 'code' %}
         {# Auto-generated - show read-only with regenerate button #}
-        <div class="field">
+        <div class="field" data-error-key="code">
             <div class="heading">
                 <label>{{ "Code"|t('shortlink-manager') }}</label>
             </div>
@@ -71,7 +71,7 @@
     {% endif %}
 {% else %}
     {# Auto-generated field #}
-    <div id="code-field-auto" class="{{ shortLink.linkType == 'vanity' ? 'hidden' : '' }}">
+    <div id="code-field-auto" class="{{ shortLink.linkType == 'vanity' ? 'hidden' : '' }}" data-error-key="code">
         {% if shortLink.id and shortLink.code and shortLink.linkType == 'code' %}
             <div class="field">
                 <div class="heading">
@@ -99,7 +99,7 @@
     </div>
 
     {# Vanity field #}
-    <div id="code-field-vanity" class="{{ shortLink.linkType != 'vanity' ? 'hidden' : '' }}">
+    <div id="code-field-vanity" class="{{ shortLink.linkType != 'vanity' ? 'hidden' : '' }}" data-error-key="code">
         {{ forms.textField({
             label: "Code"|t('shortlink-manager'),
             instructions: "Enter a custom memorable code (letters, numbers, hyphens, underscores, spaces)"|t('shortlink-manager'),
@@ -174,7 +174,7 @@
     }) }}
 
     {# Custom URL field #}
-    <div id="destination-url-field" class="{{ destinationType != 'url' ? 'hidden' : '' }}">
+    <div id="destination-url-field" class="{{ destinationType != 'url' ? 'hidden' : '' }}" data-error-key="elementId">
         {{ forms.textField({
             label: "Destination URL"|t('shortlink-manager'),
             instructions: "Full URL (https://example.com) or path (/page)"|t('shortlink-manager'),
@@ -193,7 +193,7 @@
     {% set linkedElement = shortLink.getLinkedElement() %}
 
     {# Entry picker #}
-    <div id="destination-entry-field" class="{{ destinationType != 'entry' ? 'hidden' : '' }}">
+    <div id="destination-entry-field" class="{{ destinationType != 'entry' ? 'hidden' : '' }}" data-error-key="elementId">
         {{ forms.elementSelectField({
             label: "Select Entry"|t('shortlink-manager'),
             instructions: "Choose an entry as the destination"|t('shortlink-manager'),
@@ -211,7 +211,7 @@
     </div>
 
     {# Category picker #}
-    <div id="destination-category-field" class="{{ destinationType != 'category' ? 'hidden' : '' }}">
+    <div id="destination-category-field" class="{{ destinationType != 'category' ? 'hidden' : '' }}" data-error-key="elementId">
         {{ forms.elementSelectField({
             label: "Select Category"|t('shortlink-manager'),
             instructions: "Choose a category as the destination"|t('shortlink-manager'),
@@ -228,7 +228,7 @@
     </div>
 
     {# Asset picker #}
-    <div id="destination-asset-field" class="{{ destinationType != 'asset' ? 'hidden' : '' }}">
+    <div id="destination-asset-field" class="{{ destinationType != 'asset' ? 'hidden' : '' }}" data-error-key="elementId">
         {{ forms.elementSelectField({
             label: "Select Asset"|t('shortlink-manager'),
             instructions: "Choose an asset as the destination"|t('shortlink-manager'),
@@ -246,7 +246,7 @@
 
     {% if commerceElementTypesAvailable %}
         {# Product picker #}
-        <div id="destination-product-field" class="{{ destinationType != 'product' ? 'hidden' : '' }}">
+        <div id="destination-product-field" class="{{ destinationType != 'product' ? 'hidden' : '' }}" data-error-key="elementId">
             {{ forms.elementSelectField({
                 label: "Select Product"|t('shortlink-manager'),
                 instructions: "Choose a product as the destination"|t('shortlink-manager'),
@@ -263,7 +263,7 @@
         </div>
 
         {# Variant picker #}
-        <div id="destination-variant-field" class="{{ destinationType != 'variant' ? 'hidden' : '' }}">
+        <div id="destination-variant-field" class="{{ destinationType != 'variant' ? 'hidden' : '' }}" data-error-key="elementId">
             {{ forms.elementSelectField({
                 label: "Select Variant"|t('shortlink-manager'),
                 instructions: "Choose a product variant as the destination"|t('shortlink-manager'),
@@ -314,7 +314,7 @@
 {% endif %}
 
 {# HTTP Status Code #}
-<div class="field">
+<div class="field" data-error-key="httpCode">
     <div class="heading">
         <label for="httpCode">{{ 'HTTP Status Code'|t('shortlink-manager') }}
             <span class="required" aria-label="Required"></span>

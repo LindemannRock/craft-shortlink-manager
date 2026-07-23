@@ -13,7 +13,6 @@
 {% if settings is defined and settings.hasErrors() %}
     {% set validationSummary = include('lindemannrock-base/_partials/error-summary', {
         errors: settings.getErrors(),
-        linkMode: 'field-id',
     })|trim %}
 {% endif %}
 {% set errorSummary = (setupIncompleteSummary ~ validationSummary)|trim %}
