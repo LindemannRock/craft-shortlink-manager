@@ -24,7 +24,7 @@ class QrPreviewAsset extends AssetBundle
      */
     public function init(): void
     {
-        $this->sourcePath = __DIR__ . '/dist';
+        $this->sourcePath = '@lindemannrock/shortlinkmanager/web/assets/qrpreview/dist';
 
         $this->js = [
             'qr-preview.js',

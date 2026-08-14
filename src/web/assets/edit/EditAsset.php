@@ -24,7 +24,7 @@ class EditAsset extends AssetBundle
      */
     public function init(): void
     {
-        $this->sourcePath = __DIR__ . '/dist';
+        $this->sourcePath = '@lindemannrock/shortlinkmanager/web/assets/edit/dist';
 
         $this->js = [
             'edit.js',
