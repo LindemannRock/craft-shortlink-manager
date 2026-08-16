@@ -9,6 +9,7 @@
 namespace lindemannrock\shortlinkmanager\services;
 
 use craft\base\Component;
+use lindemannrock\base\cache\DisposableCacheStorageDecision;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\traits\DeviceDetectionTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -80,20 +81,36 @@ class DeviceDetectionService extends Component
     }
 
     /**
+     * Clear cached device detection results and the request-local detector.
+     *
+     * @since 5.29.0
+     */
+    public function clearCache(?DisposableCacheStorageDecision $decision = null): int
+    {
+        try {
+            return ShortLinkManager::$plugin->cacheStorage->clearFamily(CacheStorageService::FAMILY_DEVICE, $decision);
+        } finally {
+            $this->deviceDetection = null;
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     protected function getDeviceDetectionConfig(): array
     {
         $settings = ShortLinkManager::$plugin->getSettings();
+        $decision = ShortLinkManager::$plugin->cacheStorage->getStorageDecision();
 
         return [
-            'cacheEnabled' => (bool) $settings->cacheDeviceDetection,
-            'cacheStorageMethod' => $settings->cacheStorageMethod,
+            'cacheEnabled' => (bool) $settings->cacheDeviceDetection && !$decision->isDisabled(),
+            'cacheStorageMethod' => $decision->usesApplicationCache() ? 'craft' : 'file',
             'cacheDuration' => (int) $settings->deviceDetectionCacheDuration,
             'pluginHandle' => ShortLinkManager::$plugin->id,
-            'cachePath' => PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device'),
+            'cachePath' => $decision->usesFileCache()
+                ? PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device')
+                : null,
             'cacheKeyPrefix' => PluginHelper::getCacheKeyPrefix(ShortLinkManager::$plugin->id, 'device'),
-            'cacheKeySet' => PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'device'),
             'includeLanguage' => true,
             'includePlatform' => false,
         ];

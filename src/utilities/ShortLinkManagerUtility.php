@@ -12,9 +12,8 @@ use Craft;
 use craft\base\Utility;
 use craft\db\Query;
 use craft\models\Site;
-use lindemannrock\base\helpers\CacheHelper;
+use lindemannrock\base\cache\DisposableCacheStoragePresenter;
 use lindemannrock\base\helpers\DbHelper;
-use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -87,17 +86,24 @@ class ShortLinkManagerUtility extends Utility
             $directClicks = $analyticsStats['directClicks'];
         }
 
-        // Get cache counts only if user can clear cache
+        // Resolve the effective storage once for status and file counting.
         $qrCacheFiles = 0;
         $deviceCacheFiles = 0;
+        $cacheDecision = ShortLinkManager::$plugin->cacheStorage->getStorageDecision();
+        $cacheStorage = (new DisposableCacheStoragePresenter())->present(
+            $cacheDecision,
+            $settings->enableQrCodeCache || $settings->cacheDeviceDetection,
+        );
+        $showCacheCounts = false;
 
-        if ($user->getIdentity() && $user->checkPermission('shortLinkManager:clearCache') && $settings->cacheStorageMethod === 'file') {
+        if ($user->getIdentity() && $user->checkPermission('shortLinkManager:clearCache') && $cacheDecision->usesFileCache()) {
+            $showCacheCounts = true;
             if ($settings->enableQrCodeCache) {
-                $qrCacheFiles = CacheHelper::countCacheFiles(PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr'));
+                $qrCacheFiles = ShortLinkManager::$plugin->cacheStorage->countFiles('qr', $cacheDecision);
             }
 
             if ($settings->cacheDeviceDetection) {
-                $deviceCacheFiles = CacheHelper::countCacheFiles(PluginHelper::getCachePath(ShortLinkManager::$plugin, 'device'));
+                $deviceCacheFiles = ShortLinkManager::$plugin->cacheStorage->countFiles('device', $cacheDecision);
             }
         }
 
@@ -119,6 +125,9 @@ class ShortLinkManagerUtility extends Utility
             'directClicks' => $directClicks,
             'qrCacheFiles' => $qrCacheFiles,
             'deviceCacheFiles' => $deviceCacheFiles,
+            'cacheStorage' => $cacheStorage,
+            'showCacheCounts' => $showCacheCounts,
+            'cacheStorageDisabled' => $cacheDecision->isDisabled(),
         ]);
     }
 

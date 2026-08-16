@@ -21,7 +21,6 @@ use BaconQrCode\Renderer\RendererStyle\EyeFill;
 use BaconQrCode\Renderer\RendererStyle\Fill;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
 use lindemannrock\base\helpers\PluginHelper;
@@ -78,11 +77,14 @@ class QrCodeService extends Component
         // Create cache key including new style parameters and logo
         $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
 
-        // Check cache using custom file storage (if caching enabled)
+        // Check the configured disposable cache (if caching is enabled).
         if ($settings->enableQrCodeCache) {
-            $cached = $this->_getCachedQrCode($cacheKey);
-            if ($cached !== null) {
-                return $cached;
+            $cached = ShortLinkManager::$plugin->cacheStorage->readQrCode(
+                $cacheKey,
+                $settings->qrCodeCacheDuration,
+            );
+            if ($cached->isHit() && is_string($cached->value)) {
+                return $cached->value;
             }
         }
 
@@ -91,7 +93,11 @@ class QrCodeService extends Component
 
         // Cache the result (if caching enabled)
         if ($settings->enableQrCodeCache) {
-            $this->_cacheQrCode($cacheKey, $qrCode, $settings->qrCodeCacheDuration);
+            ShortLinkManager::$plugin->cacheStorage->writeQrCode(
+                $cacheKey,
+                $qrCode,
+                $settings->qrCodeCacheDuration,
+            );
         }
 
         return $qrCode;
@@ -404,71 +410,5 @@ class QrCodeService extends Component
                 @unlink($logoPath);
             }
         }
-    }
-
-    /**
-     * Get cached QR code from storage (file or Redis)
-     */
-    private function _getCachedQrCode(string $cacheKey): ?string
-    {
-        $settings = ShortLinkManager::$plugin->getSettings();
-
-        // Use Redis/database cache if configured
-        if ($settings->cacheStorageMethod === 'redis') {
-            $cached = Craft::$app->cache->get($cacheKey);
-            return $cached !== false ? $cached : null;
-        }
-
-        // Use file-based cache (default)
-        $cachePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
-        $cacheFile = $cachePath . md5($cacheKey) . '.cache';
-
-        if (!file_exists($cacheFile)) {
-            return null;
-        }
-
-        // Check if cache is expired
-        $mtime = filemtime($cacheFile);
-        if (time() - $mtime > $settings->qrCodeCacheDuration) {
-            @unlink($cacheFile);
-            return null;
-        }
-
-        $data = @file_get_contents($cacheFile);
-        return $data !== false ? $data : null;
-    }
-
-    /**
-     * Cache QR code to storage (file or Redis)
-     */
-    private function _cacheQrCode(string $cacheKey, string $data, int $duration): void
-    {
-        $settings = ShortLinkManager::$plugin->getSettings();
-
-        // Use Redis/database cache if configured
-        if ($settings->cacheStorageMethod === 'redis') {
-            $cache = Craft::$app->cache;
-            $cache->set($cacheKey, $data, $duration);
-
-            // Track key in set for selective deletion
-            $redisCache = PluginHelper::getRedisCacheOrLog(ShortLinkManager::$plugin->id);
-            if ($redisCache !== null) {
-                $redis = $redisCache->redis;
-                $redis->executeCommand('SADD', [PluginHelper::getCacheKeySet(ShortLinkManager::$plugin->id, 'qr'), $cacheKey]);
-            }
-
-            return;
-        }
-
-        // Use file-based cache (default)
-        $cachePath = PluginHelper::getCachePath(ShortLinkManager::$plugin, 'qr');
-
-        // Create directory if it doesn't exist
-        if (!is_dir($cachePath)) {
-            \craft\helpers\FileHelper::createDirectory($cachePath);
-        }
-
-        $cacheFile = $cachePath . md5($cacheKey) . '.cache';
-        file_put_contents($cacheFile, $data);
     }
 }

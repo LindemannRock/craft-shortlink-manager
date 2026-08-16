@@ -9,8 +9,7 @@
 namespace lindemannrock\shortlinkmanager\services;
 
 use craft\base\Component;
-use lindemannrock\base\helpers\CacheHelper;
-use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\cache\DisposableCacheStorageDecision;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
 /**
@@ -20,46 +19,27 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
  */
 class LocalCacheService extends Component
 {
-    private const QR_CACHE_KEY_TYPE = 'qr';
-    private const QR_CACHE_DIRECTORY = 'qr';
-    private const DEVICE_CACHE_KEY_TYPE = 'device';
-    private const DEVICE_CACHE_DIRECTORY = 'device';
-
     /**
      * Clear cached QR code entries from the configured local cache backend.
      */
-    public function clearQrCache(): int
+    public function clearQrCache(?DisposableCacheStorageDecision $decision = null): int
     {
-        return $this->clearCacheType(self::QR_CACHE_KEY_TYPE, self::QR_CACHE_DIRECTORY);
+        return ShortLinkManager::$plugin->cacheStorage->clearFamily(CacheStorageService::FAMILY_QR, $decision);
     }
 
     /**
      * Clear cached device-detection entries from the configured local cache backend.
      */
-    public function clearDeviceCache(): int
+    public function clearDeviceCache(?DisposableCacheStorageDecision $decision = null): int
     {
-        return $this->clearCacheType(self::DEVICE_CACHE_KEY_TYPE, self::DEVICE_CACHE_DIRECTORY);
+        return ShortLinkManager::$plugin->deviceDetection->clearCache($decision);
     }
 
     /**
      * Clear all plugin-owned local cache entries.
      */
-    public function clearAllCaches(): int
+    public function clearAllCaches(?DisposableCacheStorageDecision $decision = null): int
     {
-        return $this->clearQrCache() + $this->clearDeviceCache();
-    }
-
-    /**
-     * Clear one local cache namespace from the active cache backend.
-     */
-    private function clearCacheType(string $redisKeyType, string $fileDirectory): int
-    {
-        $settings = ShortLinkManager::$plugin->getSettings();
-
-        if ($settings->cacheStorageMethod === 'redis') {
-            return CacheHelper::clearTrackedRedisKeys(ShortLinkManager::$plugin->id, $redisKeyType);
-        }
-
-        return CacheHelper::clearCacheFiles(PluginHelper::getCachePath(ShortLinkManager::$plugin, $fileDirectory));
+        return $this->clearQrCache($decision) + $this->clearDeviceCache($decision);
     }
 }

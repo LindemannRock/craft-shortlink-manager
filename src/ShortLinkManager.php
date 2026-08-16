@@ -48,6 +48,7 @@ use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
 use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\services\AnalyticsService;
+use lindemannrock\shortlinkmanager\services\CacheStorageService;
 use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
 use lindemannrock\shortlinkmanager\services\FrontendService;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
@@ -72,6 +73,7 @@ use yii\base\Event;
  *
  * @property-read ShortLinksService $shortLinks
  * @property-read AnalyticsService $analytics
+ * @property-read CacheStorageService $cacheStorage
  * @property-read QrCodeService $qrCode
  * @property-read DeviceDetectionService $deviceDetection
  * @property-read FrontendService $frontend
@@ -143,6 +145,7 @@ class ShortLinkManager extends Plugin
         $this->setComponents([
             'shortLinks' => ShortLinksService::class,
             'analytics' => AnalyticsService::class,
+            'cacheStorage' => CacheStorageService::class,
             'qrCode' => QrCodeService::class,
             'deviceDetection' => DeviceDetectionService::class,
             'frontend' => FrontendService::class,

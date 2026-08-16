@@ -11,11 +11,17 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use Craft;
+use craft\cachecascade\CascadeCache;
 use craft\elements\Asset;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\shortlinkmanager\services\QrCodeService;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use yii\caching\CacheInterface;
+
+require_once dirname(__DIR__) . '/Fixtures/CascadeCache.php';
 
 /**
  * @since 5.19.0
@@ -151,6 +157,98 @@ class QrCodeServiceTest extends TestCase
         $this->assertStringNotContainsString("\n            unlink(\$logoPath);", $source);
     }
 
+    public function testQrCacheIdentityPreservesEveryExistingResultAffectingInput(): void
+    {
+        $service = new QrCodeService();
+        $method = new \ReflectionMethod($service, '_getCacheKey');
+        $baseline = [
+            'https://example.com/site/shortlink',
+            256,
+            '010203',
+            'FDFCFB',
+            'png',
+            4,
+            'square',
+            'square',
+            'AABBCC',
+            '42',
+            20,
+        ];
+        $baselineKey = $method->invokeArgs($service, $baseline);
+        self::assertSame(
+            PluginHelper::getCacheKeyPrefix(ShortLinkManager::$plugin->id, 'qr') . md5(implode(':', $baseline)),
+            $baselineKey,
+        );
+
+        $alternatives = [
+            'https://other.example.com/site/shortlink',
+            257,
+            '111111',
+            'EEEEEE',
+            'svg',
+            5,
+            'dots',
+            'rounded',
+            'DDEEFF',
+            '43',
+            21,
+        ];
+        foreach ($alternatives as $index => $alternative) {
+            $changed = $baseline;
+            $changed[$index] = $alternative;
+            self::assertNotSame($baselineKey, $method->invokeArgs($service, $changed));
+        }
+    }
+
+    public function testQrBinaryCacheRoundTripUsesConfiguredFiniteTtlWithoutRendering(): void
+    {
+        $originalCache = Craft::$app->getCache();
+        self::assertInstanceOf(CacheInterface::class, $originalCache);
+        $cache = new CascadeCache();
+        Craft::$app->set('cache', $cache);
+
+        try {
+            $this->withSettings([
+                'cacheStorageMethod' => 'craft',
+                'enableQrCodeCache' => true,
+                'qrCodeCacheDuration' => 83,
+                'defaultQrSize' => 256,
+                'defaultQrColor' => '#000000',
+                'defaultQrBgColor' => '#FFFFFF',
+                'defaultQrFormat' => 'png',
+                'defaultQrMargin' => 4,
+                'qrModuleStyle' => 'square',
+                'qrEyeStyle' => 'square',
+                'qrEyeColor' => null,
+                'qrLogoSize' => 20,
+            ], function() use ($cache): void {
+                $url = 'https://example.com/cache-without-rendering';
+                $service = ShortLinkManager::$plugin->qrCode;
+                $keyMethod = new \ReflectionMethod($service, '_getCacheKey');
+                $identity = $keyMethod->invoke(
+                    $service,
+                    $url,
+                    256,
+                    '000000',
+                    'FFFFFF',
+                    'png',
+                    4,
+                    'square',
+                    'square',
+                    null,
+                    null,
+                    20,
+                );
+                $binary = "\x89PNG\r\n\x1a\n\x00cached";
+                self::assertTrue(ShortLinkManager::$plugin->cacheStorage->writeQrCode($identity, $binary, 83));
+                self::assertSame($binary, $service->generateQrCode($url));
+                self::assertContains(83, $cache->setDurations);
+            });
+        } finally {
+            Craft::$app->set('cache', $originalCache);
+        }
+    }
+
     /**
      * @param array<string, mixed> $options
      */
@@ -209,7 +307,7 @@ class QrCodeServiceTest extends TestCase
                 $imageInfo = getimagesize($path);
                 if (
                     is_array($imageInfo) &&
-                    in_array($imageInfo[2] ?? null, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF], true) &&
+                    in_array($imageInfo[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF], true) &&
                     $this->hasVisibleNonWhitePixel($path)
                 ) {
                     return (int)$asset->id;
@@ -245,7 +343,7 @@ class QrCodeServiceTest extends TestCase
             for ($x = 0; $x < $width; $x += max(1, (int)floor($width / 10))) {
                 for ($y = 0; $y < $height; $y += max(1, (int)floor($height / 10))) {
                     $rgba = imagecolorsforindex($image, imagecolorat($image, $x, $y));
-                    if (($rgba['alpha'] ?? 127) < 127 && (($rgba['red'] ?? 255) < 250 || ($rgba['green'] ?? 255) < 250 || ($rgba['blue'] ?? 255) < 250)) {
+                    if ($rgba['alpha'] < 127 && ($rgba['red'] < 250 || $rgba['green'] < 250 || $rgba['blue'] < 250)) {
                         return true;
                     }
                 }

@@ -226,9 +226,11 @@ final class UtilityOverviewSiteFilterTest extends TestCase
         self::assertIsString($template);
         self::assertIsString($servdService);
 
-        $cacheBlock = substr($utility, strpos($utility, '// Get cache counts') ?: 0);
-        self::assertStringContainsString("PluginHelper::getCachePath(ShortLinkManager::\$plugin, 'qr')", $cacheBlock);
-        self::assertStringContainsString("PluginHelper::getCachePath(ShortLinkManager::\$plugin, 'device')", $cacheBlock);
+        $cacheBlock = substr($utility, strpos($utility, '// Resolve the effective storage') ?: 0);
+        self::assertStringContainsString('cacheStorage->getStorageDecision()', $cacheBlock);
+        self::assertStringContainsString("cacheStorage->countFiles('qr', \$cacheDecision)", $cacheBlock);
+        self::assertStringContainsString("cacheStorage->countFiles('device', \$cacheDecision)", $cacheBlock);
+        self::assertStringContainsString('$cacheDecision->usesFileCache()', $cacheBlock);
         self::assertStringNotContainsString('$selectedSiteIds', $cacheBlock);
 
         self::assertStringContainsString('Queue a Servd purge for all public {linksName} URLs and QR landing pages.', $template);

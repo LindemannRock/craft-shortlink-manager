@@ -10,6 +10,8 @@ namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\cache\DisposableCacheStoragePresenter;
+use lindemannrock\base\cache\DisposableCacheStorageResolver;
 use lindemannrock\base\helpers\AssetVolumeHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\helpers\PluginThemeStyleHelper;
@@ -209,6 +211,7 @@ class SettingsController extends Controller
 
         return $this->renderTemplate('shortlink-manager/settings/cache', [
             'settings' => $settings,
+            'cacheStorage' => $this->cacheStorageTemplateVariables($settings),
         ]);
     }
 
@@ -395,6 +398,8 @@ class SettingsController extends Controller
 
             if ($section === 'behavior') {
                 $templateVars['servdStaticCacheAvailable'] = ShortLinkManager::$plugin->servdStaticCache->isAvailable();
+            } elseif ($section === 'cache') {
+                $templateVars['cacheStorage'] = $this->cacheStorageTemplateVariables($settings);
             }
 
             return $this->renderTemplate("shortlink-manager/settings/{$section}", $templateVars);
@@ -468,12 +473,12 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $settings = ShortLinkManager::$plugin->getSettings();
-            $cleared = ShortLinkManager::$plugin->localCache->clearQrCache();
+            $decision = ShortLinkManager::$plugin->cacheStorage->getStorageDecision();
+            $cleared = ShortLinkManager::$plugin->localCache->clearQrCache($decision);
 
-            $message = $settings->cacheStorageMethod === 'redis'
-                ? Craft::t('shortlink-manager', 'QR code cache cleared successfully.')
-                : Craft::t('shortlink-manager', 'Cleared {count, plural, =1{# QR code cache} other{# QR code caches}}.', ['count' => $cleared]);
+            $message = $decision->usesFileCache()
+                ? Craft::t('shortlink-manager', 'Cleared {count, plural, =1{# QR code cache} other{# QR code caches}}.', ['count' => $cleared])
+                : Craft::t('shortlink-manager', 'QR code cache cleared successfully.');
 
             return $this->asJson([
                 'success' => true,
@@ -503,12 +508,12 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $settings = ShortLinkManager::$plugin->getSettings();
-            $cleared = ShortLinkManager::$plugin->localCache->clearDeviceCache();
+            $decision = ShortLinkManager::$plugin->cacheStorage->getStorageDecision();
+            $cleared = ShortLinkManager::$plugin->localCache->clearDeviceCache($decision);
 
-            $message = $settings->cacheStorageMethod === 'redis'
-                ? Craft::t('shortlink-manager', 'Device cache cleared successfully.')
-                : Craft::t('shortlink-manager', 'Cleared {count, plural, =1{# device cache} other{# device caches}}.', ['count' => $cleared]);
+            $message = $decision->usesFileCache()
+                ? Craft::t('shortlink-manager', 'Cleared {count, plural, =1{# device cache} other{# device caches}}.', ['count' => $cleared])
+                : Craft::t('shortlink-manager', 'Device cache cleared successfully.');
 
             return $this->asJson([
                 'success' => true,
@@ -538,18 +543,18 @@ class SettingsController extends Controller
         $this->requireAcceptsJson();
 
         try {
-            $settings = ShortLinkManager::$plugin->getSettings();
+            $decision = ShortLinkManager::$plugin->cacheStorage->getStorageDecision();
 
-            if ($settings->cacheStorageMethod === 'redis') {
-                ShortLinkManager::$plugin->localCache->clearAllCaches();
-                $message = Craft::t('shortlink-manager', 'All caches cleared successfully.');
-            } else {
-                $qrCount = ShortLinkManager::$plugin->localCache->clearQrCache();
-                $deviceCount = ShortLinkManager::$plugin->localCache->clearDeviceCache();
+            if ($decision->usesFileCache()) {
+                $qrCount = ShortLinkManager::$plugin->localCache->clearQrCache($decision);
+                $deviceCount = ShortLinkManager::$plugin->localCache->clearDeviceCache($decision);
                 $message = Craft::t('shortlink-manager', 'Cleared {qrCount, plural, =1{# QR code cache} other{# QR code caches}} and {deviceCount, plural, =1{# device cache} other{# device caches}}.', [
                     'qrCount' => $qrCount,
                     'deviceCount' => $deviceCount,
                 ]);
+            } else {
+                ShortLinkManager::$plugin->localCache->clearAllCaches($decision);
+                $message = Craft::t('shortlink-manager', 'All caches cleared successfully.');
             }
 
             return $this->asJson([
@@ -654,6 +659,30 @@ class SettingsController extends Controller
         $allowed = ['general', 'behavior', 'qr-code', 'analytics', 'integrations', 'interface', 'cache', 'field-layout'];
 
         return in_array($section, $allowed, true) ? $section : 'general';
+    }
+
+    /**
+     * @return array{
+     *     applicationToken: string,
+     *     filePresentation: \lindemannrock\base\cache\DisposableCacheStoragePresentation,
+     *     applicationPresentation: \lindemannrock\base\cache\DisposableCacheStoragePresentation,
+     *     filePath: string|null
+     * }
+     */
+    private function cacheStorageTemplateVariables(Settings $settings): array
+    {
+        $storage = ShortLinkManager::$plugin->cacheStorage;
+        $presenter = new DisposableCacheStoragePresenter();
+        $applicationToken = DisposableCacheStorageResolver::applicationOptionToken($settings->cacheStorageMethod);
+        $fileDecision = $storage->getStorageDecision('file');
+        $applicationDecision = $storage->getStorageDecision($applicationToken);
+
+        return [
+            'applicationToken' => $applicationToken,
+            'filePresentation' => $presenter->present($fileDecision),
+            'applicationPresentation' => $presenter->present($applicationDecision),
+            'filePath' => $storage->getDisplayFilePath($fileDecision),
+        ];
     }
 
     /**

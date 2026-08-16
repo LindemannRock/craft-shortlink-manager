@@ -258,11 +258,13 @@ final class SettingsControllerSectionScopeTest extends TestCase
             ],
             '/src/templates/settings/cache.twig' => [
                 'contains' => [
-                    '{% set shortlinkCacheBasePathHtml = shortlinkHelper.cacheBasePath|e %}',
-                    'path: shortlinkCacheBasePathHtml',
+                    "{% include 'lindemannrock-base/_partials/field-cache-storage' with {",
+                    'filePath: cacheStorage.filePath',
+                    '} only %}',
                 ],
                 'notContains' => [
                     'path: shortlinkHelper.cacheBasePath',
+                    'shortlinkHelper.cacheBasePath',
                 ],
             ],
             '/src/templates/settings/integrations.twig' => [

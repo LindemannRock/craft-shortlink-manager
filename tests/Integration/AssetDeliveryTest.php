@@ -163,9 +163,10 @@ final class AssetDeliveryTest extends TestCase
         }
     }
 
-    public function testCustomerArchivesIncludeEveryBundleAsset(): void
+    public function testCustomerArchivesIncludeEveryBundleAssetAndPortableCacheRuntimeFile(): void
     {
         $expected = [
+            'src/services/CacheStorageService.php',
             'src/web/assets/analytics/dist/analytics.js',
             'src/web/assets/qrpreview/dist/qr-preview.js',
             'src/web/assets/edit/dist/edit.js',

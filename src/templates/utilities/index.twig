@@ -7,8 +7,6 @@
 {% set canClearCache = currentUser.can('shortLinkManager:clearCache') %}
 {% set canClearAnalytics = currentUser.can('shortLinkManager:clearAnalytics') %}
 
-{% set storageMethod = settings.cacheStorageMethod %}
-
 {% set hasNavigation = canManageLinks or (settings.enableAnalytics and canViewAnalytics) or canManageSettings %}
 {% set hasCacheManagement = (settings.enableQrCodeCache or settings.cacheDeviceDetection) and canClearCache %}
 {% set hasServdStaticCacheManagement = servdStaticCacheAvailable and canClearCache %}
@@ -85,33 +83,35 @@
 
     {# Cache Status Card - only show if user can manage cache #}
     {% if canClearCache %}
-        {% if storageMethod == 'redis' %}
-            {% set cacheSubBoxes = [] %}
-            {% if settings.enableQrCodeCache %}
-                {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'QR Codes'|t('shortlink-manager')}]) %}
-            {% endif %}
-            {% if settings.cacheDeviceDetection %}
-                {% set cacheSubBoxes = cacheSubBoxes|merge([{value: '✓', label: 'Devices'|t('shortlink-manager')}]) %}
-            {% endif %}
-
-            {% include 'lindemannrock-base/_components/unified-card' with {
-                title: 'Cache Status'|t('shortlink-manager') ~ ' (Redis)',
-                color: lrPaletteColor('emerald').color,
-                value: 'Active'|t('shortlink-manager'),
-                subBoxes: cacheSubBoxes,
-            } only %}
-        {% else %}
-            {% include 'lindemannrock-base/_components/unified-card' with {
-                title: 'Cache Status'|t('shortlink-manager') ~ ' (File)',
-                color: lrPaletteColor('emerald').color,
-                value: qrCacheFiles + deviceCacheFiles,
-                description: 'Total cached entries'|t('shortlink-manager'),
-                subBoxes: [
-                    {value: qrCacheFiles, label: 'QR Codes'|t('shortlink-manager')},
-                    {value: deviceCacheFiles, label: 'Devices'|t('shortlink-manager')},
-                ],
-            } only %}
+        {% set cacheSubBoxes = [] %}
+        {% if settings.enableQrCodeCache %}
+            {% set cacheSubBoxes = cacheSubBoxes|merge([{
+                value: showCacheCounts ? qrCacheFiles : (cacheStorageDisabled ? '—' : '✓'),
+                label: 'QR Codes'|t('shortlink-manager'),
+            }]) %}
         {% endif %}
+        {% if settings.cacheDeviceDetection %}
+            {% set cacheSubBoxes = cacheSubBoxes|merge([{
+                value: showCacheCounts ? deviceCacheFiles : (cacheStorageDisabled ? '—' : '✓'),
+                label: 'Devices'|t('shortlink-manager'),
+            }]) %}
+        {% endif %}
+
+        {% set cacheCardColor = cacheStorage.utilitySeverity == 'warning'
+            ? lrPaletteColor('amber').color
+            : (cacheStorage.utilitySeverity == 'info'
+                ? lrPaletteColor('sky').color
+                : (cacheStorage.utilitySeverity == 'inactive'
+                    ? lrPaletteColor('gray').color
+                    : lrPaletteColor('emerald').color)) %}
+
+        {% include 'lindemannrock-base/_components/unified-card' with {
+            title: 'Cache Status'|t('shortlink-manager'),
+            color: cacheCardColor,
+            value: cacheStorage.utilityValueKey|t('lindemannrock-base'),
+            description: cacheStorage.utilityDescriptionKey|t('lindemannrock-base'),
+            subBoxes: cacheSubBoxes,
+        } only %}
     {% endif %}
 {% endblock %}
 
@@ -144,14 +144,14 @@
                 {% set cacheButtons = cacheButtons|merge([{
                     id: 'clear-qr-cache',
                     label: 'Clear QR Cache'|t('shortlink-manager'),
-                    count: storageMethod != 'redis' ? qrCacheFiles : null,
+                    count: showCacheCounts ? qrCacheFiles : null,
                 }]) %}
             {% endif %}
             {% if settings.cacheDeviceDetection %}
                 {% set cacheButtons = cacheButtons|merge([{
                     id: 'clear-device-cache',
                     label: 'Clear Device Cache'|t('shortlink-manager'),
-                    count: storageMethod != 'redis' ? deviceCacheFiles : null,
+                    count: showCacheCounts ? deviceCacheFiles : null,
                 }]) %}
             {% endif %}
             {% if settings.enableQrCodeCache and settings.cacheDeviceDetection %}
@@ -159,7 +159,7 @@
                     id: 'clear-all-caches',
                     label: 'Clear All Caches'|t('shortlink-manager'),
                     class: 'btn secondary',
-                    count: storageMethod != 'redis' ? (qrCacheFiles + deviceCacheFiles) : null,
+                    count: showCacheCounts ? (qrCacheFiles + deviceCacheFiles) : null,
                 }]) %}
             {% endif %}
 

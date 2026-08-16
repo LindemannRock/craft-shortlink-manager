@@ -121,7 +121,7 @@ class Settings extends Model
     public int $qrCodeCacheDuration = 86400;
 
     /**
-     * @var string Cache storage method (file or redis)
+     * @var string Cache storage method (file, redis, or craft)
      * @since 5.3.0
      */
     public string $cacheStorageMethod = 'file';
@@ -463,7 +463,7 @@ class Settings extends Model
             [['qrEyeColor'], 'match', 'pattern' => '/^#[0-9A-F]{6}$/i', 'skipOnEmpty' => true],
             [['defaultQrFormat'], 'in', 'range' => ['png', 'svg']],
             [['defaultQrErrorCorrection'], 'in', 'range' => ['L', 'M', 'Q', 'H']],
-            [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
+            [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis', 'craft']],
             [['qrModuleStyle'], 'in', 'range' => ['square', 'rounded', 'dots']],
             [['qrEyeStyle'], 'in', 'range' => ['square', 'rounded', 'pointed']],
             [['qrDownloadFilename'], 'string'],
