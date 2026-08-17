@@ -10,8 +10,6 @@ namespace lindemannrock\shortlinkmanager\jobs;
 
 use Craft;
 use craft\queue\BaseJob;
-use lindemannrock\base\helpers\DateFormatHelper;
-use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\base\traits\QueueTtrTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -31,6 +29,12 @@ class CleanupAnalyticsJob extends BaseJob implements RetryableJobInterface
      * @var bool Whether to reschedule after completion
      */
     public bool $reschedule = false;
+
+    /**
+     * @var string Recurring chain owner token
+     * @since 5.29.0
+     */
+    public string $recurringOwner = '';
 
     /**
      * @var string|null Next run time display string
@@ -55,15 +59,10 @@ class CleanupAnalyticsJob extends BaseJob implements RetryableJobInterface
 
         if ($this->reschedule && !$this->nextRunTime) {
             $settings = ShortLinkManager::$plugin->getSettings();
-            $nextRun = ScheduleHelper::calculateNext('daily');
+            $scheduler = ShortLinkManager::$plugin->analyticsCleanupScheduler;
+            $nextRun = $scheduler->nextRun();
             if ($nextRun !== null) {
-                $this->nextRunTime = DateFormatHelper::formatCompactDatetimeFromSettings(
-                    $nextRun,
-                    $settings,
-                    null,
-                    false,
-                    pluginHandle: 'shortlink-manager',
-                );
+                $this->nextRunTime = $scheduler->formatNextRun($nextRun, $settings);
             }
         }
     }
@@ -75,14 +74,17 @@ class CleanupAnalyticsJob extends BaseJob implements RetryableJobInterface
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Only run if retention is enabled
-        if ($settings->analyticsRetention > 0) {
+        $scheduledCleanupEnabled = !$this->reschedule
+            || ShortLinkManager::$plugin->analyticsCleanupScheduler->isEnabled($settings);
+
+        // Manual cleanup remains available independently of automatic scheduling.
+        if ($scheduledCleanupEnabled && $settings->analyticsRetention > 0) {
             $deleted = ShortLinkManager::$plugin->analytics->cleanupOldAnalytics();
             $this->logInfo('Cleaned up old analytics records', ['deleted' => $deleted]);
         }
 
         // Reschedule if needed
-        if ($this->reschedule) {
+        if ($this->reschedule && $scheduledCleanupEnabled) {
             $this->scheduleNextCleanup();
         }
     }
@@ -105,39 +107,17 @@ class CleanupAnalyticsJob extends BaseJob implements RetryableJobInterface
     }
 
     /**
-     * Schedule the next cleanup (runs every 24 hours)
+     * Schedule the next cleanup at the next canonical daily midnight.
      */
     private function scheduleNextCleanup(): void
     {
-        $settings = ShortLinkManager::$plugin->getSettings();
+        $result = ShortLinkManager::$plugin->analyticsCleanupScheduler->ensureScheduled(
+            ShortLinkManager::$plugin->getSettings(),
+        );
 
-        // Only reschedule if analytics is enabled and retention is set
-        if (!$settings->enableAnalytics || $settings->analyticsRetention <= 0) {
-            return;
-        }
-
-        $nextRun = ScheduleHelper::calculateNext('daily');
-
-        if ($nextRun !== null) {
-            $delay = max(0, $nextRun->getTimestamp() - DateFormatHelper::now()->getTimestamp());
-            $nextRunTime = DateFormatHelper::formatCompactDatetimeFromSettings(
-                $nextRun,
-                $settings,
-                null,
-                false,
-                pluginHandle: 'shortlink-manager',
-            );
-            $job = new self([
-                'reschedule' => true,
-                'nextRunTime' => $nextRunTime,
-            ]);
-
-            Craft::$app->getQueue()->delay($delay)->push($job);
-
-            $this->logDebug('Scheduled next analytics cleanup', [
-                'delay' => $delay,
-                'nextRun' => $nextRunTime,
-            ]);
-        }
+        $this->logDebug('Ensured next analytics cleanup', [
+            'status' => $result->status,
+            'jobId' => $result->jobId,
+        ]);
     }
 }

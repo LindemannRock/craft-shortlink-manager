@@ -34,10 +34,7 @@ use craft\utilities\ClearCaches;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use lindemannrock\base\helpers\CpNavHelper;
-use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\PluginHelper;
-use lindemannrock\base\helpers\RecurringQueueHelper;
-use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\logginglibrary\LoggingLibrary;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -45,8 +42,8 @@ use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\gql\types\ShortLinkType as GqlShortLinkType;
 use lindemannrock\shortlinkmanager\integrations\seomatic\SeoShortLink;
 use lindemannrock\shortlinkmanager\integrations\ShortLinkType;
-use lindemannrock\shortlinkmanager\jobs\CleanupAnalyticsJob;
 use lindemannrock\shortlinkmanager\models\Settings;
+use lindemannrock\shortlinkmanager\services\AnalyticsCleanupScheduler;
 use lindemannrock\shortlinkmanager\services\AnalyticsService;
 use lindemannrock\shortlinkmanager\services\CacheStorageService;
 use lindemannrock\shortlinkmanager\services\DeviceDetectionService;
@@ -73,6 +70,7 @@ use yii\base\Event;
  *
  * @property-read ShortLinksService $shortLinks
  * @property-read AnalyticsService $analytics
+ * @property-read AnalyticsCleanupScheduler $analyticsCleanupScheduler
  * @property-read CacheStorageService $cacheStorage
  * @property-read QrCodeService $qrCode
  * @property-read DeviceDetectionService $deviceDetection
@@ -145,6 +143,7 @@ class ShortLinkManager extends Plugin
         $this->setComponents([
             'shortLinks' => ShortLinksService::class,
             'analytics' => AnalyticsService::class,
+            'analyticsCleanupScheduler' => AnalyticsCleanupScheduler::class,
             'cacheStorage' => CacheStorageService::class,
             'qrCode' => QrCodeService::class,
             'deviceDetection' => DeviceDetectionService::class,
@@ -157,7 +156,7 @@ class ShortLinkManager extends Plugin
         ]);
 
         // Schedule analytics cleanup if retention is enabled
-        $this->scheduleAnalyticsCleanup();
+        $this->analyticsCleanupScheduler->bootstrap($this->getSettings());
 
         $this->registerProjectConfigEventHandlers();
 
@@ -812,42 +811,6 @@ class ShortLinkManager extends Plugin
                 'label' => Craft::t('shortlink-manager', 'Manage settings'),
             ],
         ];
-    }
-
-    /**
-     * Schedule analytics cleanup job
-     */
-    private function scheduleAnalyticsCleanup(): void
-    {
-        $settings = $this->getSettings();
-
-        if (!$settings->enableAnalytics || $settings->analyticsRetention <= 0) {
-            return;
-        }
-
-        $nextRun = ScheduleHelper::calculateNext('daily');
-        if ($nextRun === null) {
-            return;
-        }
-
-        $delay = max(0, $nextRun->getTimestamp() - DateFormatHelper::now()->getTimestamp());
-        $nextRunTime = DateFormatHelper::formatCompactDatetimeFromSettings(
-            $nextRun,
-            $settings,
-            null,
-            false,
-            pluginHandle: 'shortlink-manager',
-        );
-
-        RecurringQueueHelper::ensurePending(
-            pluginToken: 'shortlinkmanager',
-            jobClass: CleanupAnalyticsJob::class,
-            delay: $delay,
-            jobFactory: fn() => new CleanupAnalyticsJob([
-                'reschedule' => true,
-                'nextRunTime' => $nextRunTime,
-            ]),
-        );
     }
 
     /**

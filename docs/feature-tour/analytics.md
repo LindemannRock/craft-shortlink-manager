@@ -152,7 +152,7 @@ return [
 ];
 ```
 
-The cleanup runs as a self-rescheduling queue job every 24 hours. It schedules itself when the plugin initializes (if no existing cleanup job is queued).
+Automatic cleanup runs daily at the next midnight in Craft's configured timezone when analytics is enabled and retention is greater than `0`.
 
 You can manually trigger cleanup from **ShortLink Manager → Settings → Cleanup Analytics** in the CP, or clear all analytics data from **Utilities → ShortLink Manager** (requires `shortLinkManager:clearAnalytics` permission).
 

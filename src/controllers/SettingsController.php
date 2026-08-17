@@ -324,6 +324,9 @@ class SettingsController extends Controller
 
         $plugin = ShortLinkManager::$plugin;
 
+        $currentSettings = $plugin->getSettings();
+        $wasAnalyticsCleanupEnabled = $plugin->analyticsCleanupScheduler->isEnabled($currentSettings);
+
         // Load current settings from database
         $settings = Settings::loadFromDatabase();
 
@@ -407,8 +410,17 @@ class SettingsController extends Controller
 
         // Save settings to database
         if ($settings->saveToDatabase($attributesToValidate)) {
-            // Update the plugin's cached settings (CRITICAL - forces Craft to refresh)
-            $plugin->setSettings($settings->getAttributes());
+            $savedSettings = Settings::loadFromDatabase();
+            PluginHelper::applyConfigOverridesToSettings($savedSettings, 'shortlink-manager');
+
+            try {
+                $plugin->analyticsCleanupScheduler->reconcile($wasAnalyticsCleanupEnabled, $savedSettings);
+            } catch (\Throwable $exception) {
+                $this->logError('Settings saved, but the analytics cleanup schedule could not be updated.', [
+                    'error' => $exception->getMessage(),
+                ]);
+                throw $exception;
+            }
 
             $this->setSuccessFlash(Craft::t('shortlink-manager', 'Settings saved.'));
         } else {
