@@ -19,6 +19,7 @@ use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * QR Code Controller
@@ -50,6 +51,7 @@ class QrCodeController extends Controller
      * @param string|null $siteHandle Site handle from route (for site-aware short domains)
      * @return Response
      * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
      */
     public function actionGenerate(?string $code = null, ?string $siteHandle = null): Response
     {
@@ -188,6 +190,8 @@ class QrCodeController extends Controller
 
         // Remove null values
         $options = array_filter($options, fn($value) => $value !== null);
+        $format = ShortLinkManager::$plugin->qrCode->normalizeFormat($options['format'] ?? null);
+        $options['format'] = $format;
 
         $mode = $isPreview && $url ? 'preview' : ($linkId ? 'cp-link' : 'public-code');
         $this->logDebug('Generating QR code', [
@@ -205,10 +209,6 @@ class QrCodeController extends Controller
         try {
             $qrCode = ShortLinkManager::$plugin->qrCode->generateQrCode($fullUrl, $options);
 
-            // Determine content type (validate format to known values)
-            $format = in_array($options['format'] ?? '', ['png', 'svg'], true)
-                ? $options['format']
-                : ShortLinkManager::$plugin->getSettings()->defaultQrFormat;
             $contentType = $format === 'svg' ? 'image/svg+xml' : 'image/png';
 
             // Return response
@@ -233,8 +233,16 @@ class QrCodeController extends Controller
             $response->content = $qrCode;
 
             return $response;
-        } catch (\Exception $e) {
-            throw new NotFoundHttpException('Failed to generate QR code.');
+        } catch (\Throwable $e) {
+            $this->logError('Failed to generate QR code', [
+                'mode' => $mode,
+                'code' => $code ?? 'N/A',
+                'linkId' => $linkId ?? 'N/A',
+                'format' => $format,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new ServerErrorHttpException('QR code generation failed.');
         }
     }
 

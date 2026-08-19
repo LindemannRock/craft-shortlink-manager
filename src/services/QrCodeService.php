@@ -24,6 +24,7 @@ use BaconQrCode\Writer;
 use craft\base\Component;
 use craft\elements\Asset;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\QrCodeRendererHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
 
@@ -35,6 +36,11 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 class QrCodeService extends Component
 {
     use LoggingTrait;
+
+    private const FORMAT_PNG = 'png';
+    private const FORMAT_SVG = 'svg';
+    private const PNG_SIGNATURE = "\x89PNG\r\n\x1a\n";
+    private const PNG_IEND_CHUNK = "\x00\x00\x00\x00IEND\xAE\x42\x60\x82";
 
     /**
      * @inheritdoc
@@ -60,9 +66,7 @@ class QrCodeService extends Component
         $size = max(100, min(1000, (int)($options['size'] ?? $settings->defaultQrSize)));
         $color = $this->normalizeHexColor($options['color'] ?? null, (string)$settings->defaultQrColor);
         $bgColor = $this->normalizeHexColor($options['bg'] ?? $options['backgroundColor'] ?? null, (string)$settings->defaultQrBgColor);
-        $format = in_array($options['format'] ?? $settings->defaultQrFormat, ['png', 'svg'], true)
-            ? ($options['format'] ?? $settings->defaultQrFormat)
-            : $settings->defaultQrFormat;
+        $format = $this->normalizeFormat($options['format'] ?? null);
         $margin = max(0, min(10, (int)($options['margin'] ?? $settings->defaultQrMargin)));
         $moduleStyle = in_array($options['moduleStyle'] ?? $settings->qrModuleStyle, ['square', 'dots', 'rounded'], true)
             ? ($options['moduleStyle'] ?? $settings->qrModuleStyle)
@@ -79,25 +83,67 @@ class QrCodeService extends Component
 
         // Check the configured disposable cache (if caching is enabled).
         if ($settings->enableQrCodeCache) {
-            $cached = ShortLinkManager::$plugin->cacheStorage->readQrCode(
-                $cacheKey,
-                $settings->qrCodeCacheDuration,
-            );
-            if ($cached->isHit() && is_string($cached->value)) {
-                return $cached->value;
+            try {
+                $cached = ShortLinkManager::$plugin->cacheStorage->readQrCode(
+                    $cacheKey,
+                    $settings->qrCodeCacheDuration,
+                );
+                if ($cached->isHit() && is_string($cached->value)) {
+                    if ($this->isValidOutput($cached->value, $format)) {
+                        return $cached->value;
+                    }
+
+                    $this->logWarning('Ignored invalid cached QR code output', [
+                        'format' => $format,
+                        'cacheKey' => $cacheKey,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $this->logWarning('Failed to read QR code cache', [
+                    'format' => $format,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
         // Generate QR code
-        $qrCode = $this->_generateQrCode($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
+        try {
+            $qrCode = $this->_generateQrCode($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
+        } catch (\Throwable $e) {
+            $this->logError('Failed to render QR code', [
+                'format' => $format,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+
+        if (!$this->isValidOutput($qrCode, $format)) {
+            $this->logError('QR renderer returned invalid output', [
+                'format' => $format,
+                'length' => strlen($qrCode),
+            ]);
+            throw new \RuntimeException('QR renderer returned invalid output.');
+        }
 
         // Cache the result (if caching enabled)
         if ($settings->enableQrCodeCache) {
-            ShortLinkManager::$plugin->cacheStorage->writeQrCode(
-                $cacheKey,
-                $qrCode,
-                $settings->qrCodeCacheDuration,
-            );
+            try {
+                if (!ShortLinkManager::$plugin->cacheStorage->writeQrCode(
+                    $cacheKey,
+                    $qrCode,
+                    $settings->qrCodeCacheDuration,
+                )) {
+                    $this->logWarning('Failed to cache generated QR code', [
+                        'format' => $format,
+                        'cacheKey' => $cacheKey,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $this->logWarning('Failed to write QR code cache', [
+                    'format' => $format,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $qrCode;
@@ -112,13 +158,31 @@ class QrCodeService extends Component
      */
     public function generateQrCodeDataUrl(string $url, array $options = []): string
     {
-        $format = $options['format'] ?? ShortLinkManager::$plugin->getSettings()->defaultQrFormat;
+        $format = $this->normalizeFormat($options['format'] ?? null);
+        $options['format'] = $format;
         $qrCode = $this->generateQrCode($url, $options);
 
-        $mimeType = $format === 'svg' ? 'image/svg+xml' : 'image/png';
+        $mimeType = $format === self::FORMAT_SVG ? 'image/svg+xml' : 'image/png';
         $encoded = base64_encode($qrCode);
 
         return "data:$mimeType;base64,$encoded";
+    }
+
+    /**
+     * Normalize a requested QR output format against the effective setting.
+     *
+     * @since 5.29.0
+     */
+    public function normalizeFormat(mixed $format): string
+    {
+        $defaultFormat = ShortLinkManager::$plugin->getSettings()->defaultQrFormat;
+        if (!in_array($defaultFormat, [self::FORMAT_PNG, self::FORMAT_SVG], true)) {
+            $defaultFormat = self::FORMAT_PNG;
+        }
+
+        return in_array($format, [self::FORMAT_PNG, self::FORMAT_SVG], true)
+            ? $format
+            : $defaultFormat;
     }
 
     /**
@@ -144,7 +208,7 @@ class QrCodeService extends Component
     /**
      * Generate QR code
      */
-    private function _generateQrCode(string $url, int $size, string $color, string $bgColor, string $format, int $margin, string $moduleStyle, string $eyeStyle, ?string $eyeColor, ?string $logoId, int $logoSize): string
+    protected function _generateQrCode(string $url, int $size, string $color, string $bgColor, string $format, int $margin, string $moduleStyle, string $eyeStyle, ?string $eyeColor, ?string $logoId, int $logoSize): string
     {
         // Parse colors
         $foregroundColor = $this->_parseColor($color);
@@ -182,18 +246,14 @@ class QrCodeService extends Component
             $fill
         );
 
-        if ($format === 'svg') {
+        if ($format === self::FORMAT_SVG) {
             // SVG format
             $renderer = new ImageRenderer(
                 $rendererStyle,
                 new SvgImageBackEnd()
             );
         } else {
-            // PNG format - using Imagick backend
-            $renderer = new ImageRenderer(
-                $rendererStyle,
-                new \BaconQrCode\Renderer\Image\ImagickImageBackEnd()
-            );
+            $renderer = QrCodeRendererHelper::createPngRenderer($rendererStyle);
         }
 
         // Create writer
@@ -203,7 +263,7 @@ class QrCodeService extends Component
         $qrCode = $writer->writeString($url);
 
         // Add logo overlay if specified and not SVG format
-        if ($logoId && $format !== 'svg') {
+        if ($logoId && $format !== self::FORMAT_SVG) {
             $qrCode = $this->_addLogoToQrCode($qrCode, $logoId, $size, $logoSize);
         }
 
@@ -281,10 +341,30 @@ class QrCodeService extends Component
         return null;
     }
 
+    private function isValidOutput(string $output, string $format): bool
+    {
+        if ($output === '') {
+            return false;
+        }
+
+        if ($format === self::FORMAT_PNG) {
+            return strlen($output) >= 45
+                && str_starts_with($output, self::PNG_SIGNATURE)
+                && substr($output, 12, 4) === 'IHDR'
+                && strpos($output, 'IDAT', 24) !== false
+                && str_ends_with($output, self::PNG_IEND_CHUNK);
+        }
+
+        $svg = ltrim($output, "\xEF\xBB\xBF\x00\x09\x0A\x0D\x20");
+
+        return preg_match('/^(?:<\?xml[^>]*>\s*)?<svg\b[^>]*>/i', $svg) === 1
+            && stripos($svg, '</svg>') !== false;
+    }
+
     /**
      * Add logo overlay to QR code
      */
-    private function _addLogoToQrCode(string $qrCodeData, string $logoId, int $qrSize, int $logoSizePercent): string
+    protected function _addLogoToQrCode(string $qrCodeData, string $logoId, int $qrSize, int $logoSizePercent): string
     {
         $logoPath = null;
         $qrImage = null;
@@ -294,20 +374,31 @@ class QrCodeService extends Component
 
         try {
             // Get logo asset
-            $logoAsset = Asset::find()->id($logoId)->one();
+            $logoAsset = $this->resolveLogoAsset($logoId);
             if (!$logoAsset) {
+                $this->logWarning('QR logo asset was not found', ['logoId' => $logoId]);
                 return $qrCodeData;
             }
 
             // Get logo file path
-            $logoPath = $logoAsset->getCopyOfFile();
+            try {
+                $logoPath = $logoAsset->getCopyOfFile();
+            } catch (\Throwable $e) {
+                $this->logError('Failed to copy QR logo asset', [
+                    'logoId' => $logoId,
+                    'error' => $e->getMessage(),
+                ]);
+                return $qrCodeData;
+            }
             if (!$logoPath || !file_exists($logoPath)) {
+                $this->logWarning('QR logo asset copy is unavailable', ['logoId' => $logoId]);
                 return $qrCodeData;
             }
 
             // Create QR code image from binary data
             $qrImage = imagecreatefromstring($qrCodeData);
             if (!$qrImage) {
+                $this->logError('Failed to decode rendered PNG for QR logo overlay', ['logoId' => $logoId]);
                 return $qrCodeData;
             }
 
@@ -330,9 +421,19 @@ class QrCodeService extends Component
                         $logoImage = imagecreatefromgif($logoPath);
                         break;
                 }
+            } else {
+                $this->logWarning('QR logo asset is unreadable or corrupt', ['logoId' => $logoId]);
             }
 
             if (!$logoImage) {
+                if ($imageInfo && !in_array($imageInfo[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF], true)) {
+                    $this->logWarning('QR logo asset format is unsupported', [
+                        'logoId' => $logoId,
+                        'imageType' => $imageInfo[2],
+                    ]);
+                } elseif ($imageInfo) {
+                    $this->logWarning('Failed to decode QR logo asset', ['logoId' => $logoId]);
+                }
                 return $qrCodeData;
             }
 
@@ -383,32 +484,64 @@ class QrCodeService extends Component
             imagecopy($qrImage, $resizedLogo, $logoX, $logoY, 0, 0, $logoWidth, $logoHeight);
 
             // Convert back to binary data
-            ob_start();
-            imagepng($qrImage);
-            $result = ob_get_clean();
+            $result = $this->encodeLogoPng($qrImage);
 
             return $result !== false ? $result : $qrCodeData;
         } catch (\Throwable $e) {
-            $this->logError('Failed to add logo to QR code', ['error' => $e->getMessage()]);
+            $this->logError('Failed to compose QR logo overlay', [
+                'logoId' => $logoId,
+                'error' => $e->getMessage(),
+            ]);
             return $qrCodeData;
         } finally {
             while (ob_get_level() > $bufferLevel) {
                 ob_end_clean();
             }
 
-            if ($qrImage instanceof \GdImage) {
-                imagedestroy($qrImage);
-            }
-            if ($logoImage instanceof \GdImage) {
-                imagedestroy($logoImage);
-            }
-            if ($resizedLogo instanceof \GdImage) {
-                imagedestroy($resizedLogo);
-            }
+            $this->releaseGdImage($qrImage);
+            $this->releaseGdImage($logoImage);
+            $this->releaseGdImage($resizedLogo);
 
             if (is_string($logoPath) && is_file($logoPath)) {
                 @unlink($logoPath);
             }
         }
+    }
+
+    /**
+     * Encode a composed QR image as PNG.
+     */
+    protected function encodeLogoPng(\GdImage $image): string|false
+    {
+        ob_start();
+        imagepng($image);
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Release a GD image without calling deprecated APIs on PHP 8.5+.
+     */
+    private function releaseGdImage(?\GdImage &$image): void
+    {
+        if (!$image instanceof \GdImage) {
+            return;
+        }
+
+        if (PHP_VERSION_ID < 80500) {
+            imagedestroy($image);
+        }
+
+        $image = null;
+    }
+
+    /**
+     * Resolve the configured logo through Craft's Asset element query.
+     */
+    protected function resolveLogoAsset(string $logoId): ?Asset
+    {
+        $asset = Asset::find()->id($logoId)->one();
+
+        return $asset instanceof Asset ? $asset : null;
     }
 }

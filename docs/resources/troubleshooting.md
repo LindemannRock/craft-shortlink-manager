@@ -193,6 +193,8 @@ Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFA
 
 ## QR code shows as broken image
 
+PNG output uses the image driver Craft selected for the current environment. Check Craft's image settings and confirm that its effective Imagick or GD driver is available. SVG output is independent of that raster driver, so an SVG request can still work when PNG capability is unavailable.
+
 1. **Is the QR prefix configured correctly?** The QR URL pattern is `/{qrPrefix}/{code}`. The `qrPrefix` setting defaults to an empty string, but when it is left empty the route falls back to `qr` — so default QR URLs are `/qr/abc123`. A common configuration is `s/qr`, giving URLs like `/s/qr/abc123`. Check the `qrPrefix` setting.
 
 2. **Is the route registered?** Clear caches and reload after changing `qrPrefix`.
@@ -203,9 +205,13 @@ Or via env vars: `SHORTLINK_MANAGER_DEFAULT_COUNTRY` and `SHORTLINK_MANAGER_DEFA
 
 5. **Check file permissions.** If using file-based QR caching, ensure `storage/runtime/shortlink-manager/qr/` is writable by the web server.
 
+If a logo cannot be read, copied from its Asset volume, or decoded as JPEG, PNG, or GIF, ShortLink Manager logs the logo-specific problem and returns the valid unbranded PNG. This applies to both local and remote-volume Assets because logo files are accessed through Craft's temporary-copy API.
+
+QR cache failures do not prevent a valid image response. Invalid cached image data is ignored and replaced only after regeneration succeeds; persistent generation errors are recorded separately in the plugin logs.
+
 ## QR code downloads as wrong file type
 
-The download format is controlled by the `defaultQrFormat` setting (`png` or `svg`) and can be overridden per link. If you request a format via the URL parameter (e.g., `?format=svg`), ensure the QR URL includes that parameter.
+The download format is controlled by the `defaultQrFormat` setting (`png` or `svg`) and can be overridden per link. If you request a format via the URL parameter (e.g., `?format=svg`), ensure the QR URL includes that parameter. Unsupported format values fall back to the configured default, and the response MIME type and download extension follow that normalized format.
 
 ## Settings save shows numeric field errors
 

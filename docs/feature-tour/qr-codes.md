@@ -37,6 +37,12 @@ Module style and eye style combine to give your QR codes a distinct look:
 > [!WARNING]
 > The `dots` module style may not scan reliably at very small sizes. Use at least 200 px when choosing `dots`.
 
+### Choose an output format
+
+PNG rendering follows Craft's effective image driver, whether Craft is using Imagick or GD. All supported module and eye styles work with either driver. SVG generation uses its own vector renderer and does not depend on Craft's raster driver.
+
+Use PNG when you need a bitmap or logo overlay. Use SVG when you want a resolution-independent QR code without a logo.
+
 ---
 
 ## Customization reference
@@ -64,6 +70,8 @@ Enable `enableQrLogo` in settings to add a brand logo to the center of QR codes.
 - Control the **logo size** as a percentage of the QR code width (10–30%, default 20%).
 
 Per-link logo overrides use the `qrLogoId` field on the short link edit page.
+
+Logo inputs can be readable JPEG, PNG, or GIF Craft Assets. Assets on local and remote volumes are supported through Craft's temporary-copy API. The overlay is PNG-only and is composed with GD after the base QR image is rendered. If the selected logo is missing, inaccessible, corrupt, or unsupported, ShortLink Manager returns the valid unbranded PNG instead.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -212,7 +220,6 @@ return [
 
 ## Limitations
 
-- Logo overlays require the Imagick PHP extension.
 - SVG output does not support logo overlays (logos are PNG only).
 - The `dots` module style may not scan reliably at very small sizes — use at least 200 px.
 - QR codes always encode the short link's public URL — the destination URL cannot be encoded directly.

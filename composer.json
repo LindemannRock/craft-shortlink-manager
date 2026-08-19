@@ -32,9 +32,9 @@
     "require": {
         "php": ">=8.2",
         "craftcms/cms": "^5.10",
-        "lindemannrock/craft-plugin-base": "^5.35",
+        "lindemannrock/craft-plugin-base": "^5.38",
         "lindemannrock/craft-logging-library": "^5.16",
-        "bacon/bacon-qr-code": "^2.0 || ^3.0"
+        "bacon/bacon-qr-code": "^3.0"
     },
     "require-dev": {
         "craftcms/ecs": "dev-main",

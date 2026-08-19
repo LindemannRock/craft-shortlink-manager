@@ -32,8 +32,9 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 
 - Craft CMS 5.10+
 - PHP 8.2+
+- [Base](https://github.com/LindemannRock/craft-plugin-base) 5.38+ (required)
 - [Logging Library](https://github.com/LindemannRock/craft-logging-library) 5.16+ (required by Composer; install in CP for log viewing)
-- [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode) ^2.0 or ^3.0
+- [bacon/bacon-qr-code](https://github.com/Bacon/BaconQrCode) ^3.0
 
 ## Installation
 
