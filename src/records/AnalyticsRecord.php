@@ -44,7 +44,7 @@ use craft\db\ActiveRecord;
  * @property string|null $region
  * @property float|null $latitude
  * @property float|null $longitude
- * @property string|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property string $dateCreated
  * @property string $dateUpdated
  * @property string|null $uid

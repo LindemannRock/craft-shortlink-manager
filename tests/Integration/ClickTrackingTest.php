@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
-use craft\helpers\Json;
 use lindemannrock\base\testing\StubWebRequest;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
@@ -77,8 +76,8 @@ final class ClickTrackingTest extends TestCase
 
         // Source is stored inside the metadata JSON blob.
         $this->assertNotEmpty($row['metadata']);
-        $metadata = Json::decode($row['metadata']);
-        $this->assertSame('qr', $metadata['source']);
+        $metadata = $this->decodeAnalyticsMetadata($row['metadata']);
+        $this->assertSame(['source' => 'qr'], $metadata);
     }
 
     public function testTrackClickHashesIpDeterministicallyWithSalt(): void

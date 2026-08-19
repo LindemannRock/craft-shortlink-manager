@@ -13,6 +13,7 @@ namespace lindemannrock\shortlinkmanager\tests\Integration;
 use Craft;
 use craft\console\Request as ConsoleRequest;
 use craft\console\User as ConsoleUser;
+use craft\db\Query;
 use lindemannrock\base\testing\StubWebRequest;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
@@ -162,8 +163,32 @@ final class UtilityOverviewSiteFilterTest extends TestCase
 
             $linkA = $this->seedShortLink(['siteId' => (int) $siteA->id]);
             $linkB = $this->seedShortLink(['siteId' => (int) $siteB->id]);
+            $ownedLinkIds = [(int) $linkA->id, (int) $linkB->id];
+            self::assertSame(0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $ownedLinkIds]));
+
             $this->analytics->trackClick($linkA, new StubWebRequest(), 'direct');
             $this->analytics->trackClick($linkB, new StubWebRequest(), 'qr');
+
+            $ownedAnalytics = (new Query())
+                ->select(['linkId', 'siteId', 'metadata'])
+                ->from('{{%shortlinkmanager_analytics}}')
+                ->where(['linkId' => $ownedLinkIds])
+                ->indexBy('linkId')
+                ->all();
+
+            self::assertCount(2, $ownedAnalytics);
+            self::assertArrayHasKey((int) $linkA->id, $ownedAnalytics);
+            self::assertArrayHasKey((int) $linkB->id, $ownedAnalytics);
+            self::assertSame((int) $siteA->id, (int) $ownedAnalytics[(int) $linkA->id]['siteId']);
+            self::assertSame((int) $siteB->id, (int) $ownedAnalytics[(int) $linkB->id]['siteId']);
+            self::assertSame(
+                ['source' => 'direct'],
+                $this->decodeAnalyticsMetadata($ownedAnalytics[(int) $linkA->id]['metadata']),
+            );
+            self::assertSame(
+                ['source' => 'qr'],
+                $this->decodeAnalyticsMetadata($ownedAnalytics[(int) $linkB->id]['metadata']),
+            );
 
             $allLinksAfter = $this->linkStatusCounts($allSelection['siteIds']);
             $siteALinksAfter = $this->linkStatusCounts($siteASelection['siteIds']);

@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests;
 
 use Craft;
+use craft\helpers\Json;
 use lindemannrock\base\testing\IntegrationTestCase;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\services\AnalyticsService;
@@ -157,6 +158,22 @@ abstract class TestCase extends IntegrationTestCase
         $this->assertNotNull($row, "Shortlink row {$id} not found.");
 
         return (int) $row['hits'];
+    }
+
+    /**
+     * Normalize analytics metadata returned by raw queries or JSON-aware hydration.
+     *
+     * @return array<string, mixed>
+     */
+    protected function decodeAnalyticsMetadata(mixed $metadata): array
+    {
+        if (is_string($metadata)) {
+            $metadata = Json::decode($metadata);
+        }
+
+        $this->assertIsArray($metadata, 'Analytics metadata must hydrate to a JSON object.');
+
+        return $metadata;
     }
 
     /**

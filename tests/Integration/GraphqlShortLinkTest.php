@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use Craft;
-use craft\helpers\Json;
 use GraphQL\Type\Definition\ResolveInfo;
 use lindemannrock\base\testing\StubConsoleRequest;
 use lindemannrock\base\testing\StubWebRequest;
@@ -105,8 +104,8 @@ final class GraphqlShortLinkTest extends TestCase
         self::assertSame($site->id, (int)$analytics['siteId']);
         self::assertSame('https://example.com/target', $analytics['destinationUrl']);
         self::assertNotEmpty($analytics['metadata']);
-        $metadata = Json::decode($analytics['metadata']);
-        self::assertSame('graphql', $metadata['source']);
+        $metadata = $this->decodeAnalyticsMetadata($analytics['metadata']);
+        self::assertSame(['source' => 'graphql'], $metadata);
     }
 
     public function testResolveQueryMergesQueryStringWhenEnabled(): void

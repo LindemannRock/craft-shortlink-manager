@@ -12,6 +12,7 @@ namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use Craft;
 use craft\console\User as ConsoleUser;
+use craft\helpers\StringHelper;
 use lindemannrock\shortlinkmanager\controllers\AnalyticsController;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 use lindemannrock\shortlinkmanager\widgets\AnalyticsSummaryWidget;
@@ -51,30 +52,28 @@ final class AnalyticsEmptySiteScopeTest extends TestCase
         $siteB = $sites[1];
 
         $this->withSettings(['enabledSites' => [(int) $siteA->id, (int) $siteB->id]], function() use ($siteA, $siteB): void {
-            $linkId = (new \craft\db\Query())
-                ->from('{{%shortlinkmanager}}')
-                ->select(['id'])
-                ->scalar();
-            if ($linkId === false) {
-                self::markTestSkipped('Empty site-scope regression requires an existing shortlink row.');
-            }
+            $link = $this->seedShortLink(['siteId' => (int) $siteA->id]);
+            $linkId = (int) $link->id;
 
             $ipPrefix = '198.51.100.' . random_int(1, 200);
+            $analyticsUids = [];
             $allBefore = $this->analytics->getAnalyticsSummary('last7days', null, [(int) $siteA->id, (int) $siteB->id]);
 
             try {
                 foreach ([$siteA, $siteB] as $index => $site) {
+                    $uid = StringHelper::UUID();
+                    $analyticsUids[] = $uid;
                     Craft::$app->getDb()->createCommand()->insert('{{%shortlinkmanager_analytics}}', [
-                        'linkId' => (int) $linkId,
+                        'linkId' => $linkId,
                         'siteId' => (int) $site->id,
                         'deviceType' => 'desktop',
                         'trafficType' => 'human',
                         'ip' => $ipPrefix . $index,
                         'userAgent' => 'AnalyticsEmptySiteScopeTest',
-                        'metadata' => '{}',
+                        'metadata' => ['source' => 'direct'],
                         'dateCreated' => (new \DateTime())->format('Y-m-d H:i:s'),
                         'dateUpdated' => (new \DateTime())->format('Y-m-d H:i:s'),
-                        'uid' => \craft\helpers\StringHelper::UUID(),
+                        'uid' => $uid,
                     ])->execute();
                 }
 
@@ -91,7 +90,7 @@ final class AnalyticsEmptySiteScopeTest extends TestCase
                 self::assertSame([], $emptyScope['topLinks']);
             } finally {
                 Craft::$app->getDb()->createCommand()
-                    ->delete('{{%shortlinkmanager_analytics}}', ['like', 'ip', $ipPrefix, false])
+                    ->delete('{{%shortlinkmanager_analytics}}', ['uid' => $analyticsUids])
                     ->execute();
             }
         });
