@@ -122,7 +122,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `defaultQrColor` | `string` | `'#000000'` | Default QR code foreground color (hex) |
 | `defaultQrBgColor` | `string` | `'#FFFFFF'` | Default QR code background color (hex) |
 | `defaultQrFormat` | `string` | `'png'` | Default QR code format. Options: `'png'`, `'svg'` |
-| `defaultQrErrorCorrection` | `string` | `'M'` | Error correction level. Options: `'L'` (~7%), `'M'` (~15%), `'Q'` (~25%), `'H'` (~30%) |
+| `defaultQrErrorCorrection` | `string` | `'M'` | Error correction level for PNG and SVG. Options: `'L'` (~7%), `'M'` (~15%), `'Q'` (~25%), `'H'` (~30%). Invalid configured values safely fall back to `'M'`. |
 | `defaultQrMargin` | `int` | `4` | Quiet zone (margin) in modules (0–10) |
 | `qrModuleStyle` | `string` | `'square'` | Module shape. Options: `'square'`, `'rounded'`, `'dots'` |
 | `qrEyeStyle` | `string` | `'square'` | Eye/finder pattern style. Options: `'square'`, `'rounded'`, `'pointed'` |

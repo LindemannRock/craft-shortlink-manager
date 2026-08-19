@@ -213,6 +213,15 @@ QR cache failures do not prevent a valid image response. Invalid cached image da
 
 The download format is controlled by the `defaultQrFormat` setting (`png` or `svg`) and can be overridden per link. If you request a format via the URL parameter (e.g., `?format=svg`), ensure the QR URL includes that parameter. Unsupported format values fall back to the configured default, and the response MIME type and download extension follow that normalized format.
 
+## QR error correction does not match the requested level
+
+1. **Check the supported values.** Use `L`, `M`, `Q`, or `H`. Request values are case-insensitive and trimmed.
+2. **Check the effective default.** An invalid `errorCorrection` query value falls back to `defaultQrErrorCorrection`.
+3. **Check config-file overrides.** A value in `config/shortlink-manager.php` overrides the Control Panel setting.
+4. **Retest the exact URL.** The normalized effective level is part of the QR cache identity, so changing only the level generates a separate cached result; no shared-cache flush is required.
+
+If `defaultQrErrorCorrection` itself contains an invalid value, ShortLink Manager uses `M`. All four supported levels apply to both PNG and SVG. For a logo-bearing code, `H` is the appropriate starting point, but scan-test the final output at its intended size because the logo still covers part of the symbol.
+
 ## Settings save shows numeric field errors
 
 Numeric settings such as QR cache duration, device detection cache duration, QR size, and logo size must be whole numbers within the range shown in the field instructions.

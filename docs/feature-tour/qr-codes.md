@@ -56,7 +56,7 @@ Use PNG when you need a bitmap or logo overlay. Use SVG when you want a resoluti
 | `defaultQrBgColor` | `string` | `'#FFFFFF'` | Background color (hex) |
 | `defaultQrFormat` | `string` | `'png'` | Output format: `'png'` or `'svg'` |
 | `defaultQrMargin` | `int` | `4` | Quiet zone in modules (0–10) |
-| `defaultQrErrorCorrection` | `string` | `'M'` | Error correction: `'L'` (7%), `'M'` (15%), `'Q'` (25%), `'H'` (30%) |
+| `defaultQrErrorCorrection` | `string` | `'M'` | Error correction for PNG and SVG: `'L'` (7%), `'M'` (15%), `'Q'` (25%), `'H'` (30%). The default `M` level is passed explicitly to the Bacon QR Code encoder. |
 | `qrModuleStyle` | `string` | `'square'` | Module shape: `'square'`, `'dots'`, `'rounded'` |
 | `qrEyeStyle` | `string` | `'square'` | Finder pattern shape: `'square'`, `'rounded'`, `'pointed'` |
 | `qrEyeColor` | `?string` | `null` | Eye color override (hex). Falls back to foreground color |
@@ -81,7 +81,7 @@ Logo inputs can be readable JPEG, PNG, or GIF Craft Assets. Assets on local and 
 | `qrLogoSize` | `int` | `20` | Logo size as percentage of QR code (10–30) |
 
 > [!WARNING]
-> A logo reduces the scannable area. Use `defaultQrErrorCorrection: 'H'` (30% recovery) when adding a logo to ensure reliable scanning.
+> A logo reduces the scannable area. `defaultQrErrorCorrection: 'H'` (30% recovery) is appropriate for logo-bearing codes, but you should still scan-test the final code at its intended print or display size.
 
 ## QR code URLs
 
@@ -106,12 +106,15 @@ The QR image URL accepts query parameters to customize on the fly:
 | `bg` | `?bg=ffffff` | Background color (hex without `#`) |
 | `format` | `?format=svg` | Output format |
 | `margin` | `?margin=2` | Quiet zone modules |
+| `errorCorrection` | `?errorCorrection=H` | Error correction level (`L`, `M`, `Q`, or `H`) |
 | `moduleStyle` | `?moduleStyle=dots` | Module shape |
 | `eyeStyle` | `?eyeStyle=rounded` | Eye shape |
 | `eyeColor` | `?eyeColor=0000ff` | Eye color override |
 | `download` | `?download=1` | Trigger file download instead of inline display |
 
 Color parameters are forgiving: a value that isn't a valid 6-digit hex color (`color`, `bg`, or `eyeColor`) is silently ignored and the configured default is used instead — the QR code always renders rather than erroring.
+
+Error-correction values are trimmed and case-insensitive, so `q` and `Q` are equivalent. An invalid request value falls back to the effective `defaultQrErrorCorrection`; if that configured default is invalid, ShortLink Manager safely uses `M`.
 
 ## Downloading QR codes
 
@@ -185,7 +188,7 @@ Generated QR codes are cached to avoid regenerating on every request.
 | `qrCodeCacheDuration` | `86400` | Cache TTL in seconds (24 hours) |
 | `cacheStorageMethod` @since(5.3.0) | `'file'` | `'file'` (single server) or `'redis'` (multi-server) |
 
-The cache key includes the URL and all rendering options, so changing any option automatically generates a fresh QR code. Cache can be cleared from **Utilities → ShortLink Manager** (requires `shortLinkManager:clearCache` permission).
+The cache key includes the URL and all rendering options, including the normalized effective error-correction level. Equivalent values such as `m` and `M` share a cached result, while changing the effective level generates and caches a distinct QR code. Cache can be cleared from **Utilities → ShortLink Manager** (requires `shortLinkManager:clearCache` permission).
 
 ```php
 // config/shortlink-manager.php

@@ -112,6 +112,69 @@ final class QrCodeControllerTest extends TestCase
         });
     }
 
+    public function testAuthenticatedPreviewForwardsErrorCorrection(): void
+    {
+        $this->installRequest([
+            'preview' => '1',
+            'url' => 'https://example.com/preview-error-correction',
+            'format' => 'svg',
+            'errorCorrection' => ' q ',
+        ]);
+        $service = new CapturingQrCodeService();
+        $this->swapPluginComponent('shortlink-manager', 'qrCode', $service);
+
+        $controller = $this->controller();
+        $response = $controller->actionGenerate();
+
+        self::assertTrue($controller->loginRequired);
+        self::assertSame(['shortLinkManager:editLinks'], $controller->requiredPermissions);
+        self::assertSame(' q ', $service->options['errorCorrection'] ?? null);
+        self::assertSame('image/svg+xml', $response->headers->get('Content-Type'));
+    }
+
+    public function testPublicGenerationForwardsErrorCorrection(): void
+    {
+        $link = $this->qrLink('sl-test-qr-public-error-correction', 'svg');
+        $this->installRequest([
+            'format' => 'svg',
+            'errorCorrection' => 'h',
+        ]);
+        $service = new CapturingQrCodeService();
+        $this->swapPluginComponent('shortlink-manager', 'qrCode', $service);
+
+        $response = $this->controller()->actionGenerate($link->code);
+
+        self::assertSame('h', $service->options['errorCorrection'] ?? null);
+        self::assertSame('image/svg+xml', $response->headers->get('Content-Type'));
+    }
+
+    public function testGeneratedResponsePreservesMimeAndSignatureAcrossErrorCorrectionLevels(): void
+    {
+        $link = $this->qrLink('sl-test-qr-error-correction-response', 'png');
+
+        $this->withSettings(['enableQrCodeCache' => false], function() use ($link): void {
+            foreach (['L', 'M', 'Q', 'H'] as $errorCorrection) {
+                foreach (['png', 'svg'] as $format) {
+                    $this->installRequest([
+                        'format' => $format,
+                        'errorCorrection' => $errorCorrection,
+                    ]);
+                    $response = $this->controller()->actionGenerate($link->code);
+
+                    if ($format === 'svg') {
+                        self::assertSame('image/svg+xml', $response->headers->get('Content-Type'));
+                        self::assertStringContainsString('<svg', (string)$response->content);
+                        self::assertStringContainsString('</svg>', (string)$response->content);
+                    } else {
+                        self::assertSame('image/png', $response->headers->get('Content-Type'));
+                        self::assertStringStartsWith("\x89PNG\r\n\x1a\n", (string)$response->content);
+                        self::assertStringEndsWith("\x00\x00\x00\x00IEND\xAE\x42\x60\x82", (string)$response->content);
+                    }
+                }
+            }
+        });
+    }
+
     public function testDownloadUsesNormalizedFormatAndSafeFilename(): void
     {
         $link = $this->qrLink('sl-test-qr-download', 'png');
@@ -256,5 +319,18 @@ final class ControllerThrowingQrCodeService extends QrCodeService
     public function generateQrCode(string $url, array $options = []): string
     {
         throw new \RuntimeException('Fixture renderer failure details.');
+    }
+}
+
+final class CapturingQrCodeService extends QrCodeService
+{
+    /** @var array<string, mixed> */
+    public array $options = [];
+
+    public function generateQrCode(string $url, array $options = []): string
+    {
+        $this->options = $options;
+
+        return '<svg xmlns="http://www.w3.org/2000/svg"></svg>';
     }
 }

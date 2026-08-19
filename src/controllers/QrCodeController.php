@@ -154,6 +154,7 @@ class QrCodeController extends Controller
                 'format' => $request->getQueryParam('format', $shortLink->qrCodeFormat ?: $settings->defaultQrFormat),
                 'eyeColor' => $request->getQueryParam('eyeColor', $shortLink->qrCodeEyeColor ? str_replace('#', '', $shortLink->qrCodeEyeColor) : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null)),
                 'margin' => $request->getQueryParam('margin', $settings->defaultQrMargin),
+                'errorCorrection' => $request->getQueryParam('errorCorrection'),
                 'moduleStyle' => $request->getQueryParam('moduleStyle', $settings->qrModuleStyle),
                 'eyeStyle' => $request->getQueryParam('eyeStyle', $settings->qrEyeStyle),
             ];

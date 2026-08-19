@@ -8,6 +8,8 @@
 
 namespace lindemannrock\shortlinkmanager\services;
 
+use BaconQrCode\Common\ErrorCorrectionLevel;
+use BaconQrCode\Encoder\Encoder;
 use BaconQrCode\Renderer\Color\Rgb;
 use BaconQrCode\Renderer\Eye\PointyEye;
 use BaconQrCode\Renderer\Eye\SimpleCircleEye;
@@ -68,6 +70,10 @@ class QrCodeService extends Component
         $bgColor = $this->normalizeHexColor($options['bg'] ?? $options['backgroundColor'] ?? null, (string)$settings->defaultQrBgColor);
         $format = $this->normalizeFormat($options['format'] ?? null);
         $margin = max(0, min(10, (int)($options['margin'] ?? $settings->defaultQrMargin)));
+        $errorCorrection = $this->normalizeErrorCorrection(
+            $options['errorCorrection'] ?? null,
+            $settings->defaultQrErrorCorrection,
+        );
         $moduleStyle = in_array($options['moduleStyle'] ?? $settings->qrModuleStyle, ['square', 'dots', 'rounded'], true)
             ? ($options['moduleStyle'] ?? $settings->qrModuleStyle)
             : $settings->qrModuleStyle;
@@ -79,7 +85,7 @@ class QrCodeService extends Component
         $logoSize = max(10, min(30, (int)($options['logoSize'] ?? $settings->qrLogoSize ?? 20)));
 
         // Create cache key including new style parameters and logo
-        $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
+        $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $errorCorrection, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
 
         // Check the configured disposable cache (if caching is enabled).
         if ($settings->enableQrCodeCache) {
@@ -108,7 +114,7 @@ class QrCodeService extends Component
 
         // Generate QR code
         try {
-            $qrCode = $this->_generateQrCode($url, $size, $color, $bgColor, $format, $margin, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
+            $qrCode = $this->_generateQrCode($url, $size, $color, $bgColor, $format, $margin, $errorCorrection, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
         } catch (\Throwable $e) {
             $this->logError('Failed to render QR code', [
                 'format' => $format,
@@ -188,7 +194,7 @@ class QrCodeService extends Component
     /**
      * Generate cache key for QR code
      */
-    private function _getCacheKey(string $url, int $size, string $color, string $bgColor, string $format, int $margin, string $moduleStyle, string $eyeStyle, ?string $eyeColor, ?string $logoId, int $logoSize): string
+    private function _getCacheKey(string $url, int $size, string $color, string $bgColor, string $format, int $margin, string $errorCorrection, string $moduleStyle, string $eyeStyle, ?string $eyeColor, ?string $logoId, int $logoSize): string
     {
         return PluginHelper::getCacheKeyPrefix(ShortLinkManager::$plugin->id, 'qr') . md5(implode(':', [
             $url,
@@ -197,6 +203,7 @@ class QrCodeService extends Component
             $bgColor,
             $format,
             $margin,
+            $errorCorrection,
             $moduleStyle,
             $eyeStyle,
             $eyeColor ?? 'null',
@@ -208,7 +215,7 @@ class QrCodeService extends Component
     /**
      * Generate QR code
      */
-    protected function _generateQrCode(string $url, int $size, string $color, string $bgColor, string $format, int $margin, string $moduleStyle, string $eyeStyle, ?string $eyeColor, ?string $logoId, int $logoSize): string
+    protected function _generateQrCode(string $url, int $size, string $color, string $bgColor, string $format, int $margin, string $errorCorrection, string $moduleStyle, string $eyeStyle, ?string $eyeColor, ?string $logoId, int $logoSize): string
     {
         // Parse colors
         $foregroundColor = $this->_parseColor($color);
@@ -260,7 +267,11 @@ class QrCodeService extends Component
         $writer = new Writer($renderer);
 
         // Generate QR code
-        $qrCode = $writer->writeString($url);
+        $qrCode = $writer->writeString(
+            $url,
+            Encoder::DEFAULT_BYTE_MODE_ENCODING,
+            $this->errorCorrectionLevel($errorCorrection),
+        );
 
         // Add logo overlay if specified and not SVG format
         if ($logoId && $format !== self::FORMAT_SVG) {
@@ -339,6 +350,34 @@ class QrCodeService extends Component
         }
 
         return null;
+    }
+
+    private function normalizeErrorCorrection(mixed $value, mixed $configuredDefault): string
+    {
+        $default = $this->normalizeErrorCorrectionToken($configuredDefault) ?? 'M';
+
+        return $this->normalizeErrorCorrectionToken($value) ?? $default;
+    }
+
+    private function normalizeErrorCorrectionToken(mixed $value): ?string
+    {
+        if (!is_scalar($value)) {
+            return null;
+        }
+
+        $token = strtoupper(trim((string)$value));
+
+        return in_array($token, ['L', 'M', 'Q', 'H'], true) ? $token : null;
+    }
+
+    private function errorCorrectionLevel(string $errorCorrection): ErrorCorrectionLevel
+    {
+        return match ($errorCorrection) {
+            'L' => ErrorCorrectionLevel::L(),
+            'Q' => ErrorCorrectionLevel::Q(),
+            'H' => ErrorCorrectionLevel::H(),
+            default => ErrorCorrectionLevel::M(),
+        };
     }
 
     private function isValidOutput(string $output, string $format): bool
