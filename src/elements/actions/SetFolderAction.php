@@ -36,6 +36,15 @@ class SetFolderAction extends ElementAction
     new Craft.ElementActionTrigger({
         type: $type,
         bulk: true,
+        validateSelection: (selectedItems, elementIndex) => {
+            for (let i = 0; i < selectedItems.length; i++) {
+                const element = selectedItems.eq(i).find('.element');
+                if (!Garnish.hasAttr(element, 'data-savable')) {
+                    return false;
+                }
+            }
+            return true;
+        },
         activate: async (selectedItems, elementIndex) => {
             const ids = (typeof elementIndex.getSelectedElementIds === 'function'
                 ? elementIndex.getSelectedElementIds()
@@ -73,6 +82,7 @@ class SetFolderAction extends ElementAction
             }).appendTo(buttonRow);
             const hud = new Garnish.HUD(elementIndex.\$actionMenuBtn, container);
             setTimeout(() => input.trigger('focus'), 50);
+            let requestInFlight = false;
 
             const refreshFolderSelect = (nextFolders, selected = '') => {
                 folderOptions.length = 0;
@@ -88,7 +98,7 @@ class SetFolderAction extends ElementAction
                 }
             };
 
-            button.one('activate', async () => {
+            button.on('activate', async () => {
                 const typed = String(input.val() || '').trim();
                 const selectedValue = String(select.find('select').val() || '').trim();
                 const selectedOption = folderOptions.find((option) => String(option.value) === selectedValue);
@@ -99,6 +109,11 @@ class SetFolderAction extends ElementAction
                     return;
                 }
 
+                if (requestInFlight) {
+                    return;
+                }
+
+                requestInFlight = true;
                 button.addClass('loading');
                 try {
                     const response = await Craft.sendActionRequest('POST', 'shortlink-manager/shortlinks/bulk-set-folder', {
@@ -115,6 +130,7 @@ class SetFolderAction extends ElementAction
                     const error = e?.response?.data?.error || Craft.t('shortlink-manager', 'Could not update folder.');
                     Craft.cp.displayError(error);
                 } finally {
+                    requestInFlight = false;
                     button.removeClass('loading');
                 }
             });

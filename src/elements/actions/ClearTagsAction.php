@@ -27,6 +27,15 @@ class ClearTagsAction extends ElementAction
     new Craft.ElementActionTrigger({
         type: $type,
         bulk: true,
+        validateSelection: (selectedItems, elementIndex) => {
+            for (let i = 0; i < selectedItems.length; i++) {
+                const element = selectedItems.eq(i).find('.element');
+                if (!Garnish.hasAttr(element, 'data-savable')) {
+                    return false;
+                }
+            }
+            return true;
+        },
         activate: async (selectedItems, elementIndex) => {
             const ids = (typeof elementIndex.getSelectedElementIds === 'function'
                 ? elementIndex.getSelectedElementIds()
@@ -49,8 +58,14 @@ class ClearTagsAction extends ElementAction
                 spinner: true,
             }).appendTo(buttonRow);
             const hud = new Garnish.HUD(elementIndex.\$actionMenuBtn, container);
+            let requestInFlight = false;
 
-            button.one('activate', async () => {
+            button.on('activate', async () => {
+                if (requestInFlight) {
+                    return;
+                }
+
+                requestInFlight = true;
                 button.addClass('loading');
                 try {
                     const response = await Craft.sendActionRequest('POST', 'shortlink-manager/shortlinks/bulk-clear-tags', {
@@ -67,6 +82,7 @@ class ClearTagsAction extends ElementAction
                     const error = e?.response?.data?.error || Craft.t('shortlink-manager', 'Could not clear tags.');
                     Craft.cp.displayError(error);
                 } finally {
+                    requestInFlight = false;
                     button.removeClass('loading');
                 }
             });

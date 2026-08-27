@@ -30,6 +30,15 @@ class AddTagsAction extends ElementAction
     new Craft.ElementActionTrigger({
         type: $type,
         bulk: true,
+        validateSelection: (selectedItems, elementIndex) => {
+            for (let i = 0; i < selectedItems.length; i++) {
+                const element = selectedItems.eq(i).find('.element');
+                if (!Garnish.hasAttr(element, 'data-savable')) {
+                    return false;
+                }
+            }
+            return true;
+        },
         activate: async (selectedItems, elementIndex) => {
             const ids = (typeof elementIndex.getSelectedElementIds === 'function'
                 ? elementIndex.getSelectedElementIds()
@@ -74,8 +83,9 @@ class AddTagsAction extends ElementAction
             }).appendTo(buttonRow);
             const hud = new Garnish.HUD(elementIndex.\$actionMenuBtn, container);
             setTimeout(() => input.trigger('focus'), 50);
+            let requestInFlight = false;
 
-            button.one('activate', async () => {
+            button.on('activate', async () => {
                 const selectedTags = (select.val() || []).map((tag) => String(tag).trim()).filter(Boolean);
                 const typedValue = String(input.val() || '').trim();
                 const typedTags = typedValue
@@ -88,6 +98,11 @@ class AddTagsAction extends ElementAction
                     return;
                 }
 
+                if (requestInFlight) {
+                    return;
+                }
+
+                requestInFlight = true;
                 button.addClass('loading');
                 try {
                     const response = await Craft.sendActionRequest('POST', 'shortlink-manager/shortlinks/bulk-add-tags', {
@@ -104,6 +119,7 @@ class AddTagsAction extends ElementAction
                     const error = e?.response?.data?.error || Craft.t('shortlink-manager', 'Could not update tags.');
                     Craft.cp.displayError(error);
                 } finally {
+                    requestInFlight = false;
                     button.removeClass('loading');
                 }
             });

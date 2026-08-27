@@ -865,17 +865,20 @@ class ShortLink extends Element
 
     private function canEditCurrentSite(User $user): bool
     {
-        if (!Craft::$app->getIsMultiSite()) {
-            return true;
-        }
-
         if (!$this->siteId) {
             return false;
         }
 
         $site = Craft::$app->getSites()->getSiteById((int)$this->siteId);
+        if ($site === null || !ShortLinkManager::$plugin->getSettings()->isSiteEnabled((int)$site->id)) {
+            return false;
+        }
 
-        return $site !== null && $user->can('editSite:' . $site->uid);
+        if (!Craft::$app->getIsMultiSite()) {
+            return true;
+        }
+
+        return $user->can('editSite:' . $site->uid);
     }
 
     /**

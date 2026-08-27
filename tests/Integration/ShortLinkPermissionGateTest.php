@@ -165,6 +165,96 @@ final class ShortLinkPermissionGateTest extends TestCase
         self::assertFalse($blockedLink->canDuplicate($user));
     }
 
+    public function testNativeElementActionsRequirePluginEnabledSiteForExistingLinks(): void
+    {
+        $sites = Craft::$app->getSites()->getAllSites();
+        if (count($sites) < 2) {
+            self::markTestSkipped('Element action plugin-site regression requires at least two Craft sites.');
+        }
+
+        $enabledSite = $sites[0];
+        $disabledSite = $sites[1];
+
+        $user = new PermissionGateUserElement([
+            'shortLinkManager:createLinks',
+            'shortLinkManager:editLinks',
+            'shortLinkManager:deleteLinks',
+            'editSite:' . $enabledSite->uid,
+            'editSite:' . $disabledSite->uid,
+        ]);
+
+        $this->withSettings(['enabledSites' => [(int)$enabledSite->id]], function() use ($enabledSite, $disabledSite, $user): void {
+            $enabledLink = new ShortLink();
+            $enabledLink->id = 1003;
+            $enabledLink->siteId = (int)$enabledSite->id;
+
+            self::assertTrue($enabledLink->canSave($user));
+            self::assertTrue($enabledLink->canDelete($user));
+            self::assertTrue($enabledLink->canDuplicate($user));
+
+            $disabledLink = new ShortLink();
+            $disabledLink->id = 1004;
+            $disabledLink->siteId = (int)$disabledSite->id;
+
+            self::assertFalse($disabledLink->canSave($user));
+            self::assertFalse($disabledLink->canDelete($user));
+            self::assertFalse($disabledLink->canDuplicate($user));
+        });
+    }
+
+    public function testNativeElementActionsFailClosedForMissingSitesWhileNewLinksRemainCreatable(): void
+    {
+        $user = new PermissionGateUserElement([
+            'shortLinkManager:createLinks',
+            'shortLinkManager:editLinks',
+            'shortLinkManager:deleteLinks',
+        ]);
+
+        $newLink = new ShortLink();
+        self::assertTrue($newLink->canSave($user));
+
+        $missingSiteLink = new ShortLink();
+        $missingSiteLink->id = 1005;
+
+        self::assertFalse($missingSiteLink->canSave($user));
+        self::assertFalse($missingSiteLink->canDelete($user));
+        self::assertFalse($missingSiteLink->canDuplicate($user));
+
+        $siteIds = Craft::$app->getSites()->getAllSiteIds();
+        $unknownSiteId = max($siteIds) + 1000;
+        $unknownSiteLink = new ShortLink();
+        $unknownSiteLink->id = 1006;
+        $unknownSiteLink->siteId = $unknownSiteId;
+
+        self::assertFalse($unknownSiteLink->canSave($user));
+        self::assertFalse($unknownSiteLink->canDelete($user));
+        self::assertFalse($unknownSiteLink->canDuplicate($user));
+    }
+
+    public function testCustomMutationActionsHonorSavableSelectionsAndRemainRetryable(): void
+    {
+        foreach ([
+            'AddTagsAction.php',
+            'ClearFolderAction.php',
+            'ClearTagsAction.php',
+            'RemoveTagsAction.php',
+            'SetFolderAction.php',
+        ] as $filename) {
+            $source = file_get_contents(dirname(__DIR__, 2) . '/src/elements/actions/' . $filename);
+            self::assertIsString($source, $filename);
+
+            self::assertStringContainsString('validateSelection: (selectedItems, elementIndex) => {', $source, $filename);
+            self::assertStringContainsString('for (let i = 0; i < selectedItems.length; i++) {', $source, $filename);
+            self::assertStringContainsString("if (!Garnish.hasAttr(element, 'data-savable')) {", $source, $filename);
+            self::assertStringContainsString('let requestInFlight = false;', $source, $filename);
+            self::assertStringContainsString("button.on('activate', async () => {", $source, $filename);
+            self::assertStringContainsString('if (requestInFlight) {', $source, $filename);
+            self::assertStringContainsString('requestInFlight = true;', $source, $filename);
+            self::assertStringContainsString('requestInFlight = false;', $source, $filename);
+            self::assertStringNotContainsString("button.one('activate'", $source, $filename);
+        }
+    }
+
     private function canImportToSite(int $siteId): bool
     {
         $controller = new ImportExportController('import-export', ShortLinkManager::getInstance());
