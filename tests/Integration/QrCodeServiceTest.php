@@ -814,6 +814,7 @@ final class QrCodeServiceTest extends TestCase
             'M' => ErrorCorrectionLevel::M(),
             'Q' => ErrorCorrectionLevel::Q(),
             'H' => ErrorCorrectionLevel::H(),
+            default => throw new \InvalidArgumentException("Unsupported QR error-correction level: {$errorCorrection}"),
         };
 
         return (new Writer($renderer))->writeString(

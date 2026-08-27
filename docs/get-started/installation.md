@@ -1,8 +1,5 @@
 # Installation & Setup
 
-> [!NOTE]
-> ShortLink Manager is in active development and not yet available on the Craft Plugin Store. Install via Composer for now.
-
 ## Composer
 
 Add the package to your project using Composer and the command line.
@@ -70,7 +67,7 @@ php craft shortlink-manager/setup/copy-templates
 ddev craft shortlink-manager/setup/copy-templates
 ```
 
-The command copies missing templates only and skips existing files. Review and customize the copied templates before going live.
+The command checks template readiness for every site enabled in ShortLink Manager. If any of those sites cannot resolve a configured template, it copies one global fallback into `templates/`; existing site-specific overrides in `templates/{siteHandle}/` continue to take priority. If every enabled site already resolves the template through an override or the global fallback, the command skips it. Review and customize copied templates before going live.
 
 > [!TIP]
 > If you enable `directRedirect` globally or per link, the redirect template is bypassed entirely. Keep the template for links where SEOmatic/GTM tracking is needed.

@@ -1,6 +1,6 @@
 # Custom templates
 
-ShortLink Manager renders a few front-end pages — the redirect interstitial, the QR code page, and the expired-link page. Each ships with a default template you can override in your own site to control the markup, branding, and behavior. You only need to override the ones you want to change; anything left at its default keeps working.
+ShortLink Manager renders a few front-end pages — the redirect interstitial, the QR code page, and the expired-link page. Each ships with a starter template that you copy into your site's `templates/` folder. Keep the copied global starter for pages you do not customize, and add site-specific overrides only where a site needs different markup, branding, or behavior.
 
 ## Overridable templates
 
@@ -23,6 +23,14 @@ ddev craft shortlink-manager/setup/copy-templates
 ```
 
 Use `--template=redirect`, `--template=expired`, or `--template=qr` to copy one template, and `--overwrite` when you intentionally want to replace an existing destination.
+
+### Multisite resolution and global fallbacks
+
+For each site enabled in ShortLink Manager, Craft looks for `templates/{siteHandle}/{configuredPath}` first and then `templates/{configuredPath}`. ShortLink Manager uses the same order for setup readiness. A global template is enough for every site, so you do not need to create site-handle directories unless a site needs different markup.
+
+The setup command always manages the global fallback. If only some sites have overrides, it creates the global template for the remaining sites while leaving every override untouched. If all enabled sites already resolve the template—through any combination of overrides and a global fallback—it skips the copy.
+
+Configured paths with an explicit extension keep that destination exactly: `custom/redirect.html` copies to `templates/custom/redirect.html`. An extensionless path such as `custom/redirect` uses `templates/custom/redirect.twig` as the starter destination.
 
 You can also copy files manually:
 

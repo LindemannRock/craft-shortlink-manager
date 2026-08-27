@@ -51,9 +51,18 @@
         }
     },
     "scripts": {
-        "phpstan": "phpstan --ansi --memory-limit=1G",
-        "check-cs": "ecs check --ansi",
-        "fix-cs": "ecs check --fix --ansi",
+        "phpstan": [
+            "@php -r \"fwrite(STDOUT, 'PHPStan scope: src/ tests/' . PHP_EOL);\"",
+            "phpstan --ansi --memory-limit=1G"
+        ],
+        "check-cs": [
+            "@php -r \"fwrite(STDOUT, 'ECS scope: src/ tests/ ecs.php' . PHP_EOL);\"",
+            "ecs check --ansi"
+        ],
+        "fix-cs": [
+            "@php -r \"fwrite(STDOUT, 'ECS fix scope: src/ tests/ ecs.php' . PHP_EOL);\"",
+            "ecs check --fix --ansi"
+        ],
         "test": "phpunit --colors=always",
         "ci": [
             "@phpstan",
@@ -62,6 +71,10 @@
         "ci:full": [
             "@ci",
             "@test"
+        ],
+        "quality-gate": [
+            "Composer\\Config::disableProcessTimeout",
+            "node scripts/quality-gate.mjs"
         ],
         "install-hooks": "git config core.hooksPath .githooks 2>/dev/null || true",
         "post-install-cmd": "@install-hooks",

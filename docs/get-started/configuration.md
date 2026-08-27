@@ -56,6 +56,8 @@ ShortLink Manager renders the redirect, expired-link, and QR landing pages from 
 
 The fields below only change where ShortLink Manager looks for those templates. Leave them empty to use the default paths, or point them at custom paths after you have placed templates there. For bundled template locations, manual copy commands, and the variables each template receives, see [Custom templates](../developers/custom-templates.md).
 
+On multisite installations, Craft checks `templates/{siteHandle}/{path}` first and then falls back to `templates/{path}`. Setup is ready when every site enabled in ShortLink Manager can resolve all three configured templates; sites do not need their own template directories when the global templates exist.
+
 All template paths support environment variables via Craft's `$ENV_VAR` syntax in the CP field, or via `App::env()` in the config file.
 
 | Setting | Type | Default | Description |

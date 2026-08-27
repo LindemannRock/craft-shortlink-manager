@@ -176,6 +176,28 @@ final class AssetDeliveryTest extends TestCase
         $archiveRoot = $this->createTrackedTempDirectory('shortlink-asset-archive-');
         $gitArchive = $archiveRoot . '/git-package.tar';
         $composerArchive = $archiveRoot . '/composer-package.tar';
+        $excludedPrefixes = [
+            '.github/',
+            '.githooks/',
+            '.internal/',
+            'docs/',
+            'scripts/',
+            'tests/',
+            'src/web/assets/analytics/src/',
+            'src/web/assets/edit/src/',
+            'src/web/assets/qrpreview/src/',
+        ];
+        $excludedFiles = [
+            '.gitattributes',
+            '.gitignore',
+            'CLAUDE.md',
+            'ecs.php',
+            'package.json',
+            'phpstan.neon',
+            'phpunit.xml.dist',
+            'src/web/assets/package.json',
+            'src/web/assets/package-lock.json',
+        ];
 
         foreach ($expected as $path) {
             self::assertFileExists($packageRoot . '/' . $path, $path);
@@ -214,6 +236,23 @@ final class AssetDeliveryTest extends TestCase
         foreach ($expected as $path) {
             self::assertContains($path, $gitMembers, 'Git archive: ' . $path);
             self::assertContains($path, $composerMembers, 'Composer archive: ' . $path);
+        }
+
+        foreach (['Git archive' => $gitMembers, 'Composer archive' => $composerMembers] as $label => $members) {
+            foreach ($excludedFiles as $path) {
+                self::assertNotContains($path, $members, $label . ': ' . $path);
+            }
+
+            foreach ($excludedPrefixes as $prefix) {
+                self::assertSame(
+                    [],
+                    array_values(array_filter(
+                        $members,
+                        static fn(string $member): bool => str_starts_with($member, $prefix),
+                    )),
+                    $label . ': ' . $prefix,
+                );
+            }
         }
     }
 

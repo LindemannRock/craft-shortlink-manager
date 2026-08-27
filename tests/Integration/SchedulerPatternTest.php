@@ -78,9 +78,9 @@ final class SchedulerPatternTest extends TestCase
 
     public function testApprovedBaseRuntimeClassesResolveFromTheLocalCandidate(): void
     {
-        $pluginRoot = dirname(__DIR__, 2);
-        $localBaseRoot = realpath($pluginRoot . '/../base');
-        self::assertIsString($localBaseRoot);
+        $source = (new ReflectionClass(RecurringQueueHelper::class))->getFileName();
+        self::assertIsString($source);
+        $localBaseRoot = dirname($source, 3);
 
         $classes = [
             RecurringQueueHelper::class => 'src/helpers/RecurringQueueHelper.php',
@@ -101,10 +101,12 @@ final class SchedulerPatternTest extends TestCase
 
     public function testQueueIsolationHidesPermanentRowsAndUsesASeparateComponent(): void
     {
+        $queue = Craft::$app->getQueue();
         self::assertNotNull($this->originalQueue);
-        self::assertNotSame($this->originalQueue, Craft::$app->getQueue());
+        self::assertInstanceOf(Queue::class, $queue);
+        self::assertNotSame($this->originalQueue, $queue);
         self::assertSame(0, (int) (new Query())->from('{{%queue}}')->count());
-        self::assertSame($this->originalQueue->tableName, Craft::$app->getQueue()->tableName);
+        self::assertSame($this->originalQueue->tableName, $queue->tableName);
     }
 
     public function testInitialScheduleTargetsNextMidnightWithNativeDelayPriorityAndTtr(): void
@@ -897,8 +899,12 @@ final class SchedulerPatternTest extends TestCase
         return (new Query())->from('{{%queue}}')->where(['id' => $jobId])->exists();
     }
 
-    private function markExecuting(Queue $queue, ?string $jobId): void
+    private function markExecuting(\yii\queue\Queue $queue, ?string $jobId): void
     {
+        if (!$queue instanceof Queue) {
+            throw new \RuntimeException('Executing-state tests require Craft\'s database queue.');
+        }
+
         if ($jobId !== null) {
             $this->setQueueState($jobId, 'reserved');
         }

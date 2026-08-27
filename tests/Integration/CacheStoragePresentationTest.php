@@ -142,7 +142,7 @@ final class CacheStoragePresentationTest extends TestCase
         self::assertStringNotContainsString('yii\\redis\\Cache', $template);
         self::assertStringNotContainsString('Redis Not Configured', $template);
 
-        $shared = (string)file_get_contents(dirname(__DIR__, 3) . '/base/src/templates/_partials/field-cache-storage.twig');
+        $shared = (string)file_get_contents($this->baseSourceRoot() . '/templates/_partials/field-cache-storage.twig');
         self::assertStringContainsString("label: 'File cache'|t('lindemannrock-base')", $shared);
         self::assertStringContainsString("label: 'Application cache'|t('lindemannrock-base')", $shared);
         self::assertStringContainsString('settings.isOverriddenByConfig(settingProperty)', $shared);
@@ -206,12 +206,20 @@ final class CacheStoragePresentationTest extends TestCase
         ];
 
         foreach (['en', 'de', 'fr', 'nl', 'es', 'ar', 'it', 'pt', 'ja', 'sv', 'da', 'no'] as $locale) {
-            $catalogue = require dirname(__DIR__, 3) . "/base/src/translations/{$locale}/lindemannrock-base.php";
+            $catalogue = require $this->baseSourceRoot() . "/translations/{$locale}/lindemannrock-base.php";
             self::assertIsArray($catalogue);
             foreach ($keys as $key) {
                 self::assertArrayHasKey($key, $catalogue, "Missing {$locale} Base key: {$key}");
             }
         }
+    }
+
+    private function baseSourceRoot(): string
+    {
+        $source = (new \ReflectionClass(DisposableCacheStoragePresenter::class))->getFileName();
+        self::assertIsString($source);
+
+        return dirname($source, 2);
     }
 
     public function testUtilityUsesSharedSemanticStatusAndSuppressesApplicationCountsAndPaths(): void

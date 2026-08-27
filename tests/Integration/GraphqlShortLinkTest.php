@@ -11,9 +11,9 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use Craft;
+use craft\web\Request as WebRequest;
 use GraphQL\Type\Definition\ResolveInfo;
 use lindemannrock\base\testing\StubConsoleRequest;
-use lindemannrock\base\testing\StubWebRequest;
 use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\gql\resolvers\ShortLinkResolver;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
@@ -81,7 +81,7 @@ final class GraphqlShortLinkTest extends TestCase
             'destinationUrl' => 'https://example.com/target',
             'siteId' => $site->id,
         ]);
-        Craft::$app->set('request', new StubWebRequest(userIp: '203.0.113.42'));
+        Craft::$app->set('request', new GraphqlWebRequest());
 
         $result = ShortLinkResolver::resolve(
             null,
@@ -117,7 +117,7 @@ final class GraphqlShortLinkTest extends TestCase
         ]);
         $link->passQueryParams = true;
         self::assertTrue(Craft::$app->getElements()->saveElement($link));
-        Craft::$app->set('request', new StubWebRequest(userIp: '203.0.113.42'));
+        Craft::$app->set('request', new GraphqlWebRequest());
 
         $result = ShortLinkResolver::resolve(
             null,
@@ -262,5 +262,23 @@ final class GraphqlShortLinkTest extends TestCase
         }
 
         $this->shortLinks->invalidateShortLinkCache($linkId);
+    }
+}
+
+final class GraphqlWebRequest extends WebRequest
+{
+    public function getUserIP(int $filterOptions = 0): ?string
+    {
+        return '203.0.113.42';
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return 'Mozilla/5.0 (Test) ShortLinkGraphqlFixture/1.0';
+    }
+
+    public function getReferrer(): ?string
+    {
+        return 'https://example.com/graphql';
     }
 }

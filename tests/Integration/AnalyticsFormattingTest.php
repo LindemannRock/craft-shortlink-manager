@@ -49,7 +49,7 @@ final class AnalyticsFormattingTest extends TestCase
             'dateOrder' => 'dmy',
             'dateSeparator' => '.',
             'timeFormat' => '24',
-        ], function () use ($link, $site, $today): void {
+        ], function() use ($link, $site, $today): void {
             // localDateExpression grouping (getClicksData, :394).
             $clicks = $this->analytics->getClicksData((int) $link->id, 'today', (int) $site->id);
             self::assertSame([$today], $clicks['labels'], 'Clicks should bucket onto the local date.');

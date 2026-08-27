@@ -49,7 +49,9 @@ php craft shortlink-manager/setup/copy-templates
 ddev craft shortlink-manager/setup/copy-templates
 ```
 
-The command copies missing starter templates into the paths configured in settings and skips existing files. If you changed `redirectTemplate`, `expiredTemplate`, or `qrTemplate`, make sure the matching template exists at that configured path.
+The command copies a global fallback into the path configured in settings when one or more sites enabled in ShortLink Manager cannot resolve that template. On multisite installations, Craft checks `templates/{siteHandle}/{configuredPath}` first and then the global `templates/{configuredPath}` fallback. You do not need site-specific directories when the global template exists, and the command never overwrites site-specific templates.
+
+If Setup still reports a template missing, check every enabled site. A template that exists only under one site's handle does not provide a fallback for the others. Also verify explicit extensions exactly: `custom/redirect.html` resolves and copies as `templates/custom/redirect.html`, while the extensionless setting `custom/redirect` uses `templates/custom/redirect.twig` as its starter destination.
 
 For template source paths, manual copy commands, and available variables, see [Custom templates](../developers/custom-templates.md).
 

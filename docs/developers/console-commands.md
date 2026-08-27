@@ -75,16 +75,18 @@ ddev craft shortlink-manager/setup/copy-templates
 **What it does:**
 
 1. Reads the current ShortLink Manager template settings.
-2. Copies only missing starter templates by default.
-3. Creates destination folders automatically.
-4. Skips existing destination templates unless you target one template interactively or pass `--overwrite`.
+2. Checks whether every site enabled in ShortLink Manager resolves each template through a site-specific override or the global fallback.
+3. Copies one global fallback when one or more enabled sites cannot resolve a template; it never replaces site-specific overrides.
+4. Preserves an explicit configured extension such as `.html`; an extensionless configured path uses a `.twig` starter destination.
+5. Creates destination folders automatically.
+6. Skips templates that already resolve for every enabled site and skips existing global destinations unless you target one interactively or pass `--overwrite`.
 
 | Option | Description |
 |--------|-------------|
 | `--template=redirect` | Copy only the redirect interstitial template |
 | `--template=expired` | Copy only the expired-link template |
 | `--template=qr` | Copy only the QR display template |
-| `--overwrite` | Replace existing destination templates without prompting |
+| `--overwrite` | Replace the calculated global destination without prompting; site-specific overrides are never overwritten |
 
 Copy one template:
 

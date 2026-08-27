@@ -8,8 +8,28 @@ on:
 jobs:
   quality-gates:
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: craft
+          MYSQL_USER: db
+          MYSQL_PASSWORD: db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      SHORTLINK_MANAGER_FIXTURE_DB_HOST: 127.0.0.1
     steps:
       - uses: actions/checkout@v6
+
+      - name: Trust checked-out repository
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Set up PHP 8.3
         uses: shivammathur/setup-php@v2
@@ -23,11 +43,8 @@ jobs:
         with:
           composer-options: --prefer-dist
 
-      - name: Composer security audit
-        run: composer audit --abandoned=report
+      - name: Install asset build dependencies
+        run: npm ci --prefix src/web/assets --ignore-scripts
 
-      - name: PHPStan
-        run: composer phpstan
-
-      - name: ECS code style check
-        run: composer check-cs
+      - name: Complete package quality gate
+        run: composer quality-gate

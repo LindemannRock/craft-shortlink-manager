@@ -12,14 +12,31 @@
 
 declare(strict_types=1);
 
-$baseBootstrap = dirname(__DIR__, 3) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php';
+$configuredProjectRoot = $_SERVER['SHORTLINK_MANAGER_TEST_PROJECT_ROOT'] ?? null;
+$projectRoot = is_string($configuredProjectRoot) && $configuredProjectRoot !== ''
+    ? $configuredProjectRoot
+    : null;
 
-if (!file_exists($baseBootstrap)) {
-    fwrite(STDERR, "Base plugin testing bootstrap not found at {$baseBootstrap}\n");
-    fwrite(STDERR, "Run `composer install` and ensure lindemannrock/craft-plugin-base ^5.25 is present.\n");
+$baseBootstrapCandidates = array_filter([
+    $projectRoot === null ? null : $projectRoot . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php',
+    dirname(__DIR__) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php',
+    dirname(__DIR__, 3) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php',
+]);
+
+$baseBootstrap = null;
+foreach ($baseBootstrapCandidates as $candidate) {
+    if (file_exists($candidate)) {
+        $baseBootstrap = $candidate;
+        break;
+    }
+}
+
+if ($baseBootstrap === null) {
+    fwrite(STDERR, "Base plugin testing bootstrap not found in the package or workspace vendor directories.\n");
+    fwrite(STDERR, "Run `composer install` and ensure lindemannrock/craft-plugin-base ^5.38 is present.\n");
     exit(1);
 }
 
 require_once $baseBootstrap;
 
-\lindemannrock\base\testing\bootstrap();
+\lindemannrock\base\testing\bootstrap($projectRoot);

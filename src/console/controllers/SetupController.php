@@ -83,8 +83,8 @@ final class SetupController extends Controller
     }
 
     /**
-     * @param array<int, array{key: string, label: string, source: string, destination: string, exists: bool}> $statuses
-     * @return array<int, array{key: string, label: string, source: string, destination: string, exists: bool}>
+     * @param array<int, array{key: string, label: string, source: string, destination: string, destinationExists: bool, exists: bool}> $statuses
+     * @return array<int, array{key: string, label: string, source: string, destination: string, destinationExists: bool, exists: bool}>
      */
     private function selectedTemplateStatuses(array $statuses): array
     {
@@ -101,14 +101,19 @@ final class SetupController extends Controller
     }
 
     /**
-     * @param array{key: string, label: string, source: string, destination: string, exists: bool} $status
+     * @param array{key: string, label: string, source: string, destination: string, destinationExists: bool, exists: bool} $status
      */
     private function copyTemplate(array $status): string
     {
         $sourcePath = $this->absoluteProjectPath($status['source']);
         $destinationPath = $this->absoluteTemplatePath($status['destination']);
 
-        if ($status['exists'] && !$this->shouldOverwrite($status)) {
+        if ($status['exists'] && !$status['destinationExists']) {
+            $this->stdout("Skipped {$status['label']}: template already resolves for all enabled sites.\n", Console::FG_YELLOW);
+            return 'skipped';
+        }
+
+        if ($status['destinationExists'] && !$this->shouldOverwrite($status)) {
             $this->stdout("Skipped {$status['label']}: destination already exists ({$status['destination']}).\n", Console::FG_YELLOW);
             return 'skipped';
         }
