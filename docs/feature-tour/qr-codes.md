@@ -13,7 +13,7 @@ Every short link comes with a scannable QR code — no extra setup. Because the 
 
 ### Enable per link
 
-On the short link edit page, toggle **QR Code Enabled** to activate the QR endpoints for that link. When disabled, both the image and display-page endpoints return a 404.
+On the short link edit page, toggle **QR Code Enabled** to activate the QR endpoints for that link. When disabled, both the image and display-page endpoints follow the plugin's configured not-found behavior.
 
 ### Set global defaults
 
@@ -97,24 +97,13 @@ With a common configuration (`qrPrefix` = `s/qr`):
 - Image: `https://example.com/s/qr/abc123`
 - Display page: `https://example.com/s/qr/abc123/view`
 
-The QR image URL accepts query parameters to customize on the fly:
+Public image and display URLs always use the short link's saved QR configuration, with global defaults filling any unset per-link values. Styling query parameters are deliberately ignored, including invalid or repeated values, so public URLs remain canonical and cacheable instead of creating a new rendered identity for every query string.
 
-| Parameter | Example | Description |
-|-----------|---------|-------------|
-| `size` | `?size=512` | QR code size in pixels |
-| `color` | `?color=ff0000` | Foreground color (hex without `#`) |
-| `bg` | `?bg=ffffff` | Background color (hex without `#`) |
-| `format` | `?format=svg` | Output format |
-| `margin` | `?margin=2` | Quiet zone modules |
-| `errorCorrection` | `?errorCorrection=H` | Error correction level (`L`, `M`, `Q`, or `H`) |
-| `moduleStyle` | `?moduleStyle=dots` | Module shape |
-| `eyeStyle` | `?eyeStyle=rounded` | Eye shape |
-| `eyeColor` | `?eyeColor=0000ff` | Eye color override |
-| `download` | `?download=1` | Trigger file download instead of inline display |
+For example, `?size=4096&format=svg&color=ff0000` still returns the saved size, format, and colors. URLs created by older versions with styling parameters continue to work, but now return the same canonical bytes as the clean URL. Parameters such as `preview`, `url`, and `linkId` cannot switch a public code route into a control-panel rendering mode.
 
-Color parameters are forgiving: a value that isn't a valid 6-digit hex color (`color`, `bg`, or `eyeColor`) is silently ignored and the configured default is used instead — the QR code always renders rather than erroring.
+The supported public image option is `download=1`, when downloads are enabled. That download uses the saved/default size and appearance; its bytes, MIME type, dimensions, extension, and filename tokens all describe the same canonical output.
 
-Error-correction values are trimmed and case-insensitive, so `q` and `Q` are equivalent. An invalid request value falls back to the effective `defaultQrErrorCorrection`; if that configured default is invalid, ShortLink Manager safely uses `M`.
+Unsaved styling remains available in the authenticated control panel. The QR settings preview uses the selected default size, while edit-page previews render at exactly 150px. Authenticated preview and download responses use private, no-store headers and bypass the persistent QR cache, so unsaved designs do not become shared cache entries.
 
 ## Downloading QR codes
 
@@ -127,6 +116,10 @@ When `enableQrDownload` is `true` (default), QR codes can be downloaded. The dow
 | `{format}` | The format: `png` or `svg` |
 
 Default pattern: `{code}-qr-{size}` produces filenames like `abc123-qr-256.png`.
+
+The edit-page and sidebar download menus use an authenticated action rather than the public image URL. Presets are 256px, 512px, 1024px, and 2048px; custom authenticated downloads accept 100–4096px. Saved per-link sizes, global defaults, public output, and direct programmatic rendering remain limited to 100–1000px. Values outside an authenticated export's range are normalized to the nearest boundary, and malformed or non-scalar sizes use the saved/default fallback.
+
+Only PNG and SVG are valid effective formats. The normalized format and size control the rendered bytes, response MIME type, dimensions, filename tokens, and extension together. For large print output, SVG is usually the better choice because it remains sharp without creating an oversized bitmap.
 
 ---
 
@@ -147,9 +140,6 @@ The `ShortLink` element provides methods for embedding QR codes in Twig template
     {# Link to the QR display page #}
     <a href="{{ link.qrCodeDisplayUrl }}">View QR Code</a>
 
-    {# Custom options via method call #}
-    <img src="{{ link.getQrCodeUrl({size: 512, format: 'svg'}) }}" alt="QR Code">
-
     {# Base64 data URI for email templates #}
     <img src="{{ link.getQrCodeDataUri({size: 150}) }}" alt="QR Code">
 {% endif %}
@@ -157,16 +147,16 @@ The `ShortLink` element provides methods for embedding QR codes in Twig template
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getQrCodeUrl(options)` @since(5.0.0) | `string` | URL to the raw QR image — most efficient for web use |
+| `getQrCodeUrl(options)` @since(5.0.0) | `string` | Canonical public raw-image URL. Style options are ignored; `download` remains supported |
 | `getQrCodeDataUri(options)` @since(5.0.0) | `string` | Base64 `data:image/...` URI — use for email or inline embedding |
 | `getQrCode(options)` @since(5.0.0) | `string` | Raw binary image data (for programmatic use) |
-| `getQrCodeDisplayUrl(options)` @since(5.1.0) | `string` | URL to the `/view` display page |
+| `getQrCodeDisplayUrl(options)` @since(5.1.0) | `string` | Canonical public `/view` URL. The options argument is retained for compatibility but does not affect the URL |
 
-All methods accept an `options` array with any of the customization options listed above. When called without arguments (or as properties like `link.qrCodeUrl`), global defaults are used.
+`getQrCode()` and `getQrCodeDataUri()` continue to accept trusted server-side rendering options, including size, colors, format, margin, error correction, module and eye styles, and logo. Their service-level size remains 100–1000px. The two public URL helpers intentionally do not put styling parameters into visitor-facing URLs. When called as properties such as `link.qrCodeUrl`, public output uses saved per-link values with global defaults as fallbacks.
 
 ## The display page
 
-The `/{qrPrefix}/{code}/view` endpoint renders a styled page containing the QR code with context. A custom template can be set via the `qrTemplate` setting.
+The `/{qrPrefix}/{code}/view` endpoint renders a page containing the canonical public image and context. Query parameters do not select different QR bytes or create QR cache entries. A custom template can be set via the `qrTemplate` setting.
 
 For the starter template, copy command, and available variables, see [Custom templates](../developers/custom-templates.md#qrtwig).
 
@@ -186,16 +176,20 @@ Generated QR codes are cached to avoid regenerating on every request.
 |---------|---------|-------------|
 | `enableQrCodeCache` | `true` | Enable QR code caching |
 | `qrCodeCacheDuration` | `86400` | Cache TTL in seconds (24 hours) |
-| `cacheStorageMethod` @since(5.3.0) | `'file'` | `'file'` (single server) or `'redis'` (multi-server) |
+| `cacheStorageMethod` @since(5.3.0) | `'file'` | Persistent cache selection: `'file'`, `'craft'`, or the backward-compatible `'redis'` application-cache token |
 
-The cache key includes the URL and all rendering options, including the normalized effective error-correction level. Equivalent values such as `m` and `M` share a cached result, while changing the effective level generates and caches a distinct QR code. Cache can be cleared from **Utilities → ShortLink Manager** (requires `shortLinkManager:clearCache` permission).
+Each public short link has one effective QR cache identity for its saved URL and appearance. Repeated anonymous requests reuse that identity; saving an effective option produces a different canonical output. Direct programmatic renders use cache identities based on their normalized rendering options. Authenticated unsaved previews and downloads bypass persistent plugin-file, Craft application-cache, and disabled-storage decisions entirely.
+
+On durable hosts, `'file'` uses ShortLink Manager's plugin-owned file family. On ephemeral hosts, it attempts to use Craft's configured application cache when that cache is suitable for cross-request persistence. Choose `'craft'` to select that suitable Craft application cache explicitly. The older `'redis'` token is retained for backward compatibility and makes the same application-cache selection; it does not configure Redis or prove that Craft's cache component is Redis-backed. When the application cache is unsuitable, persistent QR storage is disabled instead of falling back to a different persistent backend.
+
+ShortLink Manager validates cached PNG/SVG output before serving it. An empty, partial, or wrong-format hit is ignored, and a replacement is written only after fresh generation succeeds. Existing styled public URLs no longer create query-selected cache variants. Cache can be cleared from **Utilities → ShortLink Manager** (requires `shortLinkManager:clearCache` permission), but routine authenticated preview/export work does not require cache clearing.
 
 ```php
 // config/shortlink-manager.php
 return [
     'enableQrCodeCache'   => true,
     'qrCodeCacheDuration' => 86400,
-    'cacheStorageMethod'  => 'file',
+    'cacheStorageMethod'  => 'craft', // Craft's configured suitable application cache
 ];
 ```
 

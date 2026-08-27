@@ -281,7 +281,7 @@ The ShortLink Manager object exposes these fields in resolver queries, list quer
 | `linkType` | `String` | `code` or `vanity` |
 | `shortLinkType` | `String` | `manual` or `auto` |
 | `url` | `String` | Public shortlink URL |
-| `qrCodeUrl` | `String` | Public QR code URL |
+| `qrCodeUrl` | `String` | Canonical public QR image URL using saved/default styling |
 | `destinationUrl` | `String` | Configured destination URL |
 | `resolvedDestinationUrl` | `String` | Destination selected for the current response |
 | `expiredRedirectUrl` | `String` | Expired redirect URL |

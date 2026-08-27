@@ -160,10 +160,10 @@ Properties available on a `ShortLink` element in Twig:
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getUrl()` | `string` | Full public short link URL |
-| `getQrCodeUrl(options)` | `string` | URL to the raw QR image |
-| `getQrCodeDisplayUrl(options)` @since(5.1.0) | `string` | URL to the QR display page |
-| `getQrCodeDataUri(options)` | `string` | Base64 data URI for inline embedding |
-| `getQrCode(options)` | `string` | Raw QR code binary data |
+| `getQrCodeUrl(options)` | `string` | Canonical public raw-image URL. Style options are ignored; `download` remains supported |
+| `getQrCodeDisplayUrl(options)` @since(5.1.0) | `string` | Canonical public display-page URL. The options argument is retained for compatibility but is ignored |
+| `getQrCodeDataUri(options)` | `string` | Base64 data URI for inline embedding. Trusted server-side rendering options remain supported (100–1000px) |
+| `getQrCode(options)` | `string` | Raw QR code binary data. Trusted server-side rendering options remain supported (100–1000px) |
 | `getLinkedElement()` | `ElementInterface\|null` | The linked Craft element |
 | `getAuthor()` | `User\|null` | The author user |
 | `isExpired()` | `bool` | Whether the link is expired |

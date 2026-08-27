@@ -17,6 +17,7 @@ use lindemannrock\base\helpers\UrlSafetyHelper;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -57,144 +58,76 @@ class QrCodeController extends Controller
     {
         $request = Craft::$app->request;
         $settings = ShortLinkManager::$plugin->getSettings();
+        $isSettingsPreview = $code === null
+            && $this->queryFlag('preview')
+            && is_string($request->getQueryParam('url'));
+        $linkId = $code === null ? $this->queryScalar('linkId') : null;
+        $isExistingLinkMode = $linkId !== null;
+        $isAuthenticatedMode = $isSettingsPreview || $isExistingLinkMode;
+        $isDownload = $this->queryFlag('download');
 
-        // Check if this is a preview request (from CP)
-        $isPreview = $request->getQueryParam('preview');
-        $url = $request->getQueryParam('url');
-        $linkId = $request->getQueryParam('linkId');
-
-        if ($isPreview && $url) {
-            // Preview mode requires login and edit permission (CP feature only)
+        if ($isAuthenticatedMode) {
             $this->requireLogin();
             $this->requirePermission('shortLinkManager:editLinks');
+        }
 
-            // Validate URL scheme (prevent javascript:, data:, etc.)
+        if ($isSettingsPreview) {
+            $url = (string)$request->getQueryParam('url');
             $scheme = parse_url($url, PHP_URL_SCHEME);
             if (!in_array(strtolower($scheme ?? ''), ['http', 'https'], true)) {
-                throw new \yii\web\BadRequestHttpException('Only http and https URLs are allowed.');
+                throw new BadRequestHttpException('Only http and https URLs are allowed.');
+            }
+            if ($isDownload && !$settings->enableQrDownload) {
+                throw new NotFoundHttpException('Short link not found.');
             }
 
-            // Preview mode - generate QR code for any URL
             $fullUrl = $url;
             $shortLink = null;
-        } elseif ($linkId) {
-            // CP mode - get by link ID (requires login + edit permission)
-            $this->requireLogin();
-            $this->requirePermission('shortLinkManager:editLinks');
-
-            $shortLink = ShortLink::find()
-                ->id($linkId)
-                ->status(null)
-                ->one();
-
-            if (!$shortLink) {
+            $options = $this->authenticatedOptions();
+            if ($isDownload) {
+                $options['size'] = $this->normalizeExportSize($this->queryScalar('size'), (int)$settings->defaultQrSize);
+                $options['_sizeMax'] = 4096;
+            }
+            $options['_cache'] = false;
+        } elseif ($isExistingLinkMode) {
+            $shortLink = $this->resolveExistingLink($linkId, $this->queryScalar('siteId'));
+            if (!$settings->isSiteEnabled($shortLink->siteId) || !$shortLink->qrCodeEnabled) {
+                throw new NotFoundHttpException('Short link not found.');
+            }
+            if ($isDownload && !$settings->enableQrDownload) {
                 throw new NotFoundHttpException('Short link not found.');
             }
 
-            // Check if link is trashed
-            if ($shortLink->trashed) {
-                throw new NotFoundHttpException('Short link not found.');
+            $fullUrl = $this->trackedUrl($shortLink);
+            $options = $this->authenticatedOptions($this->canonicalOptions($shortLink));
+            $options['size'] = $isDownload
+                ? $this->normalizeExportSize($this->queryScalar('size'), (int)$shortLink->qrCodeSize)
+                : 150;
+            $options['_cache'] = false;
+            $options['_sizeMax'] = 4096;
+        } else {
+            if ($code === null || trim($code) === '') {
+                throw new BadRequestHttpException('Link ID, code, or preview URL required');
             }
 
-            // Generate full URL for the short link with QR tracking parameter
-            $url = $shortLink->getUrl();
-            $separator = strpos($url, '?') !== false ? '&' : '?';
-            $fullUrl = $url . $separator . 'src=qr';
-        } elseif ($code) {
-            // Frontend mode - get by code from URL route
-            $site = $this->resolveSite($siteHandle);
-            if (!$site) {
-                throw new NotFoundHttpException('Site not found.');
-            }
-            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
-
-            // Fallback: on custom domains, current-site resolution can differ from link site.
-            // If a code exists on another enabled site, still allow QR generation.
-            if (!$shortLink) {
-                $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
-            }
-
-            if (!$shortLink) {
-                throw new NotFoundHttpException('Short link not found.');
-            }
-
-            // Check if link is trashed
-            if ($shortLink->trashed) {
-                throw new NotFoundHttpException('Short link not found.');
-            }
-
-            // Check if plugin is enabled for this site
+            $shortLink = $this->resolvePublicLink($code, $siteHandle);
             if (!$settings->isSiteEnabled($shortLink->siteId)) {
                 $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->getResolvedNotFoundRedirectUrl());
                 return $this->redirect($redirectUrl);
             }
-
-            // Check if QR codes are enabled for this shortlink
             if (!$shortLink->qrCodeEnabled) {
-                // If QR is disabled, redirect to 404 redirect URL (consistent with shortlink behavior)
                 $redirectUrl = UrlSafetyHelper::sanitizeRedirectUrl($settings->getResolvedNotFoundRedirectUrl());
                 return $this->redirect($redirectUrl);
             }
 
-            // Generate full URL for the short link with QR tracking parameter
-            $url = $shortLink->getUrl();
-            $separator = strpos($url, '?') !== false ? '&' : '?';
-            $fullUrl = $url . $separator . 'src=qr';
-        } else {
-            throw new \yii\web\BadRequestHttpException('Link ID, code, or preview URL required');
+            $fullUrl = $this->trackedUrl($shortLink);
+            $options = $this->canonicalOptions($shortLink);
         }
 
-        // Get parameters with defaults from shortlink if available
-        if ($shortLink) {
-            // Use shortlink's configured QR settings
-            $options = [
-                'size' => $request->getQueryParam('size', $shortLink->qrCodeSize),
-                'color' => $request->getQueryParam('color', $shortLink->qrCodeColor ? str_replace('#', '', $shortLink->qrCodeColor) : str_replace('#', '', $settings->defaultQrColor)),
-                'bg' => $request->getQueryParam('bg', $shortLink->qrCodeBgColor ? str_replace('#', '', $shortLink->qrCodeBgColor) : str_replace('#', '', $settings->defaultQrBgColor)),
-                'format' => $request->getQueryParam('format', $shortLink->qrCodeFormat ?: $settings->defaultQrFormat),
-                'eyeColor' => $request->getQueryParam('eyeColor', $shortLink->qrCodeEyeColor ? str_replace('#', '', $shortLink->qrCodeEyeColor) : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null)),
-                'margin' => $request->getQueryParam('margin', $settings->defaultQrMargin),
-                'errorCorrection' => $request->getQueryParam('errorCorrection'),
-                'moduleStyle' => $request->getQueryParam('moduleStyle', $settings->qrModuleStyle),
-                'eyeStyle' => $request->getQueryParam('eyeStyle', $settings->qrEyeStyle),
-            ];
-
-            // Add logo if enabled
-            if ($settings->enableQrLogo) {
-                $logoId = $shortLink->qrLogoId ?: $settings->defaultQrLogoId;
-                if ($logoId) {
-                    $options['logo'] = $logoId;
-                }
-            }
-        } else {
-            // Preview mode - just use query params. Validate the logo server-side
-            // against the configured volume + the user's viewAssets permission.
-            $logoId = AssetVolumeHelper::validateAssetId(
-                $request->getQueryParam('logo'),
-                $settings->qrLogoVolumeUid,
-            );
-
-            $options = [
-                'size' => $request->getQueryParam('size'),
-                'color' => $request->getQueryParam('color'),
-                'bg' => $request->getQueryParam('bg'),
-                'format' => $request->getQueryParam('format'),
-                'margin' => $request->getQueryParam('margin'),
-                'moduleStyle' => $request->getQueryParam('moduleStyle'),
-                'eyeStyle' => $request->getQueryParam('eyeStyle'),
-                'logo' => $logoId,
-                'logoSize' => $request->getQueryParam('logoSize'),
-                'eyeColor' => $request->getQueryParam('eyeColor'),
-                'errorCorrection' => $request->getQueryParam('errorCorrection'),
-            ];
-        }
-
-        // Remove null values
-        $options = array_filter($options, fn($value) => $value !== null);
         $format = ShortLinkManager::$plugin->qrCode->normalizeFormat($options['format'] ?? null);
         $options['format'] = $format;
 
-        $mode = $isPreview && $url ? 'preview' : ($linkId ? 'cp-link' : 'public-code');
+        $mode = $isSettingsPreview ? 'preview' : ($isExistingLinkMode ? 'cp-link' : 'public-code');
         $this->logDebug('Generating QR code', [
             'mode' => $mode,
             'code' => $code ?? 'N/A',
@@ -216,13 +149,19 @@ class QrCodeController extends Controller
             $response = Craft::$app->response;
             $response->format = Response::FORMAT_RAW;
             $response->headers->set('Content-Type', $contentType);
-            $response->headers->set('Cache-Control', 'public, max-age=86400');
+            $response->headers->set(
+                'Cache-Control',
+                $isAuthenticatedMode ? 'private, no-store, no-cache, must-revalidate, max-age=0' : 'public, max-age=86400',
+            );
+            if ($isAuthenticatedMode) {
+                $response->headers->set('Pragma', 'no-cache');
+                $response->headers->set('Expires', '0');
+            }
 
-            // Handle download request
-            if ($request->getQueryParam('download') && $shortLink && $settings->enableQrDownload) {
+            if ($isDownload && $settings->enableQrDownload) {
                 $filename = strtr($settings->qrDownloadFilename ?? '{code}-qr-{size}', [
-                    '{code}' => $shortLink->code,
-                    '{size}' => $options['size'] ?? $settings->defaultQrSize,
+                    '{code}' => $shortLink?->code ?? 'qr-code',
+                    '{size}' => (string)$options['size'],
                     '{format}' => $format,
                 ]);
                 $filename = SafeSegmentHelper::filenamePart($filename, 'qr-code', [
@@ -245,6 +184,151 @@ class QrCodeController extends Controller
 
             throw new ServerErrorHttpException('QR code generation failed.');
         }
+    }
+
+    /**
+     * Return the saved QR configuration used by the anonymous image route.
+     *
+     * @return array<string, mixed>
+     */
+    private function canonicalOptions(ShortLink $shortLink): array
+    {
+        $settings = ShortLinkManager::$plugin->getSettings();
+        $options = [
+            'size' => max(100, min(1000, (int)($shortLink->qrCodeSize ?: $settings->defaultQrSize))),
+            'color' => str_replace('#', '', $shortLink->qrCodeColor ?: $settings->defaultQrColor),
+            'bg' => str_replace('#', '', $shortLink->qrCodeBgColor ?: $settings->defaultQrBgColor),
+            'format' => ShortLinkManager::$plugin->qrCode->normalizeFormat($shortLink->qrCodeFormat ?: $settings->defaultQrFormat),
+            'errorCorrection' => $settings->defaultQrErrorCorrection,
+            'margin' => $settings->defaultQrMargin,
+            'moduleStyle' => $settings->qrModuleStyle,
+            'eyeStyle' => $settings->qrEyeStyle,
+            'eyeColor' => $shortLink->qrCodeEyeColor
+                ? str_replace('#', '', $shortLink->qrCodeEyeColor)
+                : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null),
+        ];
+
+        if ($settings->enableQrLogo) {
+            $logoId = $shortLink->qrLogoId ?: $settings->defaultQrLogoId;
+            if ($logoId) {
+                $options['logo'] = $logoId;
+            }
+        }
+
+        return array_filter($options, static fn(mixed $value): bool => $value !== null);
+    }
+
+    /**
+     * Overlay authenticated scalar request styling on the supplied defaults.
+     *
+     * @param array<string, mixed> $defaults
+     * @return array<string, mixed>
+     */
+    private function authenticatedOptions(array $defaults = []): array
+    {
+        $options = $defaults;
+        foreach (['size', 'color', 'bg', 'format', 'margin', 'moduleStyle', 'eyeStyle', 'eyeColor', 'logoSize', 'errorCorrection'] as $name) {
+            $value = $this->queryScalar($name);
+            if ($value !== null) {
+                $options[$name] = $value;
+            }
+        }
+
+        $queryParams = Craft::$app->getRequest()->getQueryParams();
+        if (array_key_exists('logo', $queryParams)) {
+            $logoId = $this->validatePreviewLogoId(
+                $queryParams['logo'],
+                ShortLinkManager::$plugin->getSettings()->qrLogoVolumeUid,
+            );
+            if ($logoId === null) {
+                unset($options['logo']);
+            } else {
+                $options['logo'] = $logoId;
+            }
+        }
+
+        return array_filter($options, static fn(mixed $value): bool => $value !== null);
+    }
+
+    private function queryScalar(string $name): string|int|float|bool|null
+    {
+        $value = Craft::$app->getRequest()->getQueryParam($name);
+
+        return is_scalar($value) ? $value : null;
+    }
+
+    private function queryFlag(string $name): bool
+    {
+        $value = $this->queryScalar($name);
+
+        return $value !== null && !in_array($value, ['', '0', 0, false], true);
+    }
+
+    private function normalizeExportSize(string|int|float|bool|null $size, int $fallback): int
+    {
+        if (!is_numeric($size)) {
+            $size = $fallback;
+        }
+
+        return max(100, min(4096, (int)$size));
+    }
+
+    private function resolveExistingLink(string|int|float|bool $linkId, string|int|float|bool|null $siteId): ShortLink
+    {
+        if (!is_numeric($linkId) || (int)$linkId < 1) {
+            throw new NotFoundHttpException('Short link not found.');
+        }
+
+        $query = ShortLink::find()
+            ->id((int)$linkId)
+            ->status(null);
+        if ($siteId !== null) {
+            if (!is_numeric($siteId) || (int)$siteId < 1) {
+                throw new NotFoundHttpException('Short link not found.');
+            }
+            $query->siteId((int)$siteId);
+        } else {
+            $query->site('*');
+        }
+
+        $shortLink = $query->one();
+        if (!$shortLink instanceof ShortLink || $shortLink->trashed) {
+            throw new NotFoundHttpException('Short link not found.');
+        }
+
+        return $shortLink;
+    }
+
+    private function resolvePublicLink(string $code, ?string $siteHandle): ShortLink
+    {
+        $site = $this->resolveSite($siteHandle);
+        if (!$site) {
+            throw new NotFoundHttpException('Site not found.');
+        }
+
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id)
+            ?? ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        if (!$shortLink instanceof ShortLink || $shortLink->trashed) {
+            throw new NotFoundHttpException('Short link not found.');
+        }
+
+        return $shortLink;
+    }
+
+    private function trackedUrl(ShortLink $shortLink): string
+    {
+        $url = $shortLink->getUrl();
+        $separator = str_contains($url, '?') ? '&' : '?';
+
+        return $url . $separator . 'src=qr';
+    }
+
+    /**
+     * Validate a submitted preview logo against its configured volume and permission.
+     */
+    protected function validatePreviewLogoId(mixed $logoId, ?string $allowedVolumeUid): ?int
+    {
+        return AssetVolumeHelper::validateAssetId($logoId, $allowedVolumeUid);
     }
 
     /**

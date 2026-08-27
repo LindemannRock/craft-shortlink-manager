@@ -19,7 +19,7 @@ Turn any URL into a short, trackable link — and a scannable QR code — withou
 
 - **[Short links](shortlinks.md)** — auto-generated codes (`/s/abc123XY`) or vanity URLs (`/s/summer-sale`). Per-link HTTP codes (301, 302, 307, 308), expiry dates, and post dates. Link to Craft elements or any URL.
 
-- **[QR codes](qr-codes.md)** — every short link gets a QR code. Customize size, colors, module style (square, rounded, dots), eye style, and logo overlay. Download as PNG or SVG.
+- **[QR codes](qr-codes.md)** — every short link gets a canonical, cacheable QR code. Customize saved output, preview unsaved styling in the control panel, and export PNG or SVG up to 4096px.
 
 - **[Analytics](analytics.md)** — click tracking with device detection (desktop, tablet, mobile), geolocation (country, city), referrer, and unique visitor counting via IP hashing. Dashboard widgets for at-a-glance stats.
 

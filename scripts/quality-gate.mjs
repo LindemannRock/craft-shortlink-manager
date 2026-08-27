@@ -57,8 +57,9 @@ const constituents = [
             'tests/js/quality-gate-orchestration.test.mjs',
             'tests/js/runner-cleanup.test.mjs',
             'tests/js/compatibility-runner-cleanup.test.mjs',
+            'tests/js/qr-editor-download.test.mjs',
         ]],
-        workspace: ['ddev', ['exec', 'cd plugins/shortlink-manager && node --test tests/js/quality-gate-orchestration.test.mjs tests/js/runner-cleanup.test.mjs tests/js/compatibility-runner-cleanup.test.mjs']],
+        workspace: ['ddev', ['exec', 'cd plugins/shortlink-manager && node --test tests/js/quality-gate-orchestration.test.mjs tests/js/runner-cleanup.test.mjs tests/js/compatibility-runner-cleanup.test.mjs tests/js/qr-editor-download.test.mjs']],
     },
 ];
 

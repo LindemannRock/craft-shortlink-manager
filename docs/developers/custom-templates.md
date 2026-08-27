@@ -111,7 +111,7 @@ The element exposes these template helpers:
 | `siteName` | `string` | Current site name. |
 | `currentSite` | `Site` | Current site model. |
 
-Render the QR image with the [template methods](../feature-tour/qr-codes.md#using-qr-codes-in-templates) on `shortLink` (e.g. `shortLink.getQrCodeDataUri()`).
+Render the canonical public QR image with `shortLink.getQrCodeUrl()`. The `/view` request and public URL helpers ignore styling query options, so a copied display template should not append size, format, color, or other style parameters. For a trusted server-side inline render, `shortLink.getQrCodeDataUri(options)` and `shortLink.getQrCode(options)` continue to accept rendering options within the 100–1000px service range. See [Using QR codes in templates](../feature-tour/qr-codes.md#using-qr-codes-in-templates).
 
 If SEOmatic tracking is enabled, use `shortLink.renderQrSeomaticTracking()` on QR display pages. Do not pass event type strings in templates; the plugin maps redirect and QR page intent to the configured tracking events.
 

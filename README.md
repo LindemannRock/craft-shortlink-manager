@@ -13,7 +13,7 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 ## Features
 
 - **Short Links** — Custom element type with auto-generated codes or vanity slugs (e.g., `/s/abc123`, `/s/pricing`)
-- **QR Codes** — Styled QR codes with custom colors, module/eye styles, logo overlay, and PNG/SVG export
+- **QR Codes** — Canonical public QR codes with custom colors, module/eye styles, logo overlay, and authenticated PNG/SVG export
 - **Analytics** — Click tracking with device, browser, OS, country, city, referrer, and bot filtering
 - **Direct Redirect** — Optional server-side HTTP redirect for maximum performance
 - **Link Expiration** — Expiry dates with custom expired message or redirect URL

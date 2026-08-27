@@ -157,8 +157,13 @@ return [
         // Performance and caching configuration
 
         // Cache Storage Method
-        // 'file' = File system (default, single server)
-        // 'redis' = Redis/Database (load-balanced, multi-server, cloud hosting)
+        // 'file' = Plugin-owned files on durable hosts (default). On ephemeral hosts,
+        //          ShortLink Manager attempts to use a suitable Craft application cache.
+        // 'craft' = Explicitly use Craft's suitable cross-request application cache.
+        // 'redis' = Backward-compatible token for the same application-cache selection;
+        //           it does not itself configure or guarantee Redis.
+        // If the selected application cache is unsuitable for cross-request persistence,
+        // persistent plugin caching is disabled rather than silently changing backends.
         'cacheStorageMethod' => 'file',
 
         // QR Code Caching
@@ -239,7 +244,7 @@ return [
     'production' => [
         'logLevel' => 'error',         // Only errors in production
         'analyticsRetention' => 365,   // Keep more data in production
-        'cacheStorageMethod' => 'redis', // Use Redis for production (Servd/AWS/Platform.sh)
+        'cacheStorageMethod' => 'craft', // Use Craft's configured suitable application cache
         'cacheDeviceDetection' => true,
         'deviceDetectionCacheDuration' => 7200, // 2 hours
         'qrCodeCacheDuration' => 604800, // 7 days - QR codes rarely change

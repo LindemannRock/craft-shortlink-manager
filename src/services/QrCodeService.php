@@ -64,8 +64,11 @@ class QrCodeService extends Component
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Merge options with defaults and clamp values
-        $size = max(100, min(1000, (int)($options['size'] ?? $settings->defaultQrSize)));
+        // Authenticated exports may explicitly opt into the wider export ceiling.
+        // Saved/public and direct programmatic rendering retain the 1000px ceiling.
+        $sizeMax = ($options['_sizeMax'] ?? null) === 4096 ? 4096 : 1000;
+        $size = max(100, min($sizeMax, (int)($options['size'] ?? $settings->defaultQrSize)));
+        $usePersistentCache = $settings->enableQrCodeCache && ($options['_cache'] ?? true) !== false;
         $color = $this->normalizeHexColor($options['color'] ?? null, (string)$settings->defaultQrColor);
         $bgColor = $this->normalizeHexColor($options['bg'] ?? $options['backgroundColor'] ?? null, (string)$settings->defaultQrBgColor);
         $format = $this->normalizeFormat($options['format'] ?? null);
@@ -88,7 +91,7 @@ class QrCodeService extends Component
         $cacheKey = $this->_getCacheKey($url, $size, $color, $bgColor, $format, $margin, $errorCorrection, $moduleStyle, $eyeStyle, $eyeColor, $logoId, $logoSize);
 
         // Check the configured disposable cache (if caching is enabled).
-        if ($settings->enableQrCodeCache) {
+        if ($usePersistentCache) {
             try {
                 $cached = ShortLinkManager::$plugin->cacheStorage->readQrCode(
                     $cacheKey,
@@ -132,7 +135,7 @@ class QrCodeService extends Component
         }
 
         // Cache the result (if caching enabled)
-        if ($settings->enableQrCodeCache) {
+        if ($usePersistentCache) {
             try {
                 if (!ShortLinkManager::$plugin->cacheStorage->writeQrCode(
                     $cacheKey,

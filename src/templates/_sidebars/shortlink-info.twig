@@ -213,16 +213,16 @@
 										<h6>{{ "Download QR Code"|t('shortlink-manager') }}</h6>
 										<ul>
 											<li>
-												<a href='{{ shortLink.getQrCodeUrl({ format: 'png', size: 256, download: 1 }) }}'>{{ "Small (256px)"|t('shortlink-manager') }}</a>
+											<a href='{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, siteId: shortLink.siteId, format: 'png', size: 256, download: 1 }) }}'>{{ "Small (256px)"|t('shortlink-manager') }}</a>
 											</li>
 											<li>
-												<a href='{{ shortLink.getQrCodeUrl({ format: 'png', size: 512, download: 1 }) }}'>{{ "Medium (512px)"|t('shortlink-manager') }}</a>
+											<a href='{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, siteId: shortLink.siteId, format: 'png', size: 512, download: 1 }) }}'>{{ "Medium (512px)"|t('shortlink-manager') }}</a>
 											</li>
 											<li>
-												<a href='{{ shortLink.getQrCodeUrl({ format: 'png', size: 1024, download: 1 }) }}'>{{ "Large (1024px)"|t('shortlink-manager') }}</a>
+											<a href='{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, siteId: shortLink.siteId, format: 'png', size: 1024, download: 1 }) }}'>{{ "Large (1024px)"|t('shortlink-manager') }}</a>
 											</li>
 											<li>
-												<a href='{{ shortLink.getQrCodeUrl({ format: 'png', size: 2048, download: 1 }) }}'>{{ "Extra Large (2048px)"|t('shortlink-manager') }}</a>
+											<a href='{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, siteId: shortLink.siteId, format: 'png', size: 2048, download: 1 }) }}'>{{ "Extra Large (2048px)"|t('shortlink-manager') }}</a>
 											</li>
 										</ul>
 									</li>

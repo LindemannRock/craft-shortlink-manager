@@ -27,7 +27,7 @@
 
 				{# QR Code display #}
 				<div class="my-8 mx-auto">
-					<img src="{{ shortLink.getQrCodeUrl({ size: 300 }) }}" alt="{{ shortLink.title|default('QR Code') }}" class="mx-auto">
+					<img src="{{ shortLink.getQrCodeUrl() }}" alt="{{ shortLink.title|default('QR Code') }}" class="mx-auto">
 				</div>
 
 				{# Instructions #}

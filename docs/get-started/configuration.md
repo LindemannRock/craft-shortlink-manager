@@ -120,7 +120,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `defaultQrSize` | `int` | `256` | Default QR code size in pixels (100–1000) |
+| `defaultQrSize` | `int` | `256` | Saved/default, public, and direct programmatic QR size in pixels (100–1000). Authenticated exports separately support 100–4096 |
 | `defaultQrColor` | `string` | `'#000000'` | Default QR code foreground color (hex) |
 | `defaultQrBgColor` | `string` | `'#FFFFFF'` | Default QR code background color (hex) |
 | `defaultQrFormat` | `string` | `'png'` | Default QR code format. Options: `'png'`, `'svg'` |
@@ -133,8 +133,10 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `qrLogoVolumeUid` | `string\|null` | `null` | Asset volume UID allowed for QR logos. `null` = all volumes |
 | `defaultQrLogoId` | `int\|null` | `null` | Default QR logo asset ID |
 | `qrLogoSize` | `int` | `20` | Logo size as a percentage of the QR code (10–30) |
-| `enableQrDownload` | `bool` | `true` | Allow QR code downloads |
-| `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{code}`, `{size}`, `{format}` |
+| `enableQrDownload` | `bool` | `true` | Allow canonical public downloads and authenticated CP exports |
+| `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{code}`, normalized `{size}`, and normalized `{format}` |
+
+Public QR image and `/view` routes ignore styling query parameters and use saved per-link values with global fallbacks. The QR settings preview uses the selected default size, while edit-page previews are fixed at 150px. Authenticated export presets are 256, 512, 1024, and 2048px, and custom exports accept 100–4096px. Authenticated previews and exports are private/no-store and do not read or write persistent QR cache entries.
 
 ---
 
@@ -142,11 +144,17 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `enableQrCodeCache` | `bool` | `true` | Cache generated QR codes |
+| `enableQrCodeCache` | `bool` | `true` | Cache canonical public and direct programmatic QR renders. Authenticated unsaved previews/exports bypass persistent caching |
 | `qrCodeCacheDuration` | `int` | `86400` | QR code cache duration in seconds (default: 24 hours) |
-| `cacheStorageMethod` @since(5.3.0) | `string` | `'file'` | Cache storage method. Options: `'file'` (single server), `'redis'` (load-balanced/multi-server) |
+| `cacheStorageMethod` @since(5.3.0) | `string` | `'file'` | Persistent cache selection. Options: `'file'`, `'craft'`, or the backward-compatible `'redis'` application-cache token |
 | `cacheDeviceDetection` | `bool` | `true` | Cache device detection results |
 | `deviceDetectionCacheDuration` | `int` | `3600` | Device detection cache duration in seconds (default: 1 hour) |
+
+On a durable host, `'file'` stores ShortLink Manager's QR and device-detection cache families in plugin-owned files. On an ephemeral host, the same token attempts to use Craft's configured application cache when that cache is suitable for cross-request persistence.
+
+Use `'craft'` when you want to select Craft's suitable application cache explicitly. The older `'redis'` token is retained for compatibility and makes the same application-cache selection; it does not configure Redis or guarantee that Craft's cache component is Redis-backed. If the selected application cache is not suitable for cross-request persistence, ShortLink Manager disables persistent storage for these families instead of silently switching to another backend.
+
+Authenticated QR previews and exports bypass persistent storage regardless of the selected token.
 
 ---
 
@@ -299,7 +307,8 @@ return [
     'production' => [
         'logLevel' => 'error',
         'analyticsRetention' => 365,
-        'cacheStorageMethod' => 'redis',
+        // Explicitly use Craft's configured suitable application cache.
+        'cacheStorageMethod' => 'craft',
         'qrCodeCacheDuration' => 604800, // 7 days
         'deviceDetectionCacheDuration' => 7200,
     ],

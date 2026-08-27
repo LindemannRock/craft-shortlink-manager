@@ -47,4 +47,20 @@ class SeomaticTrackingTemplateTest extends TestCase
         $this->assertStringNotContainsString('DEBUG MODE', $qrTemplate);
         $this->assertStringNotContainsString('debugMode', $qrTemplate);
     }
+
+    public function testQrTemplatesKeepPublicUrlsCanonicalAndDownloadsAuthenticated(): void
+    {
+        $templateDir = dirname(__DIR__, 2) . '/src/templates';
+        $qrTemplate = (string)file_get_contents($templateDir . '/qr.twig');
+        $editTemplate = (string)file_get_contents($templateDir . '/shortlinks/edit.twig');
+        $sidebarTemplate = (string)file_get_contents($templateDir . '/_sidebars/shortlink-info.twig');
+
+        self::assertStringContainsString('shortLink.getQrCodeUrl()', $qrTemplate);
+        self::assertStringNotContainsString('shortLink.getQrCodeUrl({', $qrTemplate);
+        self::assertStringContainsString("qrDownloadUrl: shortLink.id ? actionUrl('shortlink-manager/qr-code/generate'", $editTemplate);
+        self::assertStringContainsString('siteId: shortLink.siteId', $editTemplate);
+        self::assertStringNotContainsString('qrPublicBaseUrl:', $editTemplate);
+        self::assertSame(4, substr_count($sidebarTemplate, 'download: 1'));
+        self::assertStringNotContainsString('getQrCodeUrl({ format:', $sidebarTemplate);
+    }
 }

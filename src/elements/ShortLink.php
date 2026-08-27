@@ -1170,26 +1170,20 @@ class ShortLink extends Element
     /**
      * Get QR code URL for this shortlink (for use in templates)
      *
-     * @param array $options Optional parameters to override defaults
+     * Public styling is always derived from the saved link and global defaults.
+     * The optional download flag remains supported; styling options are ignored.
+     *
+     * @param array $options Optional non-style behavior
      * @return string QR code URL (site URL with code)
      */
     public function getQrCodeUrl(array $options = []): string
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        $params = array_merge([
-            'size' => $this->qrCodeSize,
-            'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
-            'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
-            'format' => $this->qrCodeFormat ?: $settings->defaultQrFormat,
-            'margin' => $settings->defaultQrMargin,
-            'moduleStyle' => $settings->qrModuleStyle,
-            'eyeStyle' => $settings->qrEyeStyle,
-            'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null),
-        ], $options);
-
-        // Remove null values
-        $params = array_filter($params, fn($value) => $value !== null);
+        $download = $options['download'] ?? null;
+        $params = is_scalar($download) && !in_array($download, ['', '0', 0, false], true)
+            ? ['download' => 1]
+            : [];
 
         // Get the QR prefix from settings
         $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
@@ -1202,7 +1196,10 @@ class ShortLink extends Element
     /**
      * Get QR code display page URL (frontend template page)
      *
-     * @param array $options Optional parameters to override defaults
+     * The options parameter is retained for compatibility. Public display URLs
+     * are canonical and do not encode styling options.
+     *
+     * @param array $options Retained for backward compatibility
      * @return string QR code page URL
      * @since 5.1.0
      */
@@ -1210,24 +1207,12 @@ class ShortLink extends Element
     {
         $settings = ShortLinkManager::$plugin->getSettings();
 
-        // Get the same parameters as getQrCodeUrl to ensure consistency
-        $params = array_merge([
-            'size' => $this->qrCodeSize,
-            'color' => str_replace('#', '', $this->qrCodeColor ?: $settings->defaultQrColor),
-            'bg' => str_replace('#', '', $this->qrCodeBgColor ?: $settings->defaultQrBgColor),
-            'format' => $this->qrCodeFormat ?: $settings->defaultQrFormat,
-            'eyeColor' => $this->qrCodeEyeColor ? str_replace('#', '', $this->qrCodeEyeColor) : ($settings->qrEyeColor ? str_replace('#', '', $settings->qrEyeColor) : null),
-        ], $options);
-
-        // Remove null values
-        $params = array_filter($params, fn($value) => $value !== null);
-
         // Get the QR prefix from settings
         $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
         $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
         $slug = ltrim((string) $this->slug, '/');
 
-        return $settings->buildPublicUrl("{$qrPrefix}/{$slug}/view", $this->siteId, $params);
+        return $settings->buildPublicUrl("{$qrPrefix}/{$slug}/view", $this->siteId);
     }
 
     /**

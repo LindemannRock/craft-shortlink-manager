@@ -168,7 +168,7 @@
     }
 
     function initQrDownload() {
-        if (typeof $ === 'undefined' || !urls.qrPublicBaseUrl) {
+        if (typeof $ === 'undefined' || !urls.qrDownloadUrl) {
             return;
         }
 
@@ -183,8 +183,13 @@
                     return;
                 }
 
-                size = parseInt(customSize, 10);
-                if (isNaN(size) || size < 100 || size > 4096) {
+                if (!/^\d+$/.test(customSize.trim())) {
+                    alert(messages.invalidCustomSize || 'Please enter a valid size between 100 and 4096 pixels');
+                    return;
+                }
+
+                size = Number(customSize);
+                if (size < 100 || size > 4096) {
                     alert(messages.invalidCustomSize || 'Please enter a valid size between 100 and 4096 pixels');
                     return;
                 }
@@ -195,11 +200,17 @@
             const eyeColor = $('#qrCodeEyeColor').val() ? $('#qrCodeEyeColor').val().replace(/^#/, '') : '';
             const format = $('#qrCodeFormat').val() || defaults.qrFormat || 'png';
 
-            let downloadUrl = urls.qrPublicBaseUrl +
-                '?size=' + encodeURIComponent(size) +
+            const separator = urls.qrDownloadUrl.indexOf('?') === -1 ? '?' : '&';
+            let downloadUrl = urls.qrDownloadUrl + separator +
+                'size=' + encodeURIComponent(size) +
                 '&color=' + encodeURIComponent(color) +
                 '&bg=' + encodeURIComponent(bgColor) +
                 '&format=' + encodeURIComponent(format) +
+                '&margin=' + encodeURIComponent(defaults.qrMargin ?? 4) +
+                '&errorCorrection=' + encodeURIComponent(defaults.qrErrorCorrection || 'M') +
+                '&moduleStyle=' + encodeURIComponent(defaults.qrModuleStyle || 'square') +
+                '&eyeStyle=' + encodeURIComponent(defaults.qrEyeStyle || 'square') +
+                '&logoSize=' + encodeURIComponent(defaults.qrLogoSize ?? 20) +
                 '&download=1';
 
             if (eyeColor) {
@@ -209,6 +220,8 @@
             const logoField = document.querySelector('#qrLogoId-field .elements .element');
             if (logoField) {
                 downloadUrl += '&logo=' + encodeURIComponent(logoField.dataset.id);
+            } else {
+                downloadUrl += '&logo=0';
             }
 
             let downloadFrame = document.getElementById('shortlink-qr-download-frame');

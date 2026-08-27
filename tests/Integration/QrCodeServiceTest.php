@@ -495,6 +495,51 @@ final class QrCodeServiceTest extends TestCase
         });
     }
 
+    public function testAuthenticatedCacheBypassDoesNotReadOrWritePersistentEntry(): void
+    {
+        $this->withCraftCache(function(CascadeCache $cache): void {
+            $this->withSettings($this->cacheSettings(['defaultQrFormat' => 'svg']), function() use ($cache): void {
+                $service = ShortLinkManager::$plugin->qrCode;
+                $url = 'https://example.com/authenticated-cache-bypass';
+                $identity = $this->cacheIdentityForFormat($service, $url, 'svg');
+                $sentinel = '<svg xmlns="http://www.w3.org/2000/svg"><title>neighboring sentinel</title></svg>';
+                self::assertTrue(ShortLinkManager::$plugin->cacheStorage->writeQrCode($identity, $sentinel, 83));
+                $writes = count($cache->setDurations);
+
+                $rendered = $service->generateQrCode($url, [
+                    'format' => 'svg',
+                    '_cache' => false,
+                    '_sizeMax' => 4096,
+                ]);
+
+                self::assertNotSame($sentinel, $rendered, 'Authenticated rendering must not read the persistent QR cache.');
+                self::assertCount($writes, $cache->setDurations, 'Authenticated rendering must not write the persistent QR cache.');
+                $cached = ShortLinkManager::$plugin->cacheStorage->readQrCode($identity, 83);
+                self::assertTrue($cached->isHit());
+                self::assertSame($sentinel, $cached->value);
+            });
+        });
+    }
+
+    public function testExportCeilingRequiresExplicitAuthenticatedOptIn(): void
+    {
+        foreach ([2048, 4096] as $size) {
+            $svg = $this->generateWithoutCache([
+                'format' => 'svg',
+                'size' => $size,
+                '_sizeMax' => 4096,
+                '_cache' => false,
+            ]);
+            $this->assertValidSvg($svg, $size);
+        }
+
+        $direct = $this->generateWithoutCache([
+            'format' => 'svg',
+            'size' => 4096,
+        ]);
+        $this->assertValidSvg($direct, 1000);
+    }
+
     public function testEquivalentRequestStylesShareCacheIdentity(): void
     {
         $this->withCraftCache(function(CascadeCache $cache): void {
@@ -621,7 +666,7 @@ final class QrCodeServiceTest extends TestCase
         }
     }
 
-    public function testShortLinkHelpersForwardErrorCorrectionOptions(): void
+    public function testShortLinkRenderHelpersRemainFlexibleWhilePublicUrlsAreCanonical(): void
     {
         $link = $this->seedShortLink();
         $link->qrCodeEnabled = true;
@@ -635,9 +680,9 @@ final class QrCodeServiceTest extends TestCase
 
             self::assertSame($expected, $link->getQrCode($options));
             self::assertSame($expected, $this->decodeDataUrl($link->getQrCodeDataUri($options)));
-            self::assertStringContainsString('errorCorrection=H', $link->getQrCodeUrl($options));
-            self::assertStringContainsString('errorCorrection=H', $link->getQrCodeDisplayUrl($options));
-            self::assertStringContainsString('download=1', $link->getQrCodeUrl($options + ['download' => 1]));
+            self::assertStringNotContainsString('?', $link->getQrCodeUrl($options));
+            self::assertStringNotContainsString('?', $link->getQrCodeDisplayUrl($options));
+            self::assertStringEndsWith('?download=1', $link->getQrCodeUrl($options + ['download' => 1]));
         });
     }
 
@@ -790,6 +835,13 @@ final class QrCodeServiceTest extends TestCase
         $method = new \ReflectionMethod($service, '_getCacheKey');
 
         return $method->invoke($service, $url, 256, '000000', 'FFFFFF', 'png', 4, 'M', 'square', 'square', null, null, 20);
+    }
+
+    private function cacheIdentityForFormat(QrCodeService $service, string $url, string $format): string
+    {
+        $method = new \ReflectionMethod($service, '_getCacheKey');
+
+        return $method->invoke($service, $url, 256, '000000', 'FFFFFF', $format, 4, 'M', 'square', 'square', null, null, 20);
     }
 
     private function explicitBaconOutput(

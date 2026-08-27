@@ -20,8 +20,6 @@ Solutions to common ShortLink Manager issues.
 
 7. **Are both ShortLink Manager and SmartLink Manager in root mode on the same host?** If both plugins have URL prefix disabled and share a host, root routes like `/{slug}` can collide. One plugin may capture requests meant for the other and trigger its own `notFoundRedirectUrl`.
 
-8. **If Redis caching is enabled, check the logs.** When `cacheStorageMethod` is set to `redis` but Craft's `cache` component is not Redis-backed, ShortLink Manager logs a cache-component warning and skips Redis-specific cache operations until the component is fixed.
-
 ## Short link creates a loop or doesn't redirect
 
 If visiting a short link URL doesn't redirect but instead loads a Craft template or error:
@@ -205,24 +203,45 @@ PNG output uses the image driver Craft selected for the current environment. Che
 
 4. **Check logs for generation errors.** Enable debug logging and inspect the log for QR generation errors (e.g., invalid logo asset, permissions issue on the cache directory).
 
-5. **Check file permissions.** If using file-based QR caching, ensure `storage/runtime/shortlink-manager/qr/` is writable by the web server.
+5. **Check file permissions.** If using file-based QR caching, ensure `storage/runtime/shortlink-manager/cache/qr/` is writable by the web server.
 
 If a logo cannot be read, copied from its Asset volume, or decoded as JPEG, PNG, or GIF, ShortLink Manager logs the logo-specific problem and returns the valid unbranded PNG. This applies to both local and remote-volume Assets because logo files are accessed through Craft's temporary-copy API.
 
 QR cache failures do not prevent a valid image response. Invalid cached image data is ignored and replaced only after regeneration succeeds; persistent generation errors are recorded separately in the plugin logs.
 
+## Persistent QR or device-detection caching is unavailable
+
+ShortLink Manager accepts three `cacheStorageMethod` tokens, but they select two effective storage families:
+
+1. **`file` on a durable host:** uses ShortLink Manager's plugin-owned files. Confirm `storage/runtime/shortlink-manager/cache/` is writable.
+2. **`file` on an ephemeral host:** attempts to use Craft's configured application cache when it is suitable for cross-request persistence.
+3. **`craft`:** explicitly selects Craft's suitable cross-request application cache.
+4. **`redis`:** a backward-compatible token for the same application-cache selection as `craft`. It does not configure Redis or guarantee that Craft's cache component is Redis-backed.
+
+If the application cache is unsuitable for cross-request persistence, ShortLink Manager disables persistent storage for these cache families rather than silently switching to another backend. Check the plugin logs and Craft's `cache` component configuration, then either use `'file'` on a durable host or configure a suitable Craft application cache and select `'craft'`.
+
+Authenticated QR previews and exports always bypass persistent storage. Seeing no persistent cache read or write for those requests is expected and does not indicate a backend problem.
+
+## Public QR query parameters do not change the image
+
+This is expected. Public `/{qrPrefix}/{code}` and `/{qrPrefix}/{code}/view` URLs always use the link's saved QR configuration with global fallbacks. Styling parameters such as `size`, `format`, colors, margin, error correction, module/eye style, and logo are ignored, as are `preview`, `url`, and `linkId` mode parameters. Styled URLs created by older releases remain valid but now return the canonical saved/default output.
+
+To change public output, update and save the link's QR fields. To preview unsaved styling, use the authenticated control panel: the settings preview uses the selected default size, while edit-page previews are fixed at 150px. For export, use the edit-page or sidebar download menu: presets are 256, 512, 1024, and 2048px, while custom authenticated downloads accept 100–4096px. Public `download=1` uses the saved/default size and format.
+
 ## QR code downloads as wrong file type
 
-The download format is controlled by the `defaultQrFormat` setting (`png` or `svg`) and can be overridden per link. If you request a format via the URL parameter (e.g., `?format=svg`), ensure the QR URL includes that parameter. Unsupported format values fall back to the configured default, and the response MIME type and download extension follow that normalized format.
+Public downloads use the link's saved format with `defaultQrFormat` as the fallback; a public `?format=svg` parameter is intentionally ignored. Choose the format on the link and save it for canonical public output, or use the authenticated control-panel download menu for an unsaved PNG/SVG export. The normalized effective format controls bytes, MIME type, filename token, and extension together. The normalized effective size likewise controls dimensions and the `{size}` filename token.
 
 ## QR error correction does not match the requested level
 
-1. **Check the supported values.** Use `L`, `M`, `Q`, or `H`. Request values are case-insensitive and trimmed.
-2. **Check the effective default.** An invalid `errorCorrection` query value falls back to `defaultQrErrorCorrection`.
-3. **Check config-file overrides.** A value in `config/shortlink-manager.php` overrides the Control Panel setting.
-4. **Retest the exact URL.** The normalized effective level is part of the QR cache identity, so changing only the level generates a separate cached result; no shared-cache flush is required.
+1. **Public route:** it uses the saved/global `defaultQrErrorCorrection`; public query parameters do not change it.
+2. **Authenticated control-panel preview or export:** request values may use `L`, `M`, `Q`, or `H`; values are case-insensitive and trimmed.
+3. **Direct programmatic render:** pass `errorCorrection` to `getQrCode()` or `getQrCodeDataUri()`.
+4. **Check config-file overrides:** a value in `config/shortlink-manager.php` overrides the Control Panel setting.
 
 If `defaultQrErrorCorrection` itself contains an invalid value, ShortLink Manager uses `M`. All four supported levels apply to both PNG and SVG. For a logo-bearing code, `H` is the appropriate starting point, but scan-test the final output at its intended size because the logo still covers part of the symbol.
+
+Authenticated previews and exports send private/no-store response headers and bypass persistent QR cache reads and writes. If an unsaved control-panel preview looks stale, inspect the request and response rather than clearing the shared QR cache. Canonical public and direct programmatic renders continue to use the effective file or Craft application-cache decision described in [Persistent QR or device-detection caching is unavailable](#persistent-qr-or-device-detection-caching-is-unavailable).
 
 ## Settings save shows numeric field errors
 

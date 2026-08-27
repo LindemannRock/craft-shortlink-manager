@@ -86,7 +86,7 @@ The `Settings::buildPublicUrl()` method resolves the correct base URL in this or
 1. If `shortlinkBaseUrl` is set and non-empty — expand supported site tokens and use as base
 2. Else — use `UrlHelper::siteUrl()` with the short link's `siteId`
 
-This method is called when generating `ShortLink::getUrl()`, `getQrCodeUrl()`, and `getQrCodeDisplayUrl()`.
+This method is called when generating `ShortLink::getUrl()`, `getQrCodeUrl()`, and `getQrCodeDisplayUrl()`. The two QR helpers return canonical public paths; styling options do not create alternate public URLs.
 
 ## Server configuration
 

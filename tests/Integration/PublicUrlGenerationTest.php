@@ -110,16 +110,16 @@ final class PublicUrlGenerationTest extends TestCase
             'qrPrefix' => 's/qr',
         ], function() use ($link): void {
             $imageUrl = $link->getQrCodeUrl();
-            self::assertStringStartsWith('https://short.example/s/qr/sl-test-qr-domain?', $imageUrl);
-            self::assertStringContainsString('format=', $imageUrl);
+            self::assertSame('https://short.example/s/qr/sl-test-qr-domain', $imageUrl);
 
             $downloadUrl = $link->getQrCodeUrl(['format' => 'png', 'size' => 512, 'download' => 1]);
-            self::assertStringStartsWith('https://short.example/s/qr/sl-test-qr-domain?', $downloadUrl);
-            self::assertStringContainsString('download=1', $downloadUrl);
+            self::assertSame('https://short.example/s/qr/sl-test-qr-domain?download=1', $downloadUrl);
             self::assertStringNotContainsString('/actions/', $downloadUrl);
 
-            $displayUrl = $link->getQrCodeDisplayUrl();
-            self::assertStringStartsWith('https://short.example/s/qr/sl-test-qr-domain/view?', $displayUrl);
+            self::assertSame(
+                'https://short.example/s/qr/sl-test-qr-domain/view',
+                $link->getQrCodeDisplayUrl(['format' => 'svg', 'size' => 999]),
+            );
         });
     }
 
@@ -134,8 +134,8 @@ final class PublicUrlGenerationTest extends TestCase
             'shortlinkBaseUrl' => 'https://short.example',
             'qrPrefix' => 'qr',
         ], function() use ($link): void {
-            self::assertStringStartsWith('https://short.example/qr/sl-test-qr-standalone?', $link->getQrCodeUrl());
-            self::assertStringStartsWith('https://short.example/qr/sl-test-qr-standalone/view?', $link->getQrCodeDisplayUrl());
+            self::assertSame('https://short.example/qr/sl-test-qr-standalone', $link->getQrCodeUrl());
+            self::assertSame('https://short.example/qr/sl-test-qr-standalone/view', $link->getQrCodeDisplayUrl());
         });
     }
 }

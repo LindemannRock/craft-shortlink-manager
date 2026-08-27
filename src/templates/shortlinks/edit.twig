@@ -169,7 +169,7 @@
         newFolderFieldId: 'newFolderName'|namespaceInputId ~ '-field',
         urls: {
             generateCodeAction: 'shortlink-manager/shortlinks/generate-code',
-            qrPublicBaseUrl: shortLink.id ? plugin.settings.buildPublicUrl((plugin.settings.qrPrefix ?: 'qr') ~ '/' ~ shortLink.slug, shortLink.siteId) : null,
+            qrDownloadUrl: shortLink.id ? actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id, siteId: shortLink.siteId}) : null,
         },
         defaults: {
             qrSize: plugin.settings.defaultQrSize ?? 256,
@@ -177,6 +177,11 @@
             qrBgColor: plugin.settings.defaultQrBgColor ?? '#FFFFFF',
             qrEyeColor: plugin.settings.qrEyeColor ?? '',
             qrFormat: plugin.settings.defaultQrFormat ?? '',
+            qrMargin: plugin.settings.defaultQrMargin ?? 4,
+            qrErrorCorrection: plugin.settings.defaultQrErrorCorrection ?? 'M',
+            qrModuleStyle: plugin.settings.qrModuleStyle ?? 'square',
+            qrEyeStyle: plugin.settings.qrEyeStyle ?? 'square',
+            qrLogoSize: plugin.settings.qrLogoSize ?? 20,
         },
         messages: {
             httpStatusTips: {
@@ -399,7 +404,7 @@
         <div class="meta">
             {% if shortLink.id %}
                 <script type="application/json" data-shortlink-qr-preview-config>{{ {
-                    generateUrl: actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id}),
+                    generateUrl: actionUrl('shortlink-manager/qr-code/generate', {linkId: shortLink.id, siteId: shortLink.siteId}),
                     fields: {
                         size: 'qrCodeSize',
                         format: 'qrCodeFormat',
@@ -440,7 +445,7 @@
                     <div class="input lr-text-center">
                         <a id="qr-preview-link" href="{{ shortLink.getQrCodeUrl() }}" target="_blank" title="{{ 'Click to view QR code image'|t('shortlink-manager') }}">
                             <img id="qr-preview"
-                                 src="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, size: 150 }) }}"
+                                 src="{{ actionUrl('shortlink-manager/qr-code/generate', { linkId: shortLink.id, siteId: shortLink.siteId, size: 150 }) }}"
                                  alt="QR Code Preview"
                                  style="max-width: 150px; height: auto; border: 1px solid #e3e5e8; background: {{ shortLink.qrCodeBgColor ?? '#FFFFFF' }}; cursor: pointer;">
                         </a>

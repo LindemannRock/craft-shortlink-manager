@@ -125,9 +125,7 @@
             return;
         }
 
-        const params = buildParams(null);
-        const separator = link.baseUrl.indexOf('?') === -1 ? '?' : '&';
-        target.href = link.baseUrl + separator + params.toString();
+        target.href = link.baseUrl;
     }
 
     function initPreviewToggle() {
