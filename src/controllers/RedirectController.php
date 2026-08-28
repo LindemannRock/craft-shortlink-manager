@@ -9,6 +9,7 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
+use craft\errors\SiteNotFoundException;
 use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\PluginHelper;
@@ -66,7 +67,7 @@ class RedirectController extends Controller
         }
 
         $settings = ShortLinkManager::$plugin->getSettings();
-        $shortLink = $this->findShortLink($code, $site);
+        $shortLink = $this->findShortLink($code, $site, $siteHandle === null || $siteHandle === '');
 
         if (!$shortLink) {
             $this->logWarning('Shortlink not found', ['code' => $code]);
@@ -167,6 +168,8 @@ class RedirectController extends Controller
 
         $response = $this->renderTemplate($template, [
             'shortLink' => $shortLink,
+            'siteName' => $site->name,
+            'currentSite' => $site,
             'goUrl' => $goUrl,
             'source' => $source,
             'deviceInfo' => $deviceInfo,
@@ -198,7 +201,7 @@ class RedirectController extends Controller
         }
 
         $settings = ShortLinkManager::$plugin->getSettings();
-        $shortLink = $this->findShortLink($code, $site);
+        $shortLink = $this->findShortLink($code, $site, $siteHandle === null || $siteHandle === '');
 
         if (!$shortLink) {
             $this->logWarning('Shortlink not found for go action', ['code' => $code]);
@@ -250,12 +253,29 @@ class RedirectController extends Controller
     }
 
     /**
-     * Resolve request site from route handle (if provided), otherwise use current site.
+     * Resolve request site from an exact route identifier, then preserve the
+     * existing action-query handle and current-site fallbacks.
      */
     private function resolveSite(?string $siteHandle): ?Site
     {
         if ($siteHandle) {
-            return Craft::$app->getSites()->getSiteByHandle($siteHandle);
+            $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+            if ($site !== null) {
+                return $site;
+            }
+
+            if (ctype_digit($siteHandle) && (string)(int)$siteHandle === $siteHandle) {
+                $site = Craft::$app->getSites()->getSiteById((int)$siteHandle);
+                if ($site !== null) {
+                    return $site;
+                }
+            }
+
+            try {
+                return Craft::$app->getSites()->getSiteByUid($siteHandle);
+            } catch (SiteNotFoundException) {
+                return null;
+            }
         }
 
         $siteParam = Craft::$app->getRequest()->getParam('site');
@@ -266,11 +286,11 @@ class RedirectController extends Controller
         return Craft::$app->getSites()->getCurrentSite();
     }
 
-    private function findShortLink(string $code, Site $site): ?ShortLink
+    private function findShortLink(string $code, Site $site, bool $allowCrossSiteFallback): ?ShortLink
     {
         $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
-        if (!$shortLink) {
+        if (!$shortLink && $allowCrossSiteFallback) {
             $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
         }
 

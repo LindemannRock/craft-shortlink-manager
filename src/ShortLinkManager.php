@@ -663,34 +663,37 @@ class ShortLinkManager extends Plugin
         $qrPrefix = trim((string) ($settings->qrPrefix ?? 'qr'), '/');
         $slugPrefix = $slugPrefix !== '' ? $slugPrefix : 's';
         $qrPrefix = $qrPrefix !== '' ? $qrPrefix : 'qr';
-        $siteHandles = array_map(
-            static fn($site) => preg_quote($site->handle, '/'),
-            Craft::$app->getSites()->getAllSites()
-        );
-        $siteHandlePattern = !empty($siteHandles)
-            ? implode('|', $siteHandles)
-            : '[a-zA-Z0-9\-\_]+';
+        $siteIdentifiers = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            foreach ([$site->handle, (string)$site->id, $site->uid] as $identifier) {
+                $siteIdentifiers[] = preg_quote($identifier, '/');
+            }
+        }
+        $siteIdentifiers = array_values(array_unique($siteIdentifiers));
+        $siteIdentifierPattern = $siteIdentifiers !== []
+            ? implode('|', $siteIdentifiers)
+            : '(?!)';
 
         $priorityRules = [
             'shortlink-manager/redirect/go/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/go',
-            '<siteHandle:' . $siteHandlePattern . '>/shortlink-manager/redirect/go/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/go',
+            '<siteHandle:' . $siteIdentifierPattern . '>/shortlink-manager/redirect/go/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/redirect/go',
             // QR Code routes - supports both standalone ('qr') and nested ('s/qr') patterns
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
             $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
-            '<siteHandle:' . $siteHandlePattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
-            '<siteHandle:' . $siteHandlePattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
+            '<siteHandle:' . $siteIdentifierPattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>' => 'shortlink-manager/qr-code/generate',
+            '<siteHandle:' . $siteIdentifierPattern . '>/' . $qrPrefix . '/<code:[a-zA-Z0-9\-\_]+>/view' => 'shortlink-manager/qr-code/display',
         ];
 
         // Always keep prefixed routes for backward compatibility.
         $priorityRules[$slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
-        $priorityRules['<siteHandle:' . $siteHandlePattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
+        $priorityRules['<siteHandle:' . $siteIdentifierPattern . '>/' . $slugPrefix . '/<code:[a-zA-Z0-9\-\_]+>'] = 'shortlink-manager/redirect/index';
 
         // Root routes are enabled when usePrefix is disabled.
         $fallbackRules = [];
         if (!$usePrefix) {
             $rootCodePattern = $this->getRootCodeRoutePattern($settings);
             $fallbackRules['<code:' . $rootCodePattern . '>'] = 'shortlink-manager/redirect/index';
-            $fallbackRules['<siteHandle:' . $siteHandlePattern . '>/<code:' . $rootCodePattern . '>'] = 'shortlink-manager/redirect/index';
+            $fallbackRules['<siteHandle:' . $siteIdentifierPattern . '>/<code:' . $rootCodePattern . '>'] = 'shortlink-manager/redirect/index';
         }
 
         return [

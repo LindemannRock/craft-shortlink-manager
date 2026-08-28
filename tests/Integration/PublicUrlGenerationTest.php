@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use Craft;
+use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 
 /**
@@ -96,6 +97,68 @@ final class PublicUrlGenerationTest extends TestCase
                 $link->getUrl(),
             );
         });
+    }
+
+    public function testEveryAdvertisedSiteTokenGeneratesRedirectImageAndDisplayUrls(): void
+    {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-token-routes',
+            'slug' => 'sl-test-token-routes',
+            'siteId' => $site->id,
+        ]);
+
+        foreach ([
+            '{siteHandle}' => $site->handle,
+            '{siteId}' => (string)$site->id,
+            '{siteUid}' => $site->uid,
+        ] as $token => $identifier) {
+            $this->withSettings([
+                'shortlinkBaseUrl' => "https://short.example/{$token}",
+                'usePrefix' => true,
+                'slugPrefix' => 'go',
+                'qrPrefix' => 'go/qr',
+            ], function() use ($link, $identifier): void {
+                self::assertSame(
+                    "https://short.example/{$identifier}/go/sl-test-token-routes",
+                    $link->getUrl(),
+                );
+                self::assertSame(
+                    "https://short.example/{$identifier}/go/qr/sl-test-token-routes",
+                    $link->getQrCodeUrl(),
+                );
+                self::assertSame(
+                    "https://short.example/{$identifier}/go/qr/sl-test-token-routes/view",
+                    $link->getQrCodeDisplayUrl(),
+                );
+            });
+        }
+    }
+
+    public function testSiteTokensAreRemovedFromActionPathsWhileTheSiteHandleQueryIsPreserved(): void
+    {
+        $site = Craft::$app->getSites()->getPrimarySite();
+        $settings = ShortLinkManager::$plugin->getSettings();
+
+        foreach (['{siteHandle}', '{siteId}', '{siteUid}'] as $token) {
+            $this->withSettings([
+                'shortlinkBaseUrl' => "https://short.example/{$token}",
+            ], function() use ($settings, $site): void {
+                $url = $settings->buildPublicActionUrl(
+                    'shortlink-manager/redirect/go',
+                    $site->id,
+                    ['code' => 'sl-test-action-site', 'site' => $site->handle],
+                );
+
+                self::assertStringStartsWith('https://short.example/index.php?', $url);
+                self::assertStringContainsString('p=actions/shortlink-manager/redirect/go', $url);
+                self::assertStringContainsString('code=sl-test-action-site', $url);
+                self::assertStringContainsString('site=' . $site->handle, $url);
+                self::assertStringNotContainsString('/' . $site->handle . '/index.php', $url);
+                self::assertStringNotContainsString('/' . $site->id . '/index.php', $url);
+                self::assertStringNotContainsString('/' . $site->uid . '/index.php', $url);
+            });
+        }
     }
 
     public function testQrUrlsUsePublicCustomDomainAndDownloadParameter(): void

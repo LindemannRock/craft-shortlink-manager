@@ -55,6 +55,7 @@ final class DisposableCraftProject
         $this->installCleanupGuards();
         $failure = null;
         $phpunit = null;
+        $httpSmoke = null;
 
         try {
             $this->createDatabase();
@@ -63,6 +64,7 @@ final class DisposableCraftProject
             $this->installPlugins();
             $this->seedSites();
             $phpunit = $this->runPhpunit($phpunitArguments);
+            $httpSmoke = $this->readHttpSmokeEvidence();
         } catch (\Throwable $exception) {
             $failure = $exception;
         }
@@ -83,6 +85,7 @@ final class DisposableCraftProject
             'projectRoot' => $this->projectRoot,
             'databaseName' => $this->databaseName,
             'phpunit' => $phpunit,
+            'httpSmoke' => $httpSmoke,
             'commands' => $this->commands,
             'cleanup' => $cleanup,
         ];
@@ -410,8 +413,21 @@ PHP);
             'PRIMARY_SITE_URL' => 'https://shortlink-primary.example.test',
             'COMPOSER_HOME' => $this->projectRoot . '/.composer',
             'SHORTLINK_MANAGER_TEST_PROJECT_ROOT' => $this->projectRoot,
+            'SHORTLINK_MANAGER_HTTP_SMOKE_EVIDENCE' => $this->projectRoot . '/http-smoke.json',
             self::SOURCE_VENDOR_ENV => $this->vendorRoot,
         ];
+    }
+
+    /** @return array<string, mixed>|null */
+    private function readHttpSmokeEvidence(): ?array
+    {
+        $path = $this->projectRoot . '/http-smoke.json';
+        if (!is_file($path)) {
+            return null;
+        }
+        $evidence = json_decode((string)file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+
+        return is_array($evidence) ? $evidence : null;
     }
 
     private function resolveVendorRoot(): string

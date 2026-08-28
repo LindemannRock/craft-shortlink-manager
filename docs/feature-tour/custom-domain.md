@@ -42,7 +42,7 @@ This overrides the site's own base URL when generating shortlink URLs, but does 
 ![Custom domain field in ShortLink Manager settings](../images/custom-domain-settings.webp)
 
 > [!TIP]
-> Rule of thumb: Single-site → `shortlinkBaseUrl` as a plain URL. Multisite where each site needs its own path → `shortlinkBaseUrl` with a `{siteHandle}` token.
+> Rule of thumb: Single-site → `shortlinkBaseUrl` as a plain URL. Multisite where each site needs its own path → `shortlinkBaseUrl` with one of the supported site tokens.
 
 ## Multisite site-aware URLs
 
@@ -68,16 +68,18 @@ With `https://short.example.com/{siteHandle}`, links generate URLs like:
 
 ## Site-aware routes
 
-ShortLink Manager always registers site-aware routes (carrying a `{siteHandle}` segment) alongside the standard routes — they don't depend on `shortlinkBaseUrl`. They let the redirect controller resolve which Craft site to look the short link up in when a `{siteHandle}` is present in the URL path (for example when `shortlinkBaseUrl` includes the `{siteHandle}` token):
+ShortLink Manager always registers site-aware routes alongside the standard routes — they don't depend on `shortlinkBaseUrl`. The `{siteIdentifier}` segment below can be the exact handle, numeric ID, or UID of any current Craft site. Resolution is deterministic: handle first, numeric ID second, then UID. Unknown or stale values follow Craft's normal not-found behavior.
 
 | Route | Controller |
 |-------|-----------|
 | `/{slugPrefix}/{code}` | Redirect controller |
-| `/{siteHandle}/{slugPrefix}/{code}` | Redirect controller (site-aware) |
+| `/{siteIdentifier}/{slugPrefix}/{code}` | Redirect controller (site-aware) |
 | `/{qrPrefix}/{code}` | QR code image |
-| `/{siteHandle}/{qrPrefix}/{code}` | QR code image (site-aware) |
+| `/{siteIdentifier}/{qrPrefix}/{code}` | QR code image (site-aware) |
 | `/{qrPrefix}/{code}/view` | QR display page |
-| `/{siteHandle}/{qrPrefix}/{code}/view` | QR display page (site-aware) |
+| `/{siteIdentifier}/{qrPrefix}/{code}/view` | QR display page (site-aware) |
+
+The same identifier contract also applies to nested QR prefixes such as `s/qr`, optional root short-link routes when `usePrefix` is disabled, and the site-aware analytics handoff route. Generated public action URLs keep their existing `site={siteHandle}` query parameter; the site token is used only for the public path.
 
 ## How URLs are built
 
@@ -90,7 +92,7 @@ This method is called when generating `ShortLink::getUrl()`, `getQrCodeUrl()`, a
 
 ## Server configuration
 
-Your web server must point `short.example.com` to your Craft installation. The plugin handles routing internally — no additional server config beyond a standard Craft vhost is needed.
+Your web server must point `short.example.com` to your Craft installation. The plugin handles routing internally — no additional server config beyond a standard Craft vhost is needed. If a proxy or CDN has path rules, make sure it forwards the leading site-identifier segment unchanged for redirect and QR paths.
 
 If you use a true separate domain (not a subdomain of your main site), ensure:
 

@@ -46,7 +46,7 @@ Settings are grouped below by their functional area, matching the CP settings pa
 | `reservedCodes` | `array` | `['admin', 'api', 'login', 'logout', 'cp', 'dashboard', 'settings']` | Codes that cannot be used for short links |
 
 > [!NOTE]
-> Site-aware routes (e.g., `/{siteHandle}/s/{code}`) are always registered alongside the standard `s/{code}` routes — independent of `shortlinkBaseUrl`. They let the redirect controller resolve the correct site when a `{siteHandle}` segment is in the URL, which is what makes the `{siteHandle}` token in `shortlinkBaseUrl` work.
+> Site-aware routes are always registered alongside the standard `s/{code}` routes — independent of `shortlinkBaseUrl`. The first segment can be an exact current site handle, numeric ID, or UID, matching the `{siteHandle}`, `{siteId}`, and `{siteUid}` tokens. Unknown or stale identifiers do not match a ShortLink route and follow Craft's normal not-found behavior.
 
 ---
 
@@ -260,7 +260,7 @@ return [
         // Optional custom short domain (single domain, all sites)
         // 'shortlinkBaseUrl' => App::env('SHORTLINK_BASE_URL'),
 
-        // Optional multisite short domains ({siteHandle} is replaced with site handle)
+        // Optional multisite short domains; use {siteHandle}, {siteId}, or {siteUid}.
         // 'shortlinkBaseUrl' => 'https://short.example.com/{siteHandle}',
 
         // Redirect behavior
@@ -354,7 +354,7 @@ This overrides the base URL used when generating shortlink and QR URLs, without 
 
 ### Multisite short domains
 
-For a Craft multisite where each site needs its own short domain, use `shortlinkBaseUrl` with a `{siteHandle}` token:
+For a Craft multisite where each site needs its own short-domain path, use `shortlinkBaseUrl` with `{siteHandle}`, `{siteId}`, or `{siteUid}`:
 
 ```php
 // config/shortlink-manager.php
@@ -367,7 +367,7 @@ return [
 
 This generates URLs like `https://short.example.com/en/s/abc123` for the `en` site and `https://short.example.com/de/s/abc123` for the `de` site.
 
-When a `{siteHandle}` token is configured, ShortLink Manager registers additional site-aware routes (`/{siteHandle}/s/{code}`) alongside the standard `s/{code}` routes, and the redirect controller resolves the target site from the route handle automatically.
+ShortLink Manager registers site-aware redirect, QR image, and QR display routes alongside the standard routes. Their first path segment is resolved as an exact handle first, numeric ID second, and UID third. This applies equally to all three supported tokens; identifiers that no longer belong to a current Craft site return the normal not-found response.
 
 Supported tokens: `{siteHandle}`, `{siteId}`, `{siteUid}`.
 

@@ -9,6 +9,7 @@
 namespace lindemannrock\shortlinkmanager\controllers;
 
 use Craft;
+use craft\errors\SiteNotFoundException;
 use craft\models\Site;
 use craft\web\Controller;
 use lindemannrock\base\helpers\AssetVolumeHelper;
@@ -306,8 +307,10 @@ class QrCodeController extends Controller
             throw new NotFoundHttpException('Site not found.');
         }
 
-        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id)
-            ?? ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
+        if (!$shortLink && ($siteHandle === null || $siteHandle === '')) {
+            $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        }
         if (!$shortLink instanceof ShortLink || $shortLink->trashed) {
             throw new NotFoundHttpException('Short link not found.');
         }
@@ -349,7 +352,7 @@ class QrCodeController extends Controller
         $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $site->id);
 
         // Fallback: resolve by code across sites if current-site lookup misses.
-        if (!$shortLink) {
+        if (!$shortLink && ($siteHandle === null || $siteHandle === '')) {
             $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
         }
 
@@ -383,8 +386,8 @@ class QrCodeController extends Controller
         // Prepare template variables
         $templateVars = [
             'shortLink' => $shortLink,
-            'siteName' => Craft::$app->sites->getCurrentSite()->name,
-            'currentSite' => Craft::$app->sites->getCurrentSite(),
+            'siteName' => $site->name,
+            'currentSite' => $site,
         ];
 
         ShortLinkManager::$plugin->integration->prepareSeomaticMetadata($shortLink);
@@ -409,12 +412,29 @@ class QrCodeController extends Controller
     }
 
     /**
-     * Resolve request site from route handle (if provided), otherwise use current site.
+     * Resolve request site from an exact route identifier, otherwise use the
+     * current site.
      */
     private function resolveSite(?string $siteHandle): ?Site
     {
         if ($siteHandle) {
-            return Craft::$app->getSites()->getSiteByHandle($siteHandle);
+            $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+            if ($site !== null) {
+                return $site;
+            }
+
+            if (ctype_digit($siteHandle) && (string)(int)$siteHandle === $siteHandle) {
+                $site = Craft::$app->getSites()->getSiteById((int)$siteHandle);
+                if ($site !== null) {
+                    return $site;
+                }
+            }
+
+            try {
+                return Craft::$app->getSites()->getSiteByUid($siteHandle);
+            } catch (SiteNotFoundException) {
+                return null;
+            }
         }
 
         return Craft::$app->getSites()->getCurrentSite();
