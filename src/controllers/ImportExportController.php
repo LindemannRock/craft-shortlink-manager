@@ -281,7 +281,7 @@ class ImportExportController extends Controller
                 'passQueryParams' => null,
                 'directRedirect' => null,
                 'qrCodeEnabled' => true,
-                'qrCodeSize' => 256,
+                'qrCodeSize' => null,
                 'qrCodeColor' => null,
                 'qrCodeBgColor' => null,
                 'qrCodeEyeColor' => null,
@@ -325,11 +325,7 @@ class ImportExportController extends Controller
                 }
             }
 
-            if (!empty($item['qrCodeSize'])) {
-                $item['qrCodeSize'] = max(100, min(1000, (int)$item['qrCodeSize']));
-            } else {
-                $item['qrCodeSize'] = 256;
-            }
+            $item['qrCodeSize'] = $this->resolveImportedQrCodeSize($item['qrCodeSize']);
 
             $item['qrCodeColor'] = $this->normalizeHexColor($item['qrCodeColor'] ?? null);
             $item['qrCodeBgColor'] = $this->normalizeHexColor($item['qrCodeBgColor'] ?? null);
@@ -546,7 +542,7 @@ class ImportExportController extends Controller
                 $shortLink->passQueryParams = $primaryRow['passQueryParams'] !== null ? (bool)$primaryRow['passQueryParams'] : null;
                 $shortLink->directRedirect = $primaryRow['directRedirect'] !== null ? (bool)$primaryRow['directRedirect'] : null;
                 $shortLink->qrCodeEnabled = (bool)$primaryRow['qrCodeEnabled'];
-                $shortLink->qrCodeSize = max(100, min(1000, (int)($primaryRow['qrCodeSize'] ?: 256)));
+                $shortLink->qrCodeSize = $this->resolveImportedQrCodeSize($primaryRow['qrCodeSize'] ?? null);
                 $shortLink->qrCodeColor = $this->normalizeHexColor($primaryRow['qrCodeColor'] ?? null);
                 $shortLink->qrCodeBgColor = $this->normalizeHexColor($primaryRow['qrCodeBgColor'] ?? null);
                 $shortLink->qrCodeEyeColor = $this->normalizeHexColor($primaryRow['qrCodeEyeColor'] ?? null);
@@ -728,6 +724,19 @@ class ImportExportController extends Controller
     private function generateSlugFromCode(string $code): string
     {
         return SlugHandleHelper::normalizeSlug($code, '');
+    }
+
+    /**
+     * Resolve the configured default for an omitted optional CSV size while
+     * preserving the existing 100-1000 normalization for explicit values.
+     */
+    protected function resolveImportedQrCodeSize(mixed $value): int
+    {
+        if ($value === null || (is_string($value) && trim($value) === '')) {
+            $value = ShortLinkManager::$plugin->getSettings()->defaultQrSize;
+        }
+
+        return max(100, min(1000, (int)$value));
     }
 
     /**

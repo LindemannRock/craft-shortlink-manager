@@ -156,6 +156,7 @@ class ShortlinksController extends Controller
                 $shortLink->enabled = true;
                 $shortLink->httpCode = ShortLinkManager::$plugin->getSettings()->defaultHttpCode ?? 302;
                 $shortLink->linkType = 'code'; // Default to auto-generated
+                $shortLink->qrCodeSize = max(100, min(1000, (int)$settings->defaultQrSize));
             }
 
             $title = Craft::t('shortlink-manager', 'Create a new shortlink');
@@ -329,7 +330,12 @@ class ShortlinksController extends Controller
 
         // QR Code settings
         $shortLink->qrCodeEnabled = (bool) $this->request->getBodyParam('qrCodeEnabled', true);
-        $shortLink->qrCodeSize = (int) $this->request->getBodyParam('qrCodeSize', 256);
+        $qrCodeSize = $this->request->getBodyParam('qrCodeSize');
+        if ($qrCodeSize !== null) {
+            $shortLink->qrCodeSize = (int)$qrCodeSize;
+        } elseif (!$shortLinkId) {
+            $shortLink->qrCodeSize = max(100, min(1000, (int)$settings->defaultQrSize));
+        }
 
         // Handle color fields - add # if missing, or set to null if empty
         $qrCodeColor = $this->request->getBodyParam('qrCodeColor');

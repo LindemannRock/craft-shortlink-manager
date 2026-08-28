@@ -131,7 +131,7 @@ Create a new short link.
 | `dateExpired` | `string\|DateTime` | Expiry date |
 | `expiredRedirectUrl` | `string` | Where to redirect when expired |
 | `qrCodeEnabled` | `bool` | QR code enabled (default: `true`) |
-| `qrCodeSize` | `int` | QR code size (default: `256`) |
+| `qrCodeSize` | `int` | QR code size. When omitted, the new link uses the effective `defaultQrSize` setting (100–1000) |
 | `qrCodeColor` | `string` | QR foreground color |
 | `qrCodeBgColor` | `string` | QR background color |
 

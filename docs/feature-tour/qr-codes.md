@@ -17,11 +17,11 @@ On the short link edit page, toggle **QR Code Enabled** to activate the QR endpo
 
 ### Set global defaults
 
-Go to **Settings → QR Codes** to configure appearance defaults for all links. A live preview updates as you change the size, colors, and styles, so you can see the result before saving — the same preview also appears on a short link's edit page when you override QR settings per link.
+Go to **Settings → QR Codes** to configure appearance defaults. A live preview updates as you change the size, colors, and styles, so you can see the result before saving — the same preview also appears on a short link's edit page when you override QR settings per link.
 
 ![Settings → QR Codes page showing size, color, module style, and eye style options](../images/qr-codes-settings.webp)
 
-Per-link values left at `null` inherit from these global defaults.
+The effective validated `defaultQrSize` initializes a new link whenever the CP, Twig/service API, ShortLink field, or CSV importer does not supply a per-link size. An explicit per-link size wins. Existing links keep their saved size when you change the global default or submit an update without the size field; other unset per-link QR options continue to inherit their global defaults at render time.
 
 ### Choose a visual style
 
@@ -51,7 +51,7 @@ Use PNG when you need a bitmap or logo overlay. Use SVG when you want a resoluti
 
 | Setting | Type | Default | Description |
 |--------|------|---------|-------------|
-| `defaultQrSize` | `int` | `256` | Output size in pixels (100–1000) |
+| `defaultQrSize` | `int` | `256` | New-link and fallback output size in pixels when no explicit per-link size is supplied (100–1000) |
 | `defaultQrColor` | `string` | `'#000000'` | Module foreground color (hex) |
 | `defaultQrBgColor` | `string` | `'#FFFFFF'` | Background color (hex) |
 | `defaultQrFormat` | `string` | `'png'` | Output format: `'png'` or `'svg'` |
@@ -195,7 +195,7 @@ return [
 
 ## Global vs per-link settings
 
-Global QR defaults are set in **Settings → QR Codes**. Per-link overrides are set on the short link edit page. Any per-link option left `null` inherits from the global setting.
+Global QR defaults are set in **Settings → QR Codes**. Per-link overrides are set on the short link edit page. For size, the effective global value is copied into supported new links when they do not provide an explicit value; it does not retroactively rewrite saved links. Other per-link options left `null` inherit from the global setting when rendered.
 
 ```php
 // config/shortlink-manager.php

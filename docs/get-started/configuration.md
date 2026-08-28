@@ -120,7 +120,7 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `defaultQrSize` | `int` | `256` | Saved/default, public, and direct programmatic QR size in pixels (100–1000). Authenticated exports separately support 100–4096 |
+| `defaultQrSize` | `int` | `256` | Initializes supported new links when no per-link size is supplied, and remains the saved/default, public, and direct programmatic fallback (100–1000). Authenticated exports separately support 100–4096 |
 | `defaultQrColor` | `string` | `'#000000'` | Default QR code foreground color (hex) |
 | `defaultQrBgColor` | `string` | `'#FFFFFF'` | Default QR code background color (hex) |
 | `defaultQrFormat` | `string` | `'png'` | Default QR code format. Options: `'png'`, `'svg'` |
@@ -135,6 +135,8 @@ All template paths support environment variables via Craft's `$ENV_VAR` syntax i
 | `qrLogoSize` | `int` | `20` | Logo size as a percentage of the QR code (10–30) |
 | `enableQrDownload` | `bool` | `true` | Allow canonical public downloads and authenticated CP exports |
 | `qrDownloadFilename` | `string` | `'{code}-qr-{size}'` | Download filename pattern. Tokens: `{code}`, normalized `{size}`, and normalized `{format}` |
+
+When a supported CP, Twig/service, ShortLink-field, or CSV creation path creates a link without an explicit QR size, the new link is initialized from the effective validated `defaultQrSize`. An explicit per-link value still wins, and changing the default does not rewrite existing saved links.
 
 Public QR image and `/view` routes ignore styling query parameters and use saved per-link values with global fallbacks. The QR settings preview uses the selected default size, while edit-page previews are fixed at 150px. Authenticated export presets are 256, 512, 1024, and 2048px, and custom exports accept 100–4096px. Authenticated previews and exports are private/no-store and do not read or write persistent QR cache entries.
 

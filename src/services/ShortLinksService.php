@@ -82,7 +82,7 @@ class ShortLinksService extends Component
 
         // QR Code settings
         $element->qrCodeEnabled = $options['qrCodeEnabled'] ?? true;
-        $element->qrCodeSize = $options['qrCodeSize'] ?? 256;
+        $element->qrCodeSize = $options['qrCodeSize'] ?? max(100, min(1000, (int)$settings->defaultQrSize));
         $element->qrCodeColor = $options['qrCodeColor'] ?? null;
         $element->qrCodeBgColor = $options['qrCodeBgColor'] ?? null;
         $element->qrCodeEyeColor = $options['qrCodeEyeColor'] ?? null;

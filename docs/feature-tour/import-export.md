@@ -111,7 +111,7 @@ Rows are also permission-checked per site — see the "Site must be importable" 
 | `tags` | Creates tags automatically if they don't exist; comma-separated in the CSV cell |
 | `passQueryParams` / `directRedirect` | `1`/`true`/`yes` → `true`; `0`/`false` → `false`; empty → `null` (inherits global) |
 | Hex colors | Auto-normalized to uppercase `#RRGGBB` format; invalid values are cleared |
-| `qrCodeSize` | Clamped to 100–1000 pixels |
+| `qrCodeSize` | Missing or blank values use the effective `defaultQrSize`; explicit values are clamped to 100–1000 pixels |
 
 ## Import history
 

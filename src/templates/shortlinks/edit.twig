@@ -457,7 +457,7 @@
                 label: "Size"|t('shortlink-manager'),
                 id: 'qrCodeSize',
                 name: 'qrCodeSize',
-                value: shortLink.qrCodeSize ?? 256,
+                value: shortLink.qrCodeSize ?? plugin.settings.defaultQrSize ?? 256,
                 type: 'number',
                 min: 100,
                 max: 1000,
