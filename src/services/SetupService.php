@@ -10,7 +10,6 @@ namespace lindemannrock\shortlinkmanager\services;
 
 use Craft;
 use craft\base\Component;
-use craft\helpers\App;
 use craft\web\View;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
@@ -67,28 +66,28 @@ class SetupService extends Component
                 'key' => 'redirect',
                 'label' => Craft::t('shortlink-manager', 'Redirect Template'),
                 'setting' => 'redirectTemplate',
-                'template' => $settings->redirectTemplate ?: 'shortlink-manager/redirect',
+                'template' => $settings->getResolvedRedirectTemplate(),
                 'source' => 'vendor/lindemannrock/craft-shortlink-manager/src/templates/redirect.twig',
             ],
             [
                 'key' => 'expired',
                 'label' => Craft::t('shortlink-manager', 'Expired Template'),
                 'setting' => 'expiredTemplate',
-                'template' => $settings->expiredTemplate ?: 'shortlink-manager/expired',
+                'template' => $settings->getResolvedExpiredTemplate(),
                 'source' => 'vendor/lindemannrock/craft-shortlink-manager/src/templates/expired.twig',
             ],
             [
                 'key' => 'qr',
                 'label' => Craft::t('shortlink-manager', 'QR Code Template'),
                 'setting' => 'qrTemplate',
-                'template' => $settings->qrTemplate ?: 'shortlink-manager/qr',
+                'template' => $settings->getResolvedQrTemplate(),
                 'source' => 'vendor/lindemannrock/craft-shortlink-manager/src/templates/qr.twig',
             ],
         ];
 
         $statuses = [];
         foreach ($templates as $template) {
-            $path = $this->normalizeTemplatePath($template['template']);
+            $path = $template['template'];
             $destination = $this->copyDestination($path);
             $destinationDir = $this->destinationDirectory($path);
             $statuses[] = [
@@ -113,13 +112,6 @@ class SetupService extends Component
         $salt = trim((string) ($settings->ipHashSalt ?? ''));
 
         return $salt !== '' && $salt !== '$SHORTLINK_MANAGER_IP_SALT';
-    }
-
-    private function normalizeTemplatePath(string $template): string
-    {
-        $template = trim((string) App::parseEnv($template));
-
-        return trim($template, '/');
     }
 
     private function siteTemplateExists(string $template, Settings $settings): bool

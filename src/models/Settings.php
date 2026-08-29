@@ -13,6 +13,8 @@ use craft\base\Model;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
+use craft\web\View;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\traits\DateFormatSettingsTrait;
 use lindemannrock\base\traits\DateRangeSettingsTrait;
@@ -427,6 +429,36 @@ class Settings extends Model
     }
 
     /**
+     * Returns the effective redirect template path.
+     *
+     * @since 5.29.0
+     */
+    public function getResolvedRedirectTemplate(?Site $site = null): string
+    {
+        return $this->resolveTemplatePath($this->redirectTemplate, 'shortlink-manager/redirect', $site);
+    }
+
+    /**
+     * Returns the effective expired-link template path.
+     *
+     * @since 5.29.0
+     */
+    public function getResolvedExpiredTemplate(?Site $site = null): string
+    {
+        return $this->resolveTemplatePath($this->expiredTemplate, 'shortlink-manager/expired', $site);
+    }
+
+    /**
+     * Returns the effective QR display template path.
+     *
+     * @since 5.29.0
+     */
+    public function getResolvedQrTemplate(?Site $site = null): string
+    {
+        return $this->resolveTemplatePath($this->qrTemplate, 'shortlink-manager/qr', $site);
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -478,6 +510,27 @@ class Settings extends Model
             [['ipHashSalt'], 'string', 'min' => 32, 'message' => Craft::t('shortlink-manager', 'Salt must be at least 32 characters'), 'skipOnEmpty' => true],
             [['reservedCodes'], 'each', 'rule' => ['string']],
         ], $this->pluginNameSettingsRules(), $this->itemsPerPageSettingsRules(), $this->logLevelSettingsRules(), $this->dateFormatSettingsRules(), $this->dateRangeSettingsRules(), $this->exportFormatSettingsRules(), $this->geoSettingsRules());
+    }
+
+    private function resolveTemplatePath(
+        ?string $configuredTemplate,
+        string $defaultTemplate,
+        ?Site $site = null,
+    ): string {
+        $configuredTemplate = trim((string)$configuredTemplate);
+        $template = $configuredTemplate === ''
+            ? $defaultTemplate
+            : trim((string)App::parseEnv($configuredTemplate), '/');
+        if ($template === '' || $site === null) {
+            return $template;
+        }
+
+        $siteTemplate = $site->handle . '/' . $template;
+        if (Craft::$app->getView()->doesTemplateExist($siteTemplate, View::TEMPLATE_MODE_SITE)) {
+            return $siteTemplate;
+        }
+
+        return $template;
     }
 
     /**

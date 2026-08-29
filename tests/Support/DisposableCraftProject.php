@@ -271,7 +271,7 @@ PHP);
         $this->writeOwnedFile('config/general.php', <<<'PHP'
 <?php
 use craft\config\GeneralConfig;
-return GeneralConfig::create()->allowAdminChanges(true)->devMode(false)->omitScriptNameInUrls()->timezone('UTC');
+return GeneralConfig::create()->allowAdminChanges(true)->devMode(false)->enableCsrfProtection(false)->omitScriptNameInUrls()->timezone('UTC');
 PHP);
         $this->writeOwnedFile('config/app.php', "<?php\nreturn [\n    'id' => 'shortlink-manager-fixture-{$this->runId}',\n    'aliases' => [\n        '@root' => dirname(__DIR__),\n        '@webroot' => dirname(__DIR__) . '/web',\n        '@web' => '/',\n        '@nystudio107/seomatic' => dirname(__DIR__) . '/vendor/nystudio107/craft-seomatic/src',\n    ],\n    'components' => [\n        'assetManager' => [\n            'basePath' => dirname(__DIR__) . '/web/cpresources',\n            'baseUrl' => '/cpresources',\n        ],\n    ],\n];\n");
         $this->writeOwnedFile('config/db.php', <<<'PHP'
@@ -414,6 +414,9 @@ PHP);
             'COMPOSER_HOME' => $this->projectRoot . '/.composer',
             'SHORTLINK_MANAGER_TEST_PROJECT_ROOT' => $this->projectRoot,
             'SHORTLINK_MANAGER_HTTP_SMOKE_EVIDENCE' => $this->projectRoot . '/http-smoke.json',
+            'SHORTLINK_MANAGER_HTTP_REDIRECT_TEMPLATE' => 'shortlink-http/redirect',
+            'SHORTLINK_MANAGER_HTTP_EXPIRED_TEMPLATE' => 'shortlink-http/expired',
+            'SHORTLINK_MANAGER_HTTP_QR_TEMPLATE' => 'shortlink-http/qr',
             self::SOURCE_VENDOR_ENV => $this->vendorRoot,
         ];
     }

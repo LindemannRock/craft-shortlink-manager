@@ -148,7 +148,8 @@ class RedirectController extends Controller
             return $this->executeRedirect($shortLink, $destinationUrl, $source);
         }
 
-        $template = $settings->redirectTemplate ?: 'shortlink-manager/redirect';
+        $templateSite = Craft::$app->getSites()->getSiteById($shortLink->siteId) ?? $site;
+        $template = $settings->getResolvedRedirectTemplate($templateSite);
         $goSite = Craft::$app->getSites()->getSiteById($shortLink->siteId);
         $goParams = [
             'code' => $shortLink->slug,
@@ -377,7 +378,8 @@ class RedirectController extends Controller
         $message = $this->_sanitizeMessage(Craft::t('shortlink-manager', $messageText));
 
         // Get custom template path or use default
-        $template = $settings->expiredTemplate ?: 'shortlink-manager/expired';
+        $templateSite = Craft::$app->getSites()->getSiteById($shortLink->siteId);
+        $template = $settings->getResolvedExpiredTemplate($templateSite);
 
         // Render the expired template (user must create it in their site templates)
         return $this->renderTemplate($template, [

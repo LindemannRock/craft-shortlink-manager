@@ -381,7 +381,8 @@ class QrCodeController extends Controller
         }
 
         // Get template setting
-        $template = $settings->qrTemplate ?: 'shortlink-manager/qr';
+        $templateSite = Craft::$app->getSites()->getSiteById($shortLink->siteId) ?? $site;
+        $template = $settings->getResolvedQrTemplate($templateSite);
 
         // Prepare template variables
         $templateVars = [

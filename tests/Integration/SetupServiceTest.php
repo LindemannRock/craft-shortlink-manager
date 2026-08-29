@@ -347,6 +347,66 @@ final class SetupServiceTest extends TestCase
         ];
     }
 
+    public function testEnvironmentBackedTemplateStatusUsesResolvedPathsAndRestoresCallerState(): void
+    {
+        $templatesPath = $this->createTrackedTempDirectory('sl-test-setup-env');
+        $configuredDir = $templatesPath . DIRECTORY_SEPARATOR . 'configured';
+        FileHelper::createDirectory($configuredDir);
+        foreach (['redirect', 'expired', 'qr'] as $template) {
+            self::assertNotFalse(file_put_contents(
+                $configuredDir . DIRECTORY_SEPARATOR . $template . '.twig',
+                "{# {$template} #}",
+            ));
+        }
+
+        $environment = [
+            'SHORTLINK_MANAGER_TEST_SETUP_REDIRECT_TEMPLATE' => 'configured/redirect',
+            'SHORTLINK_MANAGER_TEST_SETUP_EXPIRED_TEMPLATE' => 'configured/expired',
+            'SHORTLINK_MANAGER_TEST_SETUP_QR_TEMPLATE' => 'configured/qr',
+        ];
+        $originalEnvironment = [];
+        foreach ($environment as $name => $value) {
+            $originalEnvironment[$name] = [array_key_exists($name, $_SERVER), $_SERVER[$name] ?? null];
+            $_SERVER[$name] = $value;
+        }
+        $callerState = $this->captureCallerSiteState();
+
+        try {
+            $settings = new Settings([
+                'redirectTemplate' => '$SHORTLINK_MANAGER_TEST_SETUP_REDIRECT_TEMPLATE',
+                'expiredTemplate' => '$SHORTLINK_MANAGER_TEST_SETUP_EXPIRED_TEMPLATE',
+                'qrTemplate' => '$SHORTLINK_MANAGER_TEST_SETUP_QR_TEMPLATE',
+            ]);
+            $statuses = $this->withSiteTemplatesPath(
+                $templatesPath,
+                fn(): array => $this->setup->templateStatuses($settings),
+            );
+            $bySetting = $this->indexBySetting($statuses);
+
+            foreach ([
+                'redirectTemplate' => 'configured/redirect',
+                'expiredTemplate' => 'configured/expired',
+                'qrTemplate' => 'configured/qr',
+            ] as $setting => $resolvedPath) {
+                self::assertSame($resolvedPath, $bySetting[$setting]['template']);
+                self::assertTrue($bySetting[$setting]['exists']);
+            }
+            self::assertSame('$SHORTLINK_MANAGER_TEST_SETUP_REDIRECT_TEMPLATE', $settings->redirectTemplate);
+            self::assertSame('$SHORTLINK_MANAGER_TEST_SETUP_EXPIRED_TEMPLATE', $settings->expiredTemplate);
+            self::assertSame('$SHORTLINK_MANAGER_TEST_SETUP_QR_TEMPLATE', $settings->qrTemplate);
+            $this->assertCallerSiteState($callerState);
+        } finally {
+            foreach ($originalEnvironment as $name => [$existed, $value]) {
+                if ($existed) {
+                    $_SERVER[$name] = $value;
+                } else {
+                    unset($_SERVER[$name]);
+                }
+            }
+            $this->restoreCallerSiteState($callerState);
+        }
+    }
+
     public function testTemplateResolutionExceptionRestoresCallerSiteState(): void
     {
         $templatesPath = $this->createTrackedTempDirectory('sl-test-setup-exception');
@@ -496,8 +556,8 @@ final class SetupServiceTest extends TestCase
     }
 
     /**
-     * @param array<int, array{setting: string, destination: string, destinationExists: bool, exists: bool}> $statuses
-     * @return array<string, array{setting: string, destination: string, destinationExists: bool, exists: bool}>
+     * @param array<int, array{setting: string, template: string, destination: string, destinationExists: bool, exists: bool}> $statuses
+     * @return array<string, array{setting: string, template: string, destination: string, destinationExists: bool, exists: bool}>
      */
     private function indexBySetting(array $statuses): array
     {

@@ -58,7 +58,9 @@ The fields below only change where ShortLink Manager looks for those templates. 
 
 On multisite installations, Craft checks `templates/{siteHandle}/{path}` first and then falls back to `templates/{path}`. Setup is ready when every site enabled in ShortLink Manager can resolve all three configured templates; sites do not need their own template directories when the global templates exist.
 
-All template paths support environment variables via Craft's `$ENV_VAR` syntax in the CP field, or via `App::env()` in the config file.
+All template paths support environment variables via Craft's `$ENV_VAR` syntax in the CP field, or via `App::env()` in the config file. When you save `$ENV_VAR` in the Control Panel, the field keeps showing that expression; ShortLink Manager resolves its value when setup checks or a public page uses the template. The resolved value follows the same direct-path, extension, multisite override, and global-fallback rules as a literal path.
+
+Make sure the variable is defined in every environment that serves public links. An undefined or empty variable is reported as missing by Setup and fails template loading at runtime; ShortLink Manager does not substitute an unrelated bundled template for an invalid configured value.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|

@@ -56,7 +56,8 @@ Once a file exists at `templates/shortlink-manager/{name}.twig`, the default pat
 
 - Set `redirectTemplate` / `qrTemplate` / `expiredTemplate` in **Settings → ShortLink Manager** (or `config/shortlink-manager.php`) to point at a different template path.
 - Leave a setting empty to use the default path shown above.
-- Each path field accepts a `$ENV_VAR` in the Control Panel, or `App::env()` in the config file.
+- Each path field accepts a `$ENV_VAR` in the Control Panel, or `App::env()` in the config file. A CP-saved expression stays visible as `$ENV_VAR`; Setup and public rendering resolve it when they use the template.
+- Give the variable a non-empty relative template path in every environment. If it is undefined or resolves empty, Setup reports the configured template as missing and the public page fails template loading rather than silently switching to a different template.
 - A value in `config/shortlink-manager.php` overrides the Control Panel field (the CP field is shown disabled with an override warning).
 
 See [Configuration → Template settings](../get-started/configuration.md) for the settings reference.

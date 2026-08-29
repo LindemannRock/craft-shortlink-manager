@@ -51,6 +51,8 @@ The command copies a global fallback into the path configured in settings when o
 
 If Setup still reports a template missing, check every enabled site. A template that exists only under one site's handle does not provide a fallback for the others. Also verify explicit extensions exactly: `custom/redirect.html` resolves and copies as `templates/custom/redirect.html`, while the extensionless setting `custom/redirect` uses `templates/custom/redirect.twig` as its starter destination.
 
+For a CP field containing `$ENV_VAR`, confirm that the variable is defined for the web and console processes and resolves to the intended relative path. The CP keeps the raw expression visible, while Setup, the copy command, and public rendering use its resolved value. An undefined or empty value remains a missing configured template—it does not fall back to the default `shortlink-manager/...` path. After fixing the environment value, reload Setup and test the affected redirect, expired, or QR display route.
+
 For template source paths, manual copy commands, and available variables, see [Custom templates](../developers/custom-templates.md).
 
 ## Analytics are not recording

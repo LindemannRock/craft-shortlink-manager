@@ -67,7 +67,7 @@ php craft shortlink-manager/setup/copy-templates
 ddev craft shortlink-manager/setup/copy-templates
 ```
 
-The command checks template readiness for every site enabled in ShortLink Manager. If any of those sites cannot resolve a configured template, it copies one global fallback into `templates/`; existing site-specific overrides in `templates/{siteHandle}/` continue to take priority. If every enabled site already resolves the template through an override or the global fallback, the command skips it. Review and customize copied templates before going live.
+The command checks template readiness for every site enabled in ShortLink Manager. Template settings saved as `$ENV_VAR` expressions are resolved first, while the raw expression remains stored and visible in the Control Panel. If any enabled site cannot resolve the resulting configured path, the command copies one global fallback into `templates/`; existing site-specific overrides in `templates/{siteHandle}/` continue to take priority. If every enabled site already resolves the template through an override or the global fallback, the command skips it. Review and customize copied templates before going live.
 
 > [!TIP]
 > If you enable `directRedirect` globally or per link, the redirect template is bypassed entirely. Keep the template for links where SEOmatic/GTM tracking is needed.

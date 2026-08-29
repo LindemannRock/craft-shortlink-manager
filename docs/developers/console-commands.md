@@ -74,7 +74,7 @@ ddev craft shortlink-manager/setup/copy-templates
 
 **What it does:**
 
-1. Reads the current ShortLink Manager template settings.
+1. Reads the current ShortLink Manager template settings and resolves any CP-saved `$ENV_VAR` expressions without replacing their stored values.
 2. Checks whether every site enabled in ShortLink Manager resolves each template through a site-specific override or the global fallback.
 3. Copies one global fallback when one or more enabled sites cannot resolve a template; it never replaces site-specific overrides.
 4. Preserves an explicit configured extension such as `.html`; an extensionless configured path uses a `.twig` starter destination.
