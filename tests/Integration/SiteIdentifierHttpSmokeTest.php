@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
 use Craft;
+use craft\models\GqlSchema;
+use craft\models\GqlToken;
 use craft\models\Site;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
@@ -32,6 +34,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
     /** @var list<string> */
     private array $runtimeTemplatePaths = [];
     private ?string $cookieJarPath = null;
+    private ?string $graphqlScopePath = null;
 
     protected function tearDown(): void
     {
@@ -50,6 +53,9 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             }
             if ($this->cookieJarPath !== null && is_file($this->cookieJarPath)) {
                 unlink($this->cookieJarPath);
+            }
+            if ($this->graphqlScopePath !== null && is_file($this->graphqlScopePath)) {
+                unlink($this->graphqlScopePath);
             }
             DateFormatHelper::clearConfigCache('shortlink-manager');
         } finally {
@@ -187,6 +193,66 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             self::assertSame(404, $this->request("{$origin}/{$unknown}/s/qr/{$link->slug}")['status']);
         }
 
+        $this->writeConfig($projectRoot, $origin . '/{siteHandle}', false, true);
+        $link->directRedirect = false;
+        $link->passQueryParams = true;
+        $link->trackAnalytics = true;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+        $this->setDestinationForSite(
+            $link,
+            $targetSite,
+            'https://destination.example/tracked?existing=destination&kept=1#details',
+        );
+        $hitsBeforeTrackedHop = $this->fetchHitsFromDb((int)$link->id);
+        $analyticsBeforeTrackedHop = $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]);
+        $landingQuery = http_build_query([
+            'existing' => 'visitor',
+            'campaign' => 'summer',
+            'code' => 'visitor-code',
+            'site' => 'visitor-site',
+            '__sl_query' => 'visitor-namespace-value',
+            'filters' => ['status' => ['new', 'active']],
+            'src' => 'qr',
+            'debug' => '1',
+        ]);
+        $trackedLanding = $this->request("{$origin}/{$targetSite->handle}/s/{$link->slug}?{$landingQuery}");
+        self::assertSame(200, $trackedLanding['status'], $trackedLanding['body']);
+        self::assertSame($hitsBeforeTrackedHop, $this->fetchHitsFromDb((int)$link->id));
+        self::assertSame(
+            $analyticsBeforeTrackedHop,
+            $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]),
+        );
+        self::assertMatchesRegularExpression('/data-go-url href="([^"]+)"/', $trackedLanding['body']);
+        preg_match('/data-go-url href="([^"]+)"/', $trackedLanding['body'], $goMatch);
+        $trackedGoUrl = html_entity_decode($goMatch[1], ENT_QUOTES | ENT_HTML5);
+        $trackedRedirect = $this->request($trackedGoUrl);
+        self::assertSame(302, $trackedRedirect['status'], $trackedRedirect['body']);
+        self::assertNotNull($trackedRedirect['location']);
+        $trackedDestinationQuery = [];
+        parse_str((string)parse_url($trackedRedirect['location'], PHP_URL_QUERY), $trackedDestinationQuery);
+        self::assertSame([
+            'existing' => 'visitor',
+            'kept' => '1',
+            'campaign' => 'summer',
+            'code' => 'visitor-code',
+            'site' => 'visitor-site',
+            '__sl_query' => 'visitor-namespace-value',
+            'filters' => ['status' => ['new', 'active']],
+        ], $trackedDestinationQuery);
+        self::assertSame('details', parse_url($trackedRedirect['location'], PHP_URL_FRAGMENT));
+        self::assertSame($hitsBeforeTrackedHop + 1, $this->fetchHitsFromDb((int)$link->id));
+        self::assertSame(
+            $analyticsBeforeTrackedHop + 1,
+            $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]),
+        );
+        $evidence['trackedTwoHop'] = [
+            'landingStatus' => $trackedLanding['status'],
+            'goStatus' => $trackedRedirect['status'],
+            'location' => $trackedRedirect['location'],
+            'hitDelta' => 1,
+            'analyticsDelta' => 1,
+        ];
+
         $this->writeConfig($projectRoot, $origin . '/{siteHandle}', false);
         $link->directRedirect = null;
         $link->dateExpired = null;
@@ -227,6 +293,20 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         self::assertSame(200, $missingSetup['status']);
         self::assertStringContainsString('Starter template is missing.', $missingSetup['body']);
 
+        $link->dateExpired = null;
+        $link->directRedirect = true;
+        $link->passQueryParams = false;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+        $this->setDestinationForSite($link, $targetSite, 'https://destination.example/graphql-secondary');
+        $this->writeConfig($projectRoot, $origin . '/{siteHandle}', true, true);
+        $graphqlEvidence = $this->runGraphqlHttpSmoke(
+            $projectRoot,
+            $origin,
+            $link,
+            Craft::$app->getSites()->getPrimarySite(),
+            $targetSite,
+        );
+
         $evidence['configuredTemplates'] = [
             'rawExpressionsVisible' => true,
             'setupResolvedTemplatesReady' => true,
@@ -237,6 +317,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             'qrDisplay' => ['status' => $evidence['handle']['qrDisplay']['status'], 'marker' => 'site-qr'],
             'missing' => ['runtimeStatus' => $missingRuntime['status'], 'setupMissing' => true],
         ];
+        $evidence['graphqlExactSite'] = $graphqlEvidence;
 
         $evidencePath = $_SERVER['SHORTLINK_MANAGER_HTTP_SMOKE_EVIDENCE'] ?? null;
         if (!is_string($evidencePath) || $evidencePath !== $projectRoot . '/http-smoke.json') {
@@ -280,8 +361,12 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         self::assertTrue(Craft::$app->getElements()->saveElement($variant));
     }
 
-    private function writeConfig(string $projectRoot, string $baseUrl, bool $directRedirect = true): void
-    {
+    private function writeConfig(
+        string $projectRoot,
+        string $baseUrl,
+        bool $directRedirect = true,
+        bool $enableAnalytics = false,
+    ): void {
         $this->configPath = $projectRoot . '/config/shortlink-manager.php';
         $this->templatePath = $projectRoot . '/templates/shortlink-http-qr.twig';
         self::assertNotFalse(file_put_contents(
@@ -296,7 +381,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             'slugPrefix' => 's',
             'qrPrefix' => 's/qr',
             'directRedirect' => $directRedirect,
-            'enableAnalytics' => false,
+            'enableAnalytics' => $enableAnalytics,
             'enabledIntegrations' => [],
         ];
         self::assertNotFalse(file_put_contents(
@@ -317,12 +402,14 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         }
 
         $templates = [
-            $globalDirectory . '/redirect.twig' => '<!doctype html><html><body>global-redirect</body></html>',
+            $globalDirectory . '/redirect.twig' => '<!doctype html><html><body>global-redirect'
+                . '<a data-go-url href="{{ goUrl }}">Continue</a></body></html>',
             $globalDirectory . '/expired.twig' => '<!doctype html><html><body>global-expired</body></html>',
             $globalDirectory . '/qr.twig' => '<!doctype html><html lang="{{ currentSite.language }}"><body data-template="global-qr">'
                 . '<span data-site-id="{{ currentSite.id }}">{{ siteName }}</span>'
                 . '<img src="{{ shortLink.getQrCodeUrl() }}"></body></html>',
-            $siteDirectory . '/redirect.twig' => '<!doctype html><html><body>site-redirect</body></html>',
+            $siteDirectory . '/redirect.twig' => '<!doctype html><html><body>site-redirect'
+                . '<a data-go-url href="{{ goUrl }}">Continue</a></body></html>',
             $siteDirectory . '/expired.twig' => '<!doctype html><html><body>site-expired</body></html>',
             $siteDirectory . '/qr.twig' => '<!doctype html><html lang="{{ currentSite.language }}"><body data-template="site-qr">'
                 . '<span data-site-id="{{ currentSite.id }}">{{ siteName }}</span>'
@@ -350,6 +437,134 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             ],
             cookieJar: $this->cookieJarPath,
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function runGraphqlHttpSmoke(
+        string $projectRoot,
+        string $origin,
+        ShortLink $link,
+        Site $siteWithoutMatch,
+        Site $matchedSite,
+    ): array {
+        $marker = 'shortlink-http-graphql-' . bin2hex(random_bytes(6));
+        $schema = new GqlSchema([
+            'name' => $marker,
+            'scope' => [
+                'shortlinkManager.all:read',
+                "sites.{$siteWithoutMatch->uid}:read",
+                "sites.{$matchedSite->uid}:read",
+            ],
+        ]);
+        self::assertTrue(Craft::$app->getGql()->saveSchema($schema));
+        self::assertNotNull($schema->id);
+        $accessToken = bin2hex(random_bytes(24));
+        $token = new GqlToken([
+            'name' => $marker,
+            'accessToken' => $accessToken,
+            'schemaId' => $schema->id,
+            'enabled' => true,
+        ]);
+        self::assertTrue(Craft::$app->getGql()->saveToken($token));
+        self::assertNotNull($token->id);
+
+        $this->graphqlScopePath = $projectRoot . '/shortlink-http-graphql-scope.json';
+        self::assertNotFalse(file_put_contents($this->graphqlScopePath, json_encode([
+            'linkId' => $link->id,
+            'code' => $link->slug,
+            'siteWithoutMatch' => $siteWithoutMatch->id,
+            'matchedSiteId' => $matchedSite->id,
+        ], JSON_THROW_ON_ERROR)));
+        $scopePath = var_export($this->graphqlScopePath, true);
+        self::assertNotFalse(file_put_contents(
+            $projectRoot . '/config/app.php',
+            "<?php\nreturn [\n"
+            . "    'on beforeRequest' => static function(): void {\n"
+            . "        \$fixture = json_decode((string)file_get_contents({$scopePath}), true, flags: JSON_THROW_ON_ERROR);\n"
+            . "        \$plugin = Craft::\$app->getPlugins()->getPlugin('shortlink-manager');\n"
+            . "        \$plugin->set('shortLinks', new lindemannrock\\shortlinkmanager\\tests\\Fixtures\\Http\\HttpGraphqlScopedShortLinksService(\n"
+            . "            (int)\$fixture['linkId'],\n"
+            . "            (string)\$fixture['code'],\n"
+            . "            (int)\$fixture['siteWithoutMatch'],\n"
+            . "            (int)\$fixture['matchedSiteId'],\n"
+            . "        ));\n"
+            . "    },\n"
+            . "];\n",
+        ));
+
+        $query = <<<'GRAPHQL'
+query ResolveShortlink($code: String!, $site: String!) {
+  shortlinkManagerResolveShortlink(code: $code, site: $site) {
+    id
+    siteId
+    resolvedDestinationUrl
+    hits
+  }
+}
+GRAPHQL;
+        $headers = [
+            'Authorization: Bearer ' . $accessToken,
+            'Content-Type: application/json',
+        ];
+        $hitsBefore = $this->fetchHitsFromDb((int)$link->id);
+        $analyticsBefore = $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]);
+
+        try {
+            $missing = $this->request(
+                $origin . '/index.php?p=actions/graphql/api',
+                rawBody: json_encode([
+                    'query' => $query,
+                    'variables' => ['code' => $link->slug, 'site' => $siteWithoutMatch->handle],
+                ], JSON_THROW_ON_ERROR),
+                headers: $headers,
+            );
+            self::assertSame(200, $missing['status'], $missing['body'] . "\n" . $this->fixtureLogOutput($projectRoot));
+            $missingPayload = json_decode($missing['body'], true, flags: JSON_THROW_ON_ERROR);
+            self::assertNull($missingPayload['data']['shortlinkManagerResolveShortlink'] ?? null, $missing['body']);
+            self::assertSame($hitsBefore, $this->fetchHitsFromDb((int)$link->id));
+            self::assertSame(
+                $analyticsBefore,
+                $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]),
+            );
+
+            $matched = $this->request(
+                $origin . '/index.php?p=actions/graphql/api',
+                rawBody: json_encode([
+                    'query' => $query,
+                    'variables' => ['code' => $link->slug, 'site' => $matchedSite->handle],
+                ], JSON_THROW_ON_ERROR),
+                headers: $headers,
+            );
+            self::assertSame(200, $matched['status'], $matched['body'] . "\n" . $this->fixtureLogOutput($projectRoot));
+            $matchedPayload = json_decode($matched['body'], true, flags: JSON_THROW_ON_ERROR);
+            $resolved = $matchedPayload['data']['shortlinkManagerResolveShortlink'] ?? null;
+            self::assertIsArray($resolved, $matched['body']);
+            self::assertSame($matchedSite->id, (int)$resolved['siteId']);
+            self::assertSame('https://destination.example/graphql-secondary', $resolved['resolvedDestinationUrl']);
+            self::assertSame($hitsBefore + 1, $this->fetchHitsFromDb((int)$link->id));
+            self::assertSame(
+                $analyticsBefore + 1,
+                $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]),
+            );
+
+            return [
+                'missingSiteStatus' => $missing['status'],
+                'missingSiteResult' => null,
+                'missingSiteHitDelta' => 0,
+                'missingSiteAnalyticsDelta' => 0,
+                'matchedSiteStatus' => $matched['status'],
+                'matchedSiteId' => (int)$resolved['siteId'],
+                'matchedSiteHitDelta' => 1,
+                'matchedSiteAnalyticsDelta' => 1,
+            ];
+        } finally {
+            self::assertTrue(Craft::$app->getGql()->deleteTokenById((int)$token->id));
+            self::assertTrue(Craft::$app->getGql()->deleteSchemaById((int)$schema->id));
+            self::assertSame(0, $this->countRows('{{%gqltokens}}', ['name' => $marker]));
+            self::assertSame(0, $this->countRows('{{%gqlschemas}}', ['name' => $marker]));
+        }
     }
 
     private function availablePort(): int
@@ -425,6 +640,8 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         bool $failOnConnection = true,
         ?array $post = null,
         ?string $cookieJar = null,
+        ?string $rawBody = null,
+        array $headers = [],
     ): ?array {
         $curl = curl_init($url);
         if ($curl === false) {
@@ -440,6 +657,13 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         if ($post !== null) {
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post));
+        }
+        if ($rawBody !== null) {
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $rawBody);
+        }
+        if ($headers !== []) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         }
         if ($cookieJar !== null) {
             curl_setopt($curl, CURLOPT_COOKIEJAR, $cookieJar);

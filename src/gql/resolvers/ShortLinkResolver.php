@@ -114,9 +114,7 @@ class ShortLinkResolver extends Resolver
 
     private static function findShortLink(string $code, int $siteId): ?ShortLink
     {
-        $shortLink = ShortLinkManager::$plugin->shortLinks->getByCode($code, $siteId);
-
-        return $shortLink ?? ShortLinkManager::$plugin->shortLinks->getByCode($code, null);
+        return ShortLinkManager::$plugin->shortLinks->getByCode($code, $siteId);
     }
 
     private static function isUsable(ShortLink $shortLink): bool

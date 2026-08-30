@@ -14,8 +14,10 @@ use Craft;
 use craft\web\Request as WebRequest;
 use GraphQL\Type\Definition\ResolveInfo;
 use lindemannrock\base\testing\StubConsoleRequest;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\gql\queries\ShortLinkQuery;
 use lindemannrock\shortlinkmanager\gql\resolvers\ShortLinkResolver;
+use lindemannrock\shortlinkmanager\services\ShortLinksService;
 use lindemannrock\shortlinkmanager\tests\Stubs\StubDeviceDetectionService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 use yii\base\Request as YiiRequest;
@@ -132,6 +134,144 @@ final class GraphqlShortLinkTest extends TestCase
 
         self::assertIsArray($result);
         self::assertSame('https://example.com/target?existing=2&utm=test', $result['resolvedDestinationUrl']);
+    }
+
+    public function testExplicitSiteDoesNotResolveOrMutateAnotherSite(): void
+    {
+        $requestedSite = Craft::$app->getSites()->getPrimarySite();
+        $matchedSite = $this->secondarySite();
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://example.com/other-site',
+            'siteId' => $matchedSite->id,
+        ]);
+        $this->swapPluginComponent(
+            'shortlink-manager',
+            'shortLinks',
+            new GraphqlScopedShortLinksService($link, $requestedSite->id),
+        );
+        Craft::$app->set('request', new GraphqlWebRequest());
+
+        $result = ShortLinkResolver::resolve(
+            null,
+            [
+                'code' => $link->slug,
+                'site' => $requestedSite->handle,
+            ],
+            null,
+            $this->createMock(ResolveInfo::class),
+        );
+
+        self::assertNull($result);
+        self::assertSame(0, $this->fetchHitsFromDb((int)$link->id));
+        self::assertSame(0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+    }
+
+    public function testExplicitHandleAndIdReturnOnlyTheRequestedVariant(): void
+    {
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
+        $secondarySite = $this->secondarySite();
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://example.com/secondary',
+            'siteId' => $secondarySite->id,
+        ]);
+        $this->setDestinationForSite($link, $primarySite->id, 'https://example.com/primary');
+        Craft::$app->set('request', new GraphqlWebRequest());
+
+        $primaryResult = $this->resolve([
+            'code' => $link->slug,
+            'site' => $primarySite->handle,
+        ]);
+        $secondaryResult = $this->resolve([
+            'code' => $link->slug,
+            'siteId' => $secondarySite->id,
+        ]);
+
+        self::assertIsArray($primaryResult);
+        self::assertIsArray($secondaryResult);
+        self::assertSame($primarySite->id, $primaryResult['siteId']);
+        self::assertSame('https://example.com/primary', $primaryResult['resolvedDestinationUrl']);
+        self::assertSame($secondarySite->id, $secondaryResult['siteId']);
+        self::assertSame('https://example.com/secondary', $secondaryResult['resolvedDestinationUrl']);
+        self::assertSame(2, $this->fetchHitsFromDb((int)$link->id));
+        self::assertSame(2, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+    }
+
+    public function testOmittedSiteUsesOnlyTheCurrentSiteVariant(): void
+    {
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+        $secondarySite = $this->secondarySite();
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://example.com/secondary',
+            'siteId' => $secondarySite->id,
+        ]);
+        $this->setDestinationForSite($link, $currentSite->id, 'https://example.com/current');
+        Craft::$app->set('request', new GraphqlWebRequest());
+
+        $result = $this->resolve(['code' => $link->slug]);
+
+        self::assertIsArray($result);
+        self::assertSame($currentSite->id, $result['siteId']);
+        self::assertSame('https://example.com/current', $result['resolvedDestinationUrl']);
+        self::assertSame(1, $this->fetchHitsFromDb((int)$link->id));
+        self::assertSame(1, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+    }
+
+    public function testInvalidExplicitSitesDoNotResolveOrMutateLinks(): void
+    {
+        $link = $this->seedShortLink();
+        Craft::$app->set('request', new GraphqlWebRequest());
+
+        self::assertNull($this->resolve([
+            'code' => $link->slug,
+            'site' => '__missing_site__',
+        ]));
+        self::assertNull($this->resolve([
+            'code' => $link->slug,
+            'siteId' => 999999999,
+        ]));
+        self::assertSame(0, $this->fetchHitsFromDb((int)$link->id));
+        self::assertSame(0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+    }
+
+    public function testDisabledSiteDisabledLinkAndMissingDestinationAreRejected(): void
+    {
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
+        $secondarySite = $this->secondarySite();
+        Craft::$app->set('request', new GraphqlWebRequest());
+
+        $siteDisabledLink = $this->seedShortLink(['siteId' => $secondarySite->id]);
+        $this->withSettings(['enabledSites' => [$primarySite->id]], function() use ($siteDisabledLink, $secondarySite): void {
+            self::assertNull($this->resolve([
+                'code' => $siteDisabledLink->slug,
+                'siteId' => $secondarySite->id,
+            ]));
+        });
+
+        $disabledLink = $this->seedShortLink(['siteId' => $primarySite->id]);
+        $disabledLink->setEnabledForSite(false);
+        self::assertTrue(Craft::$app->getElements()->saveElement($disabledLink));
+        self::assertNull($this->resolve([
+            'code' => $disabledLink->slug,
+            'siteId' => $primarySite->id,
+        ]));
+
+        $missingDestination = $this->seedShortLink(['siteId' => $primarySite->id]);
+        $missingDestination->destinationUrl = null;
+        $missingDestination->elementId = null;
+        $this->swapPluginComponent(
+            'shortlink-manager',
+            'shortLinks',
+            new GraphqlScopedShortLinksService($missingDestination, -1),
+        );
+        self::assertNull($this->resolve([
+            'code' => $missingDestination->slug,
+            'siteId' => $primarySite->id,
+        ]));
+
+        foreach ([$siteDisabledLink, $disabledLink, $missingDestination] as $link) {
+            self::assertSame(0, $this->fetchHitsFromDb((int)$link->id));
+            self::assertSame(0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+        }
     }
 
     public function testResolveQuerySanitizesExpiredRedirectUrl(): void
@@ -262,6 +402,67 @@ final class GraphqlShortLinkTest extends TestCase
         }
 
         $this->shortLinks->invalidateShortLinkCache($linkId);
+    }
+
+    private function secondarySite(): \craft\models\Site
+    {
+        $primarySiteId = Craft::$app->getSites()->getPrimarySite()->id;
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            if ($site->id !== $primarySiteId) {
+                return $site;
+            }
+        }
+
+        self::fail('GraphQL exact-site tests require at least two sites.');
+    }
+
+    /**
+     * @param array<string, mixed> $arguments
+     */
+    private function resolve(array $arguments): mixed
+    {
+        return ShortLinkResolver::resolve(
+            null,
+            $arguments,
+            null,
+            $this->createMock(ResolveInfo::class),
+        );
+    }
+
+    private function setDestinationForSite(ShortLink $link, int $siteId, string $destinationUrl): void
+    {
+        $variant = ShortLink::find()->id($link->id)->siteId($siteId)->status(null)->one();
+        self::assertInstanceOf(ShortLink::class, $variant);
+        $variant->destinationUrl = $destinationUrl;
+        self::assertTrue(Craft::$app->getElements()->saveElement($variant));
+    }
+}
+
+/**
+ * Supplies an exact-site miss plus a different-site match for resolver contract tests.
+ *
+ * @since 5.29.0
+ */
+final class GraphqlScopedShortLinksService extends ShortLinksService
+{
+    public function __construct(
+        private readonly ShortLink $matchedLink,
+        private readonly int $siteWithoutMatch,
+    ) {
+        parent::__construct();
+    }
+
+    public function getByCode(string $code, ?int $siteId = null): ?ShortLink
+    {
+        if ($code !== $this->matchedLink->slug || $siteId === $this->siteWithoutMatch) {
+            return null;
+        }
+
+        if ($siteId === null || $siteId === $this->matchedLink->siteId) {
+            return $this->matchedLink;
+        }
+
+        return null;
     }
 }
 

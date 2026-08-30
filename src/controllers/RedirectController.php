@@ -30,6 +30,9 @@ class RedirectController extends Controller
 {
     use LoggingTrait;
 
+    private const QUERY_TRANSPORT_PARAM = '__sl_query';
+    private const QUERY_TRANSPORT_PAYLOAD = 'params';
+
     /**
      * @inheritdoc
      */
@@ -121,9 +124,12 @@ class RedirectController extends Controller
         // Check if we should pass query params to destination
         $settings = ShortLinkManager::$plugin->getSettings();
         $shouldPassQueryParams = $shortLink->passQueryParams ?? $settings->passQueryParams;
+        $visitorQueryParams = $shouldPassQueryParams
+            ? $this->filterVisitorQueryParams(Craft::$app->getRequest()->getQueryParams())
+            : [];
 
         if ($shouldPassQueryParams) {
-            $destinationUrl = $this->mergeQueryParams($destinationUrl);
+            $destinationUrl = $this->mergeQueryParams($destinationUrl, $visitorQueryParams);
         }
 
         $this->logDebug('Redirecting shortlink', [
@@ -157,6 +163,11 @@ class RedirectController extends Controller
         ];
         if ($goSite !== null) {
             $goParams['site'] = $goSite->handle;
+        }
+        if ($visitorQueryParams !== []) {
+            $goParams[self::QUERY_TRANSPORT_PARAM] = [
+                self::QUERY_TRANSPORT_PAYLOAD => $visitorQueryParams,
+            ];
         }
         $goUrl = $settings->buildPublicActionUrl(
             'shortlink-manager/redirect/go',
@@ -244,7 +255,10 @@ class RedirectController extends Controller
 
         $shouldPassQueryParams = $shortLink->passQueryParams ?? $settings->passQueryParams;
         if ($shouldPassQueryParams) {
-            $destinationUrl = $this->mergeQueryParams($destinationUrl);
+            $destinationUrl = $this->mergeQueryParams(
+                $destinationUrl,
+                $this->transportedVisitorQueryParams(),
+            );
         }
 
         $rawSource = Craft::$app->getRequest()->getParam('src', 'direct');
@@ -456,28 +470,18 @@ class RedirectController extends Controller
     }
 
     /**
-     * Merge query parameters from the request into the destination URL
+     * Merge visitor query parameters into the destination URL.
      *
      * Excludes internal parameters (src, debug, p) and merges remaining
      * query params from the shortlink request into the destination URL.
      * Incoming params take precedence over existing destination params.
      *
      * @param string $destinationUrl The original destination URL
+     * @param array<string, mixed> $incomingParams Allowed visitor query parameters
      * @return string The destination URL with merged query parameters
      */
-    private function mergeQueryParams(string $destinationUrl): string
+    private function mergeQueryParams(string $destinationUrl, array $incomingParams): string
     {
-        $request = Craft::$app->getRequest();
-
-        // Get all query params from the request
-        $incomingParams = $request->getQueryParams();
-
-        // Remove internal params that shouldn't be passed through
-        $excludeParams = ['src', 'debug', 'p'];
-        foreach ($excludeParams as $param) {
-            unset($incomingParams[$param]);
-        }
-
         // If no params to merge, return original URL
         if (empty($incomingParams)) {
             return $destinationUrl;
@@ -529,6 +533,37 @@ class RedirectController extends Controller
         }
 
         return $scheme . $auth . $host . $port . $path . $queryString . $fragment;
+    }
+
+    /**
+     * @param array<string, mixed> $queryParams
+     * @return array<string, mixed>
+     */
+    private function filterVisitorQueryParams(array $queryParams): array
+    {
+        foreach (['src', 'debug', 'p'] as $excludedParam) {
+            unset($queryParams[$excludedParam]);
+        }
+
+        return $queryParams;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function transportedVisitorQueryParams(): array
+    {
+        $transport = Craft::$app->getRequest()->getQueryParam(self::QUERY_TRANSPORT_PARAM);
+        if (!is_array($transport)) {
+            return [];
+        }
+
+        $queryParams = $transport[self::QUERY_TRANSPORT_PAYLOAD] ?? null;
+        if (!is_array($queryParams)) {
+            return [];
+        }
+
+        return $this->filterVisitorQueryParams($queryParams);
     }
 
     /**

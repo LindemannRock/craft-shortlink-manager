@@ -175,6 +175,156 @@ final class DirectRedirectTest extends TestCase
         });
     }
 
+    public function testRenderedRedirectForwardsOnlyTheOriginalVisitorQueryOnTheTrackedHop(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        $visitorQuery = [
+            'existing' => 'visitor',
+            'campaign' => 'summer',
+            'code' => 'visitor-code',
+            'site' => 'visitor-site',
+            'filters' => ['status' => ['new', 'active']],
+            '__sl_query' => 'visitor-namespace-value',
+            'p' => 'visitor-path',
+            'src' => 'qr',
+            'debug' => '1',
+        ];
+        $this->installWebRequest($visitorQuery);
+        $link = $this->seedShortLink([
+            'code' => 'sl-test-rendered-query',
+            'slug' => 'sl-test-rendered-query',
+            'destinationUrl' => 'https://example.com/rendered?existing=destination&kept=1#details',
+            'trackAnalytics' => true,
+        ]);
+        $link->directRedirect = false;
+        $link->passQueryParams = true;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+        $site = Craft::$app->getSites()->getSiteById($link->siteId);
+        self::assertNotNull($site);
+
+        $this->withSettings([
+            'directRedirect' => true,
+            'redirectTemplate' => 'shortlink-manager/redirect',
+            'enableAnalytics' => true,
+            'enabledIntegrations' => [],
+        ], function() use ($link, $site): void {
+            $controller = $this->controller();
+            $landing = $controller->actionIndex($link->slug, $site->handle);
+
+            self::assertSame(200, $landing->getStatusCode());
+            self::assertSame(0, $this->fetchHitsFromDb((int)$link->id));
+            self::assertSame(0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+
+            $goUrl = (string)$controller->lastVariables['goUrl'];
+            $goQuery = [];
+            parse_str((string)parse_url($goUrl, PHP_URL_QUERY), $goQuery);
+            self::assertSame($link->slug, $goQuery['code'] ?? null);
+            self::assertSame($site->handle, $goQuery['site'] ?? null);
+            self::assertSame('qr', $goQuery['src'] ?? null);
+
+            $this->installWebRequest($goQuery);
+            $redirect = $this->controller()->actionGo($link->slug);
+            self::assertSame(302, $redirect->getStatusCode());
+
+            $location = (string)$redirect->headers->get('Location');
+            self::assertSame('details', parse_url($location, PHP_URL_FRAGMENT));
+            $destinationQuery = [];
+            parse_str((string)parse_url($location, PHP_URL_QUERY), $destinationQuery);
+            self::assertSame([
+                'existing' => 'visitor',
+                'kept' => '1',
+                'campaign' => 'summer',
+                'code' => 'visitor-code',
+                'site' => 'visitor-site',
+                'filters' => ['status' => ['new', 'active']],
+                '__sl_query' => 'visitor-namespace-value',
+            ], $destinationQuery);
+            self::assertArrayNotHasKey('p', $destinationQuery);
+            self::assertArrayNotHasKey('src', $destinationQuery);
+            self::assertArrayNotHasKey('debug', $destinationQuery);
+            self::assertSame(1, $this->fetchHitsFromDb((int)$link->id));
+            self::assertSame(1, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+        });
+    }
+
+    public function testDirectRedirectPassThroughPreservesVisitorPrecedenceAndUrlShapes(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+
+        foreach ([
+            'absolute' => 'https://example.com/path?existing=destination#details',
+            'relative' => '/path?existing=destination#details',
+        ] as $label => $destinationUrl) {
+            $this->installWebRequest([
+                'existing' => 'visitor',
+                'nested' => ['value' => ['one', 'two']],
+                'p' => 'visitor-path',
+                'src' => 'qr',
+                'debug' => '1',
+            ]);
+            $link = $this->seedShortLink([
+                'destinationUrl' => $destinationUrl,
+            ]);
+            $link->passQueryParams = true;
+            self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+            $this->withSettings([
+                'directRedirect' => true,
+                'enableAnalytics' => false,
+            ], function() use ($label, $link): void {
+                $response = $this->controller()->actionIndex($link->slug);
+
+                self::assertSame(302, $response->getStatusCode(), $label);
+                $location = (string)$response->getHeaders()->get('Location');
+                self::assertSame('details', parse_url($location, PHP_URL_FRAGMENT), $label);
+                $query = [];
+                parse_str((string)parse_url($location, PHP_URL_QUERY), $query);
+                self::assertSame([
+                    'existing' => 'visitor',
+                    'nested' => ['value' => ['one', 'two']],
+                ], $query, $label);
+                self::assertSame(1, $this->fetchHitsFromDb((int)$link->id), $label);
+            });
+        }
+    }
+
+    public function testGoActionIgnoresMissingMalformedAndScalarVisitorTransport(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        $link = $this->seedShortLink([
+            'destinationUrl' => 'https://example.com/go?existing=destination#details',
+        ]);
+        $link->passQueryParams = true;
+        self::assertTrue(Craft::$app->getElements()->saveElement($link));
+        $site = Craft::$app->getSites()->getSiteById($link->siteId);
+        self::assertNotNull($site);
+
+        foreach ([
+            'missing' => [
+                'code' => $link->slug,
+                'site' => $site->handle,
+                'p' => 'actions/shortlink-manager/redirect/go',
+                'src' => 'qr',
+                'debug' => '1',
+            ],
+            'scalar-wrapper' => ['__sl_query' => 'visitor-controlled'],
+            'scalar-payload' => ['__sl_query' => ['params' => 'visitor-controlled']],
+        ] as $label => $query) {
+            $this->installWebRequest($query);
+            $response = $this->controller()->actionGo($link->slug, $site->handle);
+
+            self::assertSame(302, $response->getStatusCode(), $label);
+            self::assertSame(
+                'https://example.com/go?existing=destination#details',
+                $response->getHeaders()->get('Location'),
+                $label,
+            );
+        }
+
+        self::assertSame(3, $this->fetchHitsFromDb((int)$link->id));
+    }
+
     public function testRenderedRedirectGoUrlUsesConfiguredBaseUrlWithSiteToken(): void
     {
         $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
@@ -265,7 +415,10 @@ final class DirectRedirectTest extends TestCase
         Craft::$app->set('response', new \craft\web\Response());
     }
 
-    private function installWebRequest(): void
+    /**
+     * @param array<string, mixed> $queryParams
+     */
+    private function installWebRequest(array $queryParams = []): void
     {
         if ($this->originalRequest === null) {
             $this->originalRequest = Craft::$app->get('request');
@@ -274,7 +427,7 @@ final class DirectRedirectTest extends TestCase
             $this->originalResponse = Craft::$app->get('response');
         }
 
-        Craft::$app->set('request', new TestWebRequest());
+        Craft::$app->set('request', new TestWebRequest($queryParams));
         Craft::$app->set('response', new \craft\web\Response());
     }
 }
