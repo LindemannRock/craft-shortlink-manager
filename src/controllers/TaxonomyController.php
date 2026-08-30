@@ -184,15 +184,19 @@ class TaxonomyController extends Controller
     public function actionSaveFolder(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
-        $folderId = (int)$this->request->getBodyParam('folderId', 0);
+        $operation = $this->taxonomyOperation('folderId');
+        $this->requirePermission($operation['isCreate']
+            ? 'shortLinkManager:createTaxonomy'
+            : 'shortLinkManager:editTaxonomy');
+
+        $folderId = $operation['id'];
         $name = trim((string)$this->request->getBodyParam('name', ''));
 
-        $folder = $folderId > 0
-            ? $taxonomy->getFolderById($folderId)
-            : $taxonomy->createFolderRecord();
+        $folder = $operation['isCreate']
+            ? $taxonomy->createFolderRecord()
+            : ($folderId !== null ? $taxonomy->getFolderById($folderId) : null);
 
         if (!$folder) {
             Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Folder not found'));
@@ -206,9 +210,9 @@ class TaxonomyController extends Controller
 
         Craft::$app->getElements()->invalidateCachesForElementType(ShortLink::class);
         Craft::$app->getSession()->setNotice(
-            $folderId > 0
-                ? Craft::t('shortlink-manager', 'Folder renamed.')
-                : Craft::t('shortlink-manager', 'Folder created.')
+            $operation['isCreate']
+                ? Craft::t('shortlink-manager', 'Folder created.')
+                : Craft::t('shortlink-manager', 'Folder renamed.')
         );
 
         return $this->redirectToPostedUrl();
@@ -217,15 +221,19 @@ class TaxonomyController extends Controller
     public function actionSaveTag(): Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('shortLinkManager:editTaxonomy');
 
         $taxonomy = ShortLinkManager::$plugin->taxonomy;
-        $tagId = (int)$this->request->getBodyParam('tagId', 0);
+        $operation = $this->taxonomyOperation('tagId');
+        $this->requirePermission($operation['isCreate']
+            ? 'shortLinkManager:createTaxonomy'
+            : 'shortLinkManager:editTaxonomy');
+
+        $tagId = $operation['id'];
         $name = trim((string)$this->request->getBodyParam('name', ''));
 
-        $tag = $tagId > 0
-            ? $taxonomy->getTagById($tagId)
-            : $taxonomy->createTagRecord();
+        $tag = $operation['isCreate']
+            ? $taxonomy->createTagRecord()
+            : ($tagId !== null ? $taxonomy->getTagById($tagId) : null);
 
         if (!$tag) {
             Craft::$app->getSession()->setError(Craft::t('shortlink-manager', 'Tag not found'));
@@ -239,12 +247,42 @@ class TaxonomyController extends Controller
 
         Craft::$app->getElements()->invalidateCachesForElementType(ShortLink::class);
         Craft::$app->getSession()->setNotice(
-            $tagId > 0
-                ? Craft::t('shortlink-manager', 'Tag renamed.')
-                : Craft::t('shortlink-manager', 'Tag created.')
+            $operation['isCreate']
+                ? Craft::t('shortlink-manager', 'Tag created.')
+                : Craft::t('shortlink-manager', 'Tag renamed.')
         );
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Resolve create-versus-update intent without coercing a malformed update
+     * identifier into the create branch.
+     *
+     * @return array{isCreate: bool, id: int|null}
+     */
+    private function taxonomyOperation(string $idParam): array
+    {
+        $submittedId = $this->request->getBodyParam($idParam);
+        $isCreate = $submittedId === null
+            || $submittedId === ''
+            || $submittedId === 0
+            || $submittedId === '0';
+
+        if ($isCreate) {
+            return ['isCreate' => true, 'id' => null];
+        }
+
+        $id = is_int($submittedId) || is_string($submittedId)
+            ? filter_var($submittedId, FILTER_VALIDATE_INT, [
+                'options' => ['min_range' => 1],
+            ])
+            : false;
+
+        return [
+            'isCreate' => false,
+            'id' => $id === false ? null : $id,
+        ];
     }
 
     public function actionDeleteFolder(): Response

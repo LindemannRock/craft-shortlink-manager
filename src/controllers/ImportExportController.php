@@ -20,6 +20,7 @@ use lindemannrock\logginglibrary\traits\LoggingTrait;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\records\ImportHistoryRecord;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use yii\base\DynamicModel;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
@@ -275,6 +276,7 @@ class ImportExportController extends Controller
                 'httpCode' => 302,
                 'enabled' => true,
                 'siteId' => null,
+                'siteHandle' => null,
                 'folder' => '',
                 'tags' => [],
                 'trackAnalytics' => true,
@@ -310,10 +312,7 @@ class ImportExportController extends Controller
                 } elseif ($fieldName === 'qrCodeSize' || $fieldName === 'qrLogoId') {
                     $item[$fieldName] = $value === '' ? null : (int)$value;
                 } elseif ($fieldName === 'siteHandle') {
-                    $site = Craft::$app->getSites()->getSiteByHandle($value);
-                    if ($site) {
-                        $item['siteId'] = $site->id;
-                    }
+                    $item['siteHandle'] = $value;
                 } elseif ($fieldName === 'folder') {
                     $item['folder'] = CsvImportHelper::stripFormulaEscapePrefix($value);
                 } elseif ($fieldName === 'tags') {
@@ -324,6 +323,26 @@ class ImportExportController extends Controller
                     $item[$fieldName] = CsvImportHelper::stripFormulaEscapePrefix($value);
                 }
             }
+
+            $siteHandle = trim((string)($item['siteHandle'] ?? ''));
+            if ($siteHandle !== '') {
+                $site = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+                if (!$site) {
+                    $errorRows[] = [
+                        'rowNumber' => $rowNumber,
+                        'code' => $item['code'] ?: '-',
+                        'destinationUrl' => $item['destinationUrl'] ?: '-',
+                        'error' => $this->invalidSiteHandleError($siteHandle),
+                    ];
+                    continue;
+                }
+                $resolvedSiteId = (int)$site->id;
+            } elseif ($item['siteId'] !== null) {
+                $resolvedSiteId = (int)$item['siteId'];
+            } else {
+                $resolvedSiteId = (int)$defaultSiteId;
+            }
+            $item['resolvedSiteId'] = $resolvedSiteId;
 
             $item['qrCodeSize'] = $this->resolveImportedQrCodeSize($item['qrCodeSize']);
 
@@ -353,7 +372,6 @@ class ImportExportController extends Controller
 
             $item['shortLinkType'] = $this->normalizeShortLinkType((string)($item['shortLinkType'] ?? 'manual'));
             $item['linkType'] = in_array((string)$item['linkType'], ['code', 'vanity'], true) ? (string)$item['linkType'] : 'vanity';
-            $resolvedSiteId = (int)($item['siteId'] ?: $defaultSiteId);
 
             if ($item['shortLinkType'] === 'auto') {
                 if (empty($item['elementId'])) {
@@ -420,6 +438,28 @@ class ImportExportController extends Controller
 
             $slug = $this->generateSlugFromCode((string)$item['code']);
             $item['normalizedCode'] = $slug;
+            if ($slug === '') {
+                $errorRows[] = [
+                    'rowNumber' => $rowNumber,
+                    'code' => $item['code'],
+                    'destinationUrl' => $item['destinationUrl'] ?: '-',
+                    'error' => $this->shortLinkValidationError('code', $item['code']),
+                ];
+                continue;
+            }
+
+            $httpCode = $item['httpCode'] === null ? 302 : (int)$item['httpCode'];
+            if (!in_array($httpCode, [301, 302, 307, 308], true)) {
+                $errorRows[] = [
+                    'rowNumber' => $rowNumber,
+                    'code' => $item['code'],
+                    'destinationUrl' => $item['destinationUrl'] ?: '-',
+                    'error' => $this->shortLinkValidationError('httpCode', $httpCode),
+                ];
+                continue;
+            }
+            $item['httpCode'] = $httpCode;
+
             if (isset($existingLookup[strtolower($slug)])) {
                 $duplicateRows[] = [
                     'code' => $item['code'],
@@ -441,7 +481,6 @@ class ImportExportController extends Controller
                 continue;
             }
 
-            $item['resolvedSiteId'] = $resolvedSiteId;
             $validRows[] = $item;
             $seenImportRows[$importRowKey] = true;
         }
@@ -724,6 +763,31 @@ class ImportExportController extends Controller
     private function generateSlugFromCode(string $code): string
     {
         return SlugHandleHelper::normalizeSlug($code, '');
+    }
+
+    private function invalidSiteHandleError(string $siteHandle): string
+    {
+        $validHandles = array_map(
+            static fn($site): string => (string)$site->handle,
+            Craft::$app->getSites()->getAllSites(),
+        );
+        $model = new DynamicModel(['siteHandle' => $siteHandle]);
+        $model->addRule('siteHandle', 'in', [
+            'range' => $validHandles,
+            'strict' => true,
+        ]);
+        $model->validate();
+
+        return (string)$model->getFirstError('siteHandle');
+    }
+
+    private function shortLinkValidationError(string $attribute, mixed $value): string
+    {
+        $shortLink = new ShortLink();
+        $shortLink->{$attribute} = $value;
+        $shortLink->validate([$attribute]);
+
+        return (string)$shortLink->getFirstError($attribute);
     }
 
     /**
