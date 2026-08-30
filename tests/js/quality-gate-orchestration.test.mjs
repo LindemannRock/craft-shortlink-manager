@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync, spawnSync} from 'node:child_process';
-import {chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
+import {chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -85,6 +85,106 @@ function actFixture() {
         log: () => readFileSync(logPath, 'utf8'),
         resources: () => readdirSync(resources),
         cleanup: () => rmSync(root, {recursive: true, force: true}),
+    };
+}
+
+function hookFixture() {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'shortlink-manager-hook-'));
+    const fixturePackageRoot = path.join(root, 'plugins/shortlink-manager');
+    const binRoot = path.join(root, 'bin');
+    const missingBinRoot = path.join(root, 'missing-bin');
+    const hookPath = path.join(fixturePackageRoot, '.githooks/pre-commit');
+    const invocationLog = path.join(root, 'ddev.log');
+    const violationLog = path.join(root, 'violations.log');
+    const trackedPath = path.join(fixturePackageRoot, 'tracked.txt');
+    const stagedPath = path.join(fixturePackageRoot, 'staged-equivalent.txt');
+    const sentinelPath = path.join(fixturePackageRoot, 'sentinel.txt');
+    const protectedPaths = [trackedPath, stagedPath, sentinelPath];
+    const forbiddenExecutables = [
+        'php',
+        'phpstan',
+        'ecs',
+        'composer',
+        'phpunit',
+        'node',
+        'npm',
+        'act',
+        'git',
+    ];
+
+    mkdirSync(path.dirname(hookPath), {recursive: true});
+    mkdirSync(binRoot, {recursive: true});
+    mkdirSync(missingBinRoot, {recursive: true});
+    const sourceHookPath = path.join(packageRoot, '.githooks/pre-commit');
+    cpSync(sourceHookPath, hookPath);
+    chmodSync(hookPath, statSync(sourceHookPath).mode & 0o777);
+    writeFileSync(invocationLog, '');
+    writeFileSync(violationLog, '');
+    writeFileSync(trackedPath, 'tracked bytes\n');
+    writeFileSync(stagedPath, 'staged-equivalent bytes\n');
+    writeFileSync(sentinelPath, 'sentinel bytes\n');
+
+    const ddevPath = path.join(binRoot, 'ddev');
+    writeFileSync(ddevPath, `#!/bin/sh
+printf 'cwd=<%s>\n' "$PWD" > "$SHORTLINK_MANAGER_HOOK_DDEV_LOG"
+printf '<%s>\n' "$@" >> "$SHORTLINK_MANAGER_HOOK_DDEV_LOG"
+exit "$SHORTLINK_MANAGER_HOOK_DDEV_STATUS"
+`, {mode: 0o700});
+    chmodSync(ddevPath, 0o700);
+
+    for (const executable of forbiddenExecutables) {
+        const executablePath = path.join(binRoot, executable);
+        writeFileSync(executablePath, `#!/bin/sh
+printf '%s:<%s>\n' "${executable}" "$*" >> "$SHORTLINK_MANAGER_HOOK_VIOLATION_LOG"
+printf 'forbidden mutation\n' > "$SHORTLINK_MANAGER_HOOK_SENTINEL"
+exit 99
+`, {mode: 0o700});
+        chmodSync(executablePath, 0o700);
+    }
+
+    const treeEntries = () => {
+        const entries = [];
+        const walk = (directory) => {
+            for (const entry of readdirSync(directory, {withFileTypes: true})) {
+                const entryPath = path.join(directory, entry.name);
+                entries.push(path.relative(root, entryPath));
+                if (entry.isDirectory()) {
+                    walk(entryPath);
+                }
+            }
+        };
+        walk(root);
+        return entries.sort();
+    };
+    const protectedBytes = () => protectedPaths.map((filePath) => readFileSync(filePath));
+    const run = (status, pathRoot = binRoot) => spawnSync(hookPath, [], {
+        cwd: fixturePackageRoot,
+        encoding: 'utf8',
+        env: {
+            ...process.env,
+            PATH: pathRoot,
+            SHORTLINK_MANAGER_HOOK_DDEV_LOG: invocationLog,
+            SHORTLINK_MANAGER_HOOK_DDEV_STATUS: String(status),
+            SHORTLINK_MANAGER_HOOK_SENTINEL: sentinelPath,
+            SHORTLINK_MANAGER_HOOK_VIOLATION_LOG: violationLog,
+        },
+    });
+
+    return {
+        hookPath,
+        invocationLog,
+        violationLog,
+        missingBinRoot,
+        protectedBytes,
+        treeEntries,
+        run,
+        resetLogs() {
+            writeFileSync(invocationLog, '');
+            writeFileSync(violationLog, '');
+        },
+        cleanup() {
+            rmSync(root, {recursive: true, force: true});
+        },
     };
 }
 
@@ -175,6 +275,51 @@ test('Act targets the authoritative CI job, forwards arguments, propagates failu
         assert.match(current.log(), /--rm/);
         assert.match(current.log(), /--verbose/);
         assert.deepEqual(current.resources(), []);
+    } finally {
+        current.cleanup();
+    }
+});
+
+test('pre-commit runs the read-only DDEV PHP gate without changing package bytes', () => {
+    const current = hookFixture();
+    try {
+        const sourceHookPath = path.join(packageRoot, '.githooks/pre-commit');
+        const source = readFileSync(sourceHookPath, 'utf8');
+        const sourceMode = statSync(sourceHookPath).mode & 0o777;
+        assert.notEqual(sourceMode & 0o111, 0);
+        assert.equal(statSync(current.hookPath).mode & 0o777, sourceMode);
+        assert.equal(spawnSync('/bin/bash', ['-n', sourceHookPath]).status, 0);
+        assert.doesNotMatch(
+            source,
+            /vendor\/bin|phpstan|ecs|--fix|\bgit\b|phpunit|quality-gate|ci:full|act-quality-gates|node|npm|mktemp|trap|^\s*(?:exec\s+)?(?:php|composer)\b/mi,
+        );
+
+        for (const status of [0, 73]) {
+            current.resetLogs();
+            const bytesBefore = current.protectedBytes();
+            const entriesBefore = current.treeEntries();
+            const result = current.run(status);
+            assert.equal(result.status, status, `${result.stdout}\n${result.stderr}`);
+            assert.equal(
+                readFileSync(current.invocationLog, 'utf8'),
+                `cwd=<${realpathSync(path.dirname(path.dirname(current.hookPath)))}>\n<exec>\n<cd plugins/shortlink-manager && composer ci>\n`,
+            );
+            assert.equal(readFileSync(current.violationLog, 'utf8'), '');
+            assert.deepEqual(current.protectedBytes(), bytesBefore);
+            assert.deepEqual(current.treeEntries(), entriesBefore);
+        }
+
+        current.resetLogs();
+        const bytesBeforeMissingDdev = current.protectedBytes();
+        const entriesBeforeMissingDdev = current.treeEntries();
+        const missingDdev = current.run(0, current.missingBinRoot);
+        assert.equal(missingDdev.status, 127);
+        assert.match(missingDdev.stderr, /pre-commit requires DDEV/);
+        assert.match(missingDdev.stderr, /ddev exec "cd plugins\/shortlink-manager && composer ci"/);
+        assert.equal(readFileSync(current.invocationLog, 'utf8'), '');
+        assert.equal(readFileSync(current.violationLog, 'utf8'), '');
+        assert.deepEqual(current.protectedBytes(), bytesBeforeMissingDdev);
+        assert.deepEqual(current.treeEntries(), entriesBeforeMissingDdev);
     } finally {
         current.cleanup();
     }
