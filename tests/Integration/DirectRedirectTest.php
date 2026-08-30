@@ -20,7 +20,7 @@ use lindemannrock\shortlinkmanager\tests\TestCase;
 use yii\web\Response;
 
 /**
- * Pins the global/per-link direct redirect decision from GH #27/#30.
+ * Pins the global and per-link direct redirect precedence contract.
  *
  * @since 5.20.0
  */

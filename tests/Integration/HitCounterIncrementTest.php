@@ -16,11 +16,9 @@ use lindemannrock\shortlinkmanager\tests\TestCase;
 /**
  * Pins the contract for {@see \lindemannrock\shortlinkmanager\services\ShortLinksService::incrementHits()}.
  *
- * Audit item 3.9 (HIGH) tracked a race condition in the previous
- * `['hits' => $shortLink->hits + 1]` form — two concurrent requests could
- * read the same value and both write `n+1`, losing a count. The fix moved
- * the increment into an atomic SQL expression. This test pins the new
- * behaviour so a regression to the old shape would fail in CI.
+ * A read-modify-write update such as `['hits' => $shortLink->hits + 1]`
+ * can lose counts when concurrent requests read the same value. These tests
+ * pin the atomic SQL expression so a regression to the unsafe shape fails.
  *
  * @since 5.19.0
  */
@@ -65,7 +63,7 @@ final class HitCounterIncrementTest extends TestCase
         // Simulate a concurrent request advancing the DB column while the
         // current in-memory model still believes `hits = 0`. The atomic
         // `[[hits]] + 1` SQL expression must read the *current* DB value,
-        // not the stale in-memory one — proving the fix for audit #3.9.
+        // not the stale in-memory one, preserving concurrent updates.
         Craft::$app->getDb()
             ->createCommand()
             ->update('{{%shortlinkmanager}}', ['hits' => 100], ['id' => $link->id])

@@ -18,8 +18,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 
 /**
- * Pins site route registration for prefixed URLs, optional root URLs, and
- * reserved-code exclusions. Covers the GH #44 route-precedence regression.
+ * Pins site route registration for prefixed URLs, optional root URLs,
+ * reserved-code exclusions, and rule precedence.
  *
  * @since 5.20.0
  */

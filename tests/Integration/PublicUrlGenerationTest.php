@@ -15,8 +15,8 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 
 /**
- * Pins public shortlink and QR URL generation for prefix and custom-domain
- * setups, including the headless/custom-domain regressions from GH #28/#43.
+ * Pins public shortlink and QR URL generation across prefixed, prefixless,
+ * headless, and custom-domain setups.
  *
  * @since 5.20.0
  */
