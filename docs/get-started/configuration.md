@@ -60,7 +60,7 @@ On multisite installations, Craft checks `templates/{siteHandle}/{path}` first a
 
 All template paths support environment variables via Craft's `$ENV_VAR` syntax in the CP field, or via `App::env()` in the config file. When you save `$ENV_VAR` in the Control Panel, the field keeps showing that expression; ShortLink Manager resolves its value when setup checks or a public page uses the template. The resolved value follows the same direct-path, extension, multisite override, and global-fallback rules as a literal path.
 
-Make sure the variable is defined in every environment that serves public links. An undefined or empty variable is reported as missing by Setup and fails template loading at runtime; ShortLink Manager does not substitute an unrelated bundled template for an invalid configured value.
+Make sure the variable is defined in every environment that serves public links. Its effective value must be a non-empty relative template path without parent-directory traversal (`..`). An undefined, empty, or traversal-bearing value is reported as missing and non-copyable by Setup and fails template loading at runtime; the copy command rejects it before constructing or writing a destination, even with `--overwrite`. ShortLink Manager does not substitute an unrelated bundled template for an invalid configured value.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -214,6 +214,8 @@ Several settings read from environment variables automatically, with no config f
 | `SHORTLINK_MANAGER_DEFAULT_COUNTRY` | `defaultCountry` | Auto-loaded if `defaultCountry` is not set in config |
 | `SHORTLINK_MANAGER_DEFAULT_CITY` | `defaultCity` | Auto-loaded if `defaultCity` is not set in config |
 | `SHORTLINK_MANAGER_GEO_API_KEY` | `geoApiKey` | **Not** auto-loaded — pass via `App::env('SHORTLINK_MANAGER_GEO_API_KEY')` in your config file |
+
+The salt generator replaces an existing `.env` only after a same-directory candidate has been completely written, flushed, read back, and given the original file mode. A failure leaves the original file unchanged and prints the generated `SHORTLINK_MANAGER_IP_SALT` assignment for manual use.
 
 The `shortlinkBaseUrl`, `notFoundRedirectUrl`, `redirectTemplate`, `expiredTemplate`, and `qrTemplate` settings also support Craft's env var syntax (`$ENV_VAR`) when set via the CP autosuggest fields, or via `App::env()` in the config file.
 

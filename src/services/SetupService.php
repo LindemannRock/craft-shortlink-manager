@@ -22,7 +22,7 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 class SetupService extends Component
 {
     /**
-     * @return array{complete: bool, missing: list<string>, setupUrl: string, ipSaltConfigured: bool, templatesReady: bool, templateStatuses: array<int, array{key: string, label: string, setting: string, template: string, source: string, destination: string, destinationDir: string, destinationDirExists: bool, destinationExists: bool, exists: bool}>}
+     * @return array{complete: bool, missing: list<string>, setupUrl: string, ipSaltConfigured: bool, templatesReady: bool, templateStatuses: array<int, array{key: string, label: string, setting: string, template: string, source: string, destination: string, destinationDir: string, destinationDirExists: bool, destinationExists: bool, exists: bool, copyable: bool}>}
      */
     public function getStatus(?Settings $settings = null): array
     {
@@ -57,7 +57,7 @@ class SetupService extends Component
     }
 
     /**
-     * @return array<int, array{key: string, label: string, setting: string, template: string, source: string, destination: string, destinationDir: string, destinationDirExists: bool, destinationExists: bool, exists: bool}>
+     * @return array<int, array{key: string, label: string, setting: string, template: string, source: string, destination: string, destinationDir: string, destinationDirExists: bool, destinationExists: bool, exists: bool, copyable: bool}>
      */
     public function templateStatuses(Settings $settings): array
     {
@@ -88,8 +88,9 @@ class SetupService extends Component
         $statuses = [];
         foreach ($templates as $template) {
             $path = $template['template'];
-            $destination = $this->copyDestination($path);
-            $destinationDir = $this->destinationDirectory($path);
+            $copyable = $this->isTemplatePathAllowed($path);
+            $destination = $copyable ? $this->copyDestination($path) : '';
+            $destinationDir = $copyable ? $this->destinationDirectory($path) : '';
             $statuses[] = [
                 'key' => $template['key'],
                 'label' => $template['label'],
@@ -98,9 +99,10 @@ class SetupService extends Component
                 'source' => $template['source'],
                 'destination' => $destination,
                 'destinationDir' => $destinationDir,
-                'destinationDirExists' => $this->siteTemplateDirectoryExists($destinationDir),
-                'destinationExists' => $this->siteTemplateFileExists($destination),
-                'exists' => $this->siteTemplateExists($path, $settings),
+                'destinationDirExists' => $copyable && $this->siteTemplateDirectoryExists($destinationDir),
+                'destinationExists' => $copyable && $this->siteTemplateFileExists($destination),
+                'exists' => $copyable && $this->siteTemplateExists($path, $settings),
+                'copyable' => $copyable,
             ];
         }
 
@@ -116,7 +118,7 @@ class SetupService extends Component
 
     private function siteTemplateExists(string $template, Settings $settings): bool
     {
-        if ($template === '' || str_contains($template, '..')) {
+        if (!$this->isTemplatePathAllowed($template)) {
             return false;
         }
 
@@ -159,6 +161,11 @@ class SetupService extends Component
                 $this->restoreServerValue('CRAFT_SITE_UPPER', $craftSiteUpperExisted, $craftSiteUpper);
             }
         }
+    }
+
+    private function isTemplatePathAllowed(string $template): bool
+    {
+        return $template !== '' && !str_contains($template, '..');
     }
 
     private function restoreServerValue(string $key, bool $existed, mixed $value): void

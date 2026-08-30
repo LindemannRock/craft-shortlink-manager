@@ -407,6 +407,84 @@ final class SetupServiceTest extends TestCase
         }
     }
 
+    #[DataProvider('nonCopyableTemplateProvider')]
+    public function testEnvironmentBackedNonCopyablePathsReturnInertReadinessStatus(
+        string $setting,
+        string $environmentName,
+        ?string $environmentValue,
+    ): void {
+        $serverExisted = array_key_exists($environmentName, $_SERVER);
+        $serverValue = $serverExisted ? $_SERVER[$environmentName] : null;
+        $callerState = $this->captureCallerSiteState();
+        $templatesPath = $this->createTrackedTempDirectory('sl-test-setup-non-copyable');
+        $neighborPath = $templatesPath . DIRECTORY_SEPARATOR . 'neighbor.txt';
+        self::assertSame(14, file_put_contents($neighborPath, "neighbor\0bytes"));
+        self::assertTrue(chmod($neighborPath, 0640));
+        $neighborBytes = file_get_contents($neighborPath);
+        $neighborMode = fileperms($neighborPath);
+
+        try {
+            if ($environmentValue === null) {
+                unset($_SERVER[$environmentName]);
+            } else {
+                $_SERVER[$environmentName] = $environmentValue;
+            }
+
+            $settings = new Settings([$setting => '$' . $environmentName]);
+            $statuses = $this->withSiteTemplatesPath(
+                $templatesPath,
+                fn(): array => $this->setup->templateStatuses($settings),
+            );
+            $status = $this->indexBySetting($statuses)[$setting];
+
+            self::assertSame($environmentValue ?? '', $status['template']);
+            self::assertFalse($status['copyable']);
+            self::assertSame('', $status['destination']);
+            self::assertSame('', $status['destinationDir']);
+            self::assertFalse($status['destinationDirExists']);
+            self::assertFalse($status['destinationExists']);
+            self::assertFalse($status['exists']);
+            self::assertFalse($this->setup->getStatus($settings)['templatesReady']);
+            self::assertSame('$' . $environmentName, $settings->{$setting});
+            self::assertSame($neighborBytes, file_get_contents($neighborPath));
+            self::assertSame($neighborMode, fileperms($neighborPath));
+            self::assertSame([$neighborPath], glob($templatesPath . DIRECTORY_SEPARATOR . '*'));
+            $this->assertCallerSiteState($callerState);
+        } finally {
+            $this->restoreServerValue($environmentName, $serverExisted, $serverValue);
+            $this->restoreCallerSiteState($callerState);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{setting: string, environmentName: string, environmentValue: string|null}>
+     */
+    public static function nonCopyableTemplateProvider(): iterable
+    {
+        foreach ([
+            'redirect' => 'redirectTemplate',
+            'expired' => 'expiredTemplate',
+            'QR' => 'qrTemplate',
+        ] as $label => $setting) {
+            foreach ([
+                'undefined' => null,
+                'empty' => '',
+                'parent traversal' => '../outside-template',
+                'nested traversal' => 'nested/../../outside-template',
+            ] as $state => $value) {
+                $environmentName = 'SHORTLINK_MANAGER_TEST_NON_COPYABLE_'
+                    . strtoupper($label)
+                    . '_'
+                    . strtoupper(str_replace(' ', '_', $state));
+                yield $label . ' ' . $state => [
+                    'setting' => $setting,
+                    'environmentName' => $environmentName,
+                    'environmentValue' => $value,
+                ];
+            }
+        }
+    }
+
     public function testTemplateResolutionExceptionRestoresCallerSiteState(): void
     {
         $templatesPath = $this->createTrackedTempDirectory('sl-test-setup-exception');
@@ -556,8 +634,8 @@ final class SetupServiceTest extends TestCase
     }
 
     /**
-     * @param array<int, array{setting: string, template: string, destination: string, destinationExists: bool, exists: bool}> $statuses
-     * @return array<string, array{setting: string, template: string, destination: string, destinationExists: bool, exists: bool}>
+     * @param array<int, array{setting: string, template: string, destination: string, destinationDir: string, destinationDirExists: bool, destinationExists: bool, exists: bool, copyable: bool}> $statuses
+     * @return array<string, array{setting: string, template: string, destination: string, destinationDir: string, destinationDirExists: bool, destinationExists: bool, exists: bool, copyable: bool}>
      */
     private function indexBySetting(array $statuses): array
     {

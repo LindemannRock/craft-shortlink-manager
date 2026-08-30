@@ -136,6 +136,7 @@ return [
     '{pluginName}: Cleaning up old analytics' => '{pluginName}: A limpar análises antigas',
 
     // Controller messages
+    'Failed {label}: configured template path cannot be copied.' => 'Falha em {label}: não é possível copiar o caminho do template configurado.',
     'An unexpected error occurred.' => 'Ocorreu um erro inesperado.',
     'No analytics data to export.' => 'Nenhum dado de análise para exportar.',
     'Settings saved.' => 'Definições guardadas.',

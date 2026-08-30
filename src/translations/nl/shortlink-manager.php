@@ -136,6 +136,7 @@ return [
     '{pluginName}: Cleaning up old analytics' => '{pluginName}: Oude analyses opruimen',
 
     // Controller messages
+    'Failed {label}: configured template path cannot be copied.' => 'Mislukt voor {label}: het geconfigureerde templatepad kan niet worden gekopieerd.',
     'An unexpected error occurred.' => 'Er is een onverwachte fout opgetreden.',
     'No analytics data to export.' => 'Geen analysegegevens om te exporteren.',
     'Settings saved.' => 'Instellingen opgeslagen.',

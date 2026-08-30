@@ -80,6 +80,7 @@ ddev craft shortlink-manager/setup/copy-templates
 4. Preserves an explicit configured extension such as `.html`; an extensionless configured path uses a `.twig` starter destination.
 5. Creates destination folders automatically.
 6. Skips templates that already resolve for every enabled site and skips existing global destinations unless you target one interactively or pass `--overwrite`.
+7. Rejects an empty, unresolved, or traversal-bearing (`..`) effective path before probing or writing the filesystem. The affected item is reported as failed, the command returns nonzero, and `--overwrite` cannot bypass the guard.
 
 | Option | Description |
 |--------|-------------|
@@ -128,8 +129,9 @@ ddev craft shortlink-manager/security/generate-salt
 
 1. Generates a 64-character hexadecimal string using `random_bytes(32)` — cryptographically secure
 2. Checks if `SHORTLINK_MANAGER_IP_SALT` already exists in your `.env` file
-3. If not found: appends the new salt to `.env`
-4. If found: prompts for confirmation before replacing (replacing resets unique visitor tracking)
+3. If not found: prepares an appended assignment; if found: prompts for confirmation before preparing a replacement (replacing resets unique visitor tracking)
+4. Writes the complete candidate beside `.env`, flushes and reads it back, preserves and verifies the original file mode, then performs one final rename
+5. If reading, preparing, verifying, or promoting the candidate fails, leaves the original `.env` unchanged, removes its temporary candidate, returns nonzero, and prints the generated assignment for manual use
 
 **Expected output:**
 
@@ -154,3 +156,5 @@ Important:
 
 > [!WARNING]
 > Replacing an existing salt invalidates all previously hashed IP addresses. Existing analytics records retain their old hash values, so unique visitor counts will not merge correctly across old and new data. Only replace the salt if you're resetting analytics data entirely.
+
+If `.env` does not exist, the command does not create it. It prints the generated assignment so you can place it in the correct environment file yourself.

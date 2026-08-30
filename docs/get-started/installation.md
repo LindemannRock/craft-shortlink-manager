@@ -53,7 +53,7 @@ php craft shortlink-manager/security/generate-salt
 ddev craft shortlink-manager/security/generate-salt
 ```
 
-This writes `SHORTLINK_MANAGER_IP_SALT` to your `.env` file. Keep the same salt across all environments — changing it resets unique visitor tracking.
+This writes `SHORTLINK_MANAGER_IP_SALT` to your `.env` file. When `.env` already exists, ShortLink Manager writes and verifies a temporary file beside it, preserves its file mode, and only then promotes the completed file. If any step fails, the original remains unchanged and the command prints the generated assignment for you to add manually. Keep the same salt across all environments — changing it resets unique visitor tracking.
 
 ### Copy starter templates
 
@@ -68,6 +68,8 @@ ddev craft shortlink-manager/setup/copy-templates
 ```
 
 The command checks template readiness for every site enabled in ShortLink Manager. Template settings saved as `$ENV_VAR` expressions are resolved first, while the raw expression remains stored and visible in the Control Panel. If any enabled site cannot resolve the resulting configured path, the command copies one global fallback into `templates/`; existing site-specific overrides in `templates/{siteHandle}/` continue to take priority. If every enabled site already resolves the template through an override or the global fallback, the command skips it. Review and customize copied templates before going live.
+
+If an effective redirect, expired, or QR template path is empty, unresolved, or contains parent-directory traversal (`..`), the affected copy fails before any destination is built or written. `--overwrite` does not bypass this check.
 
 > [!TIP]
 > If you enable `directRedirect` globally or per link, the redirect template is bypassed entirely. Keep the template for links where SEOmatic/GTM tracking is needed.

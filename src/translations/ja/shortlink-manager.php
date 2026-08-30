@@ -136,6 +136,7 @@ return [
     '{pluginName}: Cleaning up old analytics' => '{pluginName}: 古いアナリティクスを整理しています',
 
     // Controller messages
+    'Failed {label}: configured template path cannot be copied.' => '{label} の処理に失敗しました：設定されたテンプレートパスはコピーできません。',
     'An unexpected error occurred.' => '予期しないエラーが発生しました。',
     'No analytics data to export.' => 'エクスポートするアナリティクスデータがありません。',
     'Settings saved.' => '設定を保存しました。',

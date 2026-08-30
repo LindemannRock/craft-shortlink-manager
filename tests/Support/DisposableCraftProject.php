@@ -56,12 +56,14 @@ final class DisposableCraftProject
         $failure = null;
         $phpunit = null;
         $httpSmoke = null;
+        $securitySaltSmoke = null;
 
         try {
             $this->createDatabase();
             $this->createProject();
             $this->installCraft();
             $this->installPlugins();
+            $securitySaltSmoke = $this->runSecuritySaltSmoke();
             $this->seedSites();
             $phpunit = $this->runPhpunit($phpunitArguments);
             $httpSmoke = $this->readHttpSmokeEvidence();
@@ -84,6 +86,7 @@ final class DisposableCraftProject
             'runId' => $this->runId,
             'projectRoot' => $this->projectRoot,
             'databaseName' => $this->databaseName,
+            'securitySaltSmoke' => $securitySaltSmoke,
             'phpunit' => $phpunit,
             'httpSmoke' => $httpSmoke,
             'commands' => $this->commands,
@@ -335,6 +338,105 @@ PHP);
         }
     }
 
+    /** @return array<string, mixed> */
+    private function runSecuritySaltSmoke(): array
+    {
+        $envPath = $this->projectRoot . '/.env';
+        $neighborPath = $this->projectRoot . '/security-salt-neighbor.txt';
+        $neighborBytes = "security-neighbor\0bytes\n";
+        $original = $this->readOwnedFile($envPath);
+        $this->writeOwnedFile('security-salt-neighbor.txt', $neighborBytes);
+        if (!chmod($envPath, 0640) || !chmod($neighborPath, 0604)) {
+            throw new \RuntimeException('Unable to set disposable salt-smoke modes.');
+        }
+
+        $append = $this->runCommand([
+            PHP_BINARY,
+            $this->projectRoot . '/craft',
+            'shortlink-manager/security/generate-salt',
+        ], $this->projectRoot);
+        $appended = $this->readOwnedFile($envPath);
+        if (preg_match(
+            '/\A' . preg_quote($original, '/')
+            . '\n# [^\r\n]+ IP Hash Salt \(generated (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\)\n'
+            . 'SHORTLINK_MANAGER_IP_SALT="([0-9a-f]{64})"\n\z/',
+            $appended,
+            $appendMatch,
+        ) !== 1) {
+            throw new \RuntimeException('Disposable append smoke produced unexpected environment bytes.');
+        }
+        $appendSalt = $appendMatch[2];
+        $this->assertSaltSmokeState($envPath, $neighborPath, $neighborBytes, 0640, 0604);
+        if (!str_contains($append['stdout'], 'Added SHORTLINK_MANAGER_IP_SALT in .env file')) {
+            throw new \RuntimeException('Disposable append smoke did not report success after replacement.');
+        }
+
+        $replace = $this->runCommand([
+            PHP_BINARY,
+            $this->projectRoot . '/craft',
+            'shortlink-manager/security/generate-salt',
+            '--interactive=1',
+        ], $this->projectRoot, "y\n");
+        $replaced = $this->readOwnedFile($envPath);
+        if (preg_match('/SHORTLINK_MANAGER_IP_SALT="([0-9a-f]{64})"/', $replaced, $replaceMatch) !== 1) {
+            throw new \RuntimeException('Disposable replacement smoke omitted the generated salt assignment.');
+        }
+        $replaceSalt = $replaceMatch[1];
+        $expectedReplacement = str_replace(
+            'SHORTLINK_MANAGER_IP_SALT="' . $appendSalt . '"',
+            'SHORTLINK_MANAGER_IP_SALT="' . $replaceSalt . '"',
+            $appended,
+        );
+        if ($replaceSalt === $appendSalt || $replaced !== $expectedReplacement) {
+            throw new \RuntimeException('Disposable replacement smoke changed bytes outside the salt assignment.');
+        }
+        $this->assertSaltSmokeState($envPath, $neighborPath, $neighborBytes, 0640, 0604);
+        if (!str_contains($replace['stdout'], 'Updated SHORTLINK_MANAGER_IP_SALT in .env file')) {
+            throw new \RuntimeException('Disposable replacement smoke did not report confirmed success.');
+        }
+
+        $beforeCancelMode = $this->ownedMode($envPath);
+        $cancel = $this->runCommand([
+            PHP_BINARY,
+            $this->projectRoot . '/craft',
+            'shortlink-manager/security/generate-salt',
+            '--interactive=1',
+        ], $this->projectRoot, "n\n");
+        if ($this->readOwnedFile($envPath) !== $replaced || $this->ownedMode($envPath) !== $beforeCancelMode) {
+            throw new \RuntimeException('Disposable cancellation smoke changed environment bytes or mode.');
+        }
+        $this->assertSaltSmokeState($envPath, $neighborPath, $neighborBytes, 0640, 0604);
+        if (!str_contains($cancel['stdout'], 'Operation cancelled. Existing salt unchanged.')) {
+            throw new \RuntimeException('Disposable cancellation smoke omitted the cancellation result.');
+        }
+
+        return [
+            'append' => [
+                'exitCode' => $append['exitCode'],
+                'exactBytes' => true,
+                'mode' => '0640',
+                'successOutputAfterReplacement' => true,
+                'saltFormat' => '64 lowercase hexadecimal characters',
+            ],
+            'replace' => [
+                'exitCode' => $replace['exitCode'],
+                'exactAssignmentOnlyChange' => true,
+                'mode' => '0640',
+                'successOutputAfterReplacement' => true,
+            ],
+            'cancel' => [
+                'exitCode' => $cancel['exitCode'],
+                'exactBytesAndModePreserved' => true,
+                'cancellationOutput' => true,
+            ],
+            'neighbor' => [
+                'exactBytesPreserved' => true,
+                'mode' => '0604',
+            ],
+            'temporaryResidue' => [],
+        ];
+    }
+
     private function seedSites(): void
     {
         $this->injectFailure('sites');
@@ -357,7 +459,7 @@ PHP);
     }
 
     /** @param list<string> $command @return array{command: list<string>, exitCode: int, stdout: string, stderr: string} */
-    private function runCommand(array $command, string $workingDirectory): array
+    private function runCommand(array $command, string $workingDirectory, string $input = ''): array
     {
         $process = proc_open(
             $command,
@@ -370,6 +472,9 @@ PHP);
             throw new \RuntimeException('Unable to start disposable command.');
         }
         $this->activeProcess = $process;
+        if ($input !== '') {
+            fwrite($pipes[0], $input);
+        }
         fclose($pipes[0]);
         $stdout = stream_get_contents($pipes[1]);
         $stderr = stream_get_contents($pipes[2]);
@@ -392,6 +497,56 @@ PHP);
         }
 
         return $result;
+    }
+
+    private function assertSaltSmokeState(
+        string $envPath,
+        string $neighborPath,
+        string $neighborBytes,
+        int $expectedEnvMode,
+        int $expectedNeighborMode,
+    ): void {
+        if ($this->ownedMode($envPath) !== $expectedEnvMode
+            || $this->readOwnedFile($neighborPath) !== $neighborBytes
+            || $this->ownedMode($neighborPath) !== $expectedNeighborMode
+            || $this->saltCandidateResidue() !== []) {
+            throw new \RuntimeException('Disposable salt smoke changed a mode, neighbor, or candidate-residue boundary.');
+        }
+    }
+
+    private function readOwnedFile(string $path): string
+    {
+        if (!str_starts_with($path, $this->projectRoot . '/')) {
+            throw new \LogicException('Refusing to read outside the disposable project.');
+        }
+        $contents = file_get_contents($path);
+        if (!is_string($contents)) {
+            throw new \RuntimeException('Unable to read disposable file: ' . $path);
+        }
+
+        return $contents;
+    }
+
+    private function ownedMode(string $path): int
+    {
+        if (!str_starts_with($path, $this->projectRoot . '/')) {
+            throw new \LogicException('Refusing to inspect mode outside the disposable project.');
+        }
+        clearstatcache(true, $path);
+        $mode = fileperms($path);
+        if ($mode === false) {
+            throw new \RuntimeException('Unable to read disposable file mode: ' . $path);
+        }
+
+        return $mode & 0777;
+    }
+
+    /** @return list<string> */
+    private function saltCandidateResidue(): array
+    {
+        $matches = glob($this->projectRoot . '/.env.tmp-*');
+
+        return $matches === false ? [] : array_values($matches);
     }
 
     /** @return array<string, string> */

@@ -32,6 +32,8 @@ The setup command always manages the global fallback. If only some sites have ov
 
 Configured paths with an explicit extension keep that destination exactly: `custom/redirect.html` copies to `templates/custom/redirect.html`. An extensionless path such as `custom/redirect` uses `templates/custom/redirect.twig` as the starter destination.
 
+The effective path must be a non-empty relative template path without a parent-directory traversal segment (`..`). If an environment expression is undefined or empty, or the resolved path contains traversal, Setup marks that template non-copyable and the copy command fails that item before constructing, probing, or writing a destination. This applies to redirect, expired, and QR templates, whether copied together or with `--template`; `--overwrite` never bypasses the guard.
+
 You can also copy files manually:
 
 **Redirect interstitial**
@@ -57,7 +59,7 @@ Once a file exists at `templates/shortlink-manager/{name}.twig`, the default pat
 - Set `redirectTemplate` / `qrTemplate` / `expiredTemplate` in **Settings → ShortLink Manager** (or `config/shortlink-manager.php`) to point at a different template path.
 - Leave a setting empty to use the default path shown above.
 - Each path field accepts a `$ENV_VAR` in the Control Panel, or `App::env()` in the config file. A CP-saved expression stays visible as `$ENV_VAR`; Setup and public rendering resolve it when they use the template.
-- Give the variable a non-empty relative template path in every environment. If it is undefined or resolves empty, Setup reports the configured template as missing and the public page fails template loading rather than silently switching to a different template.
+- Give the variable a non-empty relative template path without `..` in every environment. If it is undefined, resolves empty, or contains traversal, Setup reports the configured template as missing and non-copyable; the copy command performs no filesystem work for that item, and the public page fails template loading rather than silently switching to a different template.
 - A value in `config/shortlink-manager.php` overrides the Control Panel field (the CP field is shown disabled with an override warning).
 
 See [Configuration → Template settings](../get-started/configuration.md) for the settings reference.

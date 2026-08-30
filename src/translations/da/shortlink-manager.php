@@ -136,6 +136,7 @@ return [
     '{pluginName}: Cleaning up old analytics' => '{pluginName}: Rydder op i gamle analyser',
 
     // Controller messages
+    'Failed {label}: configured template path cannot be copied.' => '{label} mislykkedes: den konfigurerede skabelonsti kan ikke kopieres.',
     'An unexpected error occurred.' => 'Der opstod en uventet fejl.',
     'No analytics data to export.' => 'Ingen analysedata at eksportere.',
     'Settings saved.' => 'Indstillinger gemt.',

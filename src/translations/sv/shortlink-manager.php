@@ -136,6 +136,7 @@ return [
     '{pluginName}: Cleaning up old analytics' => '{pluginName}: Rensar gammal analys',
 
     // Controller messages
+    'Failed {label}: configured template path cannot be copied.' => 'Misslyckades med {label}: den konfigurerade mallsökvägen kan inte kopieras.',
     'An unexpected error occurred.' => 'Ett oväntat fel uppstod.',
     'No analytics data to export.' => 'Inga analysdata att exportera.',
     'Settings saved.' => 'Inställningar sparade.',

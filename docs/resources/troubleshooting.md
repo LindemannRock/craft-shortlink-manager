@@ -51,7 +51,7 @@ The command copies a global fallback into the path configured in settings when o
 
 If Setup still reports a template missing, check every enabled site. A template that exists only under one site's handle does not provide a fallback for the others. Also verify explicit extensions exactly: `custom/redirect.html` resolves and copies as `templates/custom/redirect.html`, while the extensionless setting `custom/redirect` uses `templates/custom/redirect.twig` as its starter destination.
 
-For a CP field containing `$ENV_VAR`, confirm that the variable is defined for the web and console processes and resolves to the intended relative path. The CP keeps the raw expression visible, while Setup, the copy command, and public rendering use its resolved value. An undefined or empty value remains a missing configured template—it does not fall back to the default `shortlink-manager/...` path. After fixing the environment value, reload Setup and test the affected redirect, expired, or QR display route.
+For a CP field containing `$ENV_VAR`, confirm that the variable is defined for the web and console processes and resolves to the intended non-empty relative path without `..`. The CP keeps the raw expression visible, while Setup, the copy command, and public rendering use its resolved value. An undefined, empty, or traversal-bearing value remains a missing, non-copyable configured template—it does not fall back to the default `shortlink-manager/...` path. The copy command fails that item before probing or writing a destination, including with `--overwrite`. After fixing the environment value, reload Setup and test the affected redirect, expired, or QR display route.
 
 For template source paths, manual copy commands, and available variables, see [Custom templates](../developers/custom-templates.md).
 
@@ -80,6 +80,12 @@ ddev craft shortlink-manager/security/generate-salt
    - If you need `directRedirect = true`, add cache bypass rules for your [shortlink routes](../feature-tour/custom-domain.md#site-aware-routes)
 
 7. **Clear stale redirect caches after changes.** If you changed a link from `301`/`308` to `302`/`307`, or changed the redirect mode, clear browser/CDN/static caches before retesting. Previously cached permanent redirects can keep masking the new behavior.
+
+## Salt generator cannot update `.env`
+
+If `shortlink-manager/security/generate-salt` reports that it could not write `.env`, copy the `SHORTLINK_MANAGER_IP_SALT="..."` assignment printed by the command and add it manually.
+
+The command does not modify the existing `.env` in place. It writes a same-directory candidate, verifies its complete contents and original file mode, and only then promotes it. A failure before promotion leaves the original `.env` and neighboring files unchanged and removes the command-owned candidate. Check that the `.env` directory permits temporary-file creation and final rename, then retry or use the printed assignment. If `.env` is missing, the command only prints the assignment and does not create the file.
 
 ## Scheduled analytics cleanup does not reappear
 

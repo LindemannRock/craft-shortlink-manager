@@ -84,6 +84,125 @@ final class SetupControllerTest extends TestCase
         ];
     }
 
+    #[DataProvider('nonCopyableCommandProvider')]
+    public function testSelectedCopyRejectsEnvironmentBackedNonCopyablePathWithoutFilesystemChanges(
+        string $templateKey,
+        string $setting,
+        ?string $environmentValue,
+    ): void {
+        $runRoot = $this->createTrackedTempDirectory('sl-test-setup-command-rejected');
+        $templatesPath = $runRoot . DIRECTORY_SEPARATOR . 'templates';
+        FileHelper::createDirectory($templatesPath);
+        $environmentName = 'SHORTLINK_MANAGER_TEST_COPY_' . strtoupper($templateKey);
+        $configuredPath = '$' . $environmentName;
+        $effectivePath = $environmentValue ?? '';
+        $invalidTarget = $effectivePath === ''
+            ? $templatesPath . DIRECTORY_SEPARATOR . '.twig'
+            : $runRoot . DIRECTORY_SEPARATOR . 'outside-template.twig';
+        $neighborPath = $runRoot . DIRECTORY_SEPARATOR . 'neighbor.txt';
+        self::assertSame(19, file_put_contents($invalidTarget, "protected\0template\n"));
+        self::assertSame(15, file_put_contents($neighborPath, "neighbor\0bytes\n"));
+        self::assertTrue(chmod($invalidTarget, 0600));
+        self::assertTrue(chmod($neighborPath, 0640));
+        $before = $this->treeSnapshot($runRoot);
+        $serverState = [array_key_exists($environmentName, $_SERVER), $_SERVER[$environmentName] ?? null];
+        $envState = [array_key_exists($environmentName, $_ENV), $_ENV[$environmentName] ?? null];
+        $processState = getenv($environmentName);
+
+        [$exitCode, $stdout, $stderr] = $this->runConfiguredCopyCommand(
+            [$setting => $configuredPath],
+            $templatesPath,
+            $templateKey,
+            true,
+            [$environmentName => $environmentValue],
+        );
+
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $exitCode, $stdout . $stderr);
+        self::assertStringContainsString('configured template path cannot be copied', $stderr);
+        self::assertStringContainsString('0 copied, 0 skipped, 1 failed', $stdout);
+        self::assertStringNotContainsString('Copied ', $stdout);
+        self::assertStringNotContainsString('Overwrite it?', $stdout . $stderr);
+        self::assertSame($before, $this->treeSnapshot($runRoot));
+        self::assertSame($serverState[0], array_key_exists($environmentName, $_SERVER));
+        self::assertSame($serverState[1], $_SERVER[$environmentName] ?? null);
+        self::assertSame($envState[0], array_key_exists($environmentName, $_ENV));
+        self::assertSame($envState[1], $_ENV[$environmentName] ?? null);
+        self::assertSame($processState, getenv($environmentName));
+    }
+
+    /**
+     * @return iterable<string, array{templateKey: string, setting: string, environmentValue: string|null}>
+     */
+    public static function nonCopyableCommandProvider(): iterable
+    {
+        yield 'redirect undefined environment value' => [
+            'templateKey' => 'redirect',
+            'setting' => 'redirectTemplate',
+            'environmentValue' => null,
+        ];
+        yield 'expired empty environment value' => [
+            'templateKey' => 'expired',
+            'setting' => 'expiredTemplate',
+            'environmentValue' => '',
+        ];
+        yield 'QR parent traversal value' => [
+            'templateKey' => 'qr',
+            'setting' => 'qrTemplate',
+            'environmentValue' => '../outside-template',
+        ];
+        yield 'redirect nested traversal value' => [
+            'templateKey' => 'redirect',
+            'setting' => 'redirectTemplate',
+            'environmentValue' => 'nested/../../outside-template',
+        ];
+    }
+
+    public function testAllTemplateCopyReportsInvalidItemAndContinuesSafeCopies(): void
+    {
+        $runRoot = $this->createTrackedTempDirectory('sl-test-setup-command-all-rejected');
+        $templatesPath = $runRoot . DIRECTORY_SEPARATOR . 'templates';
+        $validDirectory = $templatesPath . DIRECTORY_SEPARATOR . 'configured';
+        FileHelper::createDirectory($validDirectory);
+        $environmentName = 'SHORTLINK_MANAGER_TEST_COPY_ALL_EMPTY';
+        $invalidTarget = $templatesPath . DIRECTORY_SEPARATOR . '.twig';
+        $expiredDestination = $validDirectory . DIRECTORY_SEPARATOR . 'expired.html';
+        $qrDestination = $validDirectory . DIRECTORY_SEPARATOR . 'qr.twig';
+        self::assertSame(17, file_put_contents($invalidTarget, "protected-hidden\n"));
+        self::assertSame(11, file_put_contents($expiredDestination, 'old-expired'));
+        self::assertSame(6, file_put_contents($qrDestination, 'old-qr'));
+        self::assertTrue(chmod($invalidTarget, 0600));
+        self::assertTrue(chmod($expiredDestination, 0640));
+        self::assertTrue(chmod($qrDestination, 0640));
+        $invalidBytes = file_get_contents($invalidTarget);
+        $invalidMode = fileperms($invalidTarget);
+
+        [$exitCode, $stdout, $stderr] = $this->runConfiguredCopyCommand(
+            [
+                'redirectTemplate' => '$' . $environmentName,
+                'expiredTemplate' => 'configured/expired.html',
+                'qrTemplate' => 'configured/qr',
+            ],
+            $templatesPath,
+            null,
+            true,
+            [$environmentName => ''],
+        );
+
+        self::assertSame(ExitCode::UNSPECIFIED_ERROR, $exitCode, $stdout . $stderr);
+        self::assertStringContainsString('configured template path cannot be copied', $stderr);
+        self::assertStringContainsString('2 copied, 0 skipped, 1 failed', $stdout);
+        self::assertSame($invalidBytes, file_get_contents($invalidTarget));
+        self::assertSame($invalidMode, fileperms($invalidTarget));
+        self::assertSame(
+            file_get_contents($this->bundledTemplatePath('expired')),
+            file_get_contents($expiredDestination),
+        );
+        self::assertSame(
+            file_get_contents($this->bundledTemplatePath('qr')),
+            file_get_contents($qrDestination),
+        );
+    }
+
     public function testCopyCommandAddsGlobalFallbackForOneUnresolvedSite(): void
     {
         [$firstSite, $secondSite] = $this->twoEnabledSites();
@@ -230,6 +349,101 @@ final class SetupControllerTest extends TestCase
         $controller->overwrite = $overwrite;
 
         return $controller->actionCopyTemplates();
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string, string|null> $environmentOverrides
+     * @return array{0: int, 1: string, 2: string}
+     */
+    private function runConfiguredCopyCommand(
+        array $config,
+        string $templatesPath,
+        ?string $template,
+        bool $overwrite,
+        array $environmentOverrides = [],
+    ): array {
+        $configPath = $this->createTrackedTempDirectory('sl-test-setup-command-config');
+        FileHelper::copyDirectory(Craft::$app->getConfig()->configDir, $configPath);
+        self::assertNotFalse(file_put_contents(
+            $configPath . DIRECTORY_SEPARATOR . 'shortlink-manager.php',
+            "<?php\nreturn " . var_export($config, true) . ";\n",
+        ));
+        $projectRoot = Craft::getAlias('@root');
+        self::assertIsString($projectRoot);
+        $command = [
+            PHP_BINARY,
+            $projectRoot . DIRECTORY_SEPARATOR . 'craft',
+            '--configPath=' . $configPath,
+            '--templatesPath=' . $templatesPath,
+            'shortlink-manager/setup/copy-templates',
+            '--interactive=1',
+            '--overwrite=' . ($overwrite ? '1' : '0'),
+        ];
+        if ($template !== null) {
+            $command[] = '--template=' . $template;
+        }
+        $environment = getenv();
+        self::assertIsArray($environment);
+        foreach ($environmentOverrides as $name => $value) {
+            if ($value === null) {
+                unset($environment[$name]);
+            } else {
+                $environment[$name] = $value;
+            }
+        }
+
+        $process = proc_open(
+            $command,
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
+            $projectRoot,
+            $environment,
+        );
+        if (!is_resource($process)) {
+            throw new RuntimeException('Unable to start the configured setup command test.');
+        }
+
+        try {
+            fclose($pipes[0]);
+            $stdout = stream_get_contents($pipes[1]);
+            $stderr = stream_get_contents($pipes[2]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            $exitCode = proc_close($process);
+
+            return [
+                $exitCode,
+                is_string($stdout) ? $stdout : '',
+                is_string($stderr) ? $stderr : '',
+            ];
+        } finally {
+            if (is_resource($process)) {
+                proc_terminate($process);
+                proc_close($process);
+            }
+        }
+    }
+
+    /** @return array<string, array{type: string, mode: int, hash: string|null}> */
+    private function treeSnapshot(string $root): array
+    {
+        $snapshot = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST,
+        );
+        foreach ($iterator as $item) {
+            $relative = substr($item->getPathname(), strlen($root) + 1);
+            $snapshot[$relative] = [
+                'type' => $item->isDir() ? 'directory' : 'file',
+                'mode' => $item->getPerms() & 0777,
+                'hash' => $item->isFile() ? hash_file('sha256', $item->getPathname()) : null,
+            ];
+        }
+        ksort($snapshot);
+
+        return $snapshot;
     }
 
     private function bundledTemplatePath(string $template): string
