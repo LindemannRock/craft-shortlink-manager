@@ -352,10 +352,15 @@ class AnalyticsQueryInsightsService
             ->select(['l.id', 'l.code', 'l.slug', 'c.destinationUrl', 'a.siteId', 'COUNT(a.id) as clicks', 'MAX([[a.dateCreated]]) as [[lastClick]]'])
             ->from('{{%shortlinkmanager_analytics}} a')
             ->innerJoin('{{%shortlinkmanager}} l', '[[l.id]] = [[a.linkId]]')
+            ->innerJoin('{{%elements}} e', '[[e.id]] = [[l.id]]')
             ->innerJoin('{{%elements_sites}} es', '[[es.elementId]] = [[l.id]] AND [[es.siteId]] = [[a.siteId]]')
             ->leftJoin('{{%shortlinkmanager_content}} c', '[[c.shortLinkId]] = [[a.linkId]] AND [[c.siteId]] = [[a.siteId]]')
             ->groupBy('l.id, l.code, l.slug, c.destinationUrl, a.siteId')
-            ->where(['es.enabled' => true])
+            ->where([
+                'e.enabled' => true,
+                'e.dateDeleted' => null,
+                'es.enabled' => true,
+            ])
             ->orderBy(['clicks' => SORT_DESC])
             ->limit($limit);
 
@@ -435,7 +440,7 @@ class AnalyticsQueryInsightsService
         $tz = new \DateTimeZone(Craft::$app->getTimeZone());
 
         if (!$startDate) {
-            $startDate = new \DateTime($results[0]['date'], new \DateTimeZone('UTC'));
+            $startDate = new \DateTime($results[0]['date'], $tz);
         }
         $startDate->setTimezone($tz)->setTime(0, 0, 0);
 
@@ -452,8 +457,7 @@ class AnalyticsQueryInsightsService
 
         $resultsByDate = [];
         foreach ($results as $row) {
-            $rowDateObj = new \DateTime($row['date'], new \DateTimeZone('UTC'));
-            $rowDateObj->setTimezone($tz);
+            $rowDateObj = new \DateTime($row['date'], $tz);
             $resultsByDate[$rowDateObj->format('Y-m-d')] = (int) $row['clicks'];
         }
 

@@ -10,6 +10,7 @@ namespace lindemannrock\shortlinkmanager\services;
 
 use craft\base\Component;
 use craft\db\Query;
+use craft\helpers\Db;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\traits\GeoLookupTrait;
 use lindemannrock\logginglibrary\traits\LoggingTrait;
@@ -222,12 +223,16 @@ class AnalyticsService extends Component
 
         // Get count of links that have been clicked in this period
         $shortLinksQuery = (new Query())
-            ->from('{{%shortlinkmanager_analytics}}')
-            ->select('COUNT(DISTINCT [[linkId]])');
+            ->from(['a' => '{{%shortlinkmanager_analytics}}'])
+            ->innerJoin(
+                ['currentLinks' => $this->currentEnabledLinkSitesQuery($siteId)],
+                '[[currentLinks.linkId]] = [[a.linkId]] AND [[currentLinks.siteId]] = [[a.siteId]]',
+            )
+            ->select('COUNT(DISTINCT [[a.linkId]])');
 
-        $this->applyDateRangeFilter($shortLinksQuery, $dateRange);
+        $this->applyDateRangeFilter($shortLinksQuery, $dateRange, 'a.dateCreated');
         if ($siteId !== null) {
-            $shortLinksQuery->andWhere(['siteId' => $siteId]);
+            $shortLinksQuery->andWhere(['a.siteId' => $siteId]);
         }
         $shortLinksWithClicks = (int) $shortLinksQuery->scalar();
 
@@ -269,6 +274,42 @@ class AnalyticsService extends Component
     public function applyDateRangeFilter(Query $query, string $dateRange, string $column = 'dateCreated'): void
     {
         DateRangeHelper::applyToQuery($query, $dateRange, $column);
+    }
+
+    /**
+     * Build the enabled, non-trashed link/site population used by current-link reporting.
+     *
+     * @param int|int[]|null $siteId
+     */
+    private function currentEnabledLinkSitesQuery(int|array|null $siteId): Query
+    {
+        $now = new \DateTime();
+        $now->setTime((int)$now->format('H'), (int)$now->format('i'), 59);
+        $currentTimeDb = Db::prepareDateForDb($now);
+
+        $query = (new Query())
+            ->select(['linkId' => 'l.id', 'siteId' => 'es.siteId'])
+            ->distinct()
+            ->from(['l' => '{{%shortlinkmanager}}'])
+            ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[l.id]]')
+            ->innerJoin(['es' => '{{%elements_sites}}'], '[[es.elementId]] = [[l.id]]')
+            ->where([
+                'e.enabled' => true,
+                'e.dateDeleted' => null,
+                'es.enabled' => true,
+            ])
+            ->andWhere(['<=', 'l.postDate', $currentTimeDb])
+            ->andWhere([
+                'or',
+                ['l.dateExpired' => null],
+                ['>', 'l.dateExpired', $currentTimeDb],
+            ]);
+
+        if ($siteId !== null) {
+            $query->andWhere(['es.siteId' => $siteId]);
+        }
+
+        return $query;
     }
 
     /**

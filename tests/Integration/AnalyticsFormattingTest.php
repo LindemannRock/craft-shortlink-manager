@@ -30,6 +30,108 @@ use lindemannrock\shortlinkmanager\tests\TestCase;
  */
 final class AnalyticsFormattingTest extends TestCase
 {
+    public function testDailyClicksKeepNegativeOffsetLocalDateForExplicitRange(): void
+    {
+        $originalTimezone = Craft::$app->getTimeZone();
+
+        $this->withCraftTimezone('America/Los_Angeles', function(): void {
+            $site = Craft::$app->getSites()->getPrimarySite();
+            $link = $this->seedShortLink();
+            $tz = new \DateTimeZone(Craft::$app->getTimeZone());
+            $today = (new \DateTime('now', $tz))->format('Y-m-d');
+
+            $this->seedAnalyticsRow(
+                (int)$link->id,
+                (int)$site->id,
+                new \DateTime("{$today} 00:30:00", $tz),
+            );
+
+            $clicks = $this->analytics->getClicksData((int)$link->id, 'today', (int)$site->id);
+
+            self::assertSame([$today], $clicks['labels']);
+            self::assertSame([1], $clicks['values']);
+        });
+
+        self::assertSame($originalTimezone, Craft::$app->getTimeZone());
+    }
+
+    public function testDailyClicksInferNegativeOffsetRangeFromLocalLabelsAcrossDst(): void
+    {
+        $originalTimezone = Craft::$app->getTimeZone();
+
+        $this->withCraftTimezone('America/Los_Angeles', function(): void {
+            $site = Craft::$app->getSites()->getPrimarySite();
+            $link = $this->seedShortLink();
+            $tz = new \DateTimeZone(Craft::$app->getTimeZone());
+
+            foreach (['2026-03-07', '2026-03-08', '2026-03-09'] as $localDate) {
+                $this->seedAnalyticsRow(
+                    (int)$link->id,
+                    (int)$site->id,
+                    new \DateTime("{$localDate} 12:00:00", $tz),
+                );
+            }
+
+            $clicks = $this->analytics->getClicksData((int)$link->id, 'all', (int)$site->id);
+            $valuesByDate = array_combine($clicks['labels'], $clicks['values']);
+
+            self::assertIsArray($valuesByDate);
+            self::assertSame('2026-03-07', $clicks['labels'][0]);
+            self::assertSame(1, $valuesByDate['2026-03-07'] ?? null);
+            self::assertSame(1, $valuesByDate['2026-03-08'] ?? null);
+            self::assertSame(1, $valuesByDate['2026-03-09'] ?? null);
+            self::assertSame(
+                ['2026-03-07', '2026-03-08', '2026-03-09'],
+                array_slice($clicks['labels'], 0, 3),
+                'Daily iteration should remain contiguous across the local DST transition.',
+            );
+        });
+
+        self::assertSame($originalTimezone, Craft::$app->getTimeZone());
+    }
+
+    public function testDailyClicksKeepUtcControlDate(): void
+    {
+        $originalTimezone = Craft::$app->getTimeZone();
+
+        $this->withCraftTimezone('UTC', function(): void {
+            $site = Craft::$app->getSites()->getPrimarySite();
+            $link = $this->seedShortLink();
+            $tz = new \DateTimeZone(Craft::$app->getTimeZone());
+            $today = (new \DateTime('now', $tz))->format('Y-m-d');
+
+            $this->seedAnalyticsRow(
+                (int)$link->id,
+                (int)$site->id,
+                new \DateTime("{$today} 00:30:00", $tz),
+            );
+
+            $clicks = $this->analytics->getClicksData((int)$link->id, 'today', (int)$site->id);
+
+            self::assertSame([$today], $clicks['labels']);
+            self::assertSame([1], $clicks['values']);
+        });
+
+        self::assertSame($originalTimezone, Craft::$app->getTimeZone());
+    }
+
+    public function testTimezoneScopeRestoresApplicationTimezoneAfterException(): void
+    {
+        $originalTimezone = Craft::$app->getTimeZone();
+        $caughtMessage = null;
+
+        try {
+            $this->withCraftTimezone('America/Los_Angeles', static function(): void {
+                throw new \RuntimeException('Expected timezone-scope failure.');
+            });
+        } catch (\RuntimeException $exception) {
+            $caughtMessage = $exception->getMessage();
+        }
+
+        self::assertSame('Expected timezone-scope failure.', $caughtMessage);
+        self::assertSame($originalTimezone, Craft::$app->getTimeZone());
+    }
+
     public function testClicksDataAndHourlyGroupByLocalDateAndHourUnderCustomSettings(): void
     {
         $site = Craft::$app->getSites()->getPrimarySite();
@@ -161,5 +263,24 @@ final class AnalyticsFormattingTest extends TestCase
             'destinationUrl' => $destinationUrl,
             'dateUpdated' => $now,
         ])->execute();
+    }
+
+    /**
+     * @template T
+     * @param callable(): T $callback
+     * @return T
+     */
+    private function withCraftTimezone(string $timezone, callable $callback): mixed
+    {
+        $originalTimezone = Craft::$app->getTimeZone();
+        Craft::$app->setTimeZone($timezone);
+
+        try {
+            self::assertSame($timezone, Craft::$app->getTimeZone());
+
+            return $callback();
+        } finally {
+            Craft::$app->setTimeZone($originalTimezone);
+        }
     }
 }
