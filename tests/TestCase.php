@@ -79,16 +79,19 @@ abstract class TestCase extends IntegrationTestCase
     protected function tearDown(): void
     {
         try {
-            $this->restoreSettingsOverrides();
+            try {
+                $this->restoreSettingsOverrides();
+            } finally {
+                // Parent clears external cache state, deletes tracked elements,
+                // and restores swapped components.
+                parent::tearDown();
+            }
         } finally {
-            // Parent clears external cache state, deletes tracked elements, and
-            // restores swapped components.
-            parent::tearDown();
             // Also hard-delete any test shortlinks created as UNTRACKED side
             // effects — duplicates (duplicateElement) and field-managed
-            // auto-creates aren't registered for cleanup, so without this a run
-            // leaves them (and their trashed remnants) behind. Runs after the
-            // parent restores real components so the elements service is intact.
+            // auto-creates aren't registered for cleanup. This outer finally is
+            // intentional: cleanup must still run when settings restoration or
+            // parent teardown fails.
             $this->purgeTestShortLinks();
         }
     }
@@ -140,12 +143,26 @@ abstract class TestCase extends IntegrationTestCase
             'Seeded shortlink must save — errors: ' . json_encode($element->getErrors()),
         );
 
-        if ($element->id !== null) {
-            $this->trackElementForCleanup((int) $element->id);
-            $this->seededLinks[] = ['id' => (int) $element->id, 'slug' => (string) $element->slug];
-        }
+        $this->trackShortLinkForCleanup($element);
 
         return $element;
+    }
+
+    /**
+     * Register any persisted ShortLink returned by a service/controller test.
+     *
+     * Generated-code tests cannot force the `sl-test-` marker without defeating
+     * the behavior under test, so they must register the returned element
+     * directly instead of relying on marker fallback cleanup.
+     */
+    protected function trackShortLinkForCleanup(ShortLink $element): void
+    {
+        if ($element->id === null) {
+            return;
+        }
+
+        $this->trackElementForCleanup((int)$element->id);
+        $this->seededLinks[] = ['id' => (int)$element->id, 'slug' => (string)$element->slug];
     }
 
     /**
@@ -318,5 +335,12 @@ abstract class TestCase extends IntegrationTestCase
                 Craft::$app->elements->deleteElement($element, true);
             }
         }
+
+        $remaining = (new \craft\db\Query())
+            ->from('{{%shortlinkmanager}}')
+            ->where(['like', 'slug', self::MARKER . '%', false])
+            ->select(['id'])
+            ->column();
+        self::assertSame([], $remaining, 'Test-owned ShortLinks must not survive cleanup.');
     }
 }

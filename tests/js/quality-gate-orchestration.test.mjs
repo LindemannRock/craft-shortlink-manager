@@ -218,18 +218,31 @@ test('PHP quality tooling declares its executable and includes product, tests, b
     assert.match(ecs, /__DIR__ \. '\/src'[\s\S]*__DIR__ \. '\/tests'[\s\S]*__FILE__/);
 });
 
+test('package dependency floors match the validated release contracts', () => {
+    const composer = JSON.parse(readFileSync(path.join(packageRoot, 'composer.json'), 'utf8'));
+    assert.equal(composer.require['lindemannrock/craft-plugin-base'], '^5.38.2');
+    assert.equal(composer.require['lindemannrock/craft-logging-library'], '^5.18.2');
+    assert.equal(composer['require-dev']['lindemannrock/craft-redirect-manager'], '^5.41.1');
+});
+
 test('PHPUnit bootstrap supports package and workspace dependency layouts', () => {
     const bootstrap = readFileSync(path.join(packageRoot, 'tests/bootstrap.php'), 'utf8');
     const packageVendor = "dirname(__DIR__) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php'";
     const workspaceVendor = "dirname(__DIR__, 3) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php'";
     assert.ok(bootstrap.indexOf(packageVendor) < bootstrap.indexOf(workspaceVendor));
-    assert.match(bootstrap, /craft-plugin-base \^5\.38/);
+    assert.match(bootstrap, /craft-plugin-base \^5\.38\.2/);
 });
 
 test('PHPUnit constituent owns a disposable MySQL Craft project', () => {
     const declared = definitions().find(({id}) => id === 'phpunit');
+    const projectRunner = readFileSync(path.join(packageRoot, 'tests/Support/DisposableCraftProject.php'), 'utf8');
+    const testCase = readFileSync(path.join(packageRoot, 'tests/TestCase.php'), 'utf8');
     assert.equal(declared.standalone, 'php tests/Fixtures/Project/run.php --no-progress');
     assert.match(declared.workspace, /SHORTLINK_MANAGER_FIXTURE_SOURCE_VENDOR_ROOT=\/var\/www\/html\/vendor/);
+    assert.match(projectRunner, /assertNoPluginTestResidue\(\)/);
+    assert.match(projectRunner, /'shortlinkmanager'[\s\S]*'shortlinkmanager_content'[\s\S]*'shortlinkmanager_analytics'/);
+    assert.match(testCase, /finally\s*\{[\s\S]*parent::tearDown\(\);[\s\S]*finally\s*\{[\s\S]*purgeTestShortLinks\(\)/);
+    assert.match(testCase, /trackShortLinkForCleanup\(ShortLink \$element\)/);
 
     const ci = readFileSync(path.join(packageRoot, '.github/workflows/ci.yml'), 'utf8');
     assert.match(ci, /services:\s*\n\s*db:\s*\n\s*image: mysql:8\.4/);

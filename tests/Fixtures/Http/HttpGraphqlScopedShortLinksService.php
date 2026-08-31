@@ -21,28 +21,47 @@ use lindemannrock\shortlinkmanager\services\ShortLinksService;
 final class HttpGraphqlScopedShortLinksService extends ShortLinksService
 {
     public function __construct(
-        private readonly int $linkId,
-        private readonly string $code,
-        private readonly int $siteWithoutMatch,
-        private readonly int $matchedSiteId,
+        private readonly string $scopePath,
     ) {
         parent::__construct();
     }
 
     public function getByCode(string $code, ?int $siteId = null): ?ShortLink
     {
-        if ($code !== $this->code || $siteId === $this->siteWithoutMatch) {
+        $scope = $this->scope();
+        if (!$scope['enabled']) {
+            return parent::getByCode($code, $siteId);
+        }
+
+        if ($code !== $scope['code'] || $siteId === $scope['siteWithoutMatch']) {
             return null;
         }
 
-        if ($siteId !== null && $siteId !== $this->matchedSiteId) {
+        if ($siteId !== null && $siteId !== $scope['matchedSiteId']) {
             return null;
         }
 
         return ShortLink::find()
-            ->id($this->linkId)
-            ->siteId($this->matchedSiteId)
+            ->id($scope['linkId'])
+            ->siteId($scope['matchedSiteId'])
             ->status(null)
             ->one();
+    }
+
+    /** @return array{enabled: bool, linkId: int, code: string, siteWithoutMatch: int, matchedSiteId: int} */
+    private function scope(): array
+    {
+        $scope = json_decode((string)file_get_contents($this->scopePath), true, flags: JSON_THROW_ON_ERROR);
+        if (!is_array($scope)) {
+            throw new \RuntimeException('Invalid HTTP GraphQL scope fixture.');
+        }
+
+        return [
+            'enabled' => (bool)($scope['enabled'] ?? false),
+            'linkId' => (int)($scope['linkId'] ?? 0),
+            'code' => (string)($scope['code'] ?? ''),
+            'siteWithoutMatch' => (int)($scope['siteWithoutMatch'] ?? 0),
+            'matchedSiteId' => (int)($scope['matchedSiteId'] ?? 0),
+        ];
     }
 }

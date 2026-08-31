@@ -66,6 +66,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
     public function testGeneratedHandleIdAndUidUrlsReachExactSiteOverHttp(): void
     {
         $projectRoot = $this->disposableProjectRoot();
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
         $targetSite = $this->secondarySite();
         $link = $this->seedShortLink([
             'siteId' => $targetSite->id,
@@ -74,7 +75,8 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         $link->directRedirect = true;
         $link->passQueryParams = false;
         self::assertTrue(Craft::$app->getElements()->saveElement($link));
-        $this->setDestinationForSite($link, Craft::$app->getSites()->getPrimarySite(), 'https://destination.example/primary-site');
+        $this->setDestinationForSite($link, $primarySite, 'https://destination.example/primary-site');
+        $this->prepareGraphqlServiceConfig($projectRoot, $link, $primarySite, $targetSite);
 
         $port = $this->availablePort();
         $origin = "http://127.0.0.1:{$port}";
@@ -262,7 +264,6 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         self::assertSame(200, $siteRedirect['status'], $siteRedirect['body']);
         self::assertStringContainsString('site-redirect', $siteRedirect['body']);
 
-        $primarySite = Craft::$app->getSites()->getPrimarySite();
         $primaryVariant = ShortLink::find()->id($link->id)->siteId($primarySite->id)->status(null)->one();
         self::assertInstanceOf(ShortLink::class, $primaryVariant);
         $primaryVariant->directRedirect = false;
@@ -303,7 +304,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             $projectRoot,
             $origin,
             $link,
-            Craft::$app->getSites()->getPrimarySite(),
+            $primarySite,
             $targetSite,
         );
 
@@ -468,29 +469,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         self::assertTrue(Craft::$app->getGql()->saveToken($token));
         self::assertNotNull($token->id);
 
-        $this->graphqlScopePath = $projectRoot . '/shortlink-http-graphql-scope.json';
-        self::assertNotFalse(file_put_contents($this->graphqlScopePath, json_encode([
-            'linkId' => $link->id,
-            'code' => $link->slug,
-            'siteWithoutMatch' => $siteWithoutMatch->id,
-            'matchedSiteId' => $matchedSite->id,
-        ], JSON_THROW_ON_ERROR)));
-        $scopePath = var_export($this->graphqlScopePath, true);
-        self::assertNotFalse(file_put_contents(
-            $projectRoot . '/config/app.php',
-            "<?php\nreturn [\n"
-            . "    'on beforeRequest' => static function(): void {\n"
-            . "        \$fixture = json_decode((string)file_get_contents({$scopePath}), true, flags: JSON_THROW_ON_ERROR);\n"
-            . "        \$plugin = Craft::\$app->getPlugins()->getPlugin('shortlink-manager');\n"
-            . "        \$plugin->set('shortLinks', new lindemannrock\\shortlinkmanager\\tests\\Fixtures\\Http\\HttpGraphqlScopedShortLinksService(\n"
-            . "            (int)\$fixture['linkId'],\n"
-            . "            (string)\$fixture['code'],\n"
-            . "            (int)\$fixture['siteWithoutMatch'],\n"
-            . "            (int)\$fixture['matchedSiteId'],\n"
-            . "        ));\n"
-            . "    },\n"
-            . "];\n",
-        ));
+        $this->writeGraphqlScopeState($link, $siteWithoutMatch, $matchedSite, true);
 
         $query = <<<'GRAPHQL'
 query ResolveShortlink($code: String!, $site: String!) {
@@ -558,11 +537,52 @@ GRAPHQL;
                 'matchedSiteAnalyticsDelta' => 1,
             ];
         } finally {
+            $this->writeGraphqlScopeState($link, $siteWithoutMatch, $matchedSite, false);
             self::assertTrue(Craft::$app->getGql()->deleteTokenById((int)$token->id));
             self::assertTrue(Craft::$app->getGql()->deleteSchemaById((int)$schema->id));
             self::assertSame(0, $this->countRows('{{%gqltokens}}', ['name' => $marker]));
             self::assertSame(0, $this->countRows('{{%gqlschemas}}', ['name' => $marker]));
         }
+    }
+
+    private function prepareGraphqlServiceConfig(
+        string $projectRoot,
+        ShortLink $link,
+        Site $siteWithoutMatch,
+        Site $matchedSite,
+    ): void {
+        $this->graphqlScopePath = $projectRoot . '/shortlink-http-graphql-scope.json';
+        $this->writeGraphqlScopeState($link, $siteWithoutMatch, $matchedSite, false);
+
+        $appConfigPath = $projectRoot . '/config/app.php';
+        $appConfig = require $appConfigPath;
+        self::assertIsArray($appConfig);
+        $scopePath = var_export($this->graphqlScopePath, true);
+        self::assertNotFalse(file_put_contents(
+            $appConfigPath,
+            "<?php\n\$config = " . var_export($appConfig, true) . ";\n"
+            . "\$config['on beforeRequest'] = static function(): void {\n"
+            . "    \$plugin = Craft::\$app->getPlugins()->getPlugin('shortlink-manager');\n"
+            . "    \$plugin->set('shortLinks', new lindemannrock\\shortlinkmanager\\tests\\Fixtures\\Http\\HttpGraphqlScopedShortLinksService({$scopePath}));\n"
+            . "};\n"
+            . "return \$config;\n",
+        ));
+    }
+
+    private function writeGraphqlScopeState(
+        ShortLink $link,
+        Site $siteWithoutMatch,
+        Site $matchedSite,
+        bool $enabled,
+    ): void {
+        self::assertNotNull($this->graphqlScopePath);
+        self::assertNotFalse(file_put_contents($this->graphqlScopePath, json_encode([
+            'enabled' => $enabled,
+            'linkId' => $link->id,
+            'code' => $link->slug,
+            'siteWithoutMatch' => $siteWithoutMatch->id,
+            'matchedSiteId' => $matchedSite->id,
+        ], JSON_THROW_ON_ERROR)));
     }
 
     private function availablePort(): int

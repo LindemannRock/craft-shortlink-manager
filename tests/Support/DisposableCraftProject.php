@@ -57,6 +57,7 @@ final class DisposableCraftProject
         $phpunit = null;
         $httpSmoke = null;
         $securitySaltSmoke = null;
+        $testResidue = null;
 
         try {
             $this->createDatabase();
@@ -67,6 +68,7 @@ final class DisposableCraftProject
             $this->seedSites();
             $phpunit = $this->runPhpunit($phpunitArguments);
             $httpSmoke = $this->readHttpSmokeEvidence();
+            $testResidue = $this->assertNoPluginTestResidue();
         } catch (\Throwable $exception) {
             $failure = $exception;
         }
@@ -89,6 +91,7 @@ final class DisposableCraftProject
             'securitySaltSmoke' => $securitySaltSmoke,
             'phpunit' => $phpunit,
             'httpSmoke' => $httpSmoke,
+            'testResidue' => $testResidue,
             'commands' => $this->commands,
             'cleanup' => $cleanup,
         ];
@@ -607,6 +610,35 @@ PHP);
     private function fixtureDsn(): string
     {
         return 'mysql:host=' . $this->databaseHost() . ';port=3306;dbname=' . $this->databaseName;
+    }
+
+    /** @return array<string, int> */
+    private function assertNoPluginTestResidue(): array
+    {
+        $pdo = new PDO(
+            $this->fixtureDsn() . ';charset=utf8mb4',
+            'db',
+            'db',
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
+        );
+        $tables = [
+            'shortlinkmanager',
+            'shortlinkmanager_content',
+            'shortlinkmanager_analytics',
+            'shortlinkmanager_import_history',
+            'shortlinkmanager_shortlink_tags',
+            'shortlinkmanager_folders',
+            'shortlinkmanager_tags',
+        ];
+        $residue = [];
+        foreach ($tables as $table) {
+            $residue[$table] = (int)$pdo->query("SELECT COUNT(*) FROM `{$table}`")->fetchColumn();
+        }
+        if (array_filter($residue, static fn(int $count): bool => $count !== 0) !== []) {
+            throw new \RuntimeException('Plugin tests left database residue: ' . json_encode($residue, JSON_THROW_ON_ERROR));
+        }
+
+        return $residue;
     }
 
     private function databaseHost(): string

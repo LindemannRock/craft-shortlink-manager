@@ -97,6 +97,7 @@ final class QrSizeInitializationTest extends TestCase
 
             $shortLink = $this->shortLinks->getByCode($code);
             self::assertInstanceOf(ShortLink::class, $shortLink);
+            $this->trackShortLinkForCleanup($shortLink);
             self::assertSame(1000, $shortLink->qrCodeSize);
         });
     }
@@ -116,6 +117,7 @@ final class QrSizeInitializationTest extends TestCase
 
             $shortLink = $this->shortLinks->getByCode($code);
             self::assertInstanceOf(ShortLink::class, $shortLink);
+            $this->trackShortLinkForCleanup($shortLink);
             self::assertSame(640, $shortLink->qrCodeSize);
         });
     }
@@ -159,6 +161,8 @@ final class QrSizeInitializationTest extends TestCase
 
             self::assertInstanceOf(ShortLink::class, $inherited);
             self::assertInstanceOf(ShortLink::class, $explicit);
+            $this->trackShortLinkForCleanup($inherited);
+            $this->trackShortLinkForCleanup($explicit);
             self::assertSame(1000, $inherited->qrCodeSize);
             self::assertSame(420, $explicit->qrCodeSize);
         });
@@ -170,6 +174,7 @@ final class QrSizeInitializationTest extends TestCase
             $shortLink = (new ShortLinkManagerVariable())->create($this->serviceOptions('twig-default'));
 
             self::assertInstanceOf(ShortLink::class, $shortLink);
+            $this->trackShortLinkForCleanup($shortLink);
             self::assertSame(1000, $shortLink->qrCodeSize);
         });
     }
@@ -200,6 +205,7 @@ final class QrSizeInitializationTest extends TestCase
 
             $shortLink = $this->shortLinks->getByElement($element, $element->siteId);
             self::assertInstanceOf(ShortLink::class, $shortLink);
+            $this->trackShortLinkForCleanup($shortLink);
             self::assertSame(1000, $shortLink->qrCodeSize);
         });
     }
@@ -389,6 +395,7 @@ final class QrSizeInitializationTest extends TestCase
         ], function(): void {
             $shortLink = $this->shortLinks->createShortLink($this->serviceOptions('public-default'));
             self::assertInstanceOf(ShortLink::class, $shortLink);
+            $this->trackShortLinkForCleanup($shortLink);
 
             $service = new CapturingDefaultSizeQrCodeService();
             $this->swapPluginComponent('shortlink-manager', 'qrCode', $service);

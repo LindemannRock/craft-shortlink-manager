@@ -31,6 +31,7 @@ final class ShortLinkTypeTest extends TestCase
         ]));
 
         self::assertInstanceOf(ShortLink::class, $link);
+        $this->trackShortLinkForCleanup($link);
         self::assertSame('code', $link->linkType);
         self::assertSame('manual', $link->shortLinkType);
         self::assertSame(10, strlen((string) $link->code));
@@ -47,6 +48,7 @@ final class ShortLinkTypeTest extends TestCase
         ]);
 
         self::assertInstanceOf(ShortLink::class, $link);
+        $this->trackShortLinkForCleanup($link);
         self::assertSame('vanity', $link->linkType);
         self::assertSame('manual', $link->shortLinkType);
         self::assertSame('sl-test-custom-code', $link->code);
