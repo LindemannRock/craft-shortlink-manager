@@ -1,5 +1,33 @@
 # Changelog
 
+## [5.28.4](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.3...v5.28.4) - 2026-08-31
+
+
+### Fixed
+
+* **analytics:** align current reporting ([5840f3b](https://github.com/LindemannRock/craft-shortlink-manager/commit/5840f3b02874cb324fa2784d3eece18e88c8f5e2))
+* **analytics:** isolate analytics regression tests ([3759452](https://github.com/LindemannRock/craft-shortlink-manager/commit/3759452b17722ef80853ff0c2451517493f9002f))
+* **cache:** support portable application caching ([782ccb5](https://github.com/LindemannRock/craft-shortlink-manager/commit/782ccb5673659415c8d7e20b443ca5dd1690d4bd))
+* **cli:** protect project file writes ([d2c5d80](https://github.com/LindemannRock/craft-shortlink-manager/commit/d2c5d800765da1597d28e6f81ece9e439835fd6a))
+* **cli:** use DDEV pre-commit gate ([1b4c231](https://github.com/LindemannRock/craft-shortlink-manager/commit/1b4c23178876a831e6ffcb74b8d32db1c54eacdf))
+* **controllers:** enforce taxonomy and import contracts ([c1ac002](https://github.com/LindemannRock/craft-shortlink-manager/commit/c1ac002c0c89c2951b06c56d32c9418ab98c9628))
+* **controllers:** preserve request scope ([4841962](https://github.com/LindemannRock/craft-shortlink-manager/commit/4841962a56b22aa95d4563223d0baeb2edc1aa4c))
+* **cp:** support Craft Cloud asset delivery ([69931a3](https://github.com/LindemannRock/craft-shortlink-manager/commit/69931a38bcab1ead9393750077cf696e3f318f38))
+* **deps:** prepare 5.28.4 release ([ce8275c](https://github.com/LindemannRock/craft-shortlink-manager/commit/ce8275c9525ab558d949068b2ce96eb9fc067755))
+* **permissions:** enforce action authorization ([3d15a06](https://github.com/LindemannRock/craft-shortlink-manager/commit/3d15a06f13ab29ebbb231cdaf0c7c17f1742789c))
+* **qr-code:** apply configured error correction ([c437f23](https://github.com/LindemannRock/craft-shortlink-manager/commit/c437f233c3208d8236c43d381eff17741222b467))
+* **qr-code:** honor configured default size ([e2a78b0](https://github.com/LindemannRock/craft-shortlink-manager/commit/e2a78b0a90464d2f06fe23b27bcc24fb0a3b155f))
+* **qr-code:** make public output canonical ([de7272c](https://github.com/LindemannRock/craft-shortlink-manager/commit/de7272c6fe23e3409df8bc2520a3f23c9b6f614b))
+* **qr-code:** support GD PNG rendering ([e6f5ee6](https://github.com/LindemannRock/craft-shortlink-manager/commit/e6f5ee6bc287f6412f4f5f4944234cb259f78857))
+* **queue:** support portable analytics cleanup ([b11697a](https://github.com/LindemannRock/craft-shortlink-manager/commit/b11697aae358abb7ff6570c11336e1ebdff1082c))
+* **redirects:** resolve all multisite URL tokens ([abb7d75](https://github.com/LindemannRock/craft-shortlink-manager/commit/abb7d756000d1f0b5a56f0b0f3608b2e940f7b2a))
+* remove unused linkMode parameter from error summary ([39ee425](https://github.com/LindemannRock/craft-shortlink-manager/commit/39ee425ca4bd82cdd3374577aadfec29975ad55a))
+* **settings:** align multisite setup readiness ([649179e](https://github.com/LindemannRock/craft-shortlink-manager/commit/649179ea0eca552979d061b087552c4d46b87249))
+* **shortlinks:** prevent test data residue ([098938d](https://github.com/LindemannRock/craft-shortlink-manager/commit/098938d26edfc4de515befa5c404562f58b36ca9))
+* **templates:** correct title rendering in setup template ([5e5a55b](https://github.com/LindemannRock/craft-shortlink-manager/commit/5e5a55b5b9ebf302726d493859385091a7620938))
+* **templates:** resolve environment-backed paths ([0bd777a](https://github.com/LindemannRock/craft-shortlink-manager/commit/0bd777a7c048c6964de124d77c96a38e9fa8b92e))
+* trigger release pull request ([4733bfe](https://github.com/LindemannRock/craft-shortlink-manager/commit/4733bfe6d7c813f4b0a50c60b761af51db100825))
+
 ## [5.28.3](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.2...v5.28.3) - 2026-07-18
 
 
