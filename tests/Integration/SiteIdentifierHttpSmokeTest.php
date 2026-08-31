@@ -129,7 +129,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             'id' => ['token' => '{siteId}', 'identifier' => (string)$targetSite->id],
             'uid' => ['token' => '{siteUid}', 'identifier' => $targetSite->uid],
         ] as $label => $case) {
-            $this->writeConfig($projectRoot, $origin . '/' . $case['token']);
+            $this->restartServerWithConfig($projectRoot, $port, $origin . '/' . $case['token']);
             $siteLink = ShortLink::find()->id($link->id)->siteId($targetSite->id)->status(null)->one();
             self::assertInstanceOf(ShortLink::class, $siteLink);
 
@@ -195,7 +195,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             self::assertSame(404, $this->request("{$origin}/{$unknown}/s/qr/{$link->slug}")['status']);
         }
 
-        $this->writeConfig($projectRoot, $origin . '/{siteHandle}');
+        $this->restartServerWithConfig($projectRoot, $port, $origin . '/{siteHandle}');
         $link->directRedirect = false;
         $link->passQueryParams = true;
         $link->trackAnalytics = true;
@@ -255,7 +255,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             'analyticsDelta' => 1,
         ];
 
-        $this->writeConfig($projectRoot, $origin . '/{siteHandle}');
+        $this->restartServerWithConfig($projectRoot, $port, $origin . '/{siteHandle}');
         $link->directRedirect = false;
         $link->dateExpired = null;
         self::assertTrue(Craft::$app->getElements()->saveElement($link));
@@ -299,7 +299,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         $link->passQueryParams = false;
         self::assertTrue(Craft::$app->getElements()->saveElement($link));
         $this->setDestinationForSite($link, $targetSite, 'https://destination.example/graphql-secondary');
-        $this->writeConfig($projectRoot, $origin . '/{siteHandle}');
+        $this->restartServerWithConfig($projectRoot, $port, $origin . '/{siteHandle}');
         $graphqlEvidence = $this->runGraphqlHttpSmoke(
             $projectRoot,
             $origin,
@@ -633,6 +633,13 @@ GRAPHQL;
         } while (microtime(true) < $deadline);
 
         self::fail('Owned HTTP smoke server did not become ready: ' . $this->serverOutput());
+    }
+
+    private function restartServerWithConfig(string $projectRoot, int $port, string $baseUrl): void
+    {
+        $this->stopServer();
+        $this->writeConfig($projectRoot, $baseUrl);
+        $this->startServer($projectRoot, $port);
     }
 
     private function stopServer(): void
