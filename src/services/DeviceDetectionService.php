@@ -83,7 +83,7 @@ class DeviceDetectionService extends Component
     /**
      * Clear cached device detection results and the request-local detector.
      *
-     * @since 5.29.0
+     * @since 5.28.4
      */
     public function clearCache(?DisposableCacheStorageDecision $decision = null): int
     {

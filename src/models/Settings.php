@@ -431,7 +431,7 @@ class Settings extends Model
     /**
      * Returns the effective redirect template path.
      *
-     * @since 5.29.0
+     * @since 5.28.4
      */
     public function getResolvedRedirectTemplate(?Site $site = null): string
     {
@@ -441,7 +441,7 @@ class Settings extends Model
     /**
      * Returns the effective expired-link template path.
      *
-     * @since 5.29.0
+     * @since 5.28.4
      */
     public function getResolvedExpiredTemplate(?Site $site = null): string
     {
@@ -451,7 +451,7 @@ class Settings extends Model
     /**
      * Returns the effective QR display template path.
      *
-     * @since 5.29.0
+     * @since 5.28.4
      */
     public function getResolvedQrTemplate(?Site $site = null): string
     {

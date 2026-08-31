@@ -19,7 +19,7 @@ use yii\console\ExitCode;
 /**
  * Covers complete, atomic project environment updates for generated IP salts.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class SecurityGenerateSaltTest extends TestCase
 {
@@ -290,7 +290,7 @@ final class SecurityGenerateSaltTest extends TestCase
 /**
  * Runs the native filesystem boundary against an isolated fixture `.env`.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class NativeSaltSecurityController extends SecurityController
 {
@@ -325,7 +325,7 @@ final class NativeSaltSecurityController extends SecurityController
 /**
  * In-memory handle for deterministic filesystem failure injection.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class RecordingSaltFileHandle
 {
@@ -340,7 +340,7 @@ final class RecordingSaltFileHandle
 /**
  * Records the complete environment replacement protocol without project access.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class RecordingSaltSecurityController extends SecurityController
 {

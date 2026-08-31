@@ -38,28 +38,16 @@ Advanced shortlink management with QR codes and analytics for Craft CMS.
 
 ## Installation
 
-### Composer
+### Via Composer
 
 ```bash
-composer require lindemannrock/craft-shortlink-manager && php craft plugin/install shortlink-manager
+composer require lindemannrock/craft-shortlink-manager && php craft plugin/install shortlink-manager && php craft shortlink-manager/security/generate-salt
 ```
 
-### DDEV
+### Using DDEV
 
 ```bash
-ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin/install shortlink-manager
-```
-
-### Post-install
-
-Generate the IP hash salt used by privacy-conscious analytics:
-
-```bash
-php craft shortlink-manager/security/generate-salt
-```
-
-```bash
-ddev craft shortlink-manager/security/generate-salt
+ddev composer require lindemannrock/craft-shortlink-manager && ddev craft plugin/install shortlink-manager && ddev craft shortlink-manager/security/generate-salt
 ```
 
 ## Documentation

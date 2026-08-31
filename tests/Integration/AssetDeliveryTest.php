@@ -24,7 +24,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers static asset delivery for ShortLink Manager control-panel features.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class AssetDeliveryTest extends TestCase
 {

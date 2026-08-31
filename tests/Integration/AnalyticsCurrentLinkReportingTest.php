@@ -20,7 +20,7 @@ use lindemannrock\shortlinkmanager\tests\TestCase;
  * Pins current-link membership for engagement and Top Links while preserving
  * historical analytics through normal element lifecycle transitions.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class AnalyticsCurrentLinkReportingTest extends TestCase
 {

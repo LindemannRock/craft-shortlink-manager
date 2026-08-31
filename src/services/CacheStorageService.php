@@ -24,7 +24,7 @@ use lindemannrock\shortlinkmanager\ShortLinkManager;
 /**
  * Resolves and operates ShortLink Manager's disposable cache storage.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class CacheStorageService extends Component
 {

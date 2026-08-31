@@ -32,7 +32,7 @@ use yii\redis\Cache as RedisCache;
 require_once dirname(__DIR__) . '/Fixtures/CascadeCache.php';
 
 /**
- * @since 5.29.0
+ * @since 5.28.4
  */
 #[CoversClass(CacheStorageService::class)]
 final class PortableDisposableCacheTest extends TestCase
@@ -301,7 +301,7 @@ final class PortableDisposableCacheTest extends TestCase
 /**
  * Best-effort persistent cache fixture.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 class PortablePersistentCache extends Cache
 {
@@ -386,7 +386,7 @@ class PortablePersistentCache extends Cache
 /**
  * Database-cache-compatible fixture without database side effects.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class PortableDatabaseCache extends DbCache
 {

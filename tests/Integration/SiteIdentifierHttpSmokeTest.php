@@ -193,7 +193,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             self::assertSame(404, $this->request("{$origin}/{$unknown}/s/qr/{$link->slug}")['status']);
         }
 
-        $this->writeConfig($projectRoot, $origin . '/{siteHandle}', false, true);
+        $this->writeConfig($projectRoot, $origin . '/{siteHandle}');
         $link->directRedirect = false;
         $link->passQueryParams = true;
         $link->trackAnalytics = true;
@@ -253,8 +253,8 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             'analyticsDelta' => 1,
         ];
 
-        $this->writeConfig($projectRoot, $origin . '/{siteHandle}', false);
-        $link->directRedirect = null;
+        $this->writeConfig($projectRoot, $origin . '/{siteHandle}');
+        $link->directRedirect = false;
         $link->dateExpired = null;
         self::assertTrue(Craft::$app->getElements()->saveElement($link));
 
@@ -265,7 +265,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         $primarySite = Craft::$app->getSites()->getPrimarySite();
         $primaryVariant = ShortLink::find()->id($link->id)->siteId($primarySite->id)->status(null)->one();
         self::assertInstanceOf(ShortLink::class, $primaryVariant);
-        $primaryVariant->directRedirect = null;
+        $primaryVariant->directRedirect = false;
         self::assertTrue(Craft::$app->getElements()->saveElement($primaryVariant));
         $globalRedirect = $this->request("{$origin}/{$primarySite->handle}/s/{$link->slug}");
         self::assertSame(200, $globalRedirect['status'], $globalRedirect['body']);
@@ -298,7 +298,7 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
         $link->passQueryParams = false;
         self::assertTrue(Craft::$app->getElements()->saveElement($link));
         $this->setDestinationForSite($link, $targetSite, 'https://destination.example/graphql-secondary');
-        $this->writeConfig($projectRoot, $origin . '/{siteHandle}', true, true);
+        $this->writeConfig($projectRoot, $origin . '/{siteHandle}');
         $graphqlEvidence = $this->runGraphqlHttpSmoke(
             $projectRoot,
             $origin,
@@ -364,8 +364,6 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
     private function writeConfig(
         string $projectRoot,
         string $baseUrl,
-        bool $directRedirect = true,
-        bool $enableAnalytics = false,
     ): void {
         $this->configPath = $projectRoot . '/config/shortlink-manager.php';
         $this->templatePath = $projectRoot . '/templates/shortlink-http-qr.twig';
@@ -380,8 +378,8 @@ final class SiteIdentifierHttpSmokeTest extends TestCase
             'usePrefix' => true,
             'slugPrefix' => 's',
             'qrPrefix' => 's/qr',
-            'directRedirect' => $directRedirect,
-            'enableAnalytics' => $enableAnalytics,
+            'directRedirect' => true,
+            'enableAnalytics' => true,
             'enabledIntegrations' => [],
         ];
         self::assertNotFalse(file_put_contents(

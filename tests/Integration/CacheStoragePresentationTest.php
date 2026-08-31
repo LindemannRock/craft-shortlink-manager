@@ -31,7 +31,7 @@ use yii\redis\Cache as RedisCache;
 require_once dirname(__DIR__) . '/Fixtures/CascadeCache.php';
 
 /**
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class CacheStoragePresentationTest extends TestCase
 {
@@ -288,7 +288,7 @@ final class CacheStoragePresentationTest extends TestCase
 /**
  * Unknown best-effort application-cache fixture.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class PresentationUnknownCache extends Cache
 {

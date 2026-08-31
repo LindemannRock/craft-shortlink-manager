@@ -208,9 +208,11 @@ test('canonical Composer quality gate has one orchestrator and timeout owner', (
     ]);
 });
 
-test('PHP quality configuration includes product, tests, bootstrap support, and ECS config', () => {
+test('PHP quality tooling declares its executable and includes product, tests, bootstrap support, and ECS config', () => {
+    const composer = JSON.parse(readFileSync(path.join(packageRoot, 'composer.json'), 'utf8'));
     const phpstan = readFileSync(path.join(packageRoot, 'phpstan.neon'), 'utf8');
     const ecs = readFileSync(path.join(packageRoot, 'ecs.php'), 'utf8');
+    assert.equal(composer['require-dev']['phpstan/phpstan'], '^1.12.33');
     assert.match(phpstan, /paths:\s*\n\s*- src\s*\n\s*- tests/);
     assert.match(phpstan, /scanFiles:\s*\n\s*- tests\/Stubs\/BaseTestingBootstrap\.php/);
     assert.match(ecs, /__DIR__ \. '\/src'[\s\S]*__DIR__ \. '\/tests'[\s\S]*__FILE__/);

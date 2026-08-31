@@ -441,7 +441,7 @@ final class GraphqlShortLinkTest extends TestCase
 /**
  * Supplies an exact-site miss plus a different-site match for resolver contract tests.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class GraphqlScopedShortLinksService extends ShortLinksService
 {

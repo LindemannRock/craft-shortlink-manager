@@ -15,7 +15,7 @@ use PDO;
 /**
  * Owns one disposable MySQL Craft project for the complete PHPUnit suite.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class DisposableCraftProject
 {

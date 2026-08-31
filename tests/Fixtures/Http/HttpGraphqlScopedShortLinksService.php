@@ -16,7 +16,7 @@ use lindemannrock\shortlinkmanager\services\ShortLinksService;
 /**
  * Supplies a disposable HTTP fixture where one site lacks a code that exists on another site.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class HttpGraphqlScopedShortLinksService extends ShortLinksService
 {

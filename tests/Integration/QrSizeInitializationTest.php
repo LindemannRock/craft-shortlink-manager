@@ -33,7 +33,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Pins configured QR-size initialization across supported new-link producers.
  *
- * @since 5.29.0
+ * @since 5.28.4
  */
 final class QrSizeInitializationTest extends TestCase
 {
