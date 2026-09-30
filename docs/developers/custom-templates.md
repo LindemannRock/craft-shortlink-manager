@@ -6,7 +6,7 @@ ShortLink Manager renders a few front-end pages — the redirect interstitial, t
 
 | Template | Default path | Setting | What it renders |
 |----------|--------------|---------|-----------------|
-| `redirect.twig` | `shortlink-manager/redirect` | `redirectTemplate` | The redirect interstitial shown before the browser navigates to the destination. Fires analytics/SEOmatic tracking, then forwards to the tracked `goUrl`. **Skipped entirely when [Direct Redirect](../feature-tour/direct-redirect.md) is on** — a direct HTTP redirect is issued instead. |
+| `redirect.twig` | `shortlink-manager/redirect` | `redirectTemplate` | The redirect interstitial shown before the browser navigates to the destination. Initializes SEOmatic arrival tracking, emits redirect tracking before automatic navigation, then forwards to `goUrl` where enabled internal analytics are recorded. **Skipped entirely when [Direct Redirect](../feature-tour/direct-redirect.md) is on** — a direct HTTP redirect is issued instead. |
 | `qr.twig` | `shortlink-manager/qr` | `qrTemplate` | The QR code display page at `/{qrPrefix}/{code}/view`. |
 | `expired.twig` | `shortlink-manager/expired` | `expiredTemplate` | The page shown when a short link has expired. |
 
@@ -80,7 +80,7 @@ Each template receives a fixed set of variables from the plugin. Use these inste
 The element exposes these template helpers:
 
 - `shortLink.renderRedirectScript()` @since(5.23.0) — the tracked client-side redirect script. It forwards to `goUrl` (recording the click) and handles `?debug=1`. **Debug is devMode-only by default**; pass `renderRedirectScript(true)` to allow `?debug=1` outside devMode (see the tip below).
-- `shortLink.renderRedirectSeomaticTracking()` @since(5.24.0) — [SEOmatic](integrations.md) data-layer tracking for the redirect page (returns nothing when SEOmatic/the event is unavailable).
+- `shortLink.renderRedirectSeomaticTracking()` @since(5.24.0) — [SEOmatic](integrations.md) initializes data-layer tracking for the landing page. Emits selected `qr_scan` on browser `src=qr` arrival; selected `redirect` is emitted later by the navigation helper. Returns nothing when SEOmatic or analytics is unavailable/disabled.
 
 ```twig
 {# templates/shortlink-manager/redirect.twig #}
@@ -104,6 +104,8 @@ The element exposes these template helpers:
 > - `{{ shortLink.renderRedirectScript() }}` — default, safe. `?debug=1` is honored **only in `devMode`**; on staging/production it does nothing and the redirect runs normally.
 > - `{{ shortLink.renderRedirectScript(true) }}` — opt-in override (custom templates only). Allows `?debug=1` **even with `devMode` off**, so you can stop the redirect on staging and log the generated `goUrl` in the browser console. Use it intentionally for staging validation and revert it for production.
 >
+> A paused visit emits no `redirect` event. With QR tracking selected, `src=qr` still emits `qr_scan` on arrival.
+>
 > When you can't (or don't want to) enable debug — e.g. the shipped template on production — diagnose from the response headers instead (see [Troubleshooting](../resources/troubleshooting.md#diagnosing-on-staging-or-production-no-devmode)).
 
 ### `qr.twig`
@@ -116,7 +118,7 @@ The element exposes these template helpers:
 
 Render the canonical public QR image with `shortLink.getQrCodeUrl()`. The `/view` request and public URL helpers ignore styling query options, so a copied display template should not append size, format, color, or other style parameters. For a trusted server-side inline render, `shortLink.getQrCodeDataUri(options)` and `shortLink.getQrCode(options)` continue to accept rendering options within the 100–1000px service range. See [Using QR codes in templates](../feature-tour/qr-codes.md#using-qr-codes-in-templates).
 
-If SEOmatic tracking is enabled, use `shortLink.renderQrSeomaticTracking()` on QR display pages. Do not pass event type strings in templates; the plugin maps redirect and QR page intent to the configured tracking events.
+Displaying a QR code emits no scan event. You can remove `shortLink.renderQrSeomaticTracking()` from copied QR display templates; existing calls and the older `renderSeomaticTracking('qr_scan')` helper remain callable and emit nothing. QR arrival is recorded only when the rendered shortlink landing page opens with `src=qr`.
 
 ### `expired.twig`
 
@@ -127,8 +129,8 @@ If SEOmatic tracking is enabled, use `shortLink.renderQrSeomaticTracking()` on Q
 
 ## What to customize (and what to keep)
 
-- **Customize freely:** layout, branding, copy, styling, the redirect delay, and any extra markup or analytics you want on the page.
-- **Keep on the redirect page:** `{{ shortLink.renderRedirectScript() }}` (the tracked forward to `goUrl`) and `{{ shortLink.renderRedirectSeomaticTracking() }}` if you use SEOmatic — these are what record the click. Redirecting to `shortLink.url` instead of `goUrl` skips tracking and loops.
+- **Customize freely:** layout, branding, copy, styling, and extra markup. Keep the existing navigation helper when you need the automatic redirect event; a custom redirect or meta refresh does not invoke that event.
+- **Keep on the redirect page:** `{{ shortLink.renderRedirectSeomaticTracking() }}` before `{{ shortLink.renderRedirectScript() }}` if you use SEOmatic. The first initializes browser events; the second forwards to `goUrl`, where enabled internal analytics and hit counting occur. Redirecting to `shortLink.url` instead of `goUrl` skips tracking and loops.
 - Redirect templates are standalone pages by default. You can `{% extends %}` your own layout if you prefer, but a minimal page generally redirects faster.
 
 ## Related

@@ -20,6 +20,13 @@ if (!is_string($projectRoot) || preg_match($expected, $projectRoot) !== 1) {
 require $projectRoot . '/bootstrap.php';
 require $projectRoot . '/vendor/craftcms/cms/bootstrap/console.php';
 
+// Fresh Install inserts id=1 without a prefix; prove the database supplies it.
+$prefix = (new \craft\db\Query())->select('seomaticEventPrefix')
+    ->from('{{%shortlinkmanager_settings}}')->where(['id' => 1])->scalar();
+if ($prefix !== 'short_links') {
+    throw new RuntimeException('Fresh ShortLink settings must inherit the short_links event prefix.');
+}
+
 $sites = Craft::$app->getSites();
 $primary = $sites->getPrimarySite();
 $primary->handle = 'en';

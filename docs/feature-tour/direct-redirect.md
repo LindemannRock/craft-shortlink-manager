@@ -2,7 +2,7 @@
 
 Skip the redirect template entirely and get a faster, server-side HTTP redirect. Use it globally for speed, then keep selected links on the template path when they need client-side tracking.
 
-By default, ShortLink Manager renders a redirect template before issuing the final HTTP redirect. The template fires SEOmatic tracking events and gives any GTM/GA JavaScript a chance to run before the browser navigates away. Direct Redirect bypasses that template for a leaner, lower-latency response.
+By default, ShortLink Manager renders a redirect template before issuing the final HTTP redirect. With the integration enabled, the template records selected QR-attributed arrivals and emits the selected redirect event immediately before automatic navigation. Direct Redirect bypasses that template for a leaner, lower-latency response.
 
 ## What you'll use it for
 
@@ -41,10 +41,10 @@ The stored `directRedirect` value supports three states, which also matters for 
 | Value | Behavior |
 |-------|---------|
 | `null` | Use the global setting (default) |
-| `true` | Always use direct redirect for this link |
+| `true` | Use direct redirect only when the global switch is enabled |
 | `false` | Always use the redirect template for this link |
 
-This lets you run Direct Redirect globally while keeping the template for specific links that need client-side tracking or custom redirect-page behavior.
+The global switch is the master switch: when it is off, even a saved per-link `true` renders the template. This lets you run Direct Redirect globally while keeping the template for specific links that need client-side tracking or custom redirect-page behavior.
 
 ## How it works
 
@@ -52,14 +52,16 @@ This lets you run Direct Redirect globally while keeping the template for specif
 
 1. Browser requests a short URL (e.g. `https://example.com/s/abc123`)
 2. ShortLink Manager loads the redirect template (`shortlink-manager/redirect`)
-3. The template renders — fires SEOmatic events, GTM/GA runs
-4. The template redirects to an internal uncached action route
-5. That action records analytics and issues the final HTTP redirect to the destination
+3. The landing helper records `qr_scan` only for a browser `src=qr` arrival when that event is selected
+4. After 100 ms, the navigation helper emits the selected `redirect` event and forwards to an internal uncached action route
+5. That action records enabled analytics, increments hits, and issues the final HTTP redirect to the destination
+
+An allowed `?debug=1` pauses steps 4–5, so a normal paused visit emits neither browser event and a QR-attributed paused visit can emit only `qr_scan`.
 
 **With Direct Redirect:**
 
 1. Browser requests a short URL (e.g. `https://example.com/s/abc123`)
-2. ShortLink Manager issues a direct HTTP `301`/`302`/`307`/`308` response
+2. ShortLink Manager records enabled internal analytics, increments hits, and issues a direct HTTP `301`/`302`/`307`/`308` response
 3. Browser follows the redirect immediately
 
 In Direct Redirect mode, server-side analytics only record when the short URL request actually reaches Craft. If a browser, CDN, or static cache serves the short URL before PHP runs, repeat-hit tracking can be bypassed.
@@ -82,7 +84,7 @@ If your host, CDN, or static cache stores the short URL response, Direct Redirec
 > Direct Redirect is a performance feature, not a cache bypass. If you need reliable per-hit server-side analytics in direct mode, configure your infrastructure to bypass cache for your [shortlink routes](custom-domain.md#site-aware-routes).
 
 > [!NOTE]
-> The direct redirect response is sent with `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, but some CDNs/edge caches cache redirects anyway — `301`/`308` most aggressively, because they're permanent. For analytics-heavy links prefer `302`/`307`, and in direct mode still add explicit cache-bypass rules for the short-link routes rather than relying on the `no-store` header alone. To check whether a CDN is serving a cached redirect (e.g. on staging, where `?debug=1` is unavailable), inspect the response headers for `x-cache: HIT` / a non-zero `age` — see [Troubleshooting](../resources/troubleshooting.md#diagnosing-on-staging-or-production-no-devmode).
+> When global analytics and the link's Track Analytics toggle are enabled, the direct redirect response is sent with `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, but some CDNs/edge caches cache redirects anyway — `301`/`308` most aggressively, because they're permanent. For analytics-heavy links prefer `302`/`307`, and in direct mode still add explicit cache-bypass rules for the short-link routes rather than relying on the `no-store` header alone. To check whether a CDN is serving a cached redirect (e.g. on staging, where `?debug=1` is unavailable), inspect the response headers for `x-cache: HIT` / a non-zero `age` — see [Troubleshooting](../resources/troubleshooting.md#diagnosing-on-staging-or-production-no-devmode).
 
 ## Impact on SEOmatic integration
 
@@ -111,11 +113,16 @@ See [Integrations](integrations.md) for SEOmatic configuration.
 - Your redirect template includes analytics pixels or custom JS
 - You need full control over the user experience during the redirect
 
-## Template-less redirects without Direct Redirect
+## A minimal template with tracking
 
-If you want to skip most of the template overhead but still keep the option to enable SEOmatic tracking for some links, another approach is to make your redirect template minimal — just a `<meta>` refresh and the SEOmatic include, with no other assets.
+Keep a lightweight redirect page by rendering the two helpers without additional assets:
 
-Direct Redirect is simply the most performant option when you have no template requirements at all.
+```twig
+{{ shortLink.renderRedirectSeomaticTracking() }}
+{{ shortLink.renderRedirectScript() }}
+```
+
+Render the tracking helper first. The navigation helper keeps the tracked `goUrl` hop and the redirect-event timing together. A meta refresh or custom navigation does not invoke that automatic event. See [Custom templates](../developers/custom-templates.md) for a complete page and a manual fallback link.
 
 ## Changing redirect modes or status codes
 

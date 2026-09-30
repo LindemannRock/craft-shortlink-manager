@@ -304,7 +304,7 @@ class Settings extends Model
     /**
      * @var string Event prefix for SEOmatic/GTM events
      */
-    public string $seomaticEventPrefix = 'shortlink_manager';
+    public string $seomaticEventPrefix = 'short_links';
 
     /**
      * Database table name for settings persistence

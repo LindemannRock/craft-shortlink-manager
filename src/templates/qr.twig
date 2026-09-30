@@ -1,9 +1,8 @@
 {#
   ShortLink QR display template.
 
-  Shows a scannable QR image for the current short link. SEOmatic QR tracking is
-  rendered through `renderQrSeomaticTracking()`; the helper returns nothing when
-  the integration or QR tracking event is disabled.
+  Shows a scannable QR image for the current short link. Displaying the image
+  does not emit a QR scan event; tracking happens on the shortlink landing page.
 #}
 <!DOCTYPE html>
 <html lang="{{ currentSite.language }}">
@@ -15,7 +14,6 @@
 
 	<script src="https://cdn.tailwindcss.com"></script>
 
-	{{ shortLink.renderQrSeomaticTracking() }}
 </head>
 <body>
 	<div class="flex justify-center items-center min-h-screen max-w-lg mx-auto px-4 py-8">

@@ -122,7 +122,7 @@ abstract class BaseIntegration implements IntegrationInterface
     protected function formatEventData(string $eventType, array $data): array
     {
         $settings = ShortLinkManager::getInstance()->getSettings();
-        $eventPrefix = $settings->seomaticEventPrefix ?? 'shortlink_manager';
+        $eventPrefix = $settings->seomaticEventPrefix ?? 'short_links';
 
         // Build base event structure
         $formattedData = [

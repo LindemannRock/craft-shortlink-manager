@@ -94,6 +94,41 @@ final class DirectRedirectTest extends TestCase
         });
     }
 
+    public function testDirectHttpModeKeepsInternalTrackingWithoutBrowserEvents(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());
+        foreach (['direct', 'qr'] as $source) {
+            foreach ([false, true] as $analyticsEnabled) {
+                $this->installWebRequest(['src' => $source, 'debug' => '1']);
+                $link = $this->seedShortLink(['destinationUrl' => 'https://example.com/direct-target']);
+                $link->trackAnalytics = true;
+                $link->passQueryParams = false;
+                self::assertTrue(Craft::$app->getElements()->saveElement($link));
+
+                $this->withSettings([
+                    'directRedirect' => true,
+                    'enableAnalytics' => $analyticsEnabled,
+                    'enabledIntegrations' => ['seomatic'],
+                    'seomaticTrackingEvents' => ['redirect', 'qr_scan'],
+                ], function() use ($link, $source, $analyticsEnabled): void {
+                    $controller = $this->controller();
+                    $response = $controller->actionIndex($link->slug);
+                    self::assertSame(302, $response->getStatusCode());
+                    self::assertSame('https://example.com/direct-target', $response->headers->get('Location'));
+                    self::assertSame([], $controller->lastVariables);
+                    self::assertStringNotContainsString('<script', (string)$response->content);
+                    self::assertStringNotContainsString('dataLayer', (string)$response->content);
+                    self::assertSame(1, $this->fetchHitsFromDb((int)$link->id));
+                    self::assertSame($analyticsEnabled ? 1 : 0, $this->countRows('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id]));
+                    if ($analyticsEnabled) {
+                        $metadata = json_decode($this->fetchRow('{{%shortlinkmanager_analytics}}', ['linkId' => $link->id])['metadata'], true, flags: JSON_THROW_ON_ERROR);
+                        self::assertSame($source, $metadata['source']);
+                    }
+                });
+            }
+        }
+    }
+
     public function testGlobalDirectRedirectFalseOverridesPerLinkTrue(): void
     {
         $this->swapPluginComponent('shortlink-manager', 'deviceDetection', new StubDeviceDetectionService());

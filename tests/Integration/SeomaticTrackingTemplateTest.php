@@ -10,8 +10,14 @@ declare(strict_types=1);
 
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
+use lindemannrock\shortlinkmanager\elements\ShortLink;
+use lindemannrock\shortlinkmanager\integrations\IntegrationInterface;
+use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
+use lindemannrock\shortlinkmanager\models\Settings;
+use lindemannrock\shortlinkmanager\services\IntegrationService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @since 5.21.1
@@ -19,33 +25,172 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 #[CoversNothing]
 class SeomaticTrackingTemplateTest extends TestCase
 {
-    public function testSeomaticTrackingTemplateRendersDirectly(): void
+    public function testNormalNavigationRecordsRedirectOnlyAtTheTimerBoundary(): void
     {
-        $template = (string) file_get_contents(dirname(__DIR__, 2) . '/src/templates/_integrations/seomatic.twig');
-
-        $this->assertStringNotContainsString('{% macro', $template);
-        $this->assertStringNotContainsString('{% endmacro %}', $template);
-        $this->assertStringContainsString('code: link.code', $template);
-        $this->assertStringContainsString('title: link.title', $template);
-        $this->assertStringNotContainsString('shortLink.code', $template);
-        $this->assertStringContainsString('window.dataLayer.push({{ eventDataJson|raw }});', $template);
-        $this->assertStringContainsString('eventData|json_encode', $template);
+        $result = $this->executeTracking();
+        self::assertSame(['already_queued'], $result['arrivalEvents']);
+        self::assertSame(['short_links_redirect', 'navigate'], $result['timeline']);
+        self::assertSame([100], $result['timerDelays']);
+        self::assertSame(['https://links.example/ar/actions/shortlink-manager/redirect/go/campaign?site=ar'], $result['navigations']);
+        self::assertSame('direct', $result['events'][1]['shortlink']['source']);
+        self::assertSame('redirect', $result['events'][1]['shortlink']['click_type']);
     }
 
-    public function testPublicTemplatesUseIntentBasedSeomaticHelpers(): void
+    public function testQrArrivalAndNavigationEmitIndependentEvents(): void
+    {
+        $result = $this->executeTracking(['search' => '?src=qr']);
+        self::assertSame(['already_queued', 'short_links_qr_scan'], $result['arrivalEvents']);
+        self::assertSame(['short_links_qr_scan', 'short_links_redirect', 'navigate'], $result['timeline']);
+        self::assertSame('qr', $result['events'][1]['shortlink']['source']);
+        self::assertSame('qr_scan', $result['events'][1]['shortlink']['click_type']);
+        self::assertSame('qr', $result['events'][2]['shortlink']['source']);
+        self::assertSame('redirect', $result['events'][2]['shortlink']['click_type']);
+    }
+
+    #[DataProvider('pausedSources')]
+    public function testDebugPauseRecordsOnlyQrArrival(string $search, array $expected): void
+    {
+        $result = $this->executeTracking(['search' => $search]);
+        self::assertSame($expected, array_column($result['events'], 'event'));
+        self::assertSame([], $result['navigations']);
+        self::assertSame([], $result['timerDelays']);
+    }
+
+    public static function pausedSources(): iterable
+    {
+        yield 'direct' => ['?debug=1', ['already_queued']];
+        yield 'qr' => ['?src=qr&debug=1', ['already_queued', 'short_links_qr_scan']];
+    }
+
+    public function testDebugParameterDoesNotPauseWhenOverrideIsDisallowed(): void
+    {
+        $result = $this->executeTracking(['search' => '?src=qr&debug=1', 'allowDebug' => false]);
+        self::assertSame(['short_links_qr_scan', 'short_links_redirect', 'navigate'], $result['timeline']);
+    }
+
+    #[DataProvider('eventSelections')]
+    public function testEventSwitchesIndependentlyControlArrivalAndNavigation(array $enabled): void
+    {
+        $result = $this->executeTracking(['search' => '?src=qr'], ['seomaticTrackingEvents' => $enabled]);
+        $expected = ['already_queued'];
+        if (in_array('qr_scan', $enabled, true)) {
+            $expected[] = 'short_links_qr_scan';
+        }
+        if (in_array('redirect', $enabled, true)) {
+            $expected[] = 'short_links_redirect';
+        }
+        self::assertSame($expected, array_column($result['events'], 'event'));
+        self::assertCount(1, $result['navigations']);
+        self::assertSame([100], $result['timerDelays']);
+    }
+
+    public static function eventSelections(): iterable
+    {
+        yield 'none' => [[]];
+        yield 'redirect' => [['redirect']];
+        yield 'qr' => [['qr_scan']];
+        yield 'both' => [['redirect', 'qr_scan']];
+    }
+
+    #[DataProvider('configuredPrefixes')]
+    public function testExplicitPrefixesAndEncodedPayloadsRemainUnchanged(string $prefix): void
+    {
+        $result = $this->executeTracking(['search' => '?src=qr'], ['seomaticEventPrefix' => $prefix]);
+        self::assertSame(['already_queued', $prefix . '_qr_scan', $prefix . '_redirect'], array_column($result['events'], 'event'));
+        self::assertSame("Campaign 'quoted' & </script> mobile", $result['events'][1]['shortlink']['title']);
+        self::assertSame('campaign', $result['events'][1]['shortlink']['code']);
+    }
+
+    public static function configuredPrefixes(): iterable
+    {
+        yield 'legacy' => ['shortlink_manager'];
+        yield 'custom' => ['custom_campaign'];
+    }
+
+    public function testCustomBrowserSourceIsPreservedWithoutCountingQrArrival(): void
+    {
+        $result = $this->executeTracking(['search' => '?src=unexpected']);
+        self::assertSame(['short_links_redirect', 'navigate'], $result['timeline']);
+        self::assertSame('unexpected', $result['events'][1]['shortlink']['source']);
+    }
+
+    public function testDisabledIntegrationDoesNotBlockNavigation(): void
+    {
+        $result = $this->executeTracking(['search' => '?src=qr'], ['enabledIntegrations' => []]);
+        self::assertSame(['already_queued'], array_column($result['events'], 'event'));
+        self::assertSame(['navigate'], $result['timeline']);
+    }
+
+    public function testDisabledAnalyticsDoesNotBlockNavigation(): void
+    {
+        $result = $this->executeTracking(['search' => '?src=qr'], ['enableAnalytics' => false]);
+        self::assertSame(['already_queued'], array_column($result['events'], 'event'));
+        self::assertSame(['navigate'], $result['timeline']);
+    }
+
+    public function testUnavailableSeomaticDoesNotBlockNavigation(): void
+    {
+        $this->swapPluginComponent('shortlink-manager', 'integration', new class() extends IntegrationService {
+            public function getIntegration(string $handle): ?IntegrationInterface
+            {
+                return new class() extends SeomaticIntegration {
+                    public function isAvailable(): bool
+                    {
+                        return false;
+                    }
+                };
+            }
+        });
+        $result = $this->executeTracking(['search' => '?src=qr']);
+        self::assertSame(['already_queued'], array_column($result['events'], 'event'));
+        self::assertSame(['navigate'], $result['timeline']);
+    }
+
+    public function testLegacyQrDisplayHelpersRemainCallableAndInert(): void
+    {
+        $this->withSettings(['enableAnalytics' => true, 'enabledIntegrations' => ['seomatic']], function(): void {
+            $link = new ShortLink();
+            self::assertNull($link->renderQrSeomaticTracking());
+            self::assertNull($link->renderSeomaticTracking('qr_scan'));
+        });
+    }
+
+    public function testPublicTemplatesUseLandingHelpersAndDoNotTrackQrDisplay(): void
     {
         $templateDir = dirname(__DIR__, 2) . '/src/templates';
-        $redirectTemplate = (string) file_get_contents($templateDir . '/redirect.twig');
-        $qrTemplate = (string) file_get_contents($templateDir . '/qr.twig');
+        $redirect = (string)file_get_contents($templateDir . '/redirect.twig');
+        $qr = (string)file_get_contents($templateDir . '/qr.twig');
+        self::assertStringContainsString('renderRedirectSeomaticTracking()', $redirect);
+        self::assertStringContainsString('renderRedirectScript()', $redirect);
+        self::assertStringNotContainsString('renderQrSeomaticTracking()', $qr);
+        self::assertStringNotContainsString("renderSeomaticTracking('qr_scan')", $qr);
+    }
 
-        $this->assertStringContainsString('renderRedirectSeomaticTracking()', $redirectTemplate);
-        $this->assertStringContainsString('renderQrSeomaticTracking()', $qrTemplate);
-        $this->assertStringNotContainsString('renderRedirectSeomaticTracking is defined', $redirectTemplate);
-        $this->assertStringNotContainsString('renderQrSeomaticTracking is defined', $qrTemplate);
-        $this->assertStringNotContainsString("renderSeomaticTracking('qr_scan')", $qrTemplate);
-        $this->assertStringNotContainsString('renderSeomaticTracking(eventType)', $redirectTemplate);
-        $this->assertStringNotContainsString('DEBUG MODE', $qrTemplate);
-        $this->assertStringNotContainsString('debugMode', $qrTemplate);
+    private function executeTracking(array $input = [], array $settings = []): array
+    {
+        return $this->withSettings(array_merge([
+            'enableAnalytics' => true,
+            'enabledIntegrations' => ['seomatic'],
+            'seomaticEventPrefix' => (new Settings())->seomaticEventPrefix,
+            'seomaticTrackingEvents' => ['redirect', 'qr_scan'],
+        ], $settings), function() use ($input): array {
+            $link = new ShortLink(['code' => 'campaign', 'title' => "Campaign 'quoted' & </script> mobile"]);
+            $link->setRedirectScriptUrl('https://links.example/ar/actions/shortlink-manager/redirect/go/campaign?site=ar');
+            $html = (string)$link->renderRedirectSeomaticTracking() . (string)$link->renderRedirectScript($input['allowDebug'] ?? true);
+            self::assertNotSame('', $html);
+            $process = new \Symfony\Component\Process\Process(['node', dirname(__DIR__) . '/js/run-seomatic-tracking.mjs']);
+            $process->setInput(json_encode(array_merge($input, ['html' => $html]), JSON_THROW_ON_ERROR));
+            $process->setTimeout(10);
+            try {
+                $process->run();
+                self::assertTrue($process->isSuccessful(), $process->getErrorOutput());
+                return json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR);
+            } finally {
+                if ($process->isRunning()) {
+                    $process->stop(0);
+                }
+            }
+        });
     }
 
     public function testQrTemplatesKeepPublicUrlsCanonicalAndDownloadsAuthenticated(): void

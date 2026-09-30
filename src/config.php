@@ -137,7 +137,7 @@ return [
 
         // SEOmatic Integration
         'seomaticTrackingEvents' => ['redirect', 'qr_scan'], // Event types to track
-        'seomaticEventPrefix' => 'shortlink_manager', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
+        'seomaticEventPrefix' => 'short_links', // Event prefix for GTM/GA events (lowercase, numbers, underscores only)
 
         // Redirect Manager Integration
         'redirectManagerEvents' => ['slug-change'], // Which events create redirects

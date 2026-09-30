@@ -70,7 +70,7 @@ Make sure the variable is defined in every environment that serves public links.
 | `expiredMessage` | `string` | `'This link has expired'` | Message shown on the expired page when no custom redirect URL is set |
 
 > [!NOTE]
-> When `directRedirect` is enabled (globally or per link), the redirect template is bypassed entirely — a direct HTTP redirect is issued instead.
+> When global `directRedirect` is enabled and the link has not opted out, the redirect template is bypassed entirely — a direct HTTP redirect is issued instead.
 
 ---
 
@@ -88,7 +88,7 @@ Make sure the variable is defined in every environment that serves public links.
 |---------|------|---------|-------------|
 | `defaultHttpCode` | `int` | `302` | Default HTTP status code for redirects. Options: `301`, `302`, `307`, `308` |
 | `passQueryParams` @since(5.11.0) | `bool` | `false` | Pass query parameters from the shortlink URL to the destination URL. Can be overridden per link (null = use global) |
-| `directRedirect` @since(5.12.0) | `bool` | `false` | Perform a direct server-side HTTP redirect without rendering a template. Disables SEOmatic client-side tracking (GTM/GA events). Can be overridden per link (null = use global). |
+| `directRedirect` @since(5.12.0) | `bool` | `false` | Perform a direct server-side HTTP redirect without rendering a template. Disables SEOmatic client-side tracking (GTM/GA events). Per-link `false` opts out; `true`/`null` use the global switch. |
 | `notFoundRedirectUrl` | `string` | `'/'` | Where to redirect when a short link is not found or disabled. Supports env vars |
 
 > [!TIP]
@@ -168,10 +168,12 @@ Authenticated QR previews and exports bypass persistent storage regardless of th
 |---------|------|---------|-------------|
 | `enabledIntegrations` | `array` | `['redirect-manager']` | Enabled integration handles |
 | `redirectManagerEvents` | `array` | `['slug-change']` | Redirect Manager events that trigger automatic link updates |
-| `seomaticTrackingEvents` | `array` | `['redirect', 'qr_scan']` | SEOmatic event types to emit for GTM/GA tracking |
-| `seomaticEventPrefix` | `string` | `'shortlink_manager'` | Event name prefix for SEOmatic/GTM events (lowercase, numbers, underscores only) |
+| `seomaticTrackingEvents` | `array` | `['redirect', 'qr_scan']` | Independent browser events: `qr_scan` on rendered `src=qr` arrival; `redirect` immediately before automatic onward navigation |
+| `seomaticEventPrefix` | `string` | `'short_links'` | Event name prefix for SEOmatic/GTM events (lowercase, numbers, underscores only) |
 
 Add `'seomatic'` to `enabledIntegrations` to activate both SEOmatic tracking and the SEOmatic Content SEO source for ShortLinks. When it is not enabled, ShortLink Manager does not register ShortLinks in SEOmatic.
+
+The new `short_links` default does not rewrite existing saved or configured prefixes, including `shortlink_manager`. Check the effective Event Prefix before changing GTM triggers. QR image/display requests and Direct Redirect responses emit no browser events. A debug-paused QR landing can still emit `qr_scan`, while `redirect` waits for automatic navigation. See [Integrations](../feature-tour/integrations.md) for the event sequence and template helpers.
 
 ---
 

@@ -444,7 +444,7 @@ return [
     'QR Code Scans' => 'QR コードスキャン',
     'QR code accessed via ?src=qr parameter' => '?src=qr パラメータ経由でアクセスされた QR コード',
     'Event Prefix' => 'イベントプレフィックス',
-    'Prefix for event names (e.g., \'shortlink_manager_redirect\')' => 'イベント名のプレフィックス（例: \'shortlink_manager_redirect\'）',
+    'Prefix for event names (e.g., \'short_links_redirect\')' => 'イベント名のプレフィックス（例: \'short_links_redirect\'）',
     'Event Data Structure' => 'イベントデータ構造',
     'Click to view the data layer event format' => 'クリックしてデータレイヤーイベントフォーマットを表示する',
     'How Events Are Sent' => 'イベントの送信方法',

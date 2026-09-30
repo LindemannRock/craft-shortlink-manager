@@ -444,7 +444,7 @@ return [
     'QR Code Scans' => 'عمليات مسح QR Code',
     'QR code accessed via ?src=qr parameter' => 'تم الوصول إلى QR code عبر المعامل ?src=qr',
     'Event Prefix' => 'بادئة الحدث',
-    'Prefix for event names (e.g., \'shortlink_manager_redirect\')' => 'بادئة لأسماء الأحداث (مثل \'shortlink_manager_redirect\')',
+    'Prefix for event names (e.g., \'short_links_redirect\')' => 'بادئة لأسماء الأحداث (مثل \'short_links_redirect\')',
     'Event Data Structure' => 'بنية بيانات الحدث',
     'Click to view the data layer event format' => 'انقر لعرض تنسيق حدث طبقة البيانات',
     'How Events Are Sent' => 'كيفية إرسال الأحداث',

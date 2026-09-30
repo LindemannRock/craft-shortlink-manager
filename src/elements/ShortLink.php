@@ -1778,7 +1778,7 @@ class ShortLink extends Element
     }
 
     /**
-     * Render SEOmatic tracking code for this shortlink
+     * Initialize SEOmatic landing tracking; the legacy qr_scan context emits nothing.
      *
      * @param string $eventType Event type to track (redirect or qr_scan)
      * @return \Twig\Markup|null
@@ -1790,21 +1790,18 @@ class ShortLink extends Element
     }
 
     /**
-     * Render SEOmatic redirect tracking code for this shortlink.
+     * Initialize independent QR-arrival and automatic-redirect tracking.
      *
      * @return \Twig\Markup|null
      * @since 5.24.0
      */
     public function renderRedirectSeomaticTracking(): ?\Twig\Markup
     {
-        $source = Craft::$app->getRequest()->getParam('src', 'direct');
-        $eventType = $source === 'qr' ? 'qr_scan' : 'redirect';
-
-        return $this->renderSeomaticTracking($eventType);
+        return $this->renderSeomaticTracking('redirect');
     }
 
     /**
-     * Render SEOmatic QR scan tracking code for this shortlink.
+     * Retained for QR display template compatibility; emits no tracking event.
      *
      * @return \Twig\Markup|null
      * @since 5.24.0

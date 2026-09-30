@@ -444,7 +444,7 @@ return [
     'QR Code Scans' => 'Escaneos de QR codes',
     'QR code accessed via ?src=qr parameter' => 'QR code accedido mediante el parámetro ?src=qr',
     'Event Prefix' => 'Prefijo de evento',
-    'Prefix for event names (e.g., \'shortlink_manager_redirect\')' => 'Prefijo para los nombres de eventos (p. ej., \'shortlink_manager_redirect\')',
+    'Prefix for event names (e.g., \'short_links_redirect\')' => 'Prefijo para los nombres de eventos (p. ej., \'short_links_redirect\')',
     'Event Data Structure' => 'Estructura de datos de eventos',
     'Click to view the data layer event format' => 'Haga clic para ver el formato de evento de la capa de datos',
     'How Events Are Sent' => 'Cómo se envían los eventos',

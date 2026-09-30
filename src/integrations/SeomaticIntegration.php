@@ -335,7 +335,7 @@ class SeomaticIntegration extends BaseIntegration
             // Get configuration from settings
             $settings = \lindemannrock\shortlinkmanager\ShortLinkManager::getInstance()->getSettings();
             $status['configuration'] = [
-                'eventPrefix' => $settings->seomaticEventPrefix ?? 'shortlink_manager',
+                'eventPrefix' => $settings->seomaticEventPrefix ?? 'short_links',
                 'trackingEvents' => $settings->seomaticTrackingEvents ?? [],
             ];
         } catch (\Throwable $e) {

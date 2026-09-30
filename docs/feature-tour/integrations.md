@@ -6,7 +6,7 @@ ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft's native
 
 ## What you'll use them for
 
-- Fire Google Tag Manager / GA4 data layer events every time a short link is clicked or a QR code is scanned
+- Record QR-attributed arrivals and automatic onward navigation from rendered shortlink pages in the data layer for your GTM/GA4 tags
 - Automatically create a 301 redirect in Redirect Manager whenever a short link's slug changes, so existing bookmarks and QR codes keep working
 - Let editors pick a short link as the target of any Craft Link field — in matrix blocks, global sets, or any other context where a URL is needed
 
@@ -14,24 +14,28 @@ ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft's native
 
 ## SEOmatic integration
 
-When SEOmatic is installed and the integration is enabled, ShortLink Manager registers ShortLinks as a SEOmatic content source and pushes structured data layer events to the GTM/GA4 data layer whenever a short link is clicked or a QR code endpoint is accessed.
+When SEOmatic is installed and the integration is enabled, ShortLink Manager registers ShortLinks as a SEOmatic content source and initializes browser tracking on the rendered shortlink page. The helpers push structured events to `window.dataLayer`; your GTM/GA4 tags consume those events.
 
 ### Event types
 
-Two event types are dispatched to the data layer. The `shortlink_manager` prefix shown below is the **default** — the event name is `{seomaticEventPrefix}_{eventType}`, so if you change the [`seomaticEventPrefix`](../get-started/configuration.md) setting the names use your prefix instead (e.g. `myprefix_redirect`).
+Two event types are dispatched to the data layer. The `short_links` prefix shown below is the **default** — the event name is `{seomaticEventPrefix}_{eventType}`, so if you change the [`seomaticEventPrefix`](../get-started/configuration.md) setting the names use your prefix instead (e.g. `myprefix_redirect`).
 
 | Event name (default prefix) | When it fires |
 |------------|--------------|
-| `shortlink_manager_redirect` | A visitor follows the redirect URL |
-| `shortlink_manager_qr_scan` | A visitor accesses the QR code endpoint |
+| `short_links_redirect` | Immediately before automatic navigation from the rendered landing page to the tracked forwarding URL |
+| `short_links_qr_scan` | The rendered shortlink landing page opens with `src=qr`, including a debug-paused visit |
+
+The two event switches are independent. A QR-attributed visit normally emits `qr_scan` on arrival and `redirect` just before automatic navigation. Opening the QR image or display page emits neither. `src=qr` is attribution supplied in the URL, not proof that a camera scanned a code. A paused normal visit emits neither event; use your normal GA4 `page_view` for page views.
+
+The `short_links` default applies to new installations. Existing saved or config-file prefixes, including `shortlink_manager`, stay unchanged. Match your GTM triggers to the effective Event Prefix value.
 
 ### Data layer structure
 
-Tracking is pushed **client-side**: when the redirect (or QR) page renders, ShortLink Manager outputs a small `<script>` that calls `window.dataLayer.push()` with this payload:
+Tracking is pushed **client-side** at each event boundary. For example, automatic onward navigation produces this payload:
 
 ```json
 {
-    "event": "shortlink_manager_redirect",
+    "event": "short_links_redirect",
     "shortlink": {
         "code": "abc123",
         "title": "My Campaign",
@@ -41,7 +45,7 @@ Tracking is pushed **client-side**: when the redirect (or QR) page renders, Shor
 }
 ```
 
-The `event` name is `{seomaticEventPrefix}_{eventType}` (e.g. `shortlink_manager_redirect` or `shortlink_manager_qr_scan`). `source` comes from the `src` query parameter on the short URL (defaults to `direct`), and `click_type` is the event type. Add your own device, geo, or campaign dimensions in GTM/GA4 from this event.
+The `event` name is `{seomaticEventPrefix}_{eventType}` (e.g. `short_links_redirect` or `short_links_qr_scan`). `source` comes from the `src` query parameter on the short URL (defaults to `direct`), and `click_type` is the event type. Add your own device, geo, or campaign dimensions in GTM/GA4 from this event.
 
 ### Configuration
 
@@ -74,14 +78,16 @@ Existing SEOmatic content bundles keep their saved settings. If you enabled the 
 
 ### Using SEOmatic tracking helpers in templates
 
-Redirect and QR templates should use the intent-based helpers:
+Render the landing helper before the navigation helper in your redirect template:
 
 ```twig
-{{ shortLink.renderRedirectSeomaticTracking()|raw }}
-{{ shortLink.renderQrSeomaticTracking()|raw }}
+{{ shortLink.renderRedirectSeomaticTracking() }}
+{{ shortLink.renderRedirectScript() }}
 ```
 
-These output a `<script>` block that pushes the event object (shown above) to `window.dataLayer` when SEOmatic is enabled and the matching tracking event is selected in settings. The raw event keys (`redirect`, `qr_scan`) are internal; use the Event Prefix setting to customize the final GTM/GA event name.
+With analytics and the SEOmatic integration enabled, the landing helper initializes tracking and records QR arrival when applicable. The navigation helper waits 100 ms, emits the selected redirect event, and forwards through `goUrl`. An allowed `?debug=1` pauses navigation and its redirect event. Disabling either event does not disable navigation.
+
+QR display templates need no tracking helper. Existing `renderQrSeomaticTracking()` and `renderSeomaticTracking('qr_scan')` calls remain valid and emit nothing. Use the Event Prefix setting to customize event names; see [Custom templates](../developers/custom-templates.md) for placement and debug behavior.
 
 ## Redirect Manager integration
 

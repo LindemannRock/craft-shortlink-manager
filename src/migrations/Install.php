@@ -271,7 +271,7 @@ class Install extends Migration
                 'enabledIntegrations' => $this->text()->null()->comment('JSON array of enabled integration handles'),
                 'redirectManagerEvents' => $this->text()->null()->comment('JSON array of redirect manager event types'),
                 'seomaticTrackingEvents' => $this->text()->null()->comment('JSON array of event types to track in SEOmatic'),
-                'seomaticEventPrefix' => $this->string(50)->defaultValue('shortlink_manager')->comment('Event prefix for GTM/GA events'),
+                'seomaticEventPrefix' => $this->string(50)->defaultValue('short_links')->comment('Event prefix for GTM/GA events'),
                 // Logging
                 'logLevel' => $this->string(20)->notNull()->defaultValue('error'),
                 // Base plugin overrides — null = inherit from base config / defaults

@@ -444,7 +444,7 @@ return [
     'QR Code Scans' => 'QR Code-skanninger',
     'QR code accessed via ?src=qr parameter' => 'QR-kode åpnet via ?src=qr-parameteren',
     'Event Prefix' => 'Hendelsesprefiks',
-    'Prefix for event names (e.g., \'shortlink_manager_redirect\')' => 'Prefiks for hendelsenavn (f.eks. \'shortlink_manager_redirect\')',
+    'Prefix for event names (e.g., \'short_links_redirect\')' => 'Prefiks for hendelsenavn (f.eks. \'short_links_redirect\')',
     'Event Data Structure' => 'Hendelsesdatastruktur',
     'Click to view the data layer event format' => 'Klikk for å se datalag-hendelsesformatet',
     'How Events Are Sent' => 'Slik sendes hendelser',

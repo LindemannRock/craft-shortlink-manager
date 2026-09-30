@@ -120,7 +120,7 @@ This symptom almost always means the short URL response is being cached before i
 - With `directRedirect = true`, the initial short URL request is both the analytics event and the redirect response
 - If that response is cached by the browser, CDN, or a static cache layer, later requests can bypass Craft entirely
 - When Craft does not run, analytics do not run
-- ShortLink Manager marks the redirect `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, but **some CDNs/edge caches still cache redirects regardless** — a `301` or `308` is the riskiest because caches treat it as permanent. So `no-store` alone is not a guarantee; you may still need explicit cache-bypass rules.
+- When analytics is enabled globally and for the link, ShortLink Manager marks the redirect `Cache-Control: no-store, no-cache, must-revalidate, max-age=0`, but **some CDNs/edge caches still cache redirects regardless** — a `301` or `308` is the riskiest because caches treat it as permanent. So `no-store` alone is not a guarantee; you may still need explicit cache-bypass rules.
 
 ### How to fix it
 
@@ -177,7 +177,7 @@ curl -sI 'https://example.com/s/abc123'
 Look at:
 
 - `x-cache: HIT` or a non-zero `age:` — a CDN/edge served a **cached** copy, so Craft did not run and analytics were skipped for that hit.
-- `cache-control:` — ShortLink Manager sends `no-store, no-cache, must-revalidate, max-age=0`; if the response is still a cached HIT, your CDN is overriding that header and needs an explicit cache-bypass rule for the short-link routes.
+- `cache-control:` — ShortLink Manager sends `no-store, no-cache, must-revalidate, max-age=0` when global and per-link analytics are enabled; if the response is still a cached HIT, your CDN is overriding that header and needs an explicit cache-bypass rule for the short-link routes.
 
 A fresh, uncached redirect shows `x-cache: MISS` (or no `x-cache`) and `age: 0`. To inspect the generated `goUrl` itself, use a local `devMode` environment with `?debug=1`, or temporarily switch your custom redirect template to `{{ shortLink.renderRedirectScript(true) }}` so `?debug=1` works on staging.
 
@@ -335,11 +335,30 @@ Only `{siteHandle}`, `{siteId}`, and `{siteUid}` are supported tokens. Check tha
 
 ## SEOmatic tracking events not firing
 
-SEOmatic tracking requires the redirect template to render. When `directRedirect` is `true` (globally or per link), the template is bypassed and no client-side events fire.
+SEOmatic tracking requires a rendered redirect template, enabled analytics, an enabled SEOmatic integration, and the matching event switch. When global Direct Redirect is enabled and the link has not opted out, the response is HTTP-only and no browser events fire, including for `src=qr`. Internal analytics and hit counting still run when the request reaches Craft.
 
 To enable SEOmatic tracking:
 - Set `directRedirect` to `false` globally, or
 - If Direct Redirect is enabled globally, set the per-link `directRedirect` override to `false`
+
+Also confirm your template renders `renderRedirectSeomaticTracking()` before `renderRedirectScript()`. Check the effective Event Prefix in settings: new installs use `short_links`, while saved/configured prefixes such as `shortlink_manager` remain unchanged. Your GTM triggers must match that value.
+
+Use this expected sequence when inspecting the browser data layer:
+
+| Visit | Expected ShortLink events, when selected |
+|---|---|
+| Normal rendered page, automatic navigation | `redirect` just before navigation |
+| Rendered `src=qr` page, automatic navigation | `qr_scan` on arrival, then `redirect` |
+| Normal page with an allowed debug pause | None |
+| `src=qr` page with an allowed debug pause | `qr_scan` only |
+| QR image or display page | None |
+| Direct Redirect response | None |
+
+ShortLink Manager does not add a page-view event; use your normal GA4 page view. A `src=qr` URL is attribution, not evidence of a physical scan. The data layer event must also be consumed by your configured GTM/GA4 tag to reach Analytics.
+
+Check that GTM initialization preserves queued events with `window.dataLayer = window.dataLayer || []`. Replacing it with an empty array can discard a QR-arrival event queued before GTM loads. Check the rendered script for each site you test, including any saved SEOmatic script customization.
+
+Use GTM Preview to identify the event and tag firing, then verify receipt in GA4. A data-layer push or tag firing is not a delivery guarantee; consent, privacy settings, blockers, and navigation can affect browser analytics independently of ShortLink Manager's own server-side analytics.
 
 See [Direct Redirect](../feature-tour/direct-redirect.md) and [Integrations](../developers/integrations.md).
 
@@ -365,7 +384,7 @@ For non-direct redirects, the tracked flow is:
 2. Redirect to `goUrl`
 3. Let the internal action route record analytics and issue the final redirect
 
-If your custom template redirects straight to `destinationUrl`, the tracking hop is bypassed.
+If your custom template redirects straight to `destinationUrl`, the tracking hop is bypassed. For SEOmatic, also render `{{ shortLink.renderRedirectSeomaticTracking() }}` before the navigation helper. A custom redirect or meta refresh does not call the automatic redirect event.
 
 With the shipped template (`{{ shortLink.renderRedirectScript() }}`), `?debug=1` works **only when `devMode` is enabled** — it does nothing on staging or production. In a `devMode` environment, add `?debug=1` to a rendered short link URL to stop the browser before the second hop and log the generated `goUrl` in the browser console, so you can confirm custom domains and multisite site parameters before the final redirect runs. To debug on staging without `devMode`, switch your custom template to `{{ shortLink.renderRedirectScript(true) }}` (allows `?debug=1` regardless of `devMode`); otherwise diagnose from the response headers — see [Diagnosing on staging or production](#diagnosing-on-staging-or-production-no-devmode).
 
@@ -389,7 +408,7 @@ ShortLink Manager validates `slugPrefix` and `qrPrefix` against Smart Links (if 
 
 If redirects feel slow:
 
-- **Enable Direct Redirect** globally or for high-traffic links to skip template rendering
+- **Enable Direct Redirect** globally to skip template rendering, then opt out links that need the rendered page
 - **Check the queue.** Analytics processing runs synchronously in the redirect flow before the response is sent. If the analytics write is slow, the redirect is slow. Ensure your database is performing well.
 - **Enable QR code caching** (`enableQrCodeCache = true`) if QR scans are slow
 

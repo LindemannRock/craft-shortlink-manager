@@ -72,7 +72,7 @@ The command checks template readiness for every site enabled in ShortLink Manage
 If an effective redirect, expired, or QR template path is empty, unresolved, or contains parent-directory traversal (`..`), the affected copy fails before any destination is built or written. `--overwrite` does not bypass this check.
 
 > [!TIP]
-> If you enable `directRedirect` globally or per link, the redirect template is bypassed entirely. Keep the template for links where SEOmatic/GTM tracking is needed.
+> When `directRedirect` is enabled globally, links use an HTTP redirect unless their per-link setting is disabled. The redirect template is bypassed for those links. Disable Direct Redirect for links where browser SEOmatic/GTM events are needed.
 
 > [!IMPORTANT]
 > If you customize `templates/shortlink-manager/redirect.twig`, keep it aligned with the plugin's current redirect flow. In non-direct mode, the template must redirect to `goUrl` so analytics and hit counting can run on the internal tracking hop before the final redirect.

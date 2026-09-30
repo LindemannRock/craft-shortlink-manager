@@ -322,6 +322,11 @@ class IntegrationService extends Component
      */
     public function renderSeomaticTracking($link, string $eventType = 'redirect'): ?\Twig\Markup
     {
+        // QR display helpers remain callable, but displaying a code is not a scan.
+        if ($eventType === 'qr_scan') {
+            return null;
+        }
+
         // Check if SEOmatic integration is enabled
         $seomatic = $this->getIntegration('seomatic');
         if (!$seomatic || !$seomatic->isAvailable() || !$seomatic->isEnabled()) {

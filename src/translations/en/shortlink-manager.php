@@ -444,7 +444,7 @@ return [
     'QR Code Scans' => 'QR Code Scans',
     'QR code accessed via ?src=qr parameter' => 'QR code accessed via ?src=qr parameter',
     'Event Prefix' => 'Event Prefix',
-    'Prefix for event names (e.g., \'shortlink_manager_redirect\')' => 'Prefix for event names (e.g., \'shortlink_manager_redirect\')',
+    'Prefix for event names (e.g., \'short_links_redirect\')' => 'Prefix for event names (e.g., \'short_links_redirect\')',
     'Event Data Structure' => 'Event Data Structure',
     'Click to view the data layer event format' => 'Click to view the data layer event format',
     'How Events Are Sent' => 'How Events Are Sent',

@@ -16,6 +16,9 @@
 		{% endif %}
 
 		setTimeout(function() {
+			if (typeof window.pushShortLinkEvent === 'function') {
+				window.pushShortLinkEvent('redirect');
+			}
 			window.location.replace(goUrl);
 		}, 100);
 	})();

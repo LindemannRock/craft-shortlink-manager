@@ -1,6 +1,6 @@
 {#
   SEOmatic integration tracking template
-  Pushes shortlink events to Google Tag Manager dataLayer
+  Initializes independent landing-arrival and automatic-navigation events
 #}
 {% set shortlinkPlugin = craft.app.plugins.getPlugin('shortlink-manager') %}
 {% set settings = shortlinkPlugin ? shortlinkPlugin.settings : null %}
@@ -9,28 +9,38 @@
 {% set seomaticEnabled = settings
     and craft.app.plugins.isPluginEnabled('seomatic')
     and 'seomatic' in enabledIntegrations
-    and eventType in trackingEvents
+    and eventType != 'qr_scan'
 %}
 
 {% if seomaticEnabled %}
-    {% set eventPrefix = settings.seomaticEventPrefix ?? 'shortlink_manager' %}
-    {% set eventData = {
-        event: eventPrefix ~ '_' ~ eventType,
-        shortlink: {
-            code: link.code,
-            title: link.title,
-            source: craft.app.request.getParam('src', 'direct'),
-            click_type: eventType,
-        },
-    } %}
-    {% set eventDataJson = eventData|json_encode %}
+    {% set eventPrefix = settings.seomaticEventPrefix ?? 'short_links' %}
     <script>
         window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({{ eventDataJson|raw }});
 
-        {% if craft.app.config.general.devMode %}
-            console.log('Shortlink Manager: Event pushed to dataLayer:', {{ eventDataJson|raw }});
-            console.log('Current dataLayer length:', window.dataLayer.length);
-        {% endif %}
+        function pushShortLinkEvent(eventType) {
+            var trackingEvents = {{ trackingEvents|json_encode|raw }};
+            if (trackingEvents.indexOf(eventType) === -1) {
+                return;
+            }
+
+            var source = new URLSearchParams(window.location.search).get('src') || 'direct';
+            var eventData = {
+                event: {{ eventPrefix|json_encode|raw }} + '_' + eventType,
+                shortlink: {
+                    code: {{ link.code|json_encode|raw }},
+                    title: {{ link.title|json_encode|raw }},
+                    source: source,
+                    click_type: eventType
+                }
+            };
+            window.dataLayer.push(eventData);
+            {% if craft.app.config.general.devMode %}
+            console.log('ShortLink Manager event pushed to dataLayer:', eventData);
+            {% endif %}
+        }
+
+        if (new URLSearchParams(window.location.search).get('src') === 'qr') {
+            pushShortLinkEvent('qr_scan');
+        }
     </script>
 {% endif %}
