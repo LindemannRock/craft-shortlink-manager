@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Run only in the disposable Craft project owned by scripts/test-craft-compat.
+# The runner also removes project resources after failures or interruption.
 php craft plugin/list
 
 php craft exec '
 use Craft;
 use craft\base\PluginInterface;
+use craft\db\Query;
+use craft\helpers\StringHelper;
 use lindemannrock\shortlinkmanager\ShortLinkManager;
+use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\logginglibrary\LoggingLibrary;
 
@@ -48,5 +53,93 @@ foreach (["shortLinks", "analytics", "qrCode", "deviceDetection", "integration",
     $plugin->get($component);
 }
 
+if ($plugin->servdStaticCache->isAvailable()) {
+    throw new RuntimeException("The disposable smoke project must not connect to Servd static cache.");
+}
+
+$uid = StringHelper::UUID();
+$slug = "shortlink-smoke-" . bin2hex(random_bytes(8));
+$link = new ShortLink();
+$link->uid = $uid;
+$link->code = $slug;
+$link->slug = $slug;
+$link->linkType = "vanity";
+$link->shortLinkType = "manual";
+$link->siteId = Craft::$app->getSites()->getPrimarySite()->id;
+$link->destinationUrl = "https://example.com/shortlink-smoke/destination";
+$link->httpCode = 302;
+$link->trackAnalytics = false;
+$link->qrCodeEnabled = true;
+$link->setEnabledForSite(true);
+
+try {
+    if (!$plugin->shortLinks->saveShortLink($link)) {
+        throw new RuntimeException("ShortLink fixture could not be saved: " . json_encode($link->getErrors()));
+    }
+
+    $reloaded = $plugin->shortLinks->getById($link->id, $link->siteId);
+    $bySlug = $plugin->shortLinks->getBySlug(" " . strtoupper($slug) . " ", $link->siteId);
+    if (!$reloaded instanceof ShortLink || !$bySlug instanceof ShortLink
+        || $reloaded->uid !== $uid || $bySlug->id !== $link->id
+        || $reloaded->code !== $slug || $reloaded->destinationUrl !== $link->destinationUrl
+        || $reloaded->httpCode !== 302 || $reloaded->linkType !== "vanity" || $reloaded->shortLinkType !== "manual") {
+        throw new RuntimeException("ShortLink service lookup did not preserve the saved destination and identity.");
+    }
+
+    $baseUrl = rtrim(Craft::$app->getSites()->getPrimarySite()->getBaseUrl(), "/");
+    if ($reloaded->getUrl() !== $baseUrl . "/s/" . $slug
+        || $reloaded->getQrCodeUrl() !== $baseUrl . "/s/qr/" . $slug) {
+        throw new RuntimeException("Persisted ShortLink public URLs do not use the fresh-install prefixes.");
+    }
+
+    // Exercise real QR rendering without creating persistent cache entries.
+    $options = ["format" => "svg", "size" => 180, "_cache" => false];
+    $svg = $reloaded->getQrCode($options);
+    $document = new DOMDocument();
+    if (!$document->loadXML($svg, LIBXML_NONET)
+        || $document->documentElement?->localName !== "svg"
+        || $document->documentElement->getAttribute("width") !== "180"
+        || $document->documentElement->getAttribute("height") !== "180"
+        || $document->getElementsByTagName("path")->length === 0) {
+        throw new RuntimeException("ShortLink SVG QR rendering did not produce a valid 180px image.");
+    }
+
+    $options["format"] = "png";
+    $dataUrl = $reloaded->getQrCodeDataUri($options);
+    $prefix = "data:image/png;base64,";
+    $png = str_starts_with($dataUrl, $prefix) ? base64_decode(substr($dataUrl, strlen($prefix)), true) : false;
+    $dimensions = is_string($png) ? getimagesizefromstring($png) : false;
+    if (!is_string($png) || !str_starts_with($png, "\x89PNG\r\n\x1a\n")
+        || !is_array($dimensions) || $dimensions["mime"] !== "image/png"
+        || $dimensions[0] !== 180 || $dimensions[1] !== 180) {
+        throw new RuntimeException("ShortLink PNG QR data URI did not contain a valid 180px image.");
+    }
+} finally {
+    // Match only this invocation, including a save that failed after persistence.
+    $owned = ShortLink::find()->uid($uid)->siteId("*")->status(null)->trashed(null)->one();
+    if ($owned !== null && !Craft::$app->getElements()->deleteElement($owned, true)) {
+        throw new RuntimeException("Could not remove the owned ShortLink smoke fixture.");
+    }
+
+    if ((new Query())->from("{{%elements}}")->where(["uid" => $uid])->exists()) {
+        throw new RuntimeException("The owned ShortLink smoke element remains after cleanup.");
+    }
+
+    if ($link->id !== null) {
+        $plugin->shortLinks->invalidateShortLinkCache($link->id, $slug);
+        foreach ([
+            "{{%shortlinkmanager}}" => "id",
+            "{{%shortlinkmanager_content}}" => "shortLinkId",
+            "{{%elements_sites}}" => "elementId",
+            "{{%searchindex}}" => "elementId",
+        ] as $table => $column) {
+            if ((new Query())->from($table)->where([$column => $link->id])->exists()) {
+                throw new RuntimeException("Owned ShortLink smoke rows remain after cleanup: " . $table);
+            }
+        }
+    }
+}
+
+echo "ShortLink persistence, public URLs, SVG/PNG QR rendering, and exact fixture cleanup passed.\n";
 echo "ShortLink Manager smoke test passed.\n";
 '

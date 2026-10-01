@@ -221,8 +221,8 @@ test('PHP quality tooling declares its executable and includes product, tests, b
 test('package dependency floors match the validated release contracts', () => {
     const composer = JSON.parse(readFileSync(path.join(packageRoot, 'composer.json'), 'utf8'));
     assert.equal(composer.require['lindemannrock/craft-plugin-base'], '^5.38.2');
-    assert.equal(composer.require['lindemannrock/craft-logging-library'], '^5.18.2');
-    assert.equal(composer['require-dev']['lindemannrock/craft-redirect-manager'], '^5.41.1');
+    assert.equal(composer.require['lindemannrock/craft-logging-library'], '^5.19.0');
+    assert.equal(composer['require-dev']['lindemannrock/craft-redirect-manager'], '^5.41.2');
 });
 
 test('PHPUnit bootstrap supports package and workspace dependency layouts', () => {
