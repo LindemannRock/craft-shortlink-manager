@@ -234,11 +234,11 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertStringNotContainsString('pluginName: shortlinkHelper.fullName', $general);
         self::assertStringNotContainsString('pluginName: shortlinkHelper.pluralLowerDisplayName', $general);
 
-        self::assertStringContainsString('{% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}', $integrations);
+        self::assertStringContainsString('{% set seomaticPluginNameHtml = seomaticPluginName|e %}', $integrations);
         self::assertStringContainsString('{% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}', $integrations);
-        self::assertStringContainsString('pluginName: shortlinkFullNameHtml', $integrations);
+        self::assertStringContainsString('pluginName: seomaticPluginNameHtml', $integrations);
         self::assertStringContainsString('pluginName: shortlinkPluralLowerNameHtml', $integrations);
-        self::assertStringContainsString('~ shortlinkFullNameHtml ~', $integrations);
+        self::assertStringNotContainsString("|t('shortlink-manager', { pluginName: seomaticPluginName })\n                    } %}", $integrations);
         self::assertStringNotContainsString("|t('shortlink-manager', {pluginName: shortlinkHelper.fullName}) ~", $integrations);
         self::assertStringNotContainsString('~ shortlinkHelper.fullName ~', $integrations);
         self::assertStringNotContainsString('pluginName: shortlinkHelper.pluralLowerDisplayName', $integrations);
@@ -277,7 +277,7 @@ final class SettingsControllerSectionScopeTest extends TestCase
                 ],
                 'notContains' => [
                     "url: url('shortlink-manager/settings/behavior')})",
-                    'message: \'<strong>\' ~ "Note"|t(\'shortlink-manager\') ~ \':</strong> \' ~ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t(\'shortlink-manager\', { pluginName: seomaticPluginName })',
+                    'message: \'<strong>\' ~ "Note"|t(\'shortlink-manager\') ~ \':</strong> \' ~ "No tracking scripts are currently configured in {pluginName}. Configure Google Tag Manager and its event triggers and tags to send these events to your analytics platform."|t(\'shortlink-manager\', { pluginName: seomaticPluginName })',
                     ' ~ "{rmPluginName} shows which plugin created each redirect for better organization"|t(\'shortlink-manager\', {rmPluginName: rmPluginName}) ~ ',
                 ],
             ],

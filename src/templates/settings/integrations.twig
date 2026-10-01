@@ -25,7 +25,6 @@
     {{ actionInput('shortlink-manager/settings/save') }}
     {{ redirectInput('shortlink-manager/settings/integrations') }}
     {{ hiddenInput('section', 'integrations') }}
-    {% set shortlinkFullNameHtml = shortlinkHelper.fullName|e %}
     {% set shortlinkPluralLowerNameHtml = shortlinkHelper.pluralLowerDisplayName|e %}
 
         <h2 class="first">{{ "Third-Party Integrations"|t('shortlink-manager') }}</h2>
@@ -81,7 +80,7 @@
                     } only %}
                 {% endif %}
 
-                {# Active Tracking Scripts - Only show GTM and GA4 (scripts that receive dataLayer events) #}
+                {# Configured GTM and GA4 scripts; event forwarding depends on the tag configuration. #}
                 {% set dataLayerScripts = ['googleTagManager', 'gtag'] %}
                 {% set hasDataLayerScripts = false %}
                 {% for handle in dataLayerScripts %}
@@ -94,7 +93,7 @@
                     <div class="lr-integration-scripts">
                         <div class="lr-integration-scripts__heading">
                             <strong>{{ "Active Tracking Scripts"|t('shortlink-manager') }}</strong>
-                            <span class="light">{{ "Scripts receiving {pluginName} events"|t('shortlink-manager', { pluginName: shortlinkHelper.fullName }) }}</span>
+                            <span class="light">{{ "Tracking scripts enabled in {pluginName}"|t('shortlink-manager', { pluginName: seomaticPluginName }) }}</span>
                         </div>
                         {% for handle in dataLayerScripts %}
                             {% if seomaticStatus.scripts[handle] is defined %}
@@ -129,7 +128,7 @@
                         type: 'warning',
                         variant: 'colored',
                         margin: 'bottom',
-                        message: '<strong>' ~ "Note"|t('shortlink-manager') ~ ':</strong> ' ~ "No tracking scripts are currently configured in {pluginName}. Events will be queued but not sent until you configure GTM or Google Analytics in {pluginName}."|t('shortlink-manager', { pluginName: seomaticPluginNameHtml })
+                        message: '<strong>' ~ "Note"|t('shortlink-manager') ~ ':</strong> ' ~ "No tracking scripts are currently configured in {pluginName}. Configure Google Tag Manager and its event triggers and tags to send these events to your analytics platform."|t('shortlink-manager', { pluginName: seomaticPluginNameHtml })
                     } %}
                 {% endif %}
 
@@ -138,6 +137,7 @@
                     <h4 class="lr-integration-section__title">{{ "Configuration"|t('shortlink-manager') }}</h4>
 
                     {# Event Type Selection - Lightswitch Toggles #}
+                    {% set eventPrefix = settings.seomaticEventPrefix ?? 'short_links' %}
                     {% set trackingEvents = settings.seomaticTrackingEvents ?? ['redirect', 'qr_scan'] %}
                     {% set isOverridden = settings.isOverriddenByConfig('seomaticTrackingEvents') %}
 
@@ -145,7 +145,7 @@
                         <div class="heading">
                             <label>{{ "Tracking Events"|t('shortlink-manager') }}</label>
                             <div class="instructions">
-                                <p>{{ "Select which events to send to {pluginName}"|t('shortlink-manager', { pluginName: seomaticPluginName }) }}</p>
+                                <p>{{ "Select which events to add to the page’s data layer."|t('shortlink-manager') }}</p>
                             </div>
                         </div>
 
@@ -170,7 +170,8 @@
                                 </div>
                                 <div>
                                     <strong>{{ "Redirects"|t('shortlink-manager') }}</strong>
-                                    <span class="light lr-option-row__desc">{{ "Standard {pluginName} redirects"|t('shortlink-manager', {pluginName: shortlinkHelper.lowerDisplayName}) }}</span>
+                                    <span class="light lr-option-row__desc">{{ "When the intermediate page starts redirecting"|t('shortlink-manager') }}</span>
+                                    <div class="light lr-option-row__desc">{{ "Event name:"|t('shortlink-manager') }} <code>{{ eventPrefix ~ '_redirect' }}</code></div>
                                 </div>
                             </div>
 
@@ -188,7 +189,8 @@
                                 </div>
                                 <div>
                                     <strong>{{ "QR Code Scans"|t('shortlink-manager') }}</strong>
-                                    <span class="light lr-option-row__desc">{{ "QR code accessed via ?src=qr parameter"|t('shortlink-manager') }}</span>
+                                    <span class="light lr-option-row__desc">{{ "When someone opens the link with ?src=qr"|t('shortlink-manager') }}</span>
+                                    <div class="light lr-option-row__desc">{{ "Event name:"|t('shortlink-manager') }} <code>{{ eventPrefix ~ '_qr_scan' }}</code></div>
                                 </div>
                             </div>
                         </div>
@@ -197,7 +199,7 @@
                     {# Event Prefix #}
                     {{ forms.textField({
                         label: "Event Prefix"|t('shortlink-manager'),
-                        instructions: "Prefix for event names (e.g., 'short_links_redirect')"|t('shortlink-manager'),
+                        instructions: "Enter only the prefix, for example {prefix}. Event names are generated automatically."|t('shortlink-manager', { prefix: 'short_links' }),
                         id: 'seomaticEventPrefix',
                         name: 'settings[seomaticEventPrefix]',
                         value: settings.seomaticEventPrefix ?? 'short_links',
@@ -215,17 +217,25 @@
                         {{ "Event Data Structure"|t('shortlink-manager') }}
                         <span class="light">{{ "Click to view the data layer event format"|t('shortlink-manager') }}</span>
                     </summary>
-                    <div class="lr-code-block">
-<pre>{
-  event: "{{ (settings.seomaticEventPrefix ?? 'short_links')|e('html') }}_redirect",
-  shortlink: {
-    code: "ABC123",
-    title: "My Shortlink",
-    source: "qr",
-    click_type: "redirect"
-  }
-}</pre>
-                    </div>
+                    {% set eventExamples = [
+                        { label: "Redirects"|t('shortlink-manager'), type: 'redirect', source: 'direct' },
+                        { label: "QR Code Scans"|t('shortlink-manager'), type: 'qr_scan', source: 'qr' },
+                    ] %}
+                    {% for example in eventExamples %}
+                        <h4>{{ example.label }}</h4>
+                        <div class="lr-code-block">
+<pre>{{ {
+    event: eventPrefix ~ '_' ~ example.type,
+    shortlink: {
+        code: 'abc123',
+        title: 'Summer Promo',
+        source: example.source,
+        click_type: example.type,
+    },
+}|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                        </div>
+                    {% endfor %}
+                    <p class="light">{{ "To include event details such as source and link code in Google Analytics 4, map them to event parameters using Google Tag Manager variables."|t('shortlink-manager') }}</p>
                 </details>
 
                 {# Help Text #}
@@ -234,23 +244,12 @@
                     variant: 'colored',
                     margin: 'none',
                     message: '<strong>' ~ "How Events Are Sent"|t('shortlink-manager') ~ ':</strong>
-                        <ul class="lr-integration-help-list">
-                            <li>
-                                <strong>' ~ "{pluginName} pushes events to GTM or GA4 dataLayer only"|t('shortlink-manager', {pluginName: shortlinkFullNameHtml}) ~ '</strong><br>
-                                <span class="light">' ~ "Only Google Tag Manager and Google Analytics 4 support the dataLayer format in SEOmatic"|t('shortlink-manager') ~ '</span>
-                            </li>
-                            <li>
-                                <strong>' ~ "Use GTM to forward to other platforms"|t('shortlink-manager') ~ '</strong><br>
-                                <span class="light">' ~ "Configure GTM triggers and tags to forward {pluginName} events to Facebook Pixel, LinkedIn, HubSpot, etc."|t('shortlink-manager', {pluginName: shortlinkFullNameHtml}) ~ '</span>
-                            </li>
-                            <li>
-                                <span class="light">' ~ "Events are only sent when analytics tracking is enabled both globally and per-link"|t('shortlink-manager') ~ '</span>
-                            </li>
-                        </ul>
-                        <p class="lr-integration-help-note">
-                            <strong>' ~ "Architecture"|t('shortlink-manager') ~ ':</strong>
-                            ' ~ shortlinkFullNameHtml ~ ' → GTM/GA4 dataLayer → GTM Triggers → Facebook/LinkedIn/HubSpot/etc.
-                        </p>'
+                        <ul class="lr-integration-help-list list-disc">
+                            <li>' ~ "Events are added to the page’s data layer."|t('shortlink-manager') ~ '</li>
+                            <li>' ~ "Configure Google Tag Manager triggers and tags to send these events to Google Analytics 4 or other platforms."|t('shortlink-manager') ~ '</li>
+                            <li>' ~ "Analytics tracking must be enabled globally and for the link."|t('shortlink-manager') ~ '</li>
+                            <li>' ~ "Direct Redirect skips the intermediate page, so browser tracking events are not generated."|t('shortlink-manager') ~ '</li>
+                        </ul>'
                 } %}
             {% endblock %}
         {% endembed %}
