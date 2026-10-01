@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.28.5](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.4...v5.28.5) (2026-10-01)
+
+
+### Fixed
+
+* **integrations:** align SEOmatic events and default prefix ([296ba80](https://github.com/LindemannRock/craft-shortlink-manager/commit/296ba80313ef09d82a7e03698451f903541106cb))
+* **integrations:** allow automatic tracking time before navigation ([207ff81](https://github.com/LindemannRock/craft-shortlink-manager/commit/207ff8192b7966a58cf694b795ac7249242c018a))
+* **integrations:** clarify event tracking settings and translations ([fb3abbb](https://github.com/LindemannRock/craft-shortlink-manager/commit/fb3abbb89eddf571c641cb0c6d4132611b2af1ef))
+* **integrations:** honor SEOmatic data-layer names ([5ad8601](https://github.com/LindemannRock/craft-shortlink-manager/commit/5ad86012d799f773463984b5dcf968e843593c75))
+
 ## [5.28.4](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.3...v5.28.4) - 2026-08-31
 
 
