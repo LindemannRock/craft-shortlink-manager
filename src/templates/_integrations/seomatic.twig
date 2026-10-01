@@ -34,6 +34,9 @@
                 }
             };
             window.dataLayer.push(eventData);
+            if (eventType === 'redirect' || eventType === 'qr_scan') {
+                window.shortLinkAutoTrackingQueued = true;
+            }
             {% if craft.app.config.general.devMode %}
             console.log('ShortLink Manager event pushed to dataLayer:', eventData);
             {% endif %}

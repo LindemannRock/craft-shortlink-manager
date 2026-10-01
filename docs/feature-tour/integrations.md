@@ -22,10 +22,10 @@ Two event types are dispatched to the data layer. The `short_links` prefix shown
 
 | Event name (default prefix) | When it fires |
 |------------|--------------|
-| `short_links_redirect` | Immediately before automatic navigation from the rendered landing page to the tracked forwarding URL |
+| `short_links_redirect` | When automatic onward navigation begins, before the two-second tracking grace period |
 | `short_links_qr_scan` | The rendered shortlink landing page opens with `src=qr`, including a debug-paused visit |
 
-The two event switches are independent. A QR-attributed visit normally emits `qr_scan` on arrival and `redirect` just before automatic navigation. Opening the QR image or display page emits neither. `src=qr` is attribution supplied in the URL, not proof that a camera scanned a code. A paused normal visit emits neither event; use your normal GA4 `page_view` for page views.
+The two event switches are independent. A QR-attributed visit normally emits `qr_scan` on arrival and `redirect` when automatic onward navigation begins. Opening the QR image or display page emits neither. `src=qr` is attribution supplied in the URL, not proof that a camera scanned a code. A paused normal visit emits neither event; use your normal GA4 `page_view` for page views.
 
 The `short_links` default applies to new installations. Existing saved or config-file prefixes, including `shortlink_manager`, stay unchanged. Match your GTM triggers to the effective Event Prefix value.
 
@@ -85,7 +85,9 @@ Render the landing helper before the navigation helper in your redirect template
 {{ shortLink.renderRedirectScript() }}
 ```
 
-With analytics and the SEOmatic integration enabled, the landing helper initializes tracking and records QR arrival when applicable. The navigation helper waits 100 ms, emits the selected redirect event, and forwards through `goUrl`. An allowed `?debug=1` pauses navigation and its redirect event. Disabling either event does not disable navigation.
+With analytics and the SEOmatic integration enabled, the landing helper initializes tracking and records QR arrival when applicable. The navigation helper waits 100 ms and emits the selected redirect event. If that event or a selected QR-arrival event was queued, it allows a further two seconds for asynchronous tracking before forwarding through `goUrl`. QR-only tracking gets this grace period only on `src=qr` visits. With neither event applicable, or tracking disabled/unavailable, forwarding keeps the original 100 ms timing. An allowed `?debug=1` pauses navigation and its redirect event. Disabling either event does not disable navigation.
+
+This bounded grace period gives GTM/GA4 time to load and send; it is not a delivery guarantee. Verify receipt in GA4 as well as event/tag activity in GTM Preview.
 
 QR display templates need no tracking helper. Existing `renderQrSeomaticTracking()` and `renderSeomaticTracking('qr_scan')` calls remain valid and emit nothing. Use the Event Prefix setting to customize event names; see [Custom templates](../developers/custom-templates.md) for placement and debug behavior.
 

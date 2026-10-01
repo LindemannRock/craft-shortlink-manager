@@ -30,10 +30,11 @@ class SeomaticTrackingTemplateTest extends TestCase
         $result = $this->executeTracking();
         self::assertSame(['already_queued'], $result['arrivalEvents']);
         self::assertSame(['short_links_redirect', 'navigate'], $result['timeline']);
-        self::assertSame([100], $result['timerDelays']);
+        $this->assertNavigationTiming($result, true);
         self::assertSame(['https://links.example/ar/actions/shortlink-manager/redirect/go/campaign?site=ar'], $result['navigations']);
         self::assertSame('direct', $result['events'][1]['shortlink']['source']);
         self::assertSame('redirect', $result['events'][1]['shortlink']['click_type']);
+        self::assertSame([['event' => 'short_links_redirect', 'time' => 100]], $result['eventTimes']);
     }
 
     public function testQrArrivalAndNavigationEmitIndependentEvents(): void
@@ -45,6 +46,8 @@ class SeomaticTrackingTemplateTest extends TestCase
         self::assertSame('qr_scan', $result['events'][1]['shortlink']['click_type']);
         self::assertSame('qr', $result['events'][2]['shortlink']['source']);
         self::assertSame('redirect', $result['events'][2]['shortlink']['click_type']);
+        $this->assertNavigationTiming($result, true);
+        self::assertSame([0, 100], array_column($result['eventTimes'], 'time'));
     }
 
     #[DataProvider('pausedSources')]
@@ -54,6 +57,7 @@ class SeomaticTrackingTemplateTest extends TestCase
         self::assertSame($expected, array_column($result['events'], 'event'));
         self::assertSame([], $result['navigations']);
         self::assertSame([], $result['timerDelays']);
+        self::assertSame([0, 0, 0, 0, 0], array_map(static fn(array $point): int => count($point['navigations']), $result['checkpoints']));
     }
 
     public static function pausedSources(): iterable
@@ -69,11 +73,11 @@ class SeomaticTrackingTemplateTest extends TestCase
     }
 
     #[DataProvider('eventSelections')]
-    public function testEventSwitchesIndependentlyControlArrivalAndNavigation(array $enabled): void
+    public function testEventSwitchesIndependentlyControlArrivalAndNavigation(array $enabled, bool $tagged = true): void
     {
-        $result = $this->executeTracking(['search' => '?src=qr'], ['seomaticTrackingEvents' => $enabled]);
+        $result = $this->executeTracking(['search' => $tagged ? '?src=qr' : ''], ['seomaticTrackingEvents' => $enabled]);
         $expected = ['already_queued'];
-        if (in_array('qr_scan', $enabled, true)) {
+        if ($tagged && in_array('qr_scan', $enabled, true)) {
             $expected[] = 'short_links_qr_scan';
         }
         if (in_array('redirect', $enabled, true)) {
@@ -81,7 +85,7 @@ class SeomaticTrackingTemplateTest extends TestCase
         }
         self::assertSame($expected, array_column($result['events'], 'event'));
         self::assertCount(1, $result['navigations']);
-        self::assertSame([100], $result['timerDelays']);
+        $this->assertNavigationTiming($result, count($expected) > 1);
     }
 
     public static function eventSelections(): iterable
@@ -90,6 +94,7 @@ class SeomaticTrackingTemplateTest extends TestCase
         yield 'redirect' => [['redirect']];
         yield 'qr' => [['qr_scan']];
         yield 'both' => [['redirect', 'qr_scan']];
+        yield 'qr untagged' => [['qr_scan'], false];
     }
 
     #[DataProvider('configuredPrefixes')]
@@ -119,6 +124,7 @@ class SeomaticTrackingTemplateTest extends TestCase
         $result = $this->executeTracking(['search' => '?src=qr'], ['enabledIntegrations' => []]);
         self::assertSame(['already_queued'], array_column($result['events'], 'event'));
         self::assertSame(['navigate'], $result['timeline']);
+        $this->assertNavigationTiming($result, false);
     }
 
     public function testDisabledAnalyticsDoesNotBlockNavigation(): void
@@ -126,6 +132,7 @@ class SeomaticTrackingTemplateTest extends TestCase
         $result = $this->executeTracking(['search' => '?src=qr'], ['enableAnalytics' => false]);
         self::assertSame(['already_queued'], array_column($result['events'], 'event'));
         self::assertSame(['navigate'], $result['timeline']);
+        $this->assertNavigationTiming($result, false);
     }
 
     public function testUnavailableSeomaticDoesNotBlockNavigation(): void
@@ -144,6 +151,7 @@ class SeomaticTrackingTemplateTest extends TestCase
         $result = $this->executeTracking(['search' => '?src=qr']);
         self::assertSame(['already_queued'], array_column($result['events'], 'event'));
         self::assertSame(['navigate'], $result['timeline']);
+        $this->assertNavigationTiming($result, false);
     }
 
     public function testLegacyQrDisplayHelpersRemainCallableAndInert(): void
@@ -166,6 +174,15 @@ class SeomaticTrackingTemplateTest extends TestCase
         self::assertStringNotContainsString("renderSeomaticTracking('qr_scan')", $qr);
     }
 
+    private function assertNavigationTiming(array $result, bool $grace): void
+    {
+        self::assertSame([99, 100, 2099, 2100, 4100], array_column($result['checkpoints'], 'time'));
+        self::assertSame($grace ? [0, 0, 0, 1, 1] : [0, 1, 1, 1, 1], array_map(static fn(array $point): int => count($point['navigations']), $result['checkpoints']));
+        self::assertSame([$grace ? 2100 : 100], $result['navigationTimes']);
+        self::assertSame($grace ? [100, 2000] : [100], $result['timerDelays']);
+        self::assertSame($result['checkpoints'][1]['events'], $result['checkpoints'][4]['events']);
+    }
+
     private function executeTracking(array $input = [], array $settings = []): array
     {
         return $this->withSettings(array_merge([
@@ -179,7 +196,7 @@ class SeomaticTrackingTemplateTest extends TestCase
             $html = (string)$link->renderRedirectSeomaticTracking() . (string)$link->renderRedirectScript($input['allowDebug'] ?? true);
             self::assertNotSame('', $html);
             $process = new \Symfony\Component\Process\Process(['node', dirname(__DIR__) . '/js/run-seomatic-tracking.mjs']);
-            $process->setInput(json_encode(array_merge($input, ['html' => $html]), JSON_THROW_ON_ERROR));
+            $process->setInput(json_encode(array_merge(['checkpoints' => [99, 100, 2099, 2100, 4100]], $input, ['html' => $html]), JSON_THROW_ON_ERROR));
             $process->setTimeout(10);
             try {
                 $process->run();

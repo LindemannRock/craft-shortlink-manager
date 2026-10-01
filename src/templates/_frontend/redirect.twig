@@ -19,7 +19,15 @@
 			if (typeof window.pushShortLinkEvent === 'function') {
 				window.pushShortLinkEvent('redirect');
 			}
-			window.location.replace(goUrl);
+			var navigate = function() {
+				window.location.replace(goUrl);
+			};
+			if (window.shortLinkAutoTrackingQueued === true) {
+				// Give asynchronous tracking a bounded grace period, not a delivery guarantee.
+				setTimeout(navigate, 2000);
+			} else {
+				navigate();
+			}
 		}, 100);
 	})();
 </script>

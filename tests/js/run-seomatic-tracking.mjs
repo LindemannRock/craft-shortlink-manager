@@ -5,21 +5,29 @@ import vm from 'node:vm';
 const input = JSON.parse(readFileSync(0, 'utf8'));
 const events = [{event: 'already_queued'}];
 const timeline = [];
+let now = 0;
+const eventTimes = [];
 events.push = function (event) {
     timeline.push(event.event);
+    eventTimes.push({event: event.event, time: now});
     return Array.prototype.push.call(this, event);
 };
 const timers = [];
 const navigations = [];
+const navigationTimes = [];
 const context = vm.createContext({
     URLSearchParams,
     console: {log() {}},
     dataLayer: events,
     location: {
         search: input.search ?? '',
-        replace(url) { navigations.push(url); timeline.push('navigate'); },
+        replace(url) {
+            navigations.push(url);
+            navigationTimes.push(now);
+            timeline.push('navigate');
+        },
     },
-    setTimeout(callback, delay) { timers.push({callback, delay}); },
+    setTimeout(callback, delay) { timers.push({callback, delay, due: now + delay}); },
 });
 context.window = context;
 for (const script of input.html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
@@ -27,9 +35,23 @@ for (const script of input.html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
 }
 const arrivalEvents = events.map(event => event.event);
 const timerDelays = [];
-while (timers.length) {
-    const timer = timers.shift();
-    timerDelays.push(timer.delay);
-    timer.callback();
+function advanceClock(target) {
+    timers.sort((a, b) => a.due - b.due);
+    while (timers.length && timers[0].due <= target) {
+        const timer = timers.shift();
+        now = timer.due;
+        timerDelays.push(timer.delay);
+        timer.callback();
+        timers.sort((a, b) => a.due - b.due);
+    }
+    now = target;
 }
-process.stdout.write(JSON.stringify({arrivalEvents, events, timeline, navigations, timerDelays}));
+const checkpoints = [];
+for (const time of input.checkpoints ?? []) {
+    advanceClock(time);
+    checkpoints.push({time, navigations: [...navigations], events: events.map(event => event.event)});
+}
+while (timers.length) {
+    advanceClock(Math.min(...timers.map(timer => timer.due)));
+}
+process.stdout.write(JSON.stringify({arrivalEvents, events, timeline, navigations, timerDelays, checkpoints, eventTimes, navigationTimes}));

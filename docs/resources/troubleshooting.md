@@ -347,7 +347,7 @@ Use this expected sequence when inspecting the browser data layer:
 
 | Visit | Expected ShortLink events, when selected |
 |---|---|
-| Normal rendered page, automatic navigation | `redirect` just before navigation |
+| Normal rendered page, automatic navigation | `redirect`, then a two-second grace period before navigation |
 | Rendered `src=qr` page, automatic navigation | `qr_scan` on arrival, then `redirect` |
 | Normal page with an allowed debug pause | None |
 | `src=qr` page with an allowed debug pause | `qr_scan` only |
@@ -357,6 +357,8 @@ Use this expected sequence when inspecting the browser data layer:
 ShortLink Manager does not add a page-view event; use your normal GA4 page view. A `src=qr` URL is attribution, not evidence of a physical scan. The data layer event must also be consumed by your configured GTM/GA4 tag to reach Analytics.
 
 Check that GTM initialization preserves queued events with `window.dataLayer = window.dataLayer || []`. Replacing it with an empty array can discard a QR-arrival event queued before GTM loads. Check the rendered script for each site you test, including any saved SEOmatic script customization.
+
+Automatic navigation allows two seconds after its initial 100 ms callback when a selected redirect or QR-arrival event has been queued. QR-only tracking adds this wait only for `src=qr`; disabled/unavailable tracking or no applicable event keeps the original 100 ms timing. If events still disappear, check that the page serves the current helper code rather than a stale cached copy.
 
 Use GTM Preview to identify the event and tag firing, then verify receipt in GA4. A data-layer push or tag firing is not a delivery guarantee; consent, privacy settings, blockers, and navigation can affect browser analytics independently of ShortLink Manager's own server-side analytics.
 

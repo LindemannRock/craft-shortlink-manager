@@ -82,6 +82,8 @@ The element exposes these template helpers:
 - `shortLink.renderRedirectScript()` @since(5.23.0) — the tracked client-side redirect script. It forwards to `goUrl` (recording the click) and handles `?debug=1`. **Debug is devMode-only by default**; pass `renderRedirectScript(true)` to allow `?debug=1` outside devMode (see the tip below).
 - `shortLink.renderRedirectSeomaticTracking()` @since(5.24.0) — [SEOmatic](integrations.md) initializes data-layer tracking for the landing page. Emits selected `qr_scan` on browser `src=qr` arrival; selected `redirect` is emitted later by the navigation helper. Returns nothing when SEOmatic or analytics is unavailable/disabled.
 
+When either selected event is queued, the navigation helper adds a two-second grace period after its initial 100 ms delay; otherwise navigation keeps the original timing. This gives asynchronous tracking time to send without guaranteeing delivery.
+
 ```twig
 {# templates/shortlink-manager/redirect.twig #}
 <!DOCTYPE html>

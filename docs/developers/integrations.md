@@ -43,7 +43,7 @@ When a short link code cannot be resolved (the link was deleted or disabled), th
 
 **Integrates with:** `nystudio107/seomatic`
 
-When this integration is enabled, ShortLink Manager emits client-side tracking events on QR-attributed landing-page arrival and immediately before automatic onward navigation. This is compatible with Google Tag Manager (GTM) and Google Analytics (GA) tag setups.
+When this integration is enabled, ShortLink Manager emits client-side tracking events on QR-attributed landing-page arrival and when automatic onward navigation begins. This is compatible with Google Tag Manager (GTM) and Google Analytics (GA) tag setups.
 
 The events fire from the redirect template — which renders briefly before the browser follows the final redirect. The global Direct Redirect switch must be off, or the link must opt out with `directRedirect = false`, so that this template renders.
 
@@ -92,7 +92,7 @@ Render the tracking HTML in your redirect template:
 {% endblock %}
 ```
 
-Render the tracking helper before `renderRedirectScript()`. It reads `src` from the browser URL, preserving visitor attribution even when the HTML is cached. A `src=qr` arrival emits `qr_scan` immediately if selected. After its existing 100 ms delay, the navigation helper emits `redirect` independently, just before forwarding to `goUrl`. An allowed debug pause emits no redirect; the QR arrival can still be recorded.
+Render the tracking helper before `renderRedirectScript()`. It reads `src` from the browser URL, preserving visitor attribution even when the HTML is cached. A `src=qr` arrival emits `qr_scan` immediately if selected. After its existing 100 ms delay, the navigation helper emits the selected `redirect` event. If a selected redirect or QR-arrival event was queued, it then waits two seconds before forwarding to `goUrl`, giving asynchronous tracking scripts time to load and send. With no applicable event queued, it forwards after the original 100 ms. An allowed debug pause emits no redirect and schedules no navigation; the QR arrival can still be recorded. The grace period does not guarantee GA4 delivery.
 
 Neither QR image requests nor QR display pages emit browser tracking events. Existing `renderQrSeomaticTracking()` and `renderSeomaticTracking('qr_scan')` calls remain callable and return `null`. Missing/disabled SEOmatic or disabled analytics suppresses the landing helper without blocking navigation. No extra page-view event is emitted; use the page view from your normal analytics setup.
 

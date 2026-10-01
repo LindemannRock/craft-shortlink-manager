@@ -2,7 +2,7 @@
 
 Skip the redirect template entirely and get a faster, server-side HTTP redirect. Use it globally for speed, then keep selected links on the template path when they need client-side tracking.
 
-By default, ShortLink Manager renders a redirect template before issuing the final HTTP redirect. With the integration enabled, the template records selected QR-attributed arrivals and emits the selected redirect event immediately before automatic navigation. Direct Redirect bypasses that template for a leaner, lower-latency response.
+By default, ShortLink Manager renders a redirect template before issuing the final HTTP redirect. With the integration enabled, the template records selected QR-attributed arrivals and emits the selected redirect event when automatic onward navigation begins. Direct Redirect bypasses that template for a leaner, lower-latency response.
 
 ## What you'll use it for
 
@@ -53,8 +53,10 @@ The global switch is the master switch: when it is off, even a saved per-link `t
 1. Browser requests a short URL (e.g. `https://example.com/s/abc123`)
 2. ShortLink Manager loads the redirect template (`shortlink-manager/redirect`)
 3. The landing helper records `qr_scan` only for a browser `src=qr` arrival when that event is selected
-4. After 100 ms, the navigation helper emits the selected `redirect` event and forwards to an internal uncached action route
+4. After 100 ms, the navigation helper emits the selected `redirect` event. If a selected redirect or QR-arrival event was queued, it waits a further two seconds for asynchronous tracking, then forwards to an internal uncached action route; otherwise it forwards immediately
 5. That action records enabled analytics, increments hits, and issues the final HTTP redirect to the destination
+
+The two-second grace period does not guarantee analytics delivery. Direct HTTP mode has no browser tracking grace period.
 
 An allowed `?debug=1` pauses steps 4–5, so a normal paused visit emits neither browser event and a QR-attributed paused visit can emit only `qr_scan`.
 

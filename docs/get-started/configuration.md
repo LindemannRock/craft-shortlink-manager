@@ -168,12 +168,12 @@ Authenticated QR previews and exports bypass persistent storage regardless of th
 |---------|------|---------|-------------|
 | `enabledIntegrations` | `array` | `['redirect-manager']` | Enabled integration handles |
 | `redirectManagerEvents` | `array` | `['slug-change']` | Redirect Manager events that trigger automatic link updates |
-| `seomaticTrackingEvents` | `array` | `['redirect', 'qr_scan']` | Independent browser events: `qr_scan` on rendered `src=qr` arrival; `redirect` immediately before automatic onward navigation |
+| `seomaticTrackingEvents` | `array` | `['redirect', 'qr_scan']` | Independent browser events: `qr_scan` on rendered `src=qr` arrival; `redirect` when automatic onward navigation begins |
 | `seomaticEventPrefix` | `string` | `'short_links'` | Event name prefix for SEOmatic/GTM events (lowercase, numbers, underscores only) |
 
 Add `'seomatic'` to `enabledIntegrations` to activate both SEOmatic tracking and the SEOmatic Content SEO source for ShortLinks. When it is not enabled, ShortLink Manager does not register ShortLinks in SEOmatic.
 
-The new `short_links` default does not rewrite existing saved or configured prefixes, including `shortlink_manager`. Check the effective Event Prefix before changing GTM triggers. QR image/display requests and Direct Redirect responses emit no browser events. A debug-paused QR landing can still emit `qr_scan`, while `redirect` waits for automatic navigation. See [Integrations](../feature-tour/integrations.md) for the event sequence and template helpers.
+The new `short_links` default does not rewrite existing saved or configured prefixes, including `shortlink_manager`. Check the effective Event Prefix before changing GTM triggers. QR image/display requests and Direct Redirect responses emit no browser events. A debug-paused QR landing can still emit `qr_scan`, while `redirect` waits for automatic navigation. When either applicable event is queued, the navigation helper adds a two-second tracking grace period after its initial 100 ms delay; visits with no applicable event keep the original timing. This does not guarantee analytics delivery. See [Integrations](../feature-tour/integrations.md) for the event sequence and template helpers.
 
 ---
 
