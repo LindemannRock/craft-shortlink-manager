@@ -14,7 +14,7 @@ ShortLink Manager integrates with SEOmatic, Redirect Manager, and Craft's native
 
 ## SEOmatic integration
 
-When SEOmatic is installed and the integration is enabled, ShortLink Manager registers ShortLinks as a SEOmatic content source and initializes browser tracking on the rendered shortlink page. The helpers push structured events to `window.dataLayer`; your GTM/GA4 tags consume those events.
+When SEOmatic is installed and the integration is enabled, ShortLink Manager registers ShortLinks as a SEOmatic content source and initializes browser tracking on the rendered shortlink page. The helpers push structured events to SEOmatic’s configured GTM queue (`window.dataLayer` by default); your GTM/GA4 tags consume those events.
 
 ### Event types
 
@@ -53,6 +53,8 @@ Enable the integration in **Settings → Integrations → SEOmatic**. The integr
 
 > [!WARNING]
 > SEOmatic tracking events cannot fire when [Direct Redirect](direct-redirect.md) is enabled for a link. The redirect template is skipped, so no JavaScript runs before the browser navigates away. If you enable Direct Redirect globally, turn it off on links that still need SEOmatic/GTM tracking.
+
+If you use a custom **DataLayer Variable Name** in SEOmatic’s Google Tag Manager settings, ShortLink Manager sends events to that same queue for the rendered site. Environment-backed names are resolved before use, and existing queued entries are preserved. The default is `dataLayer`; there is no separate queue-name setting in ShortLink Manager. Configure GTM triggers and tags to forward the events to GA4 or your other analytics platform.
 
 ### Content SEO and sitemaps
 

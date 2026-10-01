@@ -10,12 +10,22 @@ declare(strict_types=1);
 
 namespace lindemannrock\shortlinkmanager\tests\Integration;
 
+use Craft;
+use craft\db\Query;
 use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\integrations\IntegrationInterface;
 use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
 use lindemannrock\shortlinkmanager\models\Settings;
 use lindemannrock\shortlinkmanager\services\IntegrationService;
 use lindemannrock\shortlinkmanager\tests\TestCase;
+use nystudio107\seomatic\helpers\MetaValue;
+use nystudio107\seomatic\models\MetaScript;
+use nystudio107\seomatic\models\MetaScriptContainer;
+use nystudio107\seomatic\Seomatic;
+use nystudio107\seomatic\services\MetaBundles;
+use nystudio107\seomatic\services\MetaContainers;
+use nystudio107\seomatic\services\SeoElements;
+use nystudio107\seomatic\variables\SeomaticVariable;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -25,6 +35,117 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversNothing]
 class SeomaticTrackingTemplateTest extends TestCase
 {
+    #[DataProvider('dataLayerNames')]
+    public function testConfiguredDataLayerReceivesAllSelectedEvents(string $configured, string $expected, bool $include): void
+    {
+        $this->swapPluginComponent('seomatic', 'metaContainers', new MetaContainers());
+        Seomatic::$plugin->metaContainers->createMetaContainer(MetaScriptContainer::CONTAINER_TYPE, MetaScriptContainer::CONTAINER_TYPE . 'general');
+        $script = Seomatic::$plugin->script->create(['key' => 'googleTagManager', 'vars' => ['dataLayerVariableName' => ['value' => 'dataLayer']]]);
+        self::assertInstanceOf(MetaScript::class, $script);
+        self::assertSame($script, Seomatic::$plugin->script->get('googleTagManager'));
+        $vars = $script->vars;
+        $originalInclude = $script->include;
+        $environmentName = 'SHORTLINK_TEST_DATA_LAYER';
+        $environmentExisted = array_key_exists($environmentName, $_SERVER);
+        $environmentValue = $_SERVER[$environmentName] ?? null;
+        $_SERVER[$environmentName] = ' envLinkEvents ';
+        try {
+            $script->vars['dataLayerVariableName']['value'] = $configured;
+            $script->include = $include;
+            $automatic = $this->executeTracking([
+                'dataLayerName' => $expected,
+                'search' => '?src=qr',
+            ]);
+            self::assertSame(['already_queued', 'short_links_qr_scan', 'short_links_redirect'], array_column($automatic['events'], 'event'));
+            self::assertSame([2100], $automatic['navigationTimes']);
+            $this->assertNavigationTiming($automatic, true);
+            if ($expected !== 'dataLayer') {
+                self::assertSame([['event' => 'default_queue_untouched']], $automatic['defaultEvents']);
+            }
+        } finally {
+            $script->vars = $vars;
+            $script->include = $originalInclude;
+            if ($environmentExisted) {
+                $_SERVER[$environmentName] = $environmentValue;
+            } else {
+                unset($_SERVER[$environmentName]);
+            }
+        }
+    }
+
+    public static function dataLayerNames(): iterable
+    {
+        yield 'default' => ['dataLayer', 'dataLayer', true];
+        yield 'custom with whitespace' => [' linkEvents ', 'linkEvents', true];
+        yield 'environment value with whitespace' => ['$SHORTLINK_TEST_DATA_LAYER', 'envLinkEvents', true];
+        yield 'valid unicode identifier' => ['événements', 'événements', true];
+        yield 'disabled GTM retains default' => ['linkEvents', 'dataLayer', false];
+        yield 'empty setting retains default' => ['', 'dataLayer', true];
+    }
+
+    public function testPreparedSiteMetadataSelectsItsOwnDataLayerAndPreservesRuntimeOverrides(): void
+    {
+        $sites = array_slice(Craft::$app->getSites()->getAllSites(), 0, 2);
+        self::assertCount(2, $sites);
+        $this->swapPluginComponent('seomatic', 'metaContainers', new MetaContainers());
+        $this->swapPluginComponent('seomatic', 'metaBundles', new MetaBundles());
+        $this->swapPluginComponent('seomatic', 'seoElements', new SeoElements());
+        $cache = Craft::$app->getCache();
+        $matchedElement = Seomatic::$matchedElement;
+        $seomaticVariable = Seomatic::$seomaticVariable;
+        $loading = Seomatic::$loadingMetaContainers;
+        $language = Seomatic::$language;
+        $metaValueState = [MetaValue::$templateObjectVars, MetaValue::$templatePreviewVars, MetaValue::$view];
+        $bundleIds = (new Query())->select('id')->from('{{%seomatic_metabundles}}')->column();
+        $scripts = [];
+        Seomatic::$seomaticVariable = new SeomaticVariable();
+        Craft::$app->set('cache', new \yii\caching\DummyCache());
+        try {
+            foreach ($sites as $index => $site) {
+                $bundle = Seomatic::$plugin->metaBundles->getGlobalMetaBundle($site->id);
+                $script = $bundle->metaContainers[MetaScriptContainer::CONTAINER_TYPE . 'general']->data['googleTagManager'];
+                self::assertInstanceOf(MetaScript::class, $script);
+                $scripts[] = [$script, $script->vars, $script->include, $script->environment];
+                $script->vars['dataLayerVariableName']['value'] = 'siteEvents' . $index;
+                $script->include = true;
+                $script->environment = [];
+            }
+            $this->withSettings(['enableAnalytics' => true, 'enabledIntegrations' => ['seomatic']], function() use ($sites): void {
+                foreach ($sites as $index => $site) {
+                    $link = $this->seedShortLink(['siteId' => $site->id]);
+                    $integration = new SeomaticIntegration();
+                    self::assertTrue($integration->prepareMetadataForShortLink($link));
+                    $script = Seomatic::$plugin->script->get('googleTagManager');
+                    self::assertInstanceOf(MetaScript::class, $script);
+                    self::assertSame('siteEvents' . $index, $script->vars['dataLayerVariableName']['value']);
+                    $result = $this->executeTracking(['dataLayerName' => 'siteEvents' . $index, 'search' => '?src=qr&debug=1'], [], $link);
+                    self::assertSame(['already_queued', 'short_links_qr_scan'], array_column($result['events'], 'event'));
+                    self::assertSame([['event' => 'default_queue_untouched']], $result['defaultEvents']);
+                    // SEOmatic allows template-time script variables; rendering must not reload the bundle.
+                    $script->vars['dataLayerVariableName']['value'] = 'runtimeEvents' . $index;
+                    $override = $this->executeTracking(['dataLayerName' => 'runtimeEvents' . $index, 'search' => '?src=qr&debug=1'], [], $link);
+                    self::assertSame(['already_queued', 'short_links_qr_scan'], array_column($override['events'], 'event'));
+                }
+            });
+        } finally {
+            foreach ($scripts as [$script, $vars, $include, $environment]) {
+                $script->vars = $vars;
+                $script->include = $include;
+                $script->environment = $environment;
+            }
+            $createdIds = array_diff((new Query())->select('id')->from('{{%seomatic_metabundles}}')->column(), $bundleIds);
+            if ($createdIds !== []) {
+                Craft::$app->getDb()->createCommand()->delete('{{%seomatic_metabundles}}', ['id' => array_values($createdIds)])->execute();
+            }
+            Craft::$app->set('cache', $cache);
+            Seomatic::$matchedElement = $matchedElement;
+            Seomatic::$seomaticVariable = $seomaticVariable;
+            Seomatic::$loadingMetaContainers = $loading;
+            Seomatic::$language = $language;
+            [MetaValue::$templateObjectVars, MetaValue::$templatePreviewVars, MetaValue::$view] = $metaValueState;
+        }
+    }
+
     public function testNormalNavigationRecordsRedirectOnlyAtTheTimerBoundary(): void
     {
         $result = $this->executeTracking();
@@ -183,15 +304,15 @@ class SeomaticTrackingTemplateTest extends TestCase
         self::assertSame($result['checkpoints'][1]['events'], $result['checkpoints'][4]['events']);
     }
 
-    private function executeTracking(array $input = [], array $settings = []): array
+    private function executeTracking(array $input = [], array $settings = [], ?ShortLink $link = null): array
     {
         return $this->withSettings(array_merge([
             'enableAnalytics' => true,
             'enabledIntegrations' => ['seomatic'],
             'seomaticEventPrefix' => (new Settings())->seomaticEventPrefix,
             'seomaticTrackingEvents' => ['redirect', 'qr_scan'],
-        ], $settings), function() use ($input): array {
-            $link = new ShortLink(['code' => 'campaign', 'title' => "Campaign 'quoted' & </script> mobile"]);
+        ], $settings), function() use ($input, $link): array {
+            $link ??= new ShortLink(['code' => 'campaign', 'title' => "Campaign 'quoted' & </script> mobile"]);
             $link->setRedirectScriptUrl('https://links.example/ar/actions/shortlink-manager/redirect/go/campaign?site=ar');
             $html = (string)$link->renderRedirectSeomaticTracking() . (string)$link->renderRedirectScript($input['allowDebug'] ?? true);
             self::assertNotSame('', $html);

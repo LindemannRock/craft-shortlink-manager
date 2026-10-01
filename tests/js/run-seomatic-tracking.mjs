@@ -18,7 +18,7 @@ const navigationTimes = [];
 const context = vm.createContext({
     URLSearchParams,
     console: {log() {}},
-    dataLayer: events,
+    dataLayer: input.dataLayerName && input.dataLayerName !== 'dataLayer' ? [{event: 'default_queue_untouched'}] : events,
     location: {
         search: input.search ?? '',
         replace(url) {
@@ -30,6 +30,7 @@ const context = vm.createContext({
     setTimeout(callback, delay) { timers.push({callback, delay, due: now + delay}); },
 });
 context.window = context;
+context[input.dataLayerName ?? 'dataLayer'] = events;
 for (const script of input.html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
     vm.runInContext(script[1], context, {timeout: 1000});
 }
@@ -54,4 +55,4 @@ for (const time of input.checkpoints ?? []) {
 while (timers.length) {
     advanceClock(Math.min(...timers.map(timer => timer.due)));
 }
-process.stdout.write(JSON.stringify({arrivalEvents, events, timeline, navigations, timerDelays, checkpoints, eventTimes, navigationTimes}));
+process.stdout.write(JSON.stringify({arrivalEvents, events, timeline, navigations, timerDelays, checkpoints, eventTimes, navigationTimes, defaultEvents: context.dataLayer}));

@@ -9,6 +9,7 @@ use lindemannrock\shortlinkmanager\elements\ShortLink;
 use lindemannrock\shortlinkmanager\integrations\IntegrationInterface;
 use lindemannrock\shortlinkmanager\integrations\RedirectManagerIntegration;
 use lindemannrock\shortlinkmanager\integrations\SeomaticIntegration;
+use nystudio107\seomatic\Seomatic;
 
 /**
  * Integration Service
@@ -340,9 +341,26 @@ class IntegrationService extends Component
         try {
             $view->setTemplateMode(\craft\web\View::TEMPLATE_MODE_CP);
 
+            // Metadata preparation has already loaded the current page's site and overrides.
+            $dataLayerName = 'dataLayer';
+            $seomaticPlugin = Craft::$app->getPlugins()->getPlugin('seomatic');
+            if ($seomaticPlugin instanceof Seomatic) {
+                $gtmScript = $seomaticPlugin->script->get('googleTagManager');
+                if ($gtmScript && $gtmScript->include) {
+                    $configuredName = $gtmScript->vars['dataLayerVariableName']['value'] ?? null;
+                    if (is_string($configuredName)) {
+                        $resolvedName = trim((string)Craft::parseEnv($configuredName));
+                        if ($resolvedName !== '') {
+                            $dataLayerName = $resolvedName;
+                        }
+                    }
+                }
+            }
+
             $html = $view->renderTemplate('shortlink-manager/_integrations/seomatic', [
                 'link' => $link,
                 'eventType' => $eventType,
+                'dataLayerName' => $dataLayerName,
             ]);
 
             $view->setTemplateMode($oldMode);

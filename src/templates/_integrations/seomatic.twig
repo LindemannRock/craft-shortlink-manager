@@ -15,7 +15,8 @@
 {% if seomaticEnabled %}
     {% set eventPrefix = settings.seomaticEventPrefix ?? 'short_links' %}
     <script>
-        window.dataLayer = window.dataLayer || [];
+        var shortLinkDataLayerName = {{ dataLayerName|json_encode|raw }};
+        window[shortLinkDataLayerName] = window[shortLinkDataLayerName] || [];
 
         function pushShortLinkEvent(eventType) {
             var trackingEvents = {{ trackingEvents|json_encode|raw }};
@@ -33,12 +34,12 @@
                     click_type: eventType
                 }
             };
-            window.dataLayer.push(eventData);
+            window[shortLinkDataLayerName].push(eventData);
             if (eventType === 'redirect' || eventType === 'qr_scan') {
                 window.shortLinkAutoTrackingQueued = true;
             }
             {% if craft.app.config.general.devMode %}
-            console.log('ShortLink Manager event pushed to dataLayer:', eventData);
+            console.log('ShortLink Manager event pushed to data layer:', shortLinkDataLayerName, eventData);
             {% endif %}
         }
 
