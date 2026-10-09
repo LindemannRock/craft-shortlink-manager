@@ -64,7 +64,8 @@
             "@php -r \"fwrite(STDOUT, 'ECS fix scope: src/ tests/ ecs.php' . PHP_EOL);\"",
             "ecs check --fix --ansi"
         ],
-        "test": "phpunit --colors=always",
+        "test": "php tests/Fixtures/Project/run.php --no-progress",
+        "test:direct": "phpunit --colors=always",
         "ci": [
             "@phpstan",
             "@check-cs"

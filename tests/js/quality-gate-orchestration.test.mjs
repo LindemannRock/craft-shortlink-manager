@@ -208,6 +208,16 @@ test('canonical Composer quality gate has one orchestrator and timeout owner', (
     ]);
 });
 
+test('Composer test aliases keep complete suites disposable and direct PHPUnit diagnostic-only', () => {
+    const composer = JSON.parse(readFileSync(path.join(packageRoot, 'composer.json'), 'utf8'));
+    const disposableCommand = 'php tests/Fixtures/Project/run.php --no-progress';
+
+    assert.equal(composer.scripts.test, disposableCommand);
+    assert.equal(composer.scripts['test:direct'], 'phpunit --colors=always');
+    assert.deepEqual(composer.scripts['ci:full'], ['@ci', '@test']);
+    assert.equal(definitions().find(({id}) => id === 'phpunit').standalone, disposableCommand);
+});
+
 test('PHP quality tooling declares its executable and includes product, tests, bootstrap support, and ECS config', () => {
     const composer = JSON.parse(readFileSync(path.join(packageRoot, 'composer.json'), 'utf8'));
     const phpstan = readFileSync(path.join(packageRoot, 'phpstan.neon'), 'utf8');
