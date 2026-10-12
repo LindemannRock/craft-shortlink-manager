@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.29.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.5...v5.29.0) (2026-10-12)
+
+
+### Added
+
+* **geo:** use shared default locations ([932e8b4](https://github.com/LindemannRock/craft-shortlink-manager/commit/932e8b4ccc46128a10f6d743421ccd2b08777575))
+
 ## [5.28.5](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.4...v5.28.5) - 2026-10-01
 
 
