@@ -100,7 +100,7 @@ test('Composer audit runner removes its exact temporary project on failure', () 
         const result = spawnSync('/bin/bash', ['scripts/composer-audit'], {
             cwd: currentPackage,
             encoding: 'utf8',
-            env: {...process.env, PATH: `${binRoot}:/usr/bin:/bin`, TMPDIR: temporaryParent},
+            env: {...process.env, BASH_ENV: '', PATH: `${binRoot}:/usr/bin:/bin`, TMPDIR: temporaryParent},
         });
         assert.equal(result.status, 72, `${result.stdout}\n${result.stderr}`);
         assert.deepEqual(readdirSync(temporaryParent), []);
