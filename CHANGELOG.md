@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.30.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.29.0...v5.30.0) - 2026-11-27
+
+
+### Fixed
+
+* **deps:** require Base 5.40 and Logging Library 5.21 ([534fc43](https://github.com/LindemannRock/craft-shortlink-manager/commit/534fc432d3ec469f8dde37744dc70b55bcd0eb2c))
+
 ## [5.29.0](https://github.com/LindemannRock/craft-shortlink-manager/compare/v5.28.5...v5.29.0) - 2026-10-12
 
 
